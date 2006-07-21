@@ -1,0 +1,72 @@
+<?php
+//Page outdated, will be rewritten from scratch
+
+	include_once('header.php');
+	include_once('config.php');
+
+	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
+	mysql_select_db($db) or die ("unable to select database!");
+
+	$query = "SELECT * from projects order by name";
+	$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
+
+
+	if (mysql_num_rows($result) > 0){
+		echo '<h2>New Goal</h2>';
+		
+		echo '<form action="processGoal.php" method="post">';
+		
+		echo '<table>';
+		echo '<tr><td>Project</td>';
+		echo '<td><select name="project">';
+		
+		while($row = mysql_fetch_row($result)){
+			echo "<option value='" .$row[0] . "'>" .stripslashes($row[1]). "</option>\n";
+		}
+		echo '</td>';
+		
+		mysql_free_result($result);
+		
+		echo '<td>Type</td>';
+		echo '<td><select name="type">';
+		echo '<option value="weekly">weekly</option>';
+		echo '<option value="monthly">monthly</option>';
+		echo '<option value="quarterly">quarterly</option>';
+		echo '<option value="annual">annual</option>';
+		echo '</td>';
+		echo '</tr>';
+		echo "</table>";
+
+		echo '<table>';
+		echo '<tr>';
+		echo '<td>Deadline</td>';
+		echo '<td><input type="text" name="deadline" size="13" value="';
+		echo "YYYY-MM-DD"; 
+		echo '"></td>';
+		echo '<td>Date Added:</td>';
+		echo '<td><input type="text" name="date" size="13" value="';
+		echo date('Y-m-d'); 
+		echo '"></td>';
+		echo '</tr>';
+		echo "</table>";
+		
+		echo "<table></tr>";
+		echo '<td>Title</td>';
+		echo '<td><textarea cols="60" rows="2" name="title"
+		wrap=virtual"></textarea></td>';
+		echo '</tr>';
+		echo '<tr>';
+		echo '<td>Description</td>';
+		echo '<td><textarea cols="60" rows="12" name="description" wrap=virtual"></textarea></td>';
+		echo '</tr>';
+		echo "</table>";
+		
+		echo '<input type="submit" class="button" value="Add Goal" name="submit">';
+		echo '<input type="reset" class="button" value="Reset">';
+	}
+	else{
+		echo "No rows found!";
+	}
+	mysql_close($connection);
+	include_once('footer.php');
+?>

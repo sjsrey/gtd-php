@@ -1,0 +1,67 @@
+(In progress) Version 0.6.1 
+    - Calendar for date selector (Serge Rey)
+    - MySQL 5. and PhP 5. support (Serge Rey)
+    - Title option (Serge Rey)
+    - Horizontal drop down menus (Serge Rey)
+    - Previous and Next links on Project Reports (Serge Rey)
+
+2006-06-11 Version 0.6
+    - Weekly review now has links (Scott Jason Korvek)
+    - Install script streamlined (Serge Rey)
+    - New database backend and php code redesign (Scott Jason Korvek)
+    - Any item can be freely converted between an action, waiting, or reference type (Scott Jason Korvek) 
+    - Tickler file added- notes, projects, and items (Scott Jason Korvek)
+    - Repeating projects (Scott Jason Korvek)
+    - Added Time Context Creation (Serge Rey)
+    - Ablility to list items filtered by context and categories (Scott Jason Korvek)
+    - Ability to mark an action as the next action -- denoted as * on the report (Scott Jason Korvek)
+    - Added next action report (Scott Jason Korvek)
+    - Due dates matching today are colored green, past due dates colored red (Scott Jason Korvek)
+    - Context reports only shows next actions (not all actions) (Serge Rey)
+    - In-place (via hyperlink) editing of contexts and categories (Scott Jason Korvek)
+    - Can add/delete/modify space and time contexts (Scott Jason Korvek)
+    - New default categories, contexts, and project (Serge Rey)
+    - Tooltips/context-sensitive help (Scott Jason Korvek)
+    - Date header (Scott Jason Korvek)
+    - Formatted dates (Scott Jason Korvek)
+    - Adjusted table sorting and listed columns (Scott Jason Korvek)
+    - Adjusted page refresh times and targets (Scott Jason Korvek)
+    - Standardized appearance of forms (Scott Jason Korvek)
+    - Input sanitization and removal of error reporting to minimize hacking potential and enforce defaults (Scott Jason Korvek)
+    - Character escaping and text formatting (Scott Jason Korvek)
+    - Links to our wiki and frapper map (Serge Rey)
+    - Many more updates, enhancements, and bugfixes...
+
+2006-03-18 Version 0.5
+    - Added repeating next actions (Scott Jason Korvek)
+    - Added Someday/Maybe list (Scott Jason Korvek)
+    - Added List (Scott Jason Korvek)
+    - Added CheckLists (Scott Jason Korvek)
+    - Added Categories (Scott Jason Korvek)
+    - Fixed project title reporting bug after project update (Serge Rey)
+    - Next Actions Deadline option (Scott Jason Korvek)
+    - Date selector (Serge Rey)
+    - Install (update) script (Serge Rey)
+
+2006-02-04 Version 0.4
+    - Fixed IE layout bug (Mike Kober)
+    - Added Contexts summary table (Serge Rey)
+
+2006-01-28 Version 0.3
+    - Fixed count of completed/non-completed nextActions (Serge Rey)
+    - Fixed plural useage on summary.php (Serge Rey)
+    - Fixed showing table headings when there are no NAs in project report (Serge Rey)
+    - Fixed showing table headings when there are no WOs in project report (Serge Rey)
+    - Fixed showing table headings when there are no Nas in context report (Serge Rey)
+    - Added delete checkbox on editNextAction form (Serge Rey)
+    - Added complete checkbox on editNextAction form (Serge Rey)
+    - Added complete checkbox on next actions report form (Serge Rey)
+    - Added complete checkbox on context report form (Serge Rey)
+    - Changed tarball and zip archive to include gtd directory (Thanks to Vicki Brown)
+
+2006-01-21 Version 0.2 
+    - css and layout redesign (Jason Brown)
+    - refresh on update and new nextActions (Serge Rey)
+    - meta links on side bar (Serge Rey)
+
+2006-01-15 Version 0.1 (Windy)
