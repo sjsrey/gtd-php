@@ -1,6 +1,16 @@
 <?php
 	include_once('header.php');
 	include_once('config.php');
+	function report($tableName,$success){
+		$html="<tr><td>$tableName</td><td>";
+		if($success){
+			$html .= '<font color="green">Success';
+		}else{
+			$html .= '<font color="red">Failure';
+		}
+		$html .= "</td></tr>\n";
+		return $html;
+	}
     echo "<h2>gtd-php installation/upgrade</h2>";
     echo "<h3>Upgrade check</h3>";
 
@@ -41,11 +51,15 @@
     }
     echo "<br>";
     if ($upgrade==0){
-        echo "No upgrade necessary.";
+        echo "<h3>No upgrade necessary.</h3>";
     }elseif($upgrade==1){
-        echo "New installation.";
+        echo "<h3>New installation.</h3>";
+
+	$table="<table>\n";
+	$table .="<tr>\n<th>Table</th>\n<th>Status</th>\n</tr>";
 
         //Using heredoc to create tables. last TEST cannot be indented.
+	$flag=1;
         $query = <<<TEST
         CREATE TABLE `categories` (
           `categoryId` int(10) unsigned NOT NULL auto_increment,
@@ -55,16 +69,27 @@
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 PACK_KEYS=1;
 TEST;
         $result = mysql_query($query);
+	if(!$result){
+		$flag=0;
+	}
         //add some default categories
         $query =<<<TEST
         insert into categories (category, description) values('Professional','Work related.');
 TEST;
         $result = mysql_query($query);
-$query =<<<TEST
+	if(!$result){
+		$flag=0;
+	}
+       	$query =<<<TEST
         insert into categories (category, description) values('Personal','Outside of work.');
 TEST;
         $result = mysql_query($query);
-        $query = <<<TEST
+	if(!$result){
+		$flag=0;
+	}
+    	$table .= report('categories',$flag);
+	$flag=1;
+       	$query = <<<TEST
         CREATE TABLE `checklist` (
           `checklistId` int(10) unsigned NOT NULL auto_increment,
           `title` text NOT NULL,
@@ -74,7 +99,11 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Reusable Checklists';
 TEST;
         $result = mysql_query($query);
-
+	if(!$result){
+		$flag=0;
+	}
+    	$table .= report('categories',$flag);
+	$flag=1;
         $query = <<<TEST
         CREATE TABLE `checklistItems` (
           `checklistItemId` int(10) unsigned NOT NULL auto_increment,
@@ -89,7 +118,11 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Individual Checklist items';
 TEST;
         $result = mysql_query($query);
-
+	if(!$result){
+		$flag=0;
+	}
+    	$table .= report('checklistItems',$flag);
+	$flag=1;
         $query = <<<TEST
         CREATE TABLE `context` (
           `contextId` int(10) unsigned NOT NULL auto_increment,
@@ -99,20 +132,26 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Item Contexts';
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
         //add some default spatial contexts
 $query =<<<TEST
         insert into context (name, description) values('Computer','Sitting at a keyboard.');
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
 $query =<<<TEST
         insert into context (name, description) values('Office','At the office');
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
 $query =<<<TEST
         insert into context (name, description) values('Phone','Calls');
 TEST;
         $result = mysql_query($query);
-        $query = <<<TEST
+	if(!$result){ $flag=0; }
+    	$table .= report('context',$flag);
+	$flag=1;
+	$query = <<<TEST
         CREATE TABLE `goals` (
           `id` int(11) NOT NULL auto_increment,
           `goal` longtext,
@@ -126,7 +165,9 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 TEST;
         $result = mysql_query($query);
-
+	if(!$result){ $flag=0; }
+    	$table .= report('goals',$flag);
+	$flag=1;
         $query = <<<TEST
         CREATE TABLE `itemattributes` (
           `itemId` int(10) unsigned NOT NULL auto_increment,
@@ -147,11 +188,15 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Characteristics of items (action, waiting, reference, etc)';
 TEST;
         $result = mysql_query($query);
-        $query=<<<TEST
+	if(!$result){ $flag=0; }
+	$query=<<<TEST
         insert into itemattributes (projectId, contextId, timeFrameId) values(1,1,1);
 TEST;
         $result = mysql_query($query);
-        $query = <<<TEST
+	if(!$result){ $flag=0; }
+    	$table .= report('itemattributes',$flag);
+	$flag=1;
+	$query = <<<TEST
         CREATE TABLE `items` (
           `itemId` int(10) unsigned NOT NULL auto_increment,
           `title` text NOT NULL,
@@ -162,6 +207,7 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='All individual items (runway)-- actions, references, waiting';
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
         $query=<<<TEST
         insert into items (title, description) values('Add more projects','Populate my new system');
 TEST;
@@ -177,6 +223,9 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Status of items';
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
+    	$table .= report('itemstatus',$flag);
+	$flag=1;
         $query=<<<TEST
         insert into itemstatus (dateCreated, lastModified) values(NOW(),NOW());
 TEST;
@@ -195,6 +244,9 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Unordered lists';
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
+    	$table .= report('list',$flag);
+	$flag=1;
         $query = <<<TEST
         CREATE TABLE `listItems` (
           `listItemId` int(10) unsigned NOT NULL auto_increment,
@@ -209,6 +261,9 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Individual list items';
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
+    	$table .= report('listItems',$flag);
+	$flag=1;
         $query = <<<TEST
         CREATE TABLE `nextactions` (
           `projectId` int(10) unsigned NOT NULL default '0',
@@ -217,11 +272,15 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Identifies an item as a next action for a project';
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
         // add a default next action
         $query=<<<TEST
         insert into nextactions (projectId, nextaction) values(1,1);
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
+    	$table .= report('nextactions',$flag);
+	$flag=1;
 $query = <<<TEST
         CREATE TABLE `projects` (
           `projectId` int(10) unsigned NOT NULL auto_increment,
@@ -235,11 +294,14 @@ $query = <<<TEST
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Projects (10,000ft view)';
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
         //add a default project
         $query=<<<TEST
         insert into projects (name, description, desiredOutcome) values('gtd','Getting Things Done','Mind like water.');
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
+    	$table .= report('projects',$flag);
         $query = <<<TEST
         CREATE TABLE `projectattributes` (
           `projectId` int(10) unsigned NOT NULL auto_increment,
@@ -256,13 +318,14 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Characteristics of projects';
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
 $query = <<<TEST
         insert into `projectattributes` (categoryId) values (1);
 TEST;
         $result = mysql_query($query);
-
-
-
+	if(!$result){ $flag=0; }
+    	$table .= report('projectattributes',$flag);
+	$flag=1;
         $query = <<<TEST
         CREATE TABLE `projectstatus` (
           `projectId` int(10) unsigned NOT NULL auto_increment,
@@ -273,11 +336,14 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Status of projects';
 TEST;
         $result = mysql_query($query);
-
+	if(!$result){ $flag=0; }
 $query = <<<TEST
         insert into `projectstatus` (dateCreated, lastModified) values (NOW(),NOW());
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
+    	$table .= report('projectstatus',$flag);
+	$flag=1;
         $query = <<<TEST
         CREATE TABLE `tickler` (
           `ticklerId` int(10) unsigned NOT NULL auto_increment,
@@ -290,6 +356,9 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Tickler file';
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
+    	$table .= report('tickler',$flag);
+	$flag=1;
         $query = <<<TEST
         CREATE TABLE `timeitems` (
           `timeframeId` int(10) unsigned NOT NULL auto_increment,
@@ -299,19 +368,27 @@ TEST;
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Item timeframes';
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
         //add some default temporal contexts
 $query =<<<TEST
         insert into timeitems (timeframe, description) values('Short','< 10 Minutes');
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
 $query =<<<TEST
         insert into timeitems (timeframe, description) values('Medium','< 10-30 Minutes');
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
 $query =<<<TEST
         insert into timeitems (timeframe, description) values('Long','> 30 Minutes');
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
+    	$table .= report('timeitems',$flag);
+	$flag=1;
+	$table .="</table>";
+	echo $table;
     }elseif($upgrade=2){
         echo "Upgrading to version 0.6";
         echo "<br>";
