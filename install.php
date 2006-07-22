@@ -102,7 +102,7 @@ TEST;
 	if(!$result){
 		$flag=0;
 	}
-    	$table .= report('categories',$flag);
+    	$table .= report('checklist',$flag);
 	$flag=1;
         $query = <<<TEST
         CREATE TABLE `checklistItems` (
@@ -212,6 +212,9 @@ TEST;
         insert into items (title, description) values('Add more projects','Populate my new system');
 TEST;
         $result = mysql_query($query);
+	if(!$result){ $flag=0; }
+    	$table .= report('items',$flag);
+	$flag=1;
         $query = <<<TEST
         CREATE TABLE `itemstatus` (
           `itemId` int(10) unsigned NOT NULL auto_increment,
