@@ -80,6 +80,7 @@ echo '<p>To add an item to the tickler file:
 		echo "	</tr>\n";
 		echo $tablehtml;
 		echo "</table>\n";
+		echo "</form>\n";
 	}
 
 	if (mysql_num_rows($itemResult) > 0) {
