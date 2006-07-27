@@ -63,8 +63,23 @@ window.onload=startList;
 		
 <div id="hmenu">
 	 <ul id="menu">
-	 	<li><a href="summary.php" title="Summary">Home</a>
-	 	
+
+	 	<li>Capture
+			<ul>
+				<li><a href="" title="General capture bucket">Inbox (Future)</a></li>
+				<li><a href="item.php?type=n" title="Define a new Next Action">Next Action</a></li>
+				<li><a href="item.php?type=a" title="Define a new Action">Action</a></li>
+				<li><a href="project.php?type=p" title="Define a new Project">Project</a></li>
+				<li><a href="item.php?type=w" title="Define a new Waiting On Item">Waiting On</a></li>
+				<li><a href="item.php?type=r" title="Define a Reference">Reference</a></li>
+				<li><a href="project.php?type=s" title="Define a Future Project">Someday/Maybe</a></li>
+				<li><a href="newList.php" title="Define a general purpose list">List</a></li>
+				<li><a href="newChecklist.php" title="Define a reusable list">Checklist</a></li>
+				<li><a href="newContext.php" title="Define a geographical context">Space Context</a></li>
+				<li><a href="newTimeContext.php" title="Define a time window for items">Time Context</a></li>
+				<li><a href="newCategory.php" title="Meta categories to group projects">Category</a></li>
+			</ul>
+	
 		<li>Process
 			<ul>
 				<li><a href="reportContext.php" title="Active items sorted by context">Contexts</a></li>
@@ -87,22 +102,22 @@ window.onload=startList;
 				<li><a href="listGoals.php" title="List set goals">List Goals</a></li>
 				<li><a href="newGoal.php" title="Define a new goal">Set Goal</a></li>
 			</ul>
-			
-		<li>Capture
+
+        <li>Lists
 			<ul>
-				<li><a href="item.php?type=n" title="Define a new Next Action">Next Action</a></li>
-				<li><a href="item.php?type=a" title="Define a new Action">Action</a></li>
-				<li><a href="project.php?type=p" title="Define a new Project">Project</a></li>
-				<li><a href="item.php?type=w" title="Define a new Waiting On Item">Waiting On</a></li>
-				<li><a href="item.php?type=r" title="Define a Reference">Reference</a></li>
-				<li><a href="project.php?type=s" title="Define a Future Project">Someday/Maybe</a></li>
-				<li><a href="newList.php" title="Define a general purpose list">List</a></li>
-				<li><a href="newChecklist.php" title="Define a reusable list">Checklist</a></li>
-				<li><a href="newContext.php" title="Define a geographical context">Space Context</a></li>
-				<li><a href="newTimeContext.php" title="Define a time window for items">Time Context</a></li>
-				<li><a href="newCategory.php" title="Meta categories to group projects">Category</a></li>
+				<li><a href="listList.php" title="General-purpose lists">Lists</a></li>
+				<li><a href="listChecklist.php" title="Reuseable checklists lists">Checklists</a></li>
 			</ul>
-			
+
+        <li>Config
+				
+			<ul>
+				<li><a href="newCategory.php" title="Meta-Categories">Categories</a></li>
+				<li><a href="newContext.php" title="Spatial Contexts">Space Contexts</a></li>
+				<li><a href="newTimeContext.php" title="Time Contexts">Time Contexts</a></li>
+				<li><a href="" title="User options">Options (Future)</a></li>
+			</ul>
+
 		<li>About
 			<ul>
 				<li><a href="about.php">License</a></li>
