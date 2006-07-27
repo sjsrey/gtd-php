@@ -16,9 +16,9 @@
         $cshtml="";
         while($row = mysql_fetch_assoc($result)){
                 if($row['timeframeId']==$currentrow['timeframeId']){
-                        $cshtml .= "<option selected value='" .$row['timeframeId'] . "' title='".htmlspecialchars(stripslashes($row['description']))."'>" . stripslashes($row['timeframe']) . "</option>\n";
+                        $cshtml .= "			<option selected value='" .$row['timeframeId'] . "' title='".htmlspecialchars(stripslashes($row['description']))."'>" . stripslashes($row['timeframe']) . "</option>\n";
                 } else {
-                        $cshtml .= "<option value='" .$row['timeframeId'] . "' title='".htmlspecialchars(stripslashes($row['description']))."'>" . stripslashes($row['timeframe']) . "</option>\n";
+                        $cshtml .= "			<option value='" .$row['timeframeId'] . "' title='".htmlspecialchars(stripslashes($row['description']))."'>" . stripslashes($row['timeframe']) . "</option>\n";
                 }
         }
         mysql_free_result($result);
@@ -30,26 +30,31 @@
 
 //PAGE DISPLAY CODE
 	echo "<h2>Edit Timeframe</h2>\n";	
-	echo '<form action="updateTimeContext.php?tcId='.$tcId.'" method="post">';
-	echo '<table border="0">';
-	echo '<tr><td colspan="2">Timeframe Name</td></tr>';
-	echo '<tr><td colspan="2">';
+	echo '<form action="updateTimeContext.php?tcId='.$tcId.'" method="post">'."\n";
+	echo '<table border="0">'."\n";
+	echo '	<tr><td colspan="2">Timeframe Name</td></tr>'."\n";
+	echo '	<tr><td colspan="2">';
 	echo '<input type="text" name="timeframe" size="50" value="';
 	echo stripslashes($row['timeframe']);
-	echo '"></td></tr>';
-	echo '<tr><td colspan="2">Description</td></tr>';
-	echo '<tr><td colspan="2">';
+	echo '"></td></tr>'."\n";
+	echo '	<tr><td colspan="2">Description</td></tr>'."\n";
+	echo '	<tr><td colspan="2">';
 	echo '<textarea cols="80" rows="10" name="description" wrap=virtual">';  
 	echo stripslashes($row['description']);
-	echo '</textarea></td></tr>';
-	echo '<tr><td><input type="checkbox" name="delete" value="y"> Delete Timeframe</td>';
-	echo '<td>Reassign Items to timeframe:';
-	echo '&nbsp;<select name="ntcId">'.$cshtml.'</select>';
-	echo '</td></tr>';
-	echo '</table>';
-	echo '<br>';
-	echo '<input type="submit" class="button" value="Update Timeframe" name="submit">';
-	echo '<input type="reset" class="button" value="Reset"></form>';
+	echo "</textarea></td></tr>\n";
+	echo "	<tr>\n";
+	echo '		<td><input type="checkbox" name="delete" value="y">Delete Timeframe</td>'."\n";
+	echo "		<td>Reassign Items to timeframe:&nbsp;\n";
+	echo '			<select name="ntcId">'."\n";
+	echo $cshtml;
+	echo "			</select>\n";
+	echo "		</td>\n";
+	echo "	</tr>\n";
+	echo "</table>\n";
+	echo "<br />\n";
+	echo '<input type="submit" class="button" value="Update Timeframe" name="submit">'."\n";
+	echo '<input type="reset" class="button" value="Reset">'."\n";
+	echo "</form>\n";
 
 	include_once('footer.php');
 ?>

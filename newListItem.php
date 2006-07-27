@@ -15,38 +15,44 @@
 	$result = mysql_query($query) or die ("Error in query");
 
 	if (mysql_num_rows($result) > 0){
-		echo '<h2>New List Item</h2>';
+		echo "<h2>New List Item</h2>\n";
 		
-		echo '<form action="processListItem.php" method="POST">';
+		echo '<form action="processListItem.php" method="POST">'."\n";
 		
-		echo '<table>';
-		echo '<tr><td>List</td>';
-		echo '<td><select name="listId">';
+		echo "<table>\n";
+		echo "	<tr>\n";
+		echo "		<td>List</td>\n";
+		echo '		<td><select name="listId">'."\n";
 		while($row = mysql_fetch_row($result)){
 			if($row[0]==$listId){
-				echo "<option selected value='" .$row[0] . "'>" . stripslashes($row[1]) . "</option>\n";
+				echo "			<option selected value='" .$row[0] . "'>" . stripslashes($row[1]) . "</option>\n";
 			}else{
-				echo "<option value='" .$row[0] . "'>" . stripslashes($row[1]). "</option>\n";
+				echo "			<option value='" .$row[0] . "'>" . stripslashes($row[1]). "</option>\n";
 			}
 		}
-		echo '</td>';
-		echo '</table>';
+		echo "		</td>\n";
+		echo "	</tr>\n";
+		echo "</table>\n\n";
 
-		echo "<table>";
-		echo '<tr><td>Item</td>';
-		echo '<td><input type="text" name="item" value="'.$item.'"></td>';
-		echo '<tr><td>Notes</td>';
-		echo '<td><textarea cols="60" rows="3" name="notes" wrap=virtual">';
+		echo "<table>\n";
+		echo "	<tr>\n";
+		echo "		<td>Item</td>\n";
+		echo '		<td><input type="text" name="item" value="'.$item.'"></td>'."\n";
+		echo "	</tr>\n";
+		echo "	<tr>\n";
+		echo "		<td>Notes</td>\n";
+		echo '		<td><textarea cols="60" rows="3" name="notes" wrap=virtual">';
 		echo $notes;
-		echo '</textarea></td>';
-		echo '</tr></table>';
-		echo '<br />';
-		echo '<input type="submit" class="button" value="Add List Item" name="submit">';
-		echo '<input type="reset" class="button" value="Reset">';
+		echo "</textarea></td>\n";
+		echo "	</tr>\n";
+		echo "</table>\n\n";
+		echo "<br />\n";
+		echo '<input type="submit" class="button" value="Add List Item" name="submit">'."\n";
+		echo '<input type="reset" class="button" value="Reset">'."\n";
 		
 	}
 	else{
-		echo "No rows found!";
+		echo "No rows found!\n";
 	}
 	mysql_free_result($result);
 	mysql_close($connection);

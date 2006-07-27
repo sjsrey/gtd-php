@@ -15,9 +15,9 @@
         $result = mysql_query($query) or die("Error in query");
         $cshtml="";
         while($row = mysql_fetch_assoc($result)) {
-	        $cshtml .= '<option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+	        $cshtml .= '			<option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
        		if($row['categoryId']==$categoryId) $cshtml .= ' SELECTED';
-        	$cshtml .= '>'.stripslashes($row['category']).'</option>\n';
+        	$cshtml .= '>'.stripslashes($row['category'])."</option>\n";
 	        }
         mysql_free_result($result);
 
@@ -27,27 +27,32 @@
 	$row = mysql_fetch_assoc($result);
 
 //PAGE DISPLAY CODE
-	echo "<h2>Edit Category</h2>\n";	
-	echo '<form action="updateCategory.php?categoryId='.$categoryId.'" method="post">';
-	echo '<table border="0">';
-	echo '<tr><td colspan="2">Category Name</td></tr>';
-	echo '<tr><td colspan="2">';
+	echo "<h2>Edit Category</h2>\n";
+	echo '<form action="updateCategory.php?categoryId='.$categoryId.'" method="post">'."\n";
+	echo '<table border="0">'."\n";
+	echo '	<tr><td colspan="2">Category Name</td></tr>'."\n";
+	echo '	<tr><td colspan="2">';
 	echo '<input type="text" name="category" size="50" value="';
 	echo stripslashes($row['category']);
-	echo '"></td></tr>';
-	echo '<tr><td colspan="2">Description</td></tr>';
-	echo '<tr><td colspan="2">';
+	echo '"></td></tr>'."\n";
+	echo '	<tr><td colspan="2">Description</td></tr>'."\n";
+	echo '	<tr><td colspan="2">';
 	echo '<textarea cols="80" rows="10" name="description" wrap=virtual">';  
 	echo stripslashes($row['description']);
-	echo '</textarea></td></tr>';
-	echo '<tr><td><input type="checkbox" name="delete" value="y"> Delete category</td>';
-	echo '<td>Reassign all items to category:';
-	echo '&nbsp;<select name="newCategoryId">'.$cshtml.'</select>';
-	echo '</td></tr>';
-	echo '</table>';
-	echo '<br>';
-	echo '<input type="submit" class="button" value="Update category" name="submit">';
-	echo '<input type="reset" class="button" value="Reset"></form>';
+	echo "</textarea></td></tr>\n";
+	echo "	<tr>\n";
+	echo '		<td><input type="checkbox" name="delete" value="y"> Delete category</td>'."\n";
+	echo "		<td>Reassign all items to category:&nbsp;\n";
+	echo '			<select name="newCategoryId">'
+	echo $cshtml;
+	echo "			</select>\n";
+	echo "		</td>\n";
+	echo "	</tr>\n";
+	echo "</table>\n";
+	echo "<br />\n";
+	echo '<input type="submit" class="button" value="Update category" name="submit">'."\n";
+	echo '<input type="reset" class="button" value="Reset">'."\n";
+	echo "</form>\n";
 
 	include_once('footer.php');
 ?>

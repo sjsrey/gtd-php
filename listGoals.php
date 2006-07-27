@@ -14,37 +14,37 @@
 
 
 	if (mysql_num_rows($result) > 0){
-		echo "<h2>Goals</h2>";
-		echo "<table>";
-		echo '<tr>';
-		echo '<th>Id</th>';
-		echo '<th>Goal</th>';
-		echo '<th>Project</th>';
-		echo '<th>Type</th>';
-		echo '<th>Date Created</th>';
-		echo '<th>Deadline</th>';
-		echo '</tr>';
+		echo "<h2>Goals</h2>\n";
+		echo "<table>\n";
+		echo "	<tr>\n";
+		echo "		<th>Id</th>\n";
+		echo "		<th>Goal</th>\n";
+		echo "		<th>Project</th>\n";
+		echo "		<th>Type</th>\n";
+		echo "		<th>Date Created</th>\n";
+		echo "		<th>Deadline</th>\n";
+		echo "	</tr>\n";
 		
 		while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
 			if($row['completed'] == NULL or $row['completed'] =="0000-00-00"){
 				$naId = $row['id'];
 				$pname = projectName($row['projectId']);
 
-				echo "<tr>";
-				echo '<td align = "left">';
-				echo '<a href = "editGoal.php?goalId='.$naId.'">'.$row['id'].'</a></td>';
-				echo '<td><a href = "editGoal.php?goalId='.$naId.'">'.stripslashes($row['goal']).'</td>';
-				echo "<td>".stripslashes($pname)."</td>";
-				echo "<td>".$row['type']."</td>";
-				echo "<td>".$row['created']."</td>";
-				echo "<td>".$row['deadline']."</td>";
-				echo "</tr>";
+				echo "	<tr>\n";
+				echo '		<td align = "left">';
+				echo '<a href = "editGoal.php?goalId='.$naId.'">'.$row['id']."</a></td>\n";
+				echo '		<td><a href = "editGoal.php?goalId='.$naId.'">'.stripslashes($row['goal'])."</td>\n";
+				echo "		<td>".stripslashes($pname)."</td>\n";
+				echo "		<td>".$row['type']."</td>\n";
+				echo "		<td>".$row['created']."</td>\n";
+				echo "		<td>".$row['deadline']."</td>\n";
+				echo "	</tr>\n";
 			}
 		}
-		echo "</table>";
+		echo "</table>\n";
 	}
 	else{
-		echo "<h4>Nothing was found</h4>";
+		echo "<h4>Nothing was found</h4>\n";
 	}
 
 	# completed goals
@@ -54,39 +54,39 @@
 	$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
 
 
-		echo "<h3>Accomplished Goals</h3>";
+		echo "<h3>Accomplished Goals</h3>\n";
 		
 	if (mysql_num_rows($result) > 0){
 	
-		echo "<table>";
-		echo '<tr>';
-		echo '<th>ID</th>';
-		echo '<th>Goal</th>';
-		echo '<th>Project</th>';
-		echo '<th>Type</th>';
-		echo '<th>Date Created</th>';
-		echo '<th>Deadline</th>';
-		echo '<th>Completed</th>';
-		echo '</tr>';
+		echo "<table>\n";
+		echo "	<tr>\n";
+		echo "		<th>ID</th>\n";
+		echo "		<th>Goal</th>\n";
+		echo "		<th>Project</th>\n";
+		echo "		<th>Type</th>\n";
+		echo "		<th>Date Created</th>\n";
+		echo "		<th>Deadline</th>\n";
+		echo "		<th>Completed</th>\n";
+		echo "	</tr>\n";
 		
 		while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
-				echo "<tr>";
+				echo "	<tr>\n";
 				$naId = $row['id'];
-				echo '<td align = "left">';
-				echo '<a href = "editGoal.php?goalId='.$naId.'">'.$row['id'].'</a></td>';
-				echo "<td>".stripslashes($row['goal'])."</td>";
+				echo '		<td align = "left">';
+				echo '<a href = "editGoal.php?goalId='.$naId.'">'.$row['id']."</a></td>\n";
+				echo "		<td>".stripslashes($row['goal'])."</td>\n";
 				$pname = projectName($row['projectId']);
-				echo "<td>".stripslashes($pname)."</td>";
-				echo "<td>".$row['type']."</td>";
-				echo "<td>".$row['created']."</td>";
-				echo "<td>".$row['deadline']."</td>";
-				echo "<td>".$row['completed']."</td>";
-				echo "</tr>";
+				echo "		<td>".stripslashes($pname)."</td>\n";
+				echo "		<td>".$row['type']."</td>\n";
+				echo "		<td>".$row['created']."</td>\n";
+				echo "		<td>".$row['deadline']."</td>\n";
+				echo "		<td>".$row['completed']."</td>\n";
+				echo "	</tr>\n";
 		}
-		echo "</table>";
+		echo "</table>\n";
 	}
 	else{
-		echo "<h4>Nothing was found</h4>";
+		echo "<h4>Nothing was found</h4>\n";
 	}
 
 
