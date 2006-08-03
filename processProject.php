@@ -12,7 +12,7 @@ mysql_select_db($db) or die ("unable to select database!");
 $projectId=(int) $_POST['projectId'];
 $name=mysql_real_escape_string($_POST['name']);
 $description=mysql_real_escape_string($_POST['description']);
-$desiredOutcome=mysql_real_escape_string($_POST['desiredOutcome']);
+$desiredOutcome=mysql_real_escape_string($_POST['outcome']);
 $categoryId=(int) $_POST['categoryId'];
 $isSomeday=$_POST['isSomeday']{0};
 $deadline=$_POST['deadline'];
