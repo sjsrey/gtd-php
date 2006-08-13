@@ -73,17 +73,42 @@ if ($row['suppress']=="y") echo " CHECKED";
 echo '>Tickle&nbsp;<input type="text" size="3" name="suppressUntil" value="'.$row['suppressUntil'].'">'.'&nbsp;days before deadline</td>'."\n";
 echo '		<td colspan="2">Deadline:&nbsp;';
 if ($row['deadline']=="0000-00-00" || $row['deadline']==NULL || $row['deadline']>date("Y-m-d")) {
-	DateDropDown(365,"deadline",$row['deadline']);
+    echo '<input type="text" size="10" name="deadline" id="deadline" value="'.$row['deadline'].'"/><button type="reset" id="f_trigger_b">...</button>'."\n";
+	echo'		<script type="text/javascript">
+			    Calendar.setup({
+			        inputField     :    "deadline",      // id of the input field
+			        ifFormat       :    "%Y-%m-%d",       // format of the input field
+			        showsTime      :    false,            // will display a time selector
+			        button         :    "f_trigger_b",   // trigger for the calendar (button ID)
+			        singleClick    :    true,           // single-click mode
+			        step           :    1                // show all years in drop-down boxes (instead of every other year as default)
+			    });
+			</script>';
+
 	}
 else echo '<input type="text" size="10" name="deadline" value="'.$row['deadline'].'" />';
 echo "</td>\n";
 echo "	</tr>\n";
 echo "	<tr>\n";
 echo '		<td>Repeat every&nbsp;<input type="text" name="repeat" size="3" value="'.$row['repeat'].'">&nbsp;days</td>';
-echo '<td colspan="2">Completed:&nbsp;';
+echo '<td colspan="2">Completed:&nbsp;'."\n";
 
 if ($row['dateCompleted']=="0000-00-00" || $row['dateCompleted']==NULL) {
-        DateDropDown(365,"dateCompleted",$currentrow['dateCompleted']);
+
+
+    echo '<input type="text" size="10" name="dateCompleted" id="dateCompleted" value="'.$currentrow['dateCompleted'].'"/><button type="reset" id="f_trigger_c">...</button>'."\n";
+	echo'		<script type="text/javascript">
+			    Calendar.setup({
+			        inputField     :    "dateCompleted",      // id of the input field
+			        ifFormat       :    "%Y-%m-%d",       // format of the input field
+			        showsTime      :    false,            // will display a time selector
+			        button         :    "f_trigger_c",   // trigger for the calendar (button ID)
+			        singleClick    :    true,           // single-click mode
+			        step           :    1                // show all years in drop-down boxes (instead of every other year as default)
+			    });
+			</script>';
+
+
         }
 else echo '<input type="text" size="10" name="dateCompleted" value="'.$row['dateCompleted'].'" />'."\n";
 echo "		</td>\n";

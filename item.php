@@ -146,7 +146,7 @@
 	if ($currentrow['suppress']=="y") echo " CHECKED";
 	echo ">\n";
 	echo '		Tickle&nbsp;<input type="text" size="3" name="suppressUntil" value="'.$currentrow['suppressUntil'].'">';
-	echo '&nbsp;days before deadline</td>'."\n";
+	echo '&nbsp;days before deadline</td>'";
 
 	echo '		<td colspan=2">Deadline:&nbsp;'."\n";
 	echo '			<form action="#" method="get">'."\n";
