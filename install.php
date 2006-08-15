@@ -391,7 +391,12 @@ TEST;
     	$table .= report('timeitems',$flag);
 	$flag=1;
 	$table .="</table>";
+
+    $table .="<p>There are 16 tables. If all were created with Success, then you are ready to start ";
+    $table .="using gtd-php. If any of the tables failed, then please report this to the user forum.";
 	echo $table;
+
+
     }elseif($upgrade=2){
         echo "Upgrading to version 0.6";
         echo "<br>";
