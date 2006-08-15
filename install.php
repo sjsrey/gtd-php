@@ -1,6 +1,8 @@
 <?php
 	include_once('header.php');
 	include_once('config.php');
+
+
 	function report($tableName,$success){
 		$html="<tr><td>$tableName</td><td>";
 		if($success){
@@ -11,15 +13,25 @@
 		$html .= "</td></tr>\n";
 		return $html;
 	}
-    echo "<h2>gtd-php installation/upgrade</h2>";
-    echo "<h3>Upgrade check</h3>";
+    echo "<h2>gtd-php installation/upgrade</h2>\n";
 
     //connect
 	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
 
+    // get server information for problem reports
+    $v="<h3>Installation Info</h3>\n";
+    $v.="<ul><li>";
+    $v.="php: ".phpversion()."<br>";
+    $v.="</li>\n<li>";
+    $v.="mysql: ".mysql_get_server_info()."</li></ul>\n";
+    echo $v;
+
+
     //check if gtd db has been created
-    $msg="Unable to select gtd database.<br>Please create the gtd mysql database and rerun this script.";
+    $msg='<font color="red">Unable to select gtd database.<br>Please create the gtd mysql database and rerun this script.';
 	mysql_select_db($db) or die ($msg);
+
+    
 
     //check if we are doing a new install, an upgrade, or are we current
     $tprojects=0;
@@ -392,10 +404,13 @@ TEST;
 	$flag=1;
 	$table .="</table>";
 
-    $table .="<p>There are 16 tables. If all were created with Success, then you are ready to start ";
-    $table .="using gtd-php. If any of the tables failed, then please report this to the user forum.";
+    $table .="<p>There are 16 tables. If all were created with ";
+    $table .='<font color="green">Success</font>';
+    $table .=", then you are ready to start ";
+    $table .="using gtd-php. Just click <a href=\"index.php\">here</a> to begin. If any of the tables reported ";
+    $table .='<font color="red">Failure</font>';
+    $table .=", then please report this to the <a href=\"http://toae.org/boards\">user forum.</a>";
 	echo $table;
-
 
     }elseif($upgrade=2){
         echo "Upgrading to version 0.6";
