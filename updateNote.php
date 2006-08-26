@@ -19,10 +19,11 @@ $noteId = (int) $_GET['noteId'];
 if($delete=="y"){
         $query= "delete from tickler where ticklerId='$noteId'";
         $result = mysql_query($query) or die ("Error in query");
-
         echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=tickler.php" />';
+	/* Turn debug off
         echo "<p>Number of Records Deleted: ";
         echo mysql_affected_rows();
+	 */
 	}
 
 else {

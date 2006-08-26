@@ -32,9 +32,27 @@
 		}
 
 	echo'<table>';
-	echo '<td>Date:&nbsp;';
-        DateDropDown(365,"date",$currentrow['date']);
-        echo '</td><td><input type="checkbox" name="delete" value="y" />Delete Note</td></tr>';
+
+	//echo '<td>Date:&nbsp;';
+        //DateDropDown(365,"date",$currentrow['date']);
+
+echo '		<td>Date:&nbsp;'."\n";
+	echo '			<form action="#" method="get">'."\n";
+	echo '			<input type="text" size="10" name="date" id="f_date_b" value="'.$currentrow['date'].'"/><button type="reset" id="f_trigger_b">...</button>'."\n";
+?>
+
+			<script type="text/javascript">
+			    Calendar.setup({
+			        inputField     :    "f_date_b",      // id of the input field
+			        ifFormat       :    "%Y-%m-%d",       // format of the input field
+			        showsTime      :    false,            // will display a time selector
+			        button         :    "f_trigger_b",   // trigger for the calendar (button ID)
+			        singleClick    :    true,           // single-click mode
+			        step           :    1                // show all years in drop-down boxes (instead of every other year as default)
+			    });
+			</script>
+<?php
+        echo '</td><td align="right"><input type="checkbox" name="delete" value="y" />Delete Note</td></tr>';
 	echo '<tr><td colspan="2">Title</td></tr>';
 	echo '<tr><td colspan="2"><input type="text" size="79" name="title" value="'.stripslashes($currentrow['title']).'"></td></tr>';
 	echo '<tr><td colspan="2">Details</td></tr>';
