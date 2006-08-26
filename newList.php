@@ -55,7 +55,6 @@ Title<br />
 	$query = "INSERT into list values (NULL, '$title', '$categoryId', '$description')";
 	$result = mysql_query($query) or die ("Error in query");
 
-	echo "New list inserted with ID ".mysql_insert_id();
     echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listReport.php?listID='.mysql_insert_id().'&listTitle='.$title.'">';
 	mysql_close($connection);
 }
