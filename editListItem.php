@@ -58,7 +58,7 @@
 	echo '	<tr><td><textarea cols="80" rows="4" name="newnotes" wrap=virtual">';
 	echo $notes;
 	echo "</textarea></td></tr>\n";
-	echo '	<tr><td>Delete List Item&nbsp;<input type="checkbox" name="delete" value="delete"></td></tr>'."\n";
+	echo '	<tr><td>Delete List Item&nbsp;<input type="checkbox" name="delete" value="y"></td></tr>'."\n";
 	echo "</table>\n";
 	echo "<br />\n";
 	echo '<input type="submit" value="Update List Item" name="submit">'."\n";

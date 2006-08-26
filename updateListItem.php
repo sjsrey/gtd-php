@@ -20,8 +20,6 @@ if($delete=="y") {
         $query= "delete from listItems where listItemId='$listItemId'";
         $result = mysql_query($query) or die ("Error in query");
         echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listReport.php?listId='.$listId.'">';
-        echo "<p>Number of Records Deleted: ";
-        echo mysql_affected_rows();
 	}
 else {
 	$query = "update listItems
@@ -33,5 +31,3 @@ else {
 mysql_close($connection);
 include_once('footer.php');
 ?>
-
-
