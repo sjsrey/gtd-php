@@ -41,12 +41,29 @@
 	}
 	echo "		</td>\n";
 	mysql_free_result($result);
-
-	echo "		<td>Date Completed:</td>\n";
-	echo '		<td><input type="text" name="newdateCompleted" size="13" value="';
+	
+	echo '		<td colspan=2">Date Completed:&nbsp;'."\n";
+	echo '			<form action="#" method="get">'."\n";
+	echo '			<input type="text" size="10" name="newdateCompleted" id="f_date_b" value="';
 	echo $dateCompleted;
-	echo '"></td>'."\n";
-	echo "	</tr>\n";
+	echo '"/><button type="reset" id="f_trigger_b">...</button>'."\n";
+?>
+
+			<script type="text/javascript">
+			    Calendar.setup({
+			        inputField     :    "f_date_b",      // id of the input field
+			        ifFormat       :    "%Y-%m-%d",       // format of the input field
+			        showsTime      :    false,            // will display a time selector
+			        button         :    "f_trigger_b",   // trigger for the calendar (button ID)
+			        singleClick    :    true,           // single-click mode
+			        step           :    1                // show all years in drop-down boxes (instead of every other year as default)
+			    });
+			</script>
+		</td>
+	</tr>
+
+<?php
+
 	echo "</table>\n\n";
 
 	echo "<table>\n";
