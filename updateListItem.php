@@ -26,6 +26,7 @@ else {
 	set notes = '$newnotes', item = '$newitem', listId = '$listId', dateCompleted='$newdateCompleted'
 	where listItemId ='$listItemId'";
 	$result = mysql_query($query) or die ("Error in query");
+        echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listReport.php?listId='.$listId.'">';
 	}
 
 mysql_close($connection);

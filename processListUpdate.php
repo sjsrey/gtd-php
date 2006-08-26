@@ -29,7 +29,7 @@ if(isset($completedLis)){
         $row=mysql_fetch_row($result);
         $listId=$row[0];
 }
-
+echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listReport.php?listId='.$listId.'&listTitle='.$listTitle.'">';
 mysql_close($connection);
 include_once('footer.php');
 ?>
