@@ -17,10 +17,10 @@ if(isset($completedLis)){
 	$date=date('Y-m-d');
         echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listReport.php?listId='.$listId.'&listTitle='.$listTitle.'">';
         foreach ($completedLis as $completedLi){
-                echo "Updating List Item: ";
-                echo $completedLi.'<br>';
+        //        echo "Updating List Item: ";
+        //        echo $completedLi.'<br>';
                 $query= "update listItems set dateCompleted='$date' where listItemId='$completedLi'";
-		echo $query;
+	//	echo $query;
                 $result = mysql_query($query) or die ("Error in query");
         }
 
