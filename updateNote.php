@@ -17,22 +17,20 @@ $noteId = (int) $_GET['noteId'];
 
 //SQL CODE AREA
 if($delete=="y"){
-        $query= "delete from tickler where ticklerId='$noteId'";
-        $result = mysql_query($query) or die ("Error in query");
-        echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=tickler.php" />';
+    $query= "delete from tickler where ticklerId='$noteId'";
+    $result = mysql_query($query) or die ("Error in query");
+    echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=tickler.php" />';
 	/* Turn debug off
-        echo "<p>Number of Records Deleted: ";
-        echo mysql_affected_rows();
+    echo "<p>Number of Records Deleted: ";
+    echo mysql_affected_rows();
 	 */
-	}
+} else { $query = "UPDATE tickler SET date = '$date', note = '$note', title = '$title' WHERE ticklerId = '$noteId'";
+    $result = mysql_query($query) or die ("Error in query");
 
-else {
-        $query = "UPDATE tickler SET date = '$date', note = '$note', title = '$title' WHERE ticklerId = '$noteId'";
-        $result = mysql_query($query) or die ("Error in query");
-
-        echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=tickler.php" />';
-	}
+    echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=tickler.php" />';
+}
 
 mysql_close($connection);
 include_once('footer.php');
+
 ?>

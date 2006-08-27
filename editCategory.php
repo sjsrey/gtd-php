@@ -43,7 +43,7 @@
 	echo "	<tr>\n";
 	echo '		<td><input type="checkbox" name="delete" value="y"> Delete category</td>'."\n";
 	echo "		<td>Reassign all items to category:&nbsp;\n";
-	echo '			<select name="newCategoryId">'
+	echo '			<select name="newCategoryId">';
 	echo $cshtml;
 	echo "			</select>\n";
 	echo "		</td>\n";
