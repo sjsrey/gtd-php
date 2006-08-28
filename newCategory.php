@@ -16,7 +16,7 @@ if (!isset($_POST['submit'])) {
 	<?php
 }else{
 
-	$name = empty($_POST['category']) ? die("Error: Enter a category name") : mysql_escape_string($_POST['category']);
+	$name = empty($_POST['name']) ? die("Error: Enter a category name") : mysql_escape_string($_POST['name']);
 	$description = empty($_POST['description']) ? die("Error: Enter a description") : mysql_escape_string($_POST['description']);
 
 	$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
