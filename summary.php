@@ -1,4 +1,3 @@
-
 <?php
 
 //INCLUDES
@@ -50,6 +49,7 @@ include_once('config.php');
     // sjr moved nextAction queries to gtdfuncs.php to isolate date
     // wierdness
     $nNextActions=getNumberOfNextActions();
+    echo "<div class='reportsection'>\n";
 	echo "<h3>Next Actions</h3>\n";
     if($nNextActions==1){
                 echo '<p>There is ' .$nNextActions. ' <a href="listItems.php?type=n">Next Action</a> pending';
@@ -57,9 +57,10 @@ include_once('config.php');
                 echo '<p>There are ' .$nNextActions. ' <a href="listItems.php?type=n">Next Actions</a> pending';
             }
     $nActions=getNumberOfActions();
-    echo ' out of a total of ' .$nActions. '<a href="listItems.php?type=a"> Actions</a>.';
+    echo ' out of a total of ' .$nActions. ' <a href="listItems.php?type=a">Actions</a>.';
 	echo "</p>\n";
-
+	echo "</div>\n";
+	
     /* Do we need this anymore (sjr)?
     if($nCompleted==1){
 	        echo " $nCompleted has been completed out of a total $nAllNextActions.";
@@ -69,12 +70,14 @@ include_once('config.php');
 	echo "<br /><br />";
     */
 	
+    echo "<div class='reportsection'>\n";
 	echo "<h3>Contexts</h3>\n";
     if($ncon==1){
         echo '<p>There is ' .$ncon. ' <a href="listitems.php?type=n">Spatial Context</a>.<p>'."\n";
     }else{
         echo '<p>There are ' .$ncon. ' <a href="listitems.php?type=n">Spatial Contexts</a>.<p>'."\n";
     }
+	echo "</div>\n";
 
 
 	mysql_free_result($result);
@@ -118,8 +121,7 @@ include_once('config.php');
 
 
 
-	echo "<br /><br />\n";
-
+    echo "<div class='reportsection'>\n";
 	echo "<h3>Projects</h3>\n";
 
     if($np==1){
@@ -127,9 +129,8 @@ include_once('config.php');
     }else{
         echo '<p>There are ' .$np. ' <a href="listProjects.php?type=p">Projects</a>.<p>'."\n";  //SJK changed to project report
     }
-	echo "<br /><br />\n";
 	
-	$s='<table class="boldtable">'."\n";
+	$s='<table>'."\n";
 	$nr = count($c1);
 
 	for($i=0;$i<$nr;$i+=1){
@@ -141,13 +142,14 @@ include_once('config.php');
 		$s.="	</tr>\n";
 	}
 	
-	$s.="<table>\n";
+	$s.="</table>\n";
 	
 	echo $s;
+	echo "</div>\n";
 
 //SJK duplicated for Someday/Maybes
 
-	echo "<br /><br />\n";
+    echo "<div class='reportsection'>\n";
 	echo "<h3>Someday/Maybe</h3>\n";
 
     if($nsm==1){
@@ -157,7 +159,7 @@ include_once('config.php');
     }
 
 	
-	$t='<table class="boldtable">'."\n";
+	$t='<table>'."\n";
 	$nr = count($d1);
 
 	for($i=0;$i<$nr;$i+=1){
@@ -172,6 +174,7 @@ include_once('config.php');
 	$t.="</table>\n";
 
 	echo $t;
+	echo "</div>\n";
 
 	include_once('footer.php');
 ?>

@@ -1,0 +1,87 @@
+/*===================================================================================*/
+/* Layout code - float/position, display, margin, padding, width, height, text-align */
+/*===================================================================================*/
+
+#menulist a,
+#menulist a:link,
+#menulist a:visited {
+	display: block;
+	padding: 0.3em;
+}
+#menulist a:hover {
+	padding: 0.3em;
+}
+
+/* using the Suckerfish dropdown method from http://alistapart.com/articles/dropdowns */
+/* implemented in CSS for all browsers except IE, which requires a little Javascript to get it working (grr...) */
+#menudiv {
+	float: left;
+	margin-bottom: 1em;
+}
+#menudiv ul {
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	list-style-type: none;
+}
+#menudiv li { /* all menu list items */
+	float: left;
+	position: relative;
+	width: 10em;
+	margin: 0 0 0 1px;
+	padding: 0.3em;
+	list-style-type: none;
+}
+#menudiv li ul { /* second-level lists (entire drop-downs, not individual items) */
+	display: none;
+	position: absolute;
+	top: 1.7em;
+	left: 0;
+	z-index: 100;
+}
+#menudiv li>ul { /* to override top and left in browsers other than IE, which will position to the top right of the containing li, rather than bottom left */
+	top: 1.75em;
+	left: -1px;
+}
+#menudiv li li { /* second-level list items */
+	display: block;
+	padding: 0em;
+	width: 10.6em;
+}
+#menudiv li:hover ul, #menudiv li.over ul { /* lists nested under hovered list items */
+	display: block;
+	z-index: 100;
+
+}
+#menudiv li a {
+	display: block;
+	height: 100%;
+}
+
+
+
+
+
+
+/*===================================================================================================*/
+/* non-layout code - font family, font size, font-weight, color, border, background, text decoration */
+/*===================================================================================================*/
+
+#menudiv li {
+	text-align: left;
+	background: #39c;
+	font-size: 10px;
+	color: #eed;
+}
+#menudiv li a {
+	color: #eed;
+	/*text-decoration: none;*/
+	border: 0 none;
+}
+#menudiv li a:hover, #menudiv li a:focus {
+	background: #39c;
+	color: #eed;
+}
+#menudiv li li {
+	background: #998;
+}

@@ -75,14 +75,14 @@ for ($j=0;$contextRow=mysql_fetch_assoc($itemResults);$j++) {
     echo "<h3>Spatial Context (row), Temporal Context (column)</h3>\n";
 
 //context table
-echo "<table>\n";
-echo "	<tr>\n";
-echo "		<th>Context</th>\n";
+echo "<table class='datatable'>\n";
+echo "	<thead>\n";
+echo "		<td>Context</td>\n";
 foreach ($timeframeNames as $tcId => $tname) {
-	echo '		<th><a href="editTimeContext.php?tcId='.$tcId.'" title="Edit the '.htmlspecialchars(stripslashes($tname)).' time context">'.stripslashes($tname)."</a></th>\n";
+	echo '		<td><a href="editTimeContext.php?tcId='.$tcId.'" title="Edit the '.htmlspecialchars(stripslashes($tname)).' time context">'.stripslashes($tname)."</a></td>\n";
 	}
-echo "		<th>Total</th>\n";
-echo "	</tr>\n";
+echo "		<td>Total</td>\n";
+echo "	</thead>\n";
 $contextTotal=0;
 $timeframeTotal=0;
 foreach ($contextNames as $contextId => $cname) {
@@ -173,15 +173,15 @@ foreach ($contextArray as $contextId => $timeframe) {
 
                 if ($tablehtml!="") {
                         echo '<form action="processItemUpdate.php?type='.$type.'&contextId='.$contextId.'&referrer=c" method="post">';
-                        echo "<table>\n";
-                        echo "	<tr>\n";
-                        echo "		<th>Project</th>\n";
-                        echo "		<th>Action</th>\n";
-                        echo "		<th>Description</th>\n";
-                        echo "		<th>Deadline</th>\n";
-                        echo "		<th>Repeat</th>\n";
-                        echo "		<th>Completed</th>\n";
-                        echo "	</tr>\n";
+                        echo "<table class='datatable'>\n";
+                        echo "	<thead>\n";
+                        echo "		<td>Project</td>\n";
+                        echo "		<td>Action</td>\n";
+                        echo "		<td>Description</td>\n";
+                        echo "		<td>Deadline</td>\n";
+                        echo "		<td>Repeat</td>\n";
+                        echo "		<td>Completed</td>\n";
+                        echo "	</thead>\n";
                         echo $tablehtml;
                         echo "</table>\n";
                         echo '<input type="submit" class="button" value="Update Actions" name="submit"></form>'."\n";

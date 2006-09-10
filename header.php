@@ -1,18 +1,21 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-		<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
 <?php
 include_once('config.php');
-echo'	<title>'.$title.'</title>';
+echo'	<title>'.$title."</title>\n";
 ?>
-	<!-- main stylesheet --> 	 
-	<link rel="stylesheet" href="style.css" type="text/css"/>
 
-	<!-- screen stylesheet --> 	 
-	<link rel="stylesheet" href="style_screen.css" type="text/css" media="screen" />
+	<!-- theme main stylesheet -->
+	<link rel="stylesheet" href="themes/<?php echo $theme; ?>/style.css" type="text/css"/>
+
+	<!-- theme screen stylesheet (should check to see if this actually exists) -->
+	<link rel="stylesheet" href="themes/<?php echo $theme; ?>/style_screen.css" type="text/css" media="screen" />
+
+	<!-- theme script (should check to see if this actually exists) -->
+	<script type="text/javascript" src="themes/<?php echo $theme; ?>/theme.js"></script>
 
 
 	<!-- calendar stylesheet --> 	 
@@ -29,44 +32,19 @@ echo'	<title>'.$title.'</title>';
 	<script type="text/javascript" src="calendar-setup.js"></script>
 
 
-
-<script type="text/javascript"><!--//--><![CDATA[//><!--
-startList = function() {
-	if (document.all&&document.getElementById) {
-		navRoot = document.getElementById("menu");
-		for (i=0; i<navRoot.childNodes.length; i++) {
-			node = navRoot.childNodes[i];
-			if (node.nodeName=="LI") {
-				node.onmouseover=function() {
-					this.className+=" over";
-				}
-				node.onmouseout=function() {
-					this.className=this.className.replace(" over", "");
-				}
-			}
-		}
-	}
-}
-window.onload=startList;
-
-//--><!]]></script>
-
-
-
 </head>
 <body>
 
 <div id="container">
 <div id="header">
-	<h1 id="sitename"><a href="index.php">Getting Things Done</a></h1>
+	<h1 id='sitename'><a href='index.php'><?php echo $title;?></a></h1>
 </div>
 		
-<div id="hmenu">
-	 <ul id="menu">
+<div id="menudiv">
+	<ul id="menulist">
 
 	 	<li>Capture
 			<ul>
-				<li><a href="" title="General capture bucket">Inbox (Future)</a></li>
 				<li><a href="item.php?type=n" title="Define a new Next Action">Next Action</a></li>
 				<li><a href="item.php?type=a" title="Define a new Action">Action</a></li>
 				<li><a href="project.php?type=p" title="Define a new Project">Project</a></li>
@@ -115,7 +93,6 @@ window.onload=startList;
 				<li><a href="newCategory.php" title="Meta-Categories">Categories</a></li>
 				<li><a href="newContext.php" title="Spatial Contexts">Space Contexts</a></li>
 				<li><a href="newTimeContext.php" title="Time Contexts">Time Contexts</a></li>
-				<li><a href="" title="User options">Options (Future)</a></li>
 			</ul>
 
 		<li>About

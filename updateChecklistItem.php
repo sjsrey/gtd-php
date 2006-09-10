@@ -11,8 +11,8 @@ mysql_select_db($db) or die ("Unable to select database!");
 $newitem=mysql_real_escape_string($_POST['newitem']);
 $newnotes=mysql_real_escape_string($_POST['newnotes']);
 $checklistId = (int) $_POST['checklist'];
-$newchecked = $_POST['checked']{0};
-if($newchecked!="y") $newchecked='n';
+$newcompleted = $_POST['completed']{0};
+if($newcompleted!="y") $newcompleted='n';
 $checklistItemId = (int) $_GET['checklistItemId'];
 $delete=$_POST['delete']{0};
 
@@ -30,7 +30,7 @@ else {
     $row=mysql_fetch_row($result);
     $title=$row[0];
 	$query = "update checklistItems
-	set notes = '$newnotes', item = '$newitem', checklistId = '$checklistId', checked='$newchecked'
+	set notes = '$newnotes', item = '$newitem', checklistId = '$checklistId', completed='$newcompleted'
 	where checklistItemId ='$checklistItemId'";
 	$result = mysql_query($query) or die ("Error in query: $query. ".mysql_error());
     echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=checklistReport.php?checklistId='.$checklistId.'&checklistTitle='.$title.'">';

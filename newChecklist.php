@@ -10,37 +10,37 @@ include_once('config.php');
 
 if (!isset($_POST['submit'])) {
 	//form not submitted
-	?>
-<h1>New Checklist</h1>
-
-<form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
-<table border=0">
-<?php
 
 //SELECT categories.categoryId, categories.name FROM categories ORDER BY categories.name ASC
 
 	$query = "select * from categories";
 	$result = mysql_query($query) or die("Error in query");
 ?>
-	<tr>
-		<td>Category</td>
-		<td><select name="categoryId">
+<h1>New Checklist</h1>
+
+<form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
+	<div class='form'>		<div class='formrow'>
+			<label for='title' class='left first'>Title:</label>
+			<input type="text" name="title" id="title">
+		</div>
+
+		<div class='formrow'>			<label for='category' class='left first'>Category:</label>			<select name='categoryId' id='category'>
 <?php
 	while($row = mysql_fetch_row($result)){
 			echo "			<option value='" .$row[0] . "'>" . stripslashes($row[1]) . "</option>\n";
 	}
 ?>
-		</select></td>
-	</tr>
-</table>
-<br /><br />
-Title<br />
-<input type="text" name="title" size="50">
-
-<br /><br />Description<br />
-<textarea name="description" cols="80" rows="8"></textarea><br />
-<input type="submit" value="Add Checklist" name="submit">
-<input type="reset" value="Cancel">
+			</select>
+		</div>
+		
+		<div class='formrow'>
+			<label for='description' class='left first'>Description:</label>
+			<textarea rows="10" name="description" id="description" wrap="virtual"></textarea>
+		</div>
+	</div>
+	<div class='formbuttons'>
+		<input type="submit" value="Add Checklist" name="submit">
+	</div>
 </form>
 
 <?php

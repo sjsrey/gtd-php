@@ -4,5 +4,6 @@
 	$user = '<change>';
 	$pass = '<change>';
 	$title = 'GTD';
+	$theme = 'default';
 ?> 
 

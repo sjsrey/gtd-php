@@ -176,16 +176,16 @@ $result = mysql_query($query) or die ("Error in query");
 
 		if ($tablehtml!="") {
 			echo '<form action="processItemUpdate.php" method="post">'."\n";
-			echo "<table>\n";
-			echo "	<tr>\n";
-			echo "		<th>Project</th>\n";
-			echo "		<th>".$typename."</th>\n";
-			echo "		<th>Description</th>\n";
-			echo "		<th>Context</th>\n";
-			echo "		<th>Deadline</th>\n";
-			echo "		<th>Repeat</th>\n";
-			echo "		<th>Completed</th>\n";
-			echo "	</tr>\n";
+			echo "<table class='datatable'>\n";
+			echo "	<thead>\n";
+			echo "		<td>Project</td>\n";
+			echo "		<td>".$typename."</td>\n";
+			echo "		<td>Description</td>\n";
+			echo "		<td>Context</td>\n";
+			echo "		<td>Deadline</td>\n";
+			echo "		<td>Repeat</td>\n";
+			echo "		<td>Completed</td>\n";
+			echo "	</thead>\n";
 			echo $tablehtml;
 			echo "</table>\n";
 			echo '<input type="hidden" name="type" value="'.$type.'" />'."\n";

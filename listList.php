@@ -54,12 +54,12 @@
 
 	if (mysql_num_rows($result) > 0){
 		echo "<p>Select list for report.</p>\n";
-		echo "<table>\n";
-		echo "	<tr>\n";
-		echo "		<th>Category</th>\n";
-		echo "		<th>Title</th>\n";
-		echo "		<th>Description</th>\n";
-		echo "	</tr>\n";
+		echo "<table class='datatable'>\n";
+		echo "	<thead>\n";
+		echo "		<td>Category</td>\n";
+		echo "		<td>Title</td>\n";
+		echo "		<td>Description</td>\n";
+		echo "	</thead>\n";
 		while($row = mysql_fetch_row($result)){
 			echo "	<tr>\n";
 			echo "		<td>".stripslashes($row[4])."</td>\n";

@@ -28,28 +28,34 @@
 	$query = "SELECT * from list ORDER BY title";
 	$result = mysql_query($query) or die ("Error in query");
 	echo '<form action="updateListItem.php?listItemId='.$listItemId.'" method="post">'."\n";
-	echo '<table border="0">'."\n";
-	echo "	<tr>\n";
-	echo "		<td>List</td>\n";
-	echo '		<td><select name="list">'."\n";
-	while($row = mysql_fetch_row($result)){
-		if($row[0]==$listId){
-			echo "			<option selected value='" .$row[0] . "'>".stripslashes($row[1])."</option>\n";
-		}else{
-			echo "			<option value='" .$row[0] . "'>" .stripslashes($row[1])."</option>\n";
-		}
-	}
-	echo "		</td>\n";
-	mysql_free_result($result);
-	
-	echo '		<td colspan=2">Date Completed:&nbsp;'."\n";
-	echo '			<form action="#" method="get">'."\n";
-	echo '			<input type="text" size="10" name="newdateCompleted" id="f_date_b" value="';
-	echo $dateCompleted;
-	echo '"/><button type="reset" id="f_trigger_b">...</button>'."\n";
 ?>
 
-			<script type="text/javascript">
+	<div class='form'>
+		<div class='formrow'>
+
+			<label for='newitem' class='left first'>Title:</label>
+
+			<textarea rows="2" name="newitem" wrap=virtual"><?php echo $item; ?></textarea>
+		</div>
+
+		<div class='formrow'>
+			<label for='list' class='left first'>List:</label>
+			<select name='list' id='list'>
+
+<?php
+	while($row = mysql_fetch_row($result)){
+		if($row[0]==$listId){
+			echo "				<option selected value='" .$row[0] . "'>".stripslashes($row[1])."</option>\n";
+		}else{
+			echo "				<option value='" .$row[0] . "'>" .stripslashes($row[1])."</option>\n";
+		}
+	}
+?>
+			</select>
+			<label for='newdateCompleted' class='left notfirst'>Date Completed:</label>
+			<input type='text' name='newdateCompleted' id='f_date_b' value=' <?php echo $dateCompleted; ?>'>
+                        <button type='reset' id='f_trigger_b'>...</button>
+		        <script type="text/javascript">
 			    Calendar.setup({
 			        inputField     :    "f_date_b",      // id of the input field
 			        ifFormat       :    "%Y-%m-%d",       // format of the input field
@@ -59,27 +65,26 @@
 			        step           :    1                // show all years in drop-down boxes (instead of every other year as default)
 			    });
 			</script>
-		</td>
-	</tr>
+		</div>
 
-<?php
+		<div class='formrow'>
 
-	echo "</table>\n\n";
+			<label for='newnotes' class='left first'>Description:</label>
 
-	echo "<table>\n";
-	echo "	<tr><td>Title</td></tr>\n";
-	echo '	<tr><td><textarea cols="80" rows="2" name="newitem" wrap=virtual">';
-	echo $item;
-	echo "</textarea></td></tr>\n";
-	echo "	<tr><td>Description</td></tr>\n";
-	echo '	<tr><td><textarea cols="80" rows="4" name="newnotes" wrap=virtual">';
-	echo $notes;
-	echo "</textarea></td></tr>\n";
-	echo '	<tr><td>Delete List Item&nbsp;<input type="checkbox" name="delete" value="y"></td></tr>'."\n";
-	echo "</table>\n";
-	echo "<br />\n";
-	echo '<input type="submit" value="Update List Item" name="submit">'."\n";
-	echo '<input type="reset" value="Reset">'."\n";
-	
+			<textarea rows='10' name='newnotes' id='newnotes' wrap='virtual'><?php echo $notes;?></textarea>
+		</div>
+	</div>
+	<div class='formbuttons'>
+		<input type='submit' value='Update List Item' name='submit' />
+		<input type='reset' value='Reset' />
+		<input type='checkbox' name='delete' id='delete' class='notfirst' value='delete' />
+		<label for='delete'>Delete&nbsp;List&nbsp;Item</label>
+	</div>
+
+
+
+
+
+<?php	
 	include_once('footer.php');
 ?>

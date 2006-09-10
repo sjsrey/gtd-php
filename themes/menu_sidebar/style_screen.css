@@ -1,0 +1,51 @@
+/*===================================================================================*/
+/* Layout code - float/position, display, margin, padding, width, height, text-align */
+/*===================================================================================*/
+
+#menulist a,
+#menulist a:link,
+#menulist a:visited {
+	display: block;
+	background: #fff;
+	text-decoration: none;
+}
+#menulist a:hover {
+	background: #eed;
+	text-decoration: none;
+}
+
+
+#menulist {
+	list-style: none;
+	font-weight: bold;
+	margin-top: -.5em;
+	padding-right: 10px;
+}
+
+#menulist li {
+	margin-left: 0;
+	margin-bottom: 1em;
+}
+
+#menulist li ul li {
+	list-style: none;
+	font-weight: bold;
+	margin: 0;
+	padding: 1px;
+	border-bottom: 1px solid #eed;
+}
+
+#menulist li ul {
+	list-style: none;
+	font-weight: bold;
+	margin: 0;
+	padding-left: 10px;
+}
+
+
+
+/*===================================================================================================*/
+/* non-layout code - font family, font size, font-weight, color, border, background, text decoration */
+/*===================================================================================================*/
+
+

@@ -25,7 +25,7 @@
 //PAGE DISPLAY CODE
 	echo "<h2>The Weekly Review</h2>
 <table>
-	<tr><th>Step</th><th>Description</th></tr>
+	<thead><td>Step</td><td>Description</td></thead>
 	<tr><td>Gather all loose papers</td><td></td></tr>
 	<tr><td>Process all notes</td><td></td></tr>
 	<tr><td>Check all voice mail</td><td></td></tr>

@@ -48,12 +48,12 @@
 
 	if (mysql_num_rows($result) > 0){
 		echo "<p>Select checklist for report.</p>\n";
-		echo "<table>\n";
-		echo "	<tr>\n";
-		echo "		<th>Category</th>\n";
-		echo "		<th>Title</th>\n";
-		echo "		<th>Description</th>\n";
-		echo "	</tr>\n";
+		echo "<table class='datatable'>\n";
+		echo "	<thead>\n";
+		echo "		<td>Category</td>\n";
+		echo "		<td>Title</td>\n";
+		echo "		<td>Description</td>\n";
+		echo "	</thead>\n";
 		while($row = mysql_fetch_row($result)){
 			echo "	<tr>\n";
 			echo "		<td>".stripslashes($row[4])."</td>\n";
@@ -63,7 +63,9 @@
 		}
 		echo "</table>\n";
 	} else {
-		echo "<h4>Nothing was found</h4>\n";
+		echo "<h4>You have not defined any checklists yet.</h4>\n";
+		echo 'Would you like to create a list? <a href="newCheckList.php">Yes </a>';
+		echo '<a href="index.php">No</a>';
 	}
 
 	mysql_free_result($result);

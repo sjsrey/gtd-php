@@ -33,12 +33,12 @@
 	if (mysql_num_rows($result) > 0){
 		$counter=0;
 		
-		echo "<table cellpadding=2 border=1>\n";
-		echo "	<tr>\n";
-		echo "		<th>Item</th>\n";
-		echo "		<th>Notes</th>\n"; 
-		echo "		<th>Checked</th>\n";
-		echo "	</tr>\n";
+		echo "<table class='datatable'>\n";
+		echo "	<thead>\n";
+		echo "		<td>Item</td>\n";
+		echo "		<td>Notes</td>\n"; 
+		echo "		<td>Checked</td>\n";
+		echo "	</thead>\n";
 		
 		while($row = mysql_fetch_row($result)){
                 echo "	<tr>\n";

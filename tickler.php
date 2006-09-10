@@ -72,12 +72,12 @@ echo '<p>To add an item to the tickler file:
 		}
 
 		echo '<form action="processNoteUpdate.php" method="post">'."\n";
-		echo "<table>\n";
-		echo "	<tr>\n";
-		echo "		<th>Reminder</th>\n";
-		echo "		<th>Title</th>\n";
-		echo "		<th>Note</th>\n";
-		echo "	</tr>\n";
+		echo "<table class='datatable'>\n";
+		echo "	<thead>\n";
+		echo "		<td>Reminder</td>\n";
+		echo "		<td>Title</td>\n";
+		echo "		<td>Note</td>\n";
+		echo "	</thead>\n";
 		echo $tablehtml;
 		echo "</table>\n";
 		echo "</form>\n";
@@ -131,18 +131,18 @@ echo '<p>To add an item to the tickler file:
 				}
 			}
 			echo '<form action="processItemUpdate.php" method="post">';
-			echo "<table>\n";
-			echo "	<tr>\n";
-			echo "		<th>Reminder</th>\n";
-			echo "		<th>Type</th>\n";
-			echo "		<th>Project</th>\n";
-			echo "		<th>Name</th>\n";
-			echo "		<th>Description</th>\n";
-			echo "		<th>Context</th>\n";
-			echo "		<th>Deadline</th>\n";
-			echo "		<th>Repeat</th>\n";
-			echo "		<th>Completed</th>\n";
-			echo "	</tr>\n";
+			echo "<table class='datatable'>\n";
+			echo "	<thead>\n";
+			echo "		<td>Reminder</td>\n";
+			echo "		<td>Type</td>\n";
+			echo "		<td>Project</td>\n";
+			echo "		<td>Name</td>\n";
+			echo "		<td>Description</td>\n";
+			echo "		<td>Context</td>\n";
+			echo "		<td>Deadline</td>\n";
+			echo "		<td>Repeat</td>\n";
+			echo "		<td>Completed</td>\n";
+			echo "	</thead>\n";
 			echo $tablehtml;
 			echo "</table>\n";
 			echo '<input type="hidden" name="type" value="'.$type.'" />'."\n";
@@ -184,17 +184,17 @@ echo '<p>To add an item to the tickler file:
 		}
 
                         echo '<form action="processProjectUpdate.php" method="post">';
-			echo "<table>\n";
-			echo "	<tr>\n";
-			echo "		<th>Reminder</th>\n";
-			echo "		<th>Name</th>\n";
-			echo "		<th>Description</th>\n";
-			echo "		<th>Category</th>\n";
-			echo "		<th>Deadline</th>\n";
-			echo "		<th>Repeat</th>\n";
-			echo "		<th>Completed</th>\n";
-			echo "		<th>&nbsp;</th>\n";
-			echo "	</tr>\n";
+			echo "<table class='datatable'>\n";
+			echo "	<thead>\n";
+			echo "		<td>Reminder</td>\n";
+			echo "		<td>Name</td>\n";
+			echo "		<td>Description</td>\n";
+			echo "		<td>Category</td>\n";
+			echo "		<td>Deadline</td>\n";
+			echo "		<td>Repeat</td>\n";
+			echo "		<td>Completed</td>\n";
+			echo "		<td>&nbsp;</td>\n";
+			echo "	</thead>\n";
 			echo $tablehtml;
 			echo "</table>\n";
 			echo '<input type="hidden" name="referrer" value="tickler" />'."\n";

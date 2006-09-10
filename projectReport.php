@@ -98,8 +98,8 @@ if(isset($previousId)){
 if(isset($nextId)){
     echo '[ <a href="projectReport.php?projectId='.$nextId.'" title="Next Project">Next</a> ]'."\n";
 }
-echo '<p>Created:'.$project['dateCreated']."<br />\n";
-echo 'Description:&nbsp;'.stripslashes($project['description'])."<br />\n";
+echo '<p>Created: '.$project['dateCreated']."<br />\n";
+echo 'Description: '.stripslashes($project['description'])."<br />\n";
 if ($project['desiredOutcome']!="") echo 'Desired Outcome:&nbsp;'.stripslashes($project['desiredOutcome'])."<br />\n";
 if ($project['deadline']!=NULL && $project['deadline']!="0000-00-00") echo 'Deadline:&nbsp;'.$project['deadline']."<br />\n";
 if ($project['repeat']>0) echo 'Repeat every&nbsp;'.$project['repeat'].'&nbsp;days'."<br />\n";
@@ -114,34 +114,37 @@ $completed = array("n","y");
 //table display loop
 foreach ($completed as $comp) {
 foreach ($type as $value) {
-
+	echo "<div class='reportsection'>\n";
 	if ($comp=="y") echo '<h2>Completed&nbsp;'.$typelabel[$value]."</h2>\n";
 	else echo '<h2><a href = "item.php?type='.$value.'&projectId='.$pId.'&pType='.$pType.'" title="Add new '.str_replace("s","",$typelabel[$value]).'">'.$typelabel[$value]."</a></h2>\n";
 
 	$result=doitemquery($pId,$value,$comp);
 	if (mysql_num_rows($result) > 0) {
 		$counter=0;
-		echo "<table>\n";
-		echo "	<tr>\n";
-		echo "		<th>".$typelabel[$value]."</th>\n";
-		echo "		<th>Description</th>\n";
-		echo "		<th>Context</th>\n";
-		echo "		<th>Date Created</th>\n";
+		echo "<table class='datatable'>\n";
+		echo "	<thead>\n";
+		echo "		<td>".$typelabel[$value]."</td>\n";
+		echo "		<td>Description</td>\n";
+		echo "		<td>Context</td>\n";
+		echo "		<td>Date Created</td>\n";
 		if ($comp=="n") {
-			echo "		<th>Deadline</th>\n";
-			echo "		<th>Repeat</th>\n";
-			echo "		<th>Suppress</th>\n";
-			echo "		<th>Completed</th>\n";
+			echo "		<td>Deadline</td>\n";
+			echo "		<td>Repeat</td>\n";
+			echo "		<td>Suppress</td>\n";
+			echo "		<td>Completed</td>\n";
 		}
-		echo "	</tr>\n";
+		echo "	</thead>\n";
 
 		while($row = mysql_fetch_assoc($result)) {
-			echo "	<tr>\n";
 
 			//if nextaction, add icon in front of action (* for now)
-			if ($key = array_search($row['itemId'],$nextactions)) echo '		<td><a href = "item.php?itemId='.$row['itemId'].'&pType='.$pType.'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">*&nbsp;'.stripslashes($row['title'])."</a></td>\n";
-			else echo '		<td><a href = "item.php?itemId='.$row['itemId'].'&pType='.$pType.'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.stripslashes($row['title'])."</a></td>\n";
-
+			if ($key = array_search($row['itemId'],$nextactions)) {
+				echo "	<tr class = 'nextactionrow'>\n";
+				echo '		<td class="nextactioncell"><a href="item.php?itemId='.$row['itemId'].'&pType='.$pType.'" class="nextactionlink" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'"><span class="nextActionMarker" title="Next Action">*</span>'.stripslashes($row['title'])."</a></td>\n";
+			} else {
+				echo "	<tr>\n";
+				echo '		<td><a href = "item.php?itemId='.$row['itemId'].'&pType='.$pType.'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.stripslashes($row['title'])."</a></td>\n";
+			}
 
 			echo '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
 			echo '		<td><a href = "reportContext.php?contextId='.$row['contextId'].'" title="Go to '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.stripslashes($row['cname'])."</a></td>\n";
@@ -181,7 +184,9 @@ foreach ($type as $value) {
 				echo 'No&nbsp;'.$typelabel[$value]."&nbsp;items\n";
 				}
 			}
-		else echo "None\n";
+		else echo "<p>None</p>\n";
+		
+		echo "</div>\n";
 	}
 }
 

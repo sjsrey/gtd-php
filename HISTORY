@@ -1,4 +1,8 @@
-(In progress) Version 0.6.1 
+2006-09-11 Version 0.7rc1
+    - Improved css (Josh Burnett)
+    - Theme Support (Josh Burnett)
+    - New Themes (Josh Burnett and Serge Rey)
+    - More Input Validation (Scott Jason Korvek)
     - Calendar for date selector (Serge Rey)
     - MySQL 5. and PhP 5. support (Serge Rey)
     - Title option (Serge Rey)

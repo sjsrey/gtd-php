@@ -98,24 +98,25 @@ if (mysql_num_rows($result) > 0){
 //Project Update form
 	echo "<p>Select project for individual report.</p>\n";
 	echo '<form action="processProjectUpdate.php" method="post">'."\n";
-	echo "<table>\n";
-	echo "	<tr>\n";
-	echo "		<th>Title</th>\n";
-	echo "		<th>Description</th>\n";
-	echo "		<th>Category</th>\n";
-	echo "		<th>Deadline</th>\n";
-	echo "		<th>Repeat</th>\n";
-	echo "		<th>Edit</th>\n";
-	if ($completed!="y") echo "		<th>Completed</th>\n";
-	echo "	</tr>\n";
+	echo "<table class='datatable'>\n";
+	echo "	<thead>\n";
+	echo "		<td>Title</td>\n";
+	echo "		<td>Description</td>\n";
+	echo "		<td>Category</td>\n";
+	echo "		<td>Deadline</td>\n";
+	echo "		<td>Repeat</td>\n";
+	echo "		<td>Edit</td>\n";
+	if ($completed!="y") echo "		<td>Completed</td>\n";
+	echo "	</thead>\n";
 
     
 	while($row = mysql_fetch_assoc($result)){
 		echo "	<tr>\n";
 		echo "		<td>";
 		$nonext=nonext($row['projectId']);		
-		if ($nonext=="true" && $completed!="y") echo '<font color="red"><strong title="No next action defined">!&nbsp;</strong></font>';
-		echo '<a href = "projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).' project report">'.stripslashes($row['name'])."</a></td>\n";
+		echo '<a href = "projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).' project report">';
+		if ($nonext=="true" && $completed!="y") echo '<span class="noNextAction" title="No next action defined!">!</span>';
+		echo stripslashes($row['name'])."</a></td>\n";
 		echo '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
 		echo '		<td><a href="editCategory.php?categoryId='.$row['categoryId'].'" title="Edit the '.htmlspecialchars(stripslashes($row['category'])).' category">'.stripslashes($row['category'])."</a></td>\n"; 
 		echo '		<td>';
@@ -127,7 +128,7 @@ if (mysql_num_rows($result) > 0){
 		echo "</td>\n";
 		if ($row['repeat']=="0") echo "		<td>--</td>\n";
 		else echo "		<td>".$row['repeat']."</td>\n";
-		echo '		<td><a href="project.php?projectIdt='.$row['projectId'].'" title="Edit '.htmlspecialchars(stripslashes($row['name'])).' project">Edit</a></td>'."\n";
+		echo '		<td><a href="project.php?projectId='.$row['projectId'].'" title="Edit '.htmlspecialchars(stripslashes($row['name'])).' project">Edit</a></td>'."\n";
         if ($completed!="y") echo '		<td align="center"><input type="checkbox" align="center" title="Mark '.htmlspecialchars(stripslashes($row['name'])).' project completed. Will hide incomplete associated items." name="completedProj[]" value="'.$row['projectId'].'" /></td>'."\n";
 		echo "	</tr>\n";
 		}

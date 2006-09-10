@@ -14,49 +14,51 @@
 	$item = $currentrow[1];
 	$notes = $currentrow[2];
 	$checklistId = $currentrow[3];
-	$checked = $currentrow[4];
+	$completed = $currentrow[4];
 	
-	echo "<h1>Edit checklist Item</h1>\n";
+	echo "<h2>Edit Checklist Item</h2>\n";
 
 //SELECT checklistId, title, categoryId, description from checklist ORDER BY title
 
 	$query = "SELECT * from checklist ORDER BY title";
 	$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
 	echo '<form action="updateChecklistItem.php?checklistItemId='.$checklistItemId.'" method="post">'."\n";
-	echo '<table border="0">'."\n";
-	echo "	<tr>\n";
-	echo "		<td>checklist</td>\n";
-	echo '		<td><select name="checklist">'."\n";
+?>
+	<div class='form'>		<div class='formrow'>
+			<label for='checklist' class='left first'>Checklist:</label>
+			<select name='checklistId' id='checklist'>
+<?php
 	while($row = mysql_fetch_row($result)){
 		if($row[0]==$checklistId){
-			echo "			<option selected value='" .$row[0] . "'>" . stripslashes($row[1]) . "</option>";
+			echo "				<option selected value='" .$row[0] . "'>" . stripslashes($row[1]) . "</option>\n";
 		}else{
-			echo $row[0];
-			echo $checklistId;
-			echo "			<option value='" .$row[0] . "'>" . stripslashes($row[1]) . "</option>";
+			echo "				<option value='" .$row[0] . "'>" . stripslashes($row[1]) . "</option>\n";
 		}
 	}
-	echo $row[0];
-	echo $checklistId;
-	echo "</td>\n";
-	mysql_free_result($result);
-	echo "		<td>Completed:</td>\n";
-	echo '		<td><input type="checkbox" name="checked" value="y" ';
-		if ($checked=='y') echo 'CHECKED';
-	echo '"></td>'."\n";
+//	mysql_free_result($result);
+?>
+			</select>
+			<input type='checkbox' name='completed' id='completed' class='notfirst' value='y'<?php if ($completed=='y') echo ' CHECKED'; ?>>
+			<label for='completed'>Item Completed</label>
+		</div>
 
-	echo "	</tr>\n";
-	echo "</table>\n";
+		<div class='formrow'>
+			<label for='newitem' class='left first'>Item:</label>
+			<textarea rows='2' name='newitem' wrap='virtual'><?php echo $item; ?></textarea>
+		</div>
+		
+		<div class='formrow'>
+			<label for='notes' class='left first'>Notes:</label>
+			<textarea rows="3" name="notes" id="notes" wrap="virtual"><?php echo $notes; ?></textarea>
+		</div>
+	</div>
+	<div class='formbuttons'>
+		<input type='submit' value='Update Checklist Item' name='submit' />
+		<input type="reset" value="Reset" />
+		<input type='checkbox' name='delete' id='delete' value='delete' /><label for='delete'>Delete&nbsp;Checklist&nbsp;Item</label>
+	</div>
 
-	echo "<table>\n";
-	echo "	<tr><td>Item</td></tr>\n";
-	echo '	<tr><td><textarea cols="80" rows="2" name="newitem" wrap=virtual">'.$item.'</textarea></td></tr>'."\n";
-	echo "	<tr><td>Notes</td></tr>\n";
-	echo '	<tr><td><textarea cols="80" rows="4" name="newnotes" wrap=virtual">'.$notes.'</textarea></td></tr>'."\n";
-	echo '	<tr><td>Delete checklist Item&nbsp;<input type="checkbox" name="delete" value="delete"></td></tr>'."\n";
-	echo "</table>\n";
-	echo "<br />\n";
-	echo '<input type="submit" value="Update checklist Item" name="submit">'."\n";
-	echo '<input type="reset" value="Reset">'."\n";
+
+<?php
 	include_once('footer.php');
 ?>

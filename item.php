@@ -97,130 +97,105 @@
 
 	if ($itemId>0) {
 		echo "<h2>Edit ".$typename."</h2>";
-		echo '<form action="updateItem.php?itemId='.$itemId.'" method="post">';
+		echo '	<form action="updateItem.php?itemId='.$itemId.'" method="post">';
 	}
-
 	else {
 		echo "<h2>New ".$typename."</h2>\n";
-		echo '<form action="processItem.php" method="post">'."\n";
+		echo '	<form action="processItem.php" method="post">'."\n";
 	}
-
-	echo '<table border="0">'."\n";
-	echo "	<tr>\n";
-	echo "		<td>".$pTypename."</td>\n";
-	echo '		<td><select name="projectId">'."\n";
-	echo $pshtml;
-	echo "		</select></td>\n";
-	echo "		<td>Context</td>\n";
-	echo '		<td><select name="contextId">'."\n";
-	echo $cshtml;
-	echo "		</select></td>\n";
-	echo "		<td>Time</td>\n";
-	echo '		<td><select name="timeframeId">'."\n";
-	echo $tshtml;
-	echo "		</select></td>\n";
-	echo "	</tr>\n";
-	echo "</table>\n";
-	
-	echo '<table border="0">'."\n";
-	echo "	<tr>\n";
-	echo "		<td>Type:&nbsp;\n";
-	echo '			<input type="radio" name="type" value="a"';
-	if ($type=='a') echo " CHECKED";
-	echo " />Action\n";
-	echo '			<input type="radio" name="type" value="r"';
-	if ($type=='r') echo " CHECKED";
-	echo " />Reference\n";
-	echo '			<input type="radio" name="type" value="w"';
-	if ($type=='w') echo " CHECKED";
-	echo " />Waiting\n";
-	echo "		</td>\n";
-
-	if ($nextactioncheck=='true') echo '		<td><input type="checkbox" name="nextAction" value="y" CHECKED />Next Action</td>'."\n";
-	else echo '		<td><input type="checkbox" name="nextAction" value="y" />Next Action</td>'."\n";
-
-	echo '		<td colspan="1"><input type="checkbox" name="delete" value="y" />Delete Item</td>'."\n";
-	echo "	</tr>\n";
-	echo "	<tr>\n";
-	echo '		<td><input type="checkbox" name="suppress" value="y" title="Hides item from active view (viewable from tickler file only)."';
-	if ($currentrow['suppress']=="y") echo " CHECKED";
-	echo ">\n";
-	echo '		Tickle&nbsp;<input type="text" size="3" name="suppressUntil" value="'.$currentrow['suppressUntil'].'">';
-	echo '&nbsp;days before deadline</td>';
-
-	echo '		<td colspan=2">Deadline:&nbsp;'."\n";
-	echo '			<form action="#" method="get">'."\n";
-	echo '			<input type="text" size="10" name="deadline" id="f_date_b" value="'.$currentrow['deadline'].'"/><button type="reset" id="f_trigger_b">...</button>'."\n";
 ?>
+		<div class='form'>
 
-			<script type="text/javascript">
-			    Calendar.setup({
-			        inputField     :    "f_date_b",      // id of the input field
-			        ifFormat       :    "%Y-%m-%d",       // format of the input field
-			        showsTime      :    false,            // will display a time selector
-			        button         :    "f_trigger_b",   // trigger for the calendar (button ID)
-			        singleClick    :    true,           // single-click mode
-			        step           :    1                // show all years in drop-down boxes (instead of every other year as default)
-			    });
-			</script>
-		</td>
-	</tr>
-	<tr>
+			<div class='formrow'>
+				<label for='title' class='left first'>Title:</label>
+				<input type='text' name='title' id='title' value='<?php echo stripslashes($currentrow['title']); ?>'>
+			</div>
+			
+			<div class='formrow'>
+				<label for='project' class='left first'><?php echo $pTypename; ?>:</label>
+				<select name="projectId"> <?php echo $pshtml; ?>
+				</select>
+				 <label for='context' class='left'>Context:</label>
+				<select name='contextId' id='context'> <?php echo $cshtml; ?>
+				</select>
 
+				<label for='timeframe' class='left'>Time:</label>
+				<select name='timeframeId' id='timeframe'> <?php echo $tshtml; ?>
+				</select>
+			</div>
+
+			<div class='formrow'>
+				<label for='deadline' class='left first'>Deadline:</label>
+				<input type='text' size='10' name='deadline' id='deadline' value='<?php echo $currentrow['deadline']; ?>'/>
+				<button type='reset' id='deadline_trigger'>...</button>
+					<script type='text/javascript'>
+						Calendar.setup({
+							inputField	 :	'deadline',	  // id of the input field
+							ifFormat	   :	'%Y-%m-%d',	   // format of the input field
+							showsTime	  :	false,			// will display a time selector
+							button		 :	'deadline_trigger',   // trigger for the calendar (button ID)
+							singleClick	:	true,		   // single-click mode
+							step		   :	1				// show all years in drop-down boxes (instead of every other year as default)
+						});
+					</script>
+				<label for='dateCompleted' class='left'>Completed:</label><input type='text' size='10' name='dateCompleted' id='dateCompleted' value='<?php echo $currentrow['dateCompleted'] ?>'/>
+				<button type='reset' id='dateCompleted_trigger'>...</button>
+					<script type='text/javascript'>
+						Calendar.setup({
+							inputField	 :	'dateCompleted',	  // id of the input field
+							ifFormat	   :	'%Y-%m-%d',	   // format of the input field
+							showsTime	  :	false,			// will display a time selector
+							button		 :	'dateCompleted_trigger',   // trigger for the calendar (button ID)
+							singleClick	:	true,		   // single-click mode
+							step		   :	1				// show all years in drop-down boxes (instead of every other year as default)
+						});
+					</script>
+			</div>
+			<div class='formrow'>
+				<label for='description' class='left first'>Description:</label>
+				<textarea rows='12' name='description' id='description' wrap='virtual'><?php echo stripslashes($currentrow['description']); ?></textarea>
+			</div>
+
+			<div class='formrow'>
+				<label class='left first'>Type:</label>
+	  			<input type='radio' name='type' id='action' value='a' class="first" <?php if ($type=='a') echo "CHECKED "; ?>/><label for='action' class='right'>Action</label>
+	  			<input type='radio' name='type' id='reference' value='r' class="notfirst" <?php if ($type=='r') echo "CHECKED "; ?>/><label for='reference' class='right'>Reference</label>
+	  			<input type='radio' name='type' id='waiting' value='w' class="notfirst" <?php if ($type=='w') echo "CHECKED "; ?>/><label for='waiting' class='right'>Waiting</label>
+			</div>
+
+			<div class='formrow'>
+				<label for='repeat' class='left first'>Repeat every&nbsp;</label><input type='text' name='repeat' id='repeat' size='3' value='<?php echo $currentrow['repeat']; ?>'><label for='repeat'>&nbsp;days</label>
+			</div>
+
+			<div class='formrow'>
+				<label for='suppress' class='left first'>Tickler:</label>
+				<input type='checkbox' name='suppress' id='suppress' value='y' title='Hides this project from the active view' <?php if ($currentrow['suppress']=="y") echo " CHECKED"; ?>/>
+				<label for='suppress'>Tickle&nbsp;</label>
+				<input type='text' size='3' name='suppressUntil' id='suppressUntil' value='<?php echo $currentrow['suppressUntil'];?>'><label for='suppressUntil'>&nbsp;days before deadline</label>
+			</div>
+			
+			<div class='formrow'>
+				<label for='nextAction' class='left first'>Next Action:</label><input type="checkbox" name="nextAction" value="y" <?php if ($nextactioncheck=='true') echo 'CHECKED '; ?>/>
+			</div>
+
+		</div> <!-- form div -->
+		<div class='formbuttons'>
 <?php
-    echo '		<td>Repeat every&nbsp;<input type="text" name="repeat" size="3" value="';
-	echo $currentrow['repeat'];
-	echo '">&nbsp;days</td>'."\n";
-	echo '		<td colspan="2">Completed:&nbsp;';
-    echo '<input type="text" size="10" name="dateCompleted" id="dateCompleted" value="'.$currentrow['dateCompleted'].'"/><button type="reset" id="f_trigger_c">...</button>'."\n";
-?>
-	
-			<script type="text/javascript">
-			    Calendar.setup({
-			        inputField     :    "dateCompleted",      // id of the input field
-			        ifFormat       :    "%Y-%m-%d",       // format of the input field
-			        showsTime      :    false,            // will display a time selector
-			        button         :    "f_trigger_c",   // trigger for the calendar (button ID)
-			        singleClick    :    true,           // single-click mode
-			        step           :    1                // show all years in drop-down boxes (instead of every other year as default)
-			    });
-			</script>
-		</td>
-	</tr>
-</table>
-
-<?php
-	echo "<table>\n";
-	echo "	<tr>\n";
-	echo "		<td>Title</td>\n";
-	echo "	</tr>\n";
-	echo "	<tr>\n";
-	echo '		<td><input type="text" size="79" name="title" value="'.stripslashes($currentrow['title']).'"></td>'."\n";
-	echo "	</tr>\n";
-	echo "	<tr>\n";
-	echo "		<td>Description</td>\n";
-	echo "	</tr>\n";
-	echo "	<tr>\n";
-	echo '		<td><textarea cols="77" rows="12" name="description" wrap=virtual">'.stripslashes($currentrow['description'])."</textarea></td>\n";
-	echo "	</tr>\n";
-	echo "</table>\n";
-
 	if ($itemId>0) {
-	echo '<table>';
-	echo '<tr><td>Date Added:&nbsp;'.$currentrow['dateCreated'].'</td>';
-	echo '<td>Last Modified:&nbsp;'.$currentrow['lastModified'].'</td></tr>';
-	echo '</tr>';
-	echo '</table>';
+		echo "			<input type='submit' value='Update ".$typename."' name='submit'>\n";
+	} else echo "			<input type='submit' value='Add ".$typename."' name='submit'>\n";
+?>		
+			<input type='reset' value='Reset'>
+			<input type='checkbox' name='delete' id='delete' value='y' /><label for='delete'>Delete&nbsp;Item</label>
+		</div>
+	</form>
+<?php
+	if ($itemId>0) {
+		echo "	<div class='details'>\n";
+		echo "		<span class='detail'>Date Added: ".$currentrow['dateCreated']."</span>\n";
+		echo "		<span class='detail'>Last Modified: ".$currentrow['lastModified']."</span>\n";
+		echo "	</div>\n";
 	}
-
-	echo "<br />\n";
-
-	if ($itemId>0) {
-		echo '<input type="submit" class="button" value="Update '.$typename.'" name="submit">'."\n";
-		}
-
-	else echo '<input type="submit" class="button" value="Add '.$typename.'" name="submit">'."\n";
-
-	echo '<input type="reset" class="button" value="Reset">'."\n";
+	echo "</div><!-- main -->\n";
 	include_once('footer.php');
 ?>

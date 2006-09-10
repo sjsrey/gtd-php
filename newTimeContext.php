@@ -6,12 +6,21 @@ if (!isset($_POST['submit'])) {
 	?>
 	<h1>New Temporal Context Definition </h1>
 	<form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
-		Context Name<br />
-		<input type="text" name="name"><br />
-		Description<br />
-		<textarea cols="80" rows="10" name="description" wrap="virtual"></textarea><br />
-		<input type="submit" value="Add Context" name="submit">
-		<input type="reset" value="Cancel">
+		<div class='form'>
+			<div class='formrow'>
+				<label for='name' class='left first'>Context Name:</label>
+				<input type="text" name="name" id="name">
+			</div>
+			
+			<div class='formrow'>
+				<label for='description' class='left first'>Description:</label>
+				<textarea rows="10" name="description" id="description" wrap="virtual"></textarea>
+			</div>
+		</div>
+		<div class='formbuttons'>
+			<input type="submit" value="Add Context" name="submit">
+			<input type="reset" value="Cancel">
+		</div>
 	</form>
 	<?php
 }else{
