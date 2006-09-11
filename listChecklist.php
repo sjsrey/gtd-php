@@ -1,5 +1,6 @@
 <?php
 	include_once('header.php');
+	include_once('gtdfuncs.php');
 	include_once('config.php');
 	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
 
@@ -63,9 +64,10 @@
 		}
 		echo "</table>\n";
 	} else {
-		echo "<h4>You have not defined any checklists yet.</h4>\n";
-		echo 'Would you like to create a list? <a href="newCheckList.php">Yes </a>';
-		echo '<a href="index.php">No</a>';
+		$message="You have not defined any checklists yet.";
+		$prompt="Would you like to create a new checklist?";
+		$yeslink="newchecklist.php";
+		nothingFound($message,$prompt,$yeslink);
 	}
 
 	mysql_free_result($result);

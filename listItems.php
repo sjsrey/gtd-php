@@ -3,6 +3,7 @@
 //INCLUDES
 include_once('header.php');
 include_once('config.php');
+include_once('gtdfuncs.php');
 
 //CONNECT TO DATABASE
 $connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
@@ -194,12 +195,17 @@ $result = mysql_query($query) or die ("Error in query");
 			echo '<input type="hidden" name="referrer" value="i" />'."\n";
 			echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit">'."\n";
 			echo "</form>\n";
-			}
-
-		else echo "<h4>Nothing was found</h4>\n";
+		}else{ 
+			$message="Nothing was found.";
+			nothingFound($message);
 		}
+	}else{
+		$message="You have no actions remaining.";
+		$prompt="Would you like to create a new action?";
+		$yeslink="item.php?type=a";
+		nothingFound($message,$prompt,$yeslink);
+	}
 
-	else echo "<h4>Nothing was found</h4>\n";
 
 	mysql_free_result($result);
 	mysql_close($connection);
