@@ -73,9 +73,9 @@ include_once('config.php');
     echo "<div class='reportsection'>\n";
 	echo "<h3>Contexts</h3>\n";
     if($ncon==1){
-        echo '<p>There is ' .$ncon. ' <a href="listitems.php?type=n">Spatial Context</a>.<p>'."\n";
+        echo '<p>There is ' .$ncon. ' <a href="listItems.php?type=n">Spatial Context</a>.<p>'."\n";
     }else{
-        echo '<p>There are ' .$ncon. ' <a href="listitems.php?type=n">Spatial Contexts</a>.<p>'."\n";
+        echo '<p>There are ' .$ncon. ' <a href="listItems.php?type=n">Spatial Contexts</a>.<p>'."\n";
     }
 	echo "</div>\n";
 
