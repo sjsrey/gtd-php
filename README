@@ -1,5 +1,5 @@
 gtd-php 
-Version 0.7rc1 (2006-09-10)
+Version 0.7 (2006-09-30)
 A web-based implementation of the Getting Things Done system for personal
 organization.
 
@@ -20,10 +20,13 @@ UPGRADING
 2. Extract the tarball into the same directory you originally 
    installed gtd-php in. 
 
-3. Then proceed to step 8 under NEW INSTALLATION. This will add new tables as
-    well as add new columns to your existing tables. Your original data will
-    be upgraded to use the new functionality in version 0.5. You do not need
-    to recreate your original database (i.e., step 1 is simply a precaution).
+3. Then proceed to step 8 under NEW INSTALLATION. If your current version is
+   0.6, your database remains the same, only the forms/interface/functionaly will
+   be upgraded. If you are using version 0.5 or older, this script will add
+   new tables as well as add new columns to your existing tables. Your
+   original data will be upgraded to use the new functionality in version 0.7.
+   You do not need to recreate your original database (i.e., step 1 is simply
+   a precaution).
 
 
 NEW INSTALLATION
