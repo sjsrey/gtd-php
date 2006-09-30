@@ -63,7 +63,9 @@
     }
     echo "<br>";
     if ($upgrade==0){
-        echo "<h3>No upgrade necessary.</h3>";
+        echo "<h3>No database upgrade necessary.</h3>";
+        $table .="<p> Just click <a href=\"index.php\">here</a> to begin using the new system.";
+        echo $table;
     }elseif($upgrade==1){
         echo "<h3>New installation.</h3>";
 
