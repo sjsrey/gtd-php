@@ -66,7 +66,7 @@
 	} else {
 		$message="You have not defined any checklists yet.";
 		$prompt="Would you like to create a new checklist?";
-		$yeslink="newchecklist.php";
+		$yeslink="newChecklist.php";
 		nothingFound($message,$prompt,$yeslink);
 	}
 
