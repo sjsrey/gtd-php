@@ -45,7 +45,6 @@ $addquery = "INSERT INTO projects (name,description,desiredOutcome) VALUES ('$na
 
 //Result reporting
 
-
 if ($type=="s") echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listProjects.php?type=s" />';
 else echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listProjects.php?type=p" />';
 

@@ -123,6 +123,7 @@ foreach ($type as $value) {
 		$counter=0;
 		echo "<table class='datatable'>\n";
 		echo "	<thead>\n";
+		echo "		<td>Next</td>\n";
 		echo "		<td>".$typelabel[$value]."</td>\n";
 		echo "		<td>Description</td>\n";
 		echo "		<td>Context</td>\n";
@@ -140,9 +141,17 @@ foreach ($type as $value) {
 			//if nextaction, add icon in front of action (* for now)
 			if ($key = array_search($row['itemId'],$nextactions)) {
 				echo "	<tr class = 'nextactionrow'>\n";
+                $naText='<td align=center><input type="radio"';
+                $naText.=' name="isNext" value="';
+                $naText.=$row['itemId'].'" checked><br></td>';
+                echo $naText;
 				echo '		<td class="nextactioncell"><a href="item.php?itemId='.$row['itemId'].'&pType='.$pType.'" class="nextactionlink" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'"><span class="nextActionMarker" title="Next Action">*</span>'.stripslashes($row['title'])."</a></td>\n";
 			} else {
 				echo "	<tr>\n";
+                $naText='<td align=center><input type="radio"';
+                $naText.=' name="isNext" value="';
+                $naText.=$row['itemId'].'"><br></td>';
+                echo $naText;
 				echo '		<td><a href = "item.php?itemId='.$row['itemId'].'&pType='.$pType.'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.stripslashes($row['title'])."</a></td>\n";
 			}
 
@@ -168,6 +177,8 @@ foreach ($type as $value) {
 				else $suppressText="--";
 				echo "		<td>".$suppressText."</td>\n";
 
+
+
 				echo '		<td align=center><input type="checkbox" align="center" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="';  
 				echo $row['itemId'];
 				echo '"></td>'."\n";
@@ -178,7 +189,7 @@ foreach ($type as $value) {
 		}
 		echo "</table>\n";
 		echo '<input type="hidden" name="referrer" value="p">'."\n";
-		if ($comp=="n") echo '<input type="submit" align="right" class="button" value="Complete '.$typelabel[$value].'" name="submit">'."\n";
+		if ($comp=="n") echo '<input type="submit" align="right" class="button" value="Update '.$typelabel[$value].'" name="submit">'."\n";
 
 			if($counter==0){
 				echo 'No&nbsp;'.$typelabel[$value]."&nbsp;items\n";

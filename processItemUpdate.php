@@ -23,7 +23,7 @@ $completedNas = $_POST['completedNas'];
 if(isset($completedNas)){
 	$today=strtotime("now");
 	$date=date('Y-m-d');
-        foreach ($completedNas as $completedNa) {
+    foreach ($completedNas as $completedNa) {
                 //echo "Updating item: ";
                 //echo $completedNa.'<br>';
 
@@ -74,18 +74,25 @@ if(isset($completedNas)){
 				$query = "INSERT INTO nextactions (projectId,nextAction) VALUES ('".$copyattributes['projectId']."','$newitemId')
        	 	        		ON DUPLICATE KEY UPDATE nextaction='$newitemId'";
         			$result = mysql_query($query) or die ("Error in query");
-				}
-               		}
-
+            }
+        }
 		//in either case, set original row completed
-                $query= "UPDATE itemstatus SET dateCompleted='$date' where itemId='$completedNa'";
-                $result = mysql_query($query) or die ("Error in query");
+        $query= "UPDATE itemstatus SET dateCompleted='$date' where itemId='$completedNa'";
+        $result = mysql_query($query) or die ("Error in query");
 
 		//remove original row from nextActions list
-                $query= "DELETE FROM nextactions WHERE nextAction='$completedNa'";
-                $result = mysql_query($query) or die ("Error in query");
-        	}
-	}
+        $query= "DELETE FROM nextactions WHERE nextAction='$completedNa'";
+        $result = mysql_query($query) or die ("Error in query");
+   }    
+}
+
+// Check on user radio button reset of next action 
+$isNext=$_POST['isNext'];
+if (isset($isNext)){
+   $query = "INSERT INTO nextactions (projectId,nextAction) VALUES ('$projectId','$newitemId')
+       	 	        		ON DUPLICATE KEY UPDATE nextaction='$isNext'";
+   $result = mysql_query($query) or die ("Error in query");
+}
 
 if ($referrer=="i") {
 	echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listItems.php?type='.$type.'&contextId='.$contextId.'&timeId='.$timeId.'">';
