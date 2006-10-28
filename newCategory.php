@@ -1,6 +1,6 @@
 <?php
 include_once('header.php');
-include_once('config.php');
+
 if (!isset($_POST['submit'])) {
 	//form not submitted
 	?>
@@ -9,9 +9,9 @@ if (!isset($_POST['submit'])) {
 		<div class='form'>
 			<div class='formrow'>
 				<label for='name' class='left first'>Category Name:</label>
-				<input type="text" name="name" id="name">
+				<input type="text" name="category" id="name">
 			</div>
-			
+
 			<div class='formrow'>
 				<label for='description' class='left first'>Description:</label>
 				<textarea rows="10" name="description" id="description" wrap="virtual"></textarea>
@@ -23,26 +23,26 @@ if (!isset($_POST['submit'])) {
 		</div>
 	</form>
 	<?php
-}else{
-
-	$name = empty($_POST['name']) ? die("Error: Enter a category name") : mysql_escape_string($_POST['name']);
-	$description = empty($_POST['description']) ? die("Error: Enter a description") : mysql_escape_string($_POST['description']);
-
-	$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-
-	mysql_select_db($db) or die ("Unable to select database!");
-	$dateCreated = date('Y-m-d');
-	# don't forget null
-	$query = "INSERT into categories values (NULL, '$name', '$description')";
-	$result = mysql_query($query) or die ("Error in query");
-
-	//echo "New category inserted with ID ".mysql_insert_id();
-
-    //brainstorming mode would have user want to add new categories in
-    //bunches?
-    echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=newCategory.php"';
-	mysql_close($connection);
 }
+
+else{
+
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
+
+    $values['category'] = ($_POST['category']=="") ? die('<META HTTP-EQUIV="Refresh" CONTENT="2; url=newCategory.php" /><p>Error: Enter a category name</p>') : mysql_escape_string($_POST['category']);
+    $values['description'] =  mysql_escape_string($_POST['description']);
+
+   $result = query("newcategory",$config,$values);
+
+    if ($result['ecode']=="0") echo "Category ".$values['category']." inserted.";
+    else echo "Category NOT inserted.";
+    if (($config['debug']=="true" || $config['debug']=="developer") && $result['ecode']!="0") echo "<p>Error Code: ".$result['ecode']."=> ".$result['etext']."</p>";
+
+    echo '<META HTTP-EQUIV="Refresh" CONTENT="2; url=newCategory.php" />';
+    }
+
+
 include_once('footer.php');
 ?>
 

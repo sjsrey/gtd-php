@@ -2,11 +2,10 @@
 <?php
 //INCLUDES
 include_once('header.php');
-include_once('config.php');
 
 //CONNECT TO DATABASE
-$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-mysql_select_db($db) or die ("Unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //RETRIEVE URL AND FORM VARIABLES
 $date=$_POST['date'];
@@ -16,7 +15,7 @@ $checkedClis = $_POST['checkedClis'];
 $clear = $_POST['clear']{0};
 $date=date('Y-m-d');
 
-echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=checklistReport.php?checklistId='.$checklistId.'&checklistTitle='.$checklistTitle.'">';
+echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=checklistReport.php?checklistId='.$checklistId.'&checklistTitle='.$checklistTitle.'">';
 
 $query= "UPDATE checklistItems SET checked='n' where checklistId='$checklistId'";
 $result = mysql_query($query) or die ("Error in query");

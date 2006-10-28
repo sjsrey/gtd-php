@@ -2,11 +2,10 @@
 
 //INCLUDES
 	include_once('header.php');
-	include_once('config.php');
 
 //CONNECT TO DATABASE
-	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
-	mysql_select_db($db) or die ("unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 	echo "<h2>Lists</h2>\n";
 
@@ -37,16 +36,16 @@
 	if ($categoryId==NULL) $categoryId='0';
 	if ($categoryId=='0') {
 	   $query = "SELECT list.listId, list.title, list.description,
-				list.categoryId, categories.category 
-				FROM list, categories 
-				WHERE list.categoryId=categories.categoryId 
+				list.categoryId, categories.category
+				FROM list, categories
+				WHERE list.categoryId=categories.categoryId
 				ORDER BY categories.category ASC";
 		$result = mysql_query($query) or die ("Error in query");
 	} else {
 	   $query = "SELECT list.listId, list.title, list.description,
-				list.categoryId, categories.category 
-				FROM list, categories 
-				WHERE list.categoryId=categories.categoryId AND list.categoryId='$categoryId' 
+				list.categoryId, categories.category
+				FROM list, categories
+				WHERE list.categoryId=categories.categoryId AND list.categoryId='$categoryId'
 				ORDER BY categories.category ASC";
 		$result = mysql_query($query) or die ("Error in query");
 	}

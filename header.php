@@ -4,31 +4,34 @@
 
 <head>
 <?php
-include_once('config.php');
+require_once("gtdfuncs.php");
+require_once("config.php");
+require_once("query.inc.php");
+
 echo'	<title>'.$title."</title>\n";
 ?>
 
 	<!-- theme main stylesheet -->
-	<link rel="stylesheet" href="themes/<?php echo $theme; ?>/style.css" type="text/css"/>
+	<link rel="stylesheet" href="themes/<?php echo $config['theme']; ?>/style.css" type="text/css"/>
 
 	<!-- theme screen stylesheet (should check to see if this actually exists) -->
-	<link rel="stylesheet" href="themes/<?php echo $theme; ?>/style_screen.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="themes/<?php echo $config['theme']; ?>/style_screen.css" type="text/css" media="screen" />
 
 	<!-- theme script (should check to see if this actually exists) -->
-	<script type="text/javascript" src="themes/<?php echo $theme; ?>/theme.js"></script>
+	<script type="text/javascript" src="themes/<?php echo $config['theme']; ?>/theme.js"></script>
 
 
-	<!-- calendar stylesheet --> 	 
-	<link rel="stylesheet" type="text/css" media="all" href="calendar-win2k-cold-1.css" title="win2k-cold-1" /> 	 
+	<!-- calendar stylesheet -->
+	<link rel="stylesheet" type="text/css" media="all" href="calendar-win2k-cold-1.css" title="win2k-cold-1" />
 
-	<!-- main calendar program --> 	 
-	<script type="text/javascript" src="calendar.js"></script> 	 
+	<!-- main calendar program -->
+	<script type="text/javascript" src="calendar.js"></script>
 
-	<!-- language for the calendar --> 	 
-	<script type="text/javascript" src="lang/calendar-en.js"></script> 	 
+	<!-- language for the calendar -->
+	<script type="text/javascript" src="lang/calendar-en.js"></script>
 
-	<!-- the following script defines the Calendar.setup helper function, which makes 	 
-		  adding a calendar a matter of 1 or 2 lines of code. --> 	 
+	<!-- the following script defines the Calendar.setup helper function, which makes
+		  adding a calendar a matter of 1 or 2 lines of code. -->
 	<script type="text/javascript" src="calendar-setup.js"></script>
 
 
@@ -39,7 +42,7 @@ echo'	<title>'.$title."</title>\n";
 <div id="header">
 	<h1 id='sitename'><a href='index.php'><?php echo $title;?></a></h1>
 </div>
-		
+
 <div id="menudiv">
 	<ul id="menulist">
 
@@ -57,7 +60,7 @@ echo'	<title>'.$title."</title>\n";
 				<li><a href="newTimeContext.php" title="Define a time window for items">Time Context</a></li>
 				<li><a href="newCategory.php" title="Meta categories to group projects">Category</a></li>
 			</ul>
-	
+
 		<li>Process
 			<ul>
 				<li><a href="reportContext.php" title="Active items sorted by context">Contexts</a></li>
@@ -73,7 +76,7 @@ echo'	<title>'.$title."</title>\n";
 				<li><a href="summaryAlone.php" title="Summary view">Summary</a></li>
 				<li><a href="tickler.php" title="Hidden items and reminders">Tickler File</a></li>
 			</ul>
-			
+
 		<li>Review
 			<ul>
 				<li><a href="weekly.php" title="Steps in the Weekly Review">Weekly Review</a></li>
@@ -88,7 +91,7 @@ echo'	<title>'.$title."</title>\n";
 			</ul>
 
         <li>Config
-				
+
 			<ul>
 				<li><a href="newCategory.php" title="Meta-Categories">Categories</a></li>
 				<li><a href="newContext.php" title="Spatial Contexts">Space Contexts</a></li>
@@ -108,6 +111,6 @@ echo'	<title>'.$title."</title>\n";
 </div>
 
 <div id="main">
-    
+
 
 

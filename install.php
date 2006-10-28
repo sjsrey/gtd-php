@@ -16,7 +16,8 @@
     echo "<h2>gtd-php installation/upgrade</h2>\n";
 
     //connect
-	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
     // get server information for problem reports
     $v="<h3>Installation Info</h3>\n";
@@ -31,7 +32,7 @@
     $msg='<font color="red">Unable to select gtd database.<br>Please create the gtd mysql database and rerun this script.';
 	mysql_select_db($db) or die ($msg);
 
-    
+
 
     //check if we are doing a new install, an upgrade, or are we current
     $tprojects=0;
@@ -461,7 +462,7 @@ TEST;
         $query="insert into itemattributes(projectId) select  projectId from reference";
         $result = mysql_query($query);
         //update reference type
-        $query="update itemattributes set type='r' where itemId > '$nacount'"; 
+        $query="update itemattributes set type='r' where itemId > '$nacount'";
         $result = mysql_query($query);
 
         // add waiting ons
@@ -475,7 +476,7 @@ TEST;
         $result = mysql_query($query);
         $query="insert into itemattributes(projectId) select  projectId from waitingOn";
         $result = mysql_query($query);
-        $query="update itemattributes set type='w' where itemId > '$nacount'"; 
+        $query="update itemattributes set type='w' where itemId > '$nacount'";
         $result = mysql_query($query);
 
         //get rid of 0 offset for timeId
@@ -566,7 +567,7 @@ TEST;
         $result = mysql_query($query);
         $query='alter table projectsTemp rename projects';
         $result = mysql_query($query);
-   
+
         $query='drop table maybe';
         $result = mysql_query($query);
 
@@ -575,7 +576,7 @@ TEST;
 
         $query='drop table reference';
         $result = mysql_query($query);
- 
+
         echo "Creating timeitems table<br>";
         $query = <<<TEST
             CREATE TABLE `timeitems` (
@@ -588,7 +589,7 @@ TEST;
         $result = mysql_query($query);
         $query='insert into timeitems(timeframeid) select distinct timeframeId from itemattributes';
         $result = mysql_query($query);
-        // loop over unique timefameIds and create timeframeNames: t1, t2, 
+        // loop over unique timefameIds and create timeframeNames: t1, t2,
         // t3, ...
         $query='select distinct timeframeId from itemattributes';
         $results=mysql_query($query);

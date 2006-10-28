@@ -2,11 +2,10 @@
 
 //INCLUDES
 	include_once('header.php');
-	include_once('config.php');
 
 //CONNECT TO DATABASE
-	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
-	mysql_select_db($db) or die ("unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //RETRIEVE URL VARIABLES
 	$checklistId = (int) $_GET['checklistId'];
@@ -19,7 +18,8 @@
 ?>
 <h2>New Checklist Item</h2>
 <form action="processChecklistItem.php" method="POST">
-	<div class='form'>		<div class='formrow'>
+	<div class='form'>
+		<div class='formrow'>
 			<label for='checklist' class='left first'>Checklist:</label>
 			<select name='checklistId' id='checklist'>
 <?php
@@ -48,7 +48,7 @@
 	<div class='formbuttons'>
 		<input type='submit' value='Add List Item' name='submit'>
 	</div>
-	
+
 <?php
 	}
 	else{

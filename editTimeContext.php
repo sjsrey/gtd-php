@@ -1,14 +1,13 @@
 <?php
 //INCLUDES
 	include_once('header.php');
-	include_once('config.php');
 
 //RETRIEVE URL VARIABLES
 	$tcId =(int) $_GET["tcId"];
 
 //SQL CODE
-	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
-	mysql_select_db($db) or die ("Unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
         //select all timeframes for selectbox (would make good function!)
         $query = "SELECT timeframeId, timeframe FROM timeitems ORDER BY timeframe ASC";
@@ -29,7 +28,7 @@
 	$row = mysql_fetch_assoc($result);
 
 //PAGE DISPLAY CODE
-	echo "<h2>Edit Timeframe</h2>\n";	
+	echo "<h2>Edit Timeframe</h2>\n";
 	echo '<form action="updateTimeContext.php?tcId='.$tcId.'" method="post">'."\n";
 	echo '<table border="0">'."\n";
 	echo '	<tr><td colspan="2">Timeframe Name</td></tr>'."\n";
@@ -39,7 +38,7 @@
 	echo '"></td></tr>'."\n";
 	echo '	<tr><td colspan="2">Description</td></tr>'."\n";
 	echo '	<tr><td colspan="2">';
-	echo '<textarea cols="80" rows="10" name="description" wrap=virtual">';  
+	echo '<textarea cols="80" rows="10" name="description" wrap=virtual">';
 	echo stripslashes($row['description']);
 	echo "</textarea></td></tr>\n";
 	echo "	<tr>\n";

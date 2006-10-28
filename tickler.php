@@ -2,11 +2,10 @@
 
 //INCLUDES
 include_once('header.php');
-include_once('config.php');
 
 //CONNECT TO DATABASE
-$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect");
-mysql_select_db($db) or die ("Unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //SQL CODE
 //select all nextactions for test
@@ -23,7 +22,7 @@ $query = "SELECT ticklerId, title, note, date FROM tickler WHERE (date IS NULL O
 $reminderResult = mysql_query($query) or die ("Error in query");
 
 //Select suppressed items
-$query = "SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated, 
+$query = "SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated,
 	context.contextId, context.name AS cname, items.itemId, itemstatus.dateCompleted, itemattributes.deadline,
 	itemattributes.repeat, itemattributes.suppress, itemattributes.suppressUntil, itemattributes.type
 	FROM items, itemattributes, itemstatus, projects, projectstatus, context
@@ -53,16 +52,16 @@ echo '<h4>Today is '.date("l, F jS, Y").'. (Week '.date("w").'/52 & Day '.date("
 echo '<p>To add an item to the tickler file:
 	<ul>
 		<li>Add a new item (<a href="item.php?type=a" title="Add new action">action</a>,
-			<a href="item.php?type=w" title="Add new waitingOn">waiting</a>, 
-			<a href="item.php?type=r" title="Add new reference">reference</a>), 
+			<a href="item.php?type=w" title="Add new waitingOn">waiting</a>,
+			<a href="item.php?type=r" title="Add new reference">reference</a>),
 			<a href="project.php?type=p">project</a>, or <a href="project.php?type=s">someday/maybe</a> as appropriate,</li>
 		<li>Select the tickler option, and fill in the details as desired.</li>
 	</ul>
-	<br />Reminder notes can be added <a href="note.php" Title="Add new reminder">here</a>.</p>'; 
+	<br />Reminder notes can be added <a href="note.php" Title="Add new reminder">here</a>.</p>';
 
 	if (mysql_num_rows($reminderResult) > 0) {
 		echo "<br /><h3>Reminder Notes</h3>";
-		$tablehtml="";		
+		$tablehtml="";
 		while($row = mysql_fetch_assoc($reminderResult)) {
 			$tablehtml .= "	<tr>\n";
 			$tablehtml .= "		<td>".$row['date']."</td>\n";
@@ -86,13 +85,13 @@ echo '<p>To add an item to the tickler file:
 	if (mysql_num_rows($itemResult) > 0) {
 		echo "<br />\n";
 		echo "<h3>Actions, WaitingOn, and References</h3>\n";
-		$tablehtml="";		
+		$tablehtml="";
 		while($row = mysql_fetch_assoc($itemResult)) {
 			//Calculate reminder date as # suppress days prior to deadline
 				$dm=(int)substr($row['deadline'],6,2);
 				$dd=(int)substr($row['deadline'],8,2);
 				$dy=(int)substr($row['deadline'],0,4);
-				$remind=mktime(0,0,0,$dm,($dd-(int)$row['suppressUntil']),$dy);		
+				$remind=mktime(0,0,0,$dm,($dd-(int)$row['suppressUntil']),$dy);
                         	$reminddate=gmdate("Y-m-d", $remind);
 			//suppress row if reminder date has passed
 			if ($reminddate >= date("Y-m-d")) {
@@ -154,7 +153,7 @@ echo '<p>To add an item to the tickler file:
 	if (mysql_num_rows($projectResult) > 0) {
 		echo "<br />\n";
 		echo "<h3>Projects and Someday/Maybe</h3>\n";
-		$tablehtml="";		
+		$tablehtml="";
 		while($row = mysql_fetch_assoc($projectResult)) {
 			$tablehtml .= "	<tr>\n";
 			$tablehtml .= "		<td>";
@@ -162,7 +161,7 @@ echo '<p>To add an item to the tickler file:
 			$dm=(int)substr($row['deadline'],6,2);
 			$dd=(int)substr($row['deadline'],8,2);
 			$dy=(int)substr($row['deadline'],0,4);
-			$remind=mktime(0,0,0,$dm,($dd-(int)$row['suppressUntil']),$dy);		
+			$remind=mktime(0,0,0,$dm,($dd-(int)$row['suppressUntil']),$dy);
 						$reminddate=gmdate("Y-m-d", $remind);
 			$tablehtml .= $reminddate."</td>\n";
 			$tablehtml .= '		<td><a href = "projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).' project report">'.stripslashes($row['name'])."</td>\n";

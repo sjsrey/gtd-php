@@ -1,5 +1,8 @@
 
 <?php
+
+
+
     function DateDropDown($size=90,$datevar="dateCompleted",$default="DropDate") {
        // $size = the number of days to display in the drop down
        // $default = string for variable name to hold date selected
@@ -49,7 +52,9 @@
        echo "</select>\n";
     }
 
+/* DEPRECIATED
     function getNextActions(){
+
        // Get all next actions, distinguishing between regular actions and 
         // next actions.
         // Argument:
@@ -66,7 +71,9 @@
         $list['result']=$result;
         return $list;
     }
+*/
 
+/* DEPRECIATED
     function getActions(){
         // Get all (completed and pending) of the next actions 
         // Argument:
@@ -83,7 +90,12 @@
         return $list;
     }
 
+*/
+
     function getCompletedNextActions(){
+    $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+    mysql_select_db($config['db']) or die ("Unable to select database!");
+
         // Get completed next actions 
         // Argument:
         //   none
@@ -136,6 +148,9 @@
     }
 
     function getProjectTitle($projectId){
+    $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+    mysql_select_db($config['db']) or die ("Unable to select database!");
+
         // Get the title of a project
         // Argument:
         //  projectId: int project id 
@@ -170,6 +185,9 @@
 	}
 
 	function nonext($projectId) {
+     $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+    mysql_select_db($config['db']) or die ("Unable to select database!");
+       
 		$query = "SELECT projectId, nextaction FROM nextactions WHERE projectId='$projectId'";
 		$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
 		if (mysql_num_rows($result)>0) $nonext="false";

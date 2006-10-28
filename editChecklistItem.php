@@ -1,11 +1,10 @@
 <?php
 	include_once('header.php');
-	include_once('config.php');
+
 	$checklistItemId =$_GET["checklistItemId"];
 
-	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
-
-	mysql_select_db($db) or die ("unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 	$query = "SELECT checklistItemId, item, notes, checklistId, checked from checklistItems where checklistItemId = $checklistItemId";
 	$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
@@ -15,7 +14,7 @@
 	$notes = $currentrow[2];
 	$checklistId = $currentrow[3];
 	$completed = $currentrow[4];
-	
+
 	echo "<h2>Edit Checklist Item</h2>\n";
 
 //SELECT checklistId, title, categoryId, description from checklist ORDER BY title
@@ -24,7 +23,8 @@
 	$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
 	echo '<form action="updateChecklistItem.php?checklistItemId='.$checklistItemId.'" method="post">'."\n";
 ?>
-	<div class='form'>		<div class='formrow'>
+	<div class='form'>
+		<div class='formrow'>
 			<label for='checklist' class='left first'>Checklist:</label>
 			<select name='checklistId' id='checklist'>
 <?php
@@ -46,10 +46,10 @@
 			<label for='newitem' class='left first'>Item:</label>
 			<textarea rows='2' name='newitem' wrap='virtual'><?php echo $item; ?></textarea>
 		</div>
-		
+
 		<div class='formrow'>
 			<label for='notes' class='left first'>Notes:</label>
-			<textarea rows="3" name="notes" id="notes" wrap="virtual"><?php echo $notes; ?></textarea>
+			<textarea rows="3" name="newnotes" id="notes" wrap="virtual"><?php echo $notes; ?></textarea>
 		</div>
 	</div>
 	<div class='formbuttons'>

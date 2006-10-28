@@ -1,33 +1,31 @@
 <?php
 include_once('header.php');
-include_once('config.php');
 
-$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-mysql_select_db($db) or die ("Unable to select database!");
+//need to connect to database to escape data
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //GET URL AND FORM DATA
-$categoryId = (int) $_GET['categoryId'];
-$category=mysql_real_escape_string($_POST['category']);
-$description=mysql_real_escape_string($_POST['description']);
-$delete=$_POST['delete']{0};
-$newCategoryId=(int) $_POST['newCategoryId'];
+$values['categoryId'] = (int) $_GET['categoryId'];
+$values['category']=mysql_real_escape_string($_POST['category']);
+$values['description']=mysql_real_escape_string($_POST['description']);
+$values['delete']=$_POST['delete']{0};
+$values['newCategoryId']=(int) $_POST['newCategoryId'];
 
-if ($delete=="y") {
-	$reassignquery= "update projectattributes set categoryId='$newCategoryId' where categoryId='$categoryId'";
-	$reassignresult = mysql_query($reassignquery) or die ("Error in query");
-	$deletequery = "delete from categories where categoryId='$categoryId'";
-	$deleteresult = mysql_query($deletequery) or die ("Error in query");
+if ($values['delete']=="y") {
+    query("reassigncategory",$config,$values);
+    query("deletecategory",$config,$values);
 	}
 
-else {
-	$query = "update categories set category ='$category', description='$description' where categoryId ='$categoryId'";
-	$result = mysql_query($query) or die ("Error in query");
-	}
+else $result = query("updatecategory",$config,$values);
 
-echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listProjects.php"';
-echo "Number of Records Updated: ";
-echo mysql_affected_rows();
+    if ($result['ecode']=="0") echo "Category ".$values['category']." updated.";
+    else {
+        echo "Category NOT updated.";
+        if ($config['debug']=="true" || $config['debug']=="developer") echo $result['ecode'].": ".$result['etext'];
+        }
 
-mysql_close($connection);
+echo '<META HTTP-EQUIV="Refresh" CONTENT="20; url=listProjects.php"/>';
+
 include_once('footer.php');
 ?>

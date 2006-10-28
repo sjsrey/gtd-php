@@ -2,12 +2,10 @@
 
 //INCLUDES
 include_once('header.php');
-include_once('config.php');
-include_once('gtdfuncs.php');
 
 //CONNECT TO DATABASE
-$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
-mysql_select_db($db) or die ("unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 
 //GET URL VARIABLES
@@ -47,7 +45,7 @@ else {
 	$typename="Items";
 	$typequery="a";
 	}
-	
+
 //SQL CODE
 //select all contexts for dropdown list
 $query = "SELECT contextId, name, description  FROM context ORDER BY name ASC";
@@ -100,16 +98,16 @@ if ($contextId != NULL) $contextquery = "AND itemattributes.contextId = '$contex
 if ($categoryId != NULL) $catquery = " AND projectattributes.categoryId = '$categoryId'";
 if ($timeId !=NULL) $timequery = "AND itemattributes.timeframeId ='$timeId'";
 
-$query = "SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated, 
-	context.contextId, context.name AS cname, items.itemId, itemstatus.dateCompleted, itemattributes.deadline, 
-	itemattributes.repeat, itemattributes.suppress, itemattributes.suppressUntil 
-	FROM items, itemattributes, itemstatus, projects, projectattributes, projectstatus, context 
-	WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId 
-	AND itemattributes.contextId = context.contextId AND itemattributes.projectId = projects.projectId 
-	AND projectattributes.projectId=itemattributes.projectId AND projectstatus.projectId = itemattributes.projectId 
+$query = "SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated,
+	context.contextId, context.name AS cname, items.itemId, itemstatus.dateCompleted, itemattributes.deadline,
+	itemattributes.repeat, itemattributes.suppress, itemattributes.suppressUntil
+	FROM items, itemattributes, itemstatus, projects, projectattributes, projectstatus, context
+	WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId
+	AND itemattributes.contextId = context.contextId AND itemattributes.projectId = projects.projectId
+	AND projectattributes.projectId=itemattributes.projectId AND projectstatus.projectId = itemattributes.projectId
 	AND itemattributes.type = '$typequery' " .$catquery.$contextquery.$timequery. " AND projectattributes.isSomeday='$ptypequery'
 	AND (itemstatus.dateCompleted IS NULL OR itemstatus.dateCompleted = '0000-00-00')
-	AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00') 
+	AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00')
 	AND ((CURDATE() >= DATE_ADD(itemattributes.deadline, INTERVAL -(itemattributes.suppressUntil) DAY))
 		OR itemattributes.suppress='n'
 		OR ((CURDATE() >= DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY))))
@@ -141,7 +139,7 @@ $result = mysql_query($query) or die ("Error in query");
 	echo "</form>\n\n";
 
 	if (mysql_num_rows($result) > 0) {
-		$tablehtml="";		
+		$tablehtml="";
 		while($row = mysql_fetch_assoc($result)){
 
 			$showme="y";
@@ -149,7 +147,7 @@ $result = mysql_query($query) or die ("Error in query");
 			if (($display=='nextonly')  && !($key=array_search($row['itemId'],$nextactions))) $showme="n";
 
 			if($showme=="y") {
-			
+
 				$tablehtml .= "	<tr>\n";
 				$tablehtml .= '		<td><a href = "projectReport.php?projectId='.$row['projectId'].'"title="Go to '.htmlspecialchars(stripslashes($row['pname'])).' project report">'.stripslashes($row['pname'])."</a></td>\n";
 
@@ -164,7 +162,7 @@ $result = mysql_query($query) or die ("Error in query");
 				elseif(($row['deadline']) < date("Y-m-d")) $tablehtml .= '<font color="red"><strong title="Item overdue">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';  //highlight overdue actions
 				elseif(($row['deadline']) == date("Y-m-d")) $tablehtml .= '<font color="green"><strong title="Item due today">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>'; //highlight actions due today
 				else $tablehtml .= date("D M j, Y",strtotime($row['deadline']));
-				
+
 				$tablehtml .= "</td>\n";
 				if ($row['repeat']=="0") $tablehtml .= "		<td>--</td>\n";
 				else $tablehtml .= "		<td>".$row['repeat']."</td>\n";
@@ -195,7 +193,7 @@ $result = mysql_query($query) or die ("Error in query");
 			echo '<input type="hidden" name="referrer" value="i" />'."\n";
 			echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit">'."\n";
 			echo "</form>\n";
-		}else{ 
+		}else{
 			$message="Nothing was found.";
 			nothingFound($message);
 		}

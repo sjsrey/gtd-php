@@ -2,19 +2,18 @@
 
 //INCLUDES
 include_once('header.php');
-include_once('config.php');
 
 //RETRIEVE URL VARIABLES
 $pId = (int) $_GET['projectId'];
 //SQL CODE AREA
-$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
-mysql_select_db($db) or die ("Unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //GET project details
-$query = "SELECT projects.name, projects.description, projects.desiredOutcome, projectstatus.dateCreated, 
-	projectstatus.dateCompleted, projectstatus.lastModified, projectattributes.deadline, projectattributes.repeat, 
+$query = "SELECT projects.name, projects.description, projects.desiredOutcome, projectstatus.dateCreated,
+	projectstatus.dateCompleted, projectstatus.lastModified, projectattributes.deadline, projectattributes.repeat,
 	projectattributes.suppress, projectattributes.suppressUntil, projectattributes.isSomeday
-	FROM projects,projectattributes, projectstatus 
+	FROM projects,projectattributes, projectstatus
 	WHERE projectstatus.projectId = projects.projectId AND projectattributes.projectId = projects.projectId AND
 	projects.projectId = '$pId'";
 $result = mysql_query($query) or die ("Error in query");
@@ -29,11 +28,11 @@ function doitemquery($projectId,$type,$completed='n') {
 	else $compq = "itemstatus.dateCompleted IS NULL OR itemstatus.dateCompleted = '0000-00-00'";
 
 	$query = "SELECT items.itemId, items.title, items.description, itemstatus.dateCreated, itemstatus.dateCompleted,
-		context.contextId, context.name AS cname, itemattributes.deadline, itemattributes.repeat, 
+		context.contextId, context.name AS cname, itemattributes.deadline, itemattributes.repeat,
 		itemattributes.suppress, itemattributes.suppressUntil
 		FROM items, itemattributes, itemstatus, context
 		WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId AND
-		itemattributes.contextId = context.contextId AND itemattributes.projectId = '$projectId' 
+		itemattributes.contextId = context.contextId AND itemattributes.projectId = '$projectId'
 		AND itemattributes.type = '$type' AND (".$compq.") ORDER BY items.title ASC, cname ASC";
 	$result = mysql_query($query) or die ("Error in query");
 	return $result;
@@ -53,9 +52,9 @@ $compq = "(projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = 
 			OR projectattributes.suppress='n'))";
 $isSomeday="n";
 $query="SELECT projects.projectId, projects.name, projects.description, projectattributes.categoryId, categories.category,
-		projectattributes.deadline, projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil 
-		FROM projects, projectattributes, projectstatus, categories 
-		WHERE projectattributes.projectId=projects.projectId AND projectattributes.categoryId=categories.categoryId 
+		projectattributes.deadline, projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil
+		FROM projects, projectattributes, projectstatus, categories
+		WHERE projectattributes.projectId=projects.projectId AND projectattributes.categoryId=categories.categoryId
 		AND projectstatus.projectId=projects.projectId AND projectattributes.isSomeday = '$isSomeday' AND ".$compq."
 		ORDER BY categories.category, projects.name ASC";
 
@@ -123,7 +122,6 @@ foreach ($type as $value) {
 		$counter=0;
 		echo "<table class='datatable'>\n";
 		echo "	<thead>\n";
-		echo "		<td>Next</td>\n";
 		echo "		<td>".$typelabel[$value]."</td>\n";
 		echo "		<td>Description</td>\n";
 		echo "		<td>Context</td>\n";
@@ -141,17 +139,9 @@ foreach ($type as $value) {
 			//if nextaction, add icon in front of action (* for now)
 			if ($key = array_search($row['itemId'],$nextactions)) {
 				echo "	<tr class = 'nextactionrow'>\n";
-                $naText='<td align=center><input type="radio"';
-                $naText.=' name="isNext" value="';
-                $naText.=$row['itemId'].'" checked><br></td>';
-                echo $naText;
 				echo '		<td class="nextactioncell"><a href="item.php?itemId='.$row['itemId'].'&pType='.$pType.'" class="nextactionlink" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'"><span class="nextActionMarker" title="Next Action">*</span>'.stripslashes($row['title'])."</a></td>\n";
 			} else {
 				echo "	<tr>\n";
-                $naText='<td align=center><input type="radio"';
-                $naText.=' name="isNext" value="';
-                $naText.=$row['itemId'].'"><br></td>';
-                echo $naText;
 				echo '		<td><a href = "item.php?itemId='.$row['itemId'].'&pType='.$pType.'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.stripslashes($row['title'])."</a></td>\n";
 			}
 
@@ -177,9 +167,7 @@ foreach ($type as $value) {
 				else $suppressText="--";
 				echo "		<td>".$suppressText."</td>\n";
 
-
-
-				echo '		<td align=center><input type="checkbox" align="center" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="';  
+				echo '		<td align=center><input type="checkbox" align="center" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="';
 				echo $row['itemId'];
 				echo '"></td>'."\n";
 				}
@@ -189,14 +177,14 @@ foreach ($type as $value) {
 		}
 		echo "</table>\n";
 		echo '<input type="hidden" name="referrer" value="p">'."\n";
-		if ($comp=="n") echo '<input type="submit" align="right" class="button" value="Update '.$typelabel[$value].'" name="submit">'."\n";
+		if ($comp=="n") echo '<input type="submit" align="right" class="button" value="Complete '.$typelabel[$value].'" name="submit">'."\n";
 
 			if($counter==0){
 				echo 'No&nbsp;'.$typelabel[$value]."&nbsp;items\n";
 				}
 			}
 		else echo "<p>None</p>\n";
-		
+
 		echo "</div>\n";
 	}
 }

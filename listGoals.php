@@ -1,11 +1,9 @@
 
 <?php
 	include_once('header.php');
-	include_once('config.php');
-	include_once('gtdfuncs.php');
 
-	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
-	mysql_select_db($db) or die ("unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //SECTION WILL BE COMPLETELY REWRITTEN
 
@@ -24,7 +22,7 @@
 		echo "		<td>Date Created</td>\n";
 		echo "		<td>Deadline</td>\n";
 		echo "	</thead>\n";
-		
+
 		while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
 			if($row['completed'] == NULL or $row['completed'] =="0000-00-00"){
 				$naId = $row['id'];
@@ -51,15 +49,15 @@
 
 	# completed goals
 
-	$query = 'SELECT * from goals where completed is not null 
+	$query = 'SELECT * from goals where completed is not null
 	and completed != "0000-00-00" order by created desc, type desc';
 	$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
 
 
 		echo "<h3>Accomplished Goals</h3>\n";
-		
+
 	if (mysql_num_rows($result) > 0){
-	
+
 		echo "<table class='datatable'>\n";
 		echo "	<thead>\n";
 		echo "		<td>ID</td>\n";
@@ -70,7 +68,7 @@
 		echo "		<td>Deadline</td>\n";
 		echo "		<td>Completed</td>\n";
 		echo "	</tead>\n";
-		
+
 		while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
 				echo "	<tr>\n";
 				$naId = $row['id'];

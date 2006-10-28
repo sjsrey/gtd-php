@@ -1,24 +1,22 @@
 <?php
 //INCLUDES
-include_once('gtdfuncs.php');
 include_once('header.php');
-include_once('config.php');
+
+//SQL CODE
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //RETRIEVE URL VARIABLES
 $projectId =(int) $_GET["projectId"];
 $type = $_GET['type']{0};
 
-//SQL CODE
-$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect");
-mysql_select_db($db) or die ("unable to select database!");
-
 //Get project details
 if ($projectId>0) {
-	$query= "SELECT projects.projectId, projects.name, projects.description, projects.desiredOutcome, 
+	$query= "SELECT projects.projectId, projects.name, projects.description, projects.desiredOutcome,
 		projectstatus.dateCreated, projectstatus.dateCompleted, projectattributes.categoryId, projectattributes.deadline,
-		projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil, projectattributes.isSomeday 
-		FROM projects, projectattributes, projectstatus 
-		WHERE projectstatus.projectId=projects.projectId and projectattributes.projectId=projects.projectId and 
+		projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil, projectattributes.isSomeday
+		FROM projects, projectattributes, projectstatus
+		WHERE projectstatus.projectId=projects.projectId and projectattributes.projectId=projects.projectId and
 		projects.projectId = '$projectId'";
 	$result = mysql_query($query) or die ("Error in query");
 	$row = mysql_fetch_assoc($result);
@@ -47,7 +45,7 @@ if ($type=="s") $typename="Someday/Maybe";
 else $typename="Project";
 
 if ($projectId>0) {
-	echo "	<h2>Edit&nbsp;".$typename."</h2>\n";	
+	echo "	<h2>Edit&nbsp;".$typename."</h2>\n";
 	echo '	<form action="updateProject.php?projectId='.$projectId.'" method="post">'."\n";
 }
 
@@ -59,7 +57,7 @@ else {
 ?>
 		<div class='form'>
 			<div class='formrow'>
-				<label for='name' class='left first'>Project Name:</label><input type='text' name='name' id='name' value='<?php echo stripslashes($row['name']);?>'>				
+				<label for='name' class='left first'>Project Name:</label><input type='text' name='name' id='name' value='<?php echo stripslashes($row['name']);?>'>
 			</div>
 			<div class='formrow'>
 				<label for='category' class='left first'>Category:</label>
@@ -128,7 +126,7 @@ if ($row['dateCompleted']=="0000-00-00" || $row['dateCompleted']==NULL) {
 			</div>
 
 		</div> <!-- form -->
-		<div class='formbuttons'>	
+		<div class='formbuttons'>
 			<input type="hidden" name="type" value="<?php echo $type; ?>" />
 <?php
 if ($projectId>0) {

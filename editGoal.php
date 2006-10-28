@@ -1,10 +1,9 @@
 <?php
 	include_once('header.php');
-	include_once('config.php');
 
 //CONNECT TO DATABASE
-	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
-	mysql_select_db($db) or die ("unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //RETRIEVE URL VARIABLES
 	$goalId =(int) $_GET["goalId"];
@@ -21,7 +20,7 @@
 	$deadline = $currentrow['deadline'];
 	$completed = $currentrow['completed'];
 	$type = $currentrow['type'];
-	
+
 	echo "type: $type";
 	echo "<h1>Edit Goal</h1>";
 	$query = "SELECT * from projects order by name";
@@ -71,7 +70,7 @@
 	echo "<table>";
 	echo '<tr><td>Goal</td>';
 	echo '<td><textarea cols="80" rows="3" name="goal" wrap=virtual">';
-	echo $goal;	
+	echo $goal;
 	echo '</textarea></td>';
 	echo '<tr><td>Description</td>';
 	echo '<td><textarea cols="80" rows="20" name="newdescription" wrap=virtual">';

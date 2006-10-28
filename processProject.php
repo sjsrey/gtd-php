@@ -2,11 +2,10 @@
 
 //INCLUDES
 include_once('header.php');
-include_once('config.php');
 
 //Connect to database
-$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
-mysql_select_db($db) or die ("unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //RETRIEVE FORM VARIABLES
 $projectId=(int) $_POST['projectId'];
@@ -45,8 +44,8 @@ $addquery = "INSERT INTO projects (name,description,desiredOutcome) VALUES ('$na
 
 //Result reporting
 
-if ($type=="s") echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listProjects.php?type=s" />';
-else echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listProjects.php?type=p" />';
+if ($type=="s") echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listProjects.php?type=s" />';
+else echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listProjects.php?type=p" />';
 
 mysql_close($connection);
 include_once('footer.php');

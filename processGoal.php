@@ -2,9 +2,9 @@
 //Will be rewritten
 
 	include_once('header.php');
-	include_once('config.php');
-	$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-	mysql_select_db($db) or die ("Unable to select database!");
+
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 	echo '<p>New Next action added at ';
 	echo date('H:i, jS F');
@@ -20,7 +20,7 @@
 
 
 	# don't forge null
-	$query = "INSERT into goals  values (NULL, '$goal', 
+	$query = "INSERT into goals  values (NULL, '$goal',
 	'$description','$date', '$deadline',  NULL, '$type', '$projectId')";
 	$result = mysql_query($query) or die ("Error in query");
 

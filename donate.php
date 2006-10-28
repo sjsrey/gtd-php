@@ -2,7 +2,6 @@
 
 <?php
     include_once('header.php');
-    include_once('config.php');
 ?>
 <h2>gtd-php </h2>
 <br>

@@ -2,25 +2,15 @@
 <?php
 //INCLUDES
 	include_once('header.php');
-	include_once('config.php');
-	include_once('gtdfuncs.php');
 
 //CONNECT TO DATABASE
-	$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect");
-	mysql_select_db($db) or die ("Unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //SQL CODE AREA
 //select active projects
-        $query="SELECT projects.projectId, projects.name, projects.description, projectattributes.categoryId, categories.category, 
-			projectattributes.deadline, projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil
-			FROM projects, projectattributes, projectstatus, categories 
-			WHERE projectattributes.projectId=projects.projectId AND projectattributes.categoryId=categories.categoryId
-			AND projectstatus.projectId=projects.projectId AND projectattributes.isSomeday = 'n'
-			AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00')
-			AND (((CURDATE()>=DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY)) 
-			OR projectattributes.suppress='n')) ORDER BY categories.category, projectattributes.deadline, projects.name ASC";
-
-        $result = mysql_query($query) or die ("Error in query");
+        $values['isSomeday']="n";
+        $result = query(selectactiveprojects,$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 	echo "<h2>The Weekly Review</h2>
@@ -37,11 +27,11 @@
 	<tr><td>Review upcoming calendar</td><td>Capture actions about arrangements and preparations for any upcoming events</td></tr>
 	<tr><td>Empty your head</td><td>Put in writing any new <a href=\"project.php?type=p\" title=\"Add project\">projects</a>, <a href=\"item.php?type=a\" title=\"Add action\">actions</a>, <a href=\"item.php?type=w\" title=\"Add waitingOn\">waitingOn</a>, <a href=\"item.php?type=r\" title=\"Add reference\">references</a>, and <a href=\"project.php?type=s\" title=\"Add Someday/Maybe\">someday/maybes</a> that are not yet in the system.</td></tr>
 	<tr><td>Review <a href=\"listProjects.php?pType=p\">Projects list</a></td><td>Evaluate status of each project, goals, outcomes, one by one, ensuring that at least one next action exists for each.\n";
-	
-	echo "		<p><ul>Projects without Next Actions defined:\n";
-	
 
-	while($row = mysql_fetch_assoc($result)) {
+	echo "		<p><ul>Projects without Next Actions defined:\n";
+
+
+	foreach($result as $row) {
 		$nonext=nonext($row['projectId']);
 		if ($nonext=="true") echo '			<li><a href="projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).'  project report">'.stripslashes($row['name'])."</a></li>\n";
 	}

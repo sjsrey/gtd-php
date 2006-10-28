@@ -2,17 +2,16 @@
 
 //INCLUDES
 	include_once('header.php');
-	include_once('config.php');
 
 //RETRIEVE URL VARIABLES
-	$listItemId =(int) $_GET["listItemId"];
+	$values['listItemId'] =(int) $_GET["listItemId"];
 
 //CONNECT TO DATABASE
-	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
-	mysql_select_db($db) or die ("unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //SQL CODE AREA
-	$query = "SELECT listItemId, item, notes, listId, dateCompleted from listItems where listItemId = $listItemId";
+	$query = "SELECT listItemId, item, notes, listId, dateCompleted from listItems where listItemId = {$values['listItemId']}";
 	$result = mysql_query($query) or die ("Error in query");
 	$currentrow = mysql_fetch_row($result);
 	$listItemId = $currentrow[0];
@@ -20,14 +19,14 @@
 	$notes = stripslashes($currentrow[2]);
 	$listId = $currentrow[3];
 	$dateCompleted = $currentrow[4];
-	
+
 	echo "<h1>Edit List Item</h1>\n";
 
 //SELECT listId, title, categoryId, description from list ORDER BY title
 
 	$query = "SELECT * from list ORDER BY title";
 	$result = mysql_query($query) or die ("Error in query");
-	echo '<form action="updateListItem.php?listItemId='.$listItemId.'" method="post">'."\n";
+	echo '<form action="updateListItem.php?listItemId='.$values['listItemId'].'" method="post">'."\n";
 ?>
 
 	<div class='form'>
@@ -40,7 +39,7 @@
 
 		<div class='formrow'>
 			<label for='list' class='left first'>List:</label>
-			<select name='list' id='list'>
+			<select name='listId' id='list'>
 
 <?php
 	while($row = mysql_fetch_row($result)){
@@ -77,7 +76,7 @@
 	<div class='formbuttons'>
 		<input type='submit' value='Update List Item' name='submit' />
 		<input type='reset' value='Reset' />
-		<input type='checkbox' name='delete' id='delete' class='notfirst' value='delete' />
+		<input type='checkbox' name='delete' id='delete' class='notfirst' value='y' />
 		<label for='delete'>Delete&nbsp;List&nbsp;Item</label>
 	</div>
 
@@ -85,6 +84,6 @@
 
 
 
-<?php	
+<?php
 	include_once('footer.php');
 ?>

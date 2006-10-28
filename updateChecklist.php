@@ -2,45 +2,39 @@
 <?php
 //INCLUDES
 include_once('header.php');
-include_once('config.php');
 
 //CONNECT TO DATABASE
-$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect!");
-mysql_select_db($db) or die ("Unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //RETRIEVE URL AND FORM VARIABLES
-$checklistId = (int) $_GET['checklistId'];
-$newchecklistTitle=mysql_real_escape_string($_POST['newchecklistTitle']);
-$newcategoryId=(int) $_POST['newcategoryId'];
-$newdescription=mysql_real_escape_string($_POST['newdescription']);
-$delete=$_POST['delete']{0};
+$values['checklistId'] = (int) $_GET['checklistId'];
+$values['newchecklistTitle']=mysql_real_escape_string($_POST['newchecklistTitle']);
+$values['newcategoryId']=(int) $_POST['newcategoryId'];
+$values['newdescription']=mysql_real_escape_string($_POST['newdescription']);
+$values['delete']=$_POST['delete']{0};
 
-if($delete=="y") {
+if($values['delete']=="y") {
 
-        echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listChecklist.php"';
-        $query= "delete from checklist where checklistId='$checklistId'";
-        $result = mysql_query($query) or die ("Error in query");
-        //echo "<p>Number of checklists deleted: ";
-        //echo mysql_affected_rows();
+    query("deletechecklist",$config,$values);
+    //echo "<p>Number of checklists deleted: ";
+    //echo mysql_affected_rows();
 
-        $query= "delete from checklistItems where checklistId='$checklistId'";
-        $result = mysql_query($query) or die ("Error in query");
-        //echo "<p>Number of checklist items deleted: ";
-        //echo mysql_affected_rows();
-	}
+    query("removechecklistitems",$config,$values);
+    //echo "<p>Number of checklist items deleted: ";
+    //echo mysql_affected_rows();
+
+    echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listChecklist.php?checklistId='.$values['checklistId'].'">';
+    }
 
 else {
-        echo '<META HTTP-EQUIV="Refresh" CONTENT="1; url=listChecklist.php"';
-echo $checklistId;
-	$query = "update checklist
-	set title = '$newchecklistTitle', description = '$newdescription', categoryId = '$newcategoryId' 
-	where checklistId ='$checklistId'";
-	$result = mysql_query($query) or die ("Error in query");
-	//echo $query;
-	//echo "<p>Number of Records Updated: ";
-	//echo mysql_affected_rows();
-	}
 
-mysql_close($connection);
+    query("updatechecklist",$config,$values);
+    //echo "<p>Number of Records Updated: ";
+    //echo mysql_affected_rows();
+
+    echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listChecklist.php?checklistId='.$values['checklistId'].'">';
+    }
+
 include_once('footer.php');
 ?>

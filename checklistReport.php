@@ -8,38 +8,39 @@
 ////////////////////////////////////////////////////////
 
 	include_once('header.php');
-	include_once('config.php');
-	$checklistId = (int) $_GET['checklistId'];
-	$checklistTitle =(string) $_GET['checklistTitle'];
- 
-	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
 
-	mysql_select_db($db) or die ("unable to select database!");
+	$values['checklistId'] = (int) $_GET['checklistId'];
 
-	echo '<form action="processChecklistUpdate.php?checklistId='.$checklistId.'" method="POST">'."\n";
-	echo "<h1>Checklist Report: $checklistTitle</h1>\n";
-	
-	echo '[ <a href="editChecklist.php?checklistId='.$checklistId.'&checklistTitle='.$checklistTitle.'">Edit Checklist</a> ]'."\n";
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
+
+        $result = query("selectchecklist",$config,$values,$options,$sort);
+        if ($result!="-1") $row=$result[0];
+
+	echo '<form action="processChecklistUpdate.php?checklistId='.$row['checklistId'].'" method="POST">'."\n";
+	echo "<h1>Checklist Report: {$row['title']}</h1>\n";
+
+	echo '[ <a href="editChecklist.php?checklistId='.$row['checklistId'].'&checklistTitle='.$row['checklistTitle'].'">Edit Checklist</a> ]'."\n";
 	echo "<br />\n";
 
-	echo '<h2><a href = "newChecklistItem.php?checklistId='.$checklistId.'" style="text-decoration:none">Checklist Items</a></h2>'."\n";
+	echo '<h2><a href = "newChecklistItem.php?checklistId='.$row['checklistId'].'" style="text-decoration:none">Checklist Items</a></h2>'."\n";
 
 	$query = "SELECT checklistItems.checklistitemId, checklistItems.item, checklistItems.notes, checklistItems.checklistId, checklistItems.checked
 		FROM checklistItems
 		LEFT JOIN checklist on checklistItems.checklistId = checklist.checklistId
-		WHERE checklist.checklistId = '$checklistId' ORDER BY checklistItems.checked DESC, checklistItems.item ASC";
+		WHERE checklist.checklistId = '{$values['checklistId']}' ORDER BY checklistItems.checked DESC, checklistItems.item ASC";
 	$result = mysql_query($query) or die ("Error in query");
 
 	if (mysql_num_rows($result) > 0){
 		$counter=0;
-		
+
 		echo "<table class='datatable'>\n";
 		echo "	<thead>\n";
 		echo "		<td>Item</td>\n";
-		echo "		<td>Notes</td>\n"; 
+		echo "		<td>Notes</td>\n";
 		echo "		<td>Checked</td>\n";
 		echo "	</thead>\n";
-		
+
 		while($row = mysql_fetch_row($result)){
                 echo "	<tr>\n";
                 $checklistItemId = $row[0];

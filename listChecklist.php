@@ -1,10 +1,9 @@
 <?php
 	include_once('header.php');
-	include_once('gtdfuncs.php');
-	include_once('config.php');
-	$connection = mysql_connect($host, $user, $pass) or die ("unable to connect");
 
-	mysql_select_db($db) or die ("unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
+
 	echo "<h2>Checklists</h2>\n";
 
 //SELECT categoryId, category, description FROM categories ORDER by category ASC
@@ -32,16 +31,16 @@
 	if ($categoryId==NULL) $categoryId='0';
 	if ($categoryId=='0') {
 	   $query = "SELECT checklist.checklistId, checklist.title, checklist.description,
-				checklist.categoryId, categories.category 
-				FROM checklist, categories 
-				WHERE checklist.categoryId=categories.categoryId 
+				checklist.categoryId, categories.category
+				FROM checklist, categories
+				WHERE checklist.categoryId=categories.categoryId
 				ORDER BY categories.category ASC";
 		$result = mysql_query($query) or die ("Error in query");
 	} else {
 	   $query = "SELECT checklist.checklistId, checklist.title, checklist.description,
-				checklist.categoryId, categories.category 
-				FROM checklist, categories 
-				WHERE checklist.categoryId=categories.categoryId AND checklist.categoryId='$categoryId' 
+				checklist.categoryId, categories.category
+				FROM checklist, categories
+				WHERE checklist.categoryId=categories.categoryId AND checklist.categoryId='$categoryId'
 				ORDER BY categories.category ASC";
 		$result = mysql_query($query) or die ("Error in query");
 	}

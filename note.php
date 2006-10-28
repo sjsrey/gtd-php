@@ -1,29 +1,26 @@
 <?php
 //INCLUDES
-	include_once('gtdfuncs.php');
 	include_once('header.php');
-	include_once('config.php');
 
 //RETRIEVE URL VARIABLES
-	$noteId= (int) $_GET["noteId"];
+	$values['noteId']= (int) $_GET["noteId"];
 
 //SQL CODE
-	$connection = mysql_connect($host, $user, $pass) or die ("Unable to connect");
-	mysql_select_db($db) or die ("Unable to select database!");
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
 
 	//select note details
-	if ($noteId>0) {
-	$query = "SELECT ticklerId, title, note, date FROM tickler WHERE ticklerId='$noteId'";
-	$result = mysql_query($query) or die ("Error in query");
-	$currentrow = mysql_fetch_assoc($result);
-	mysql_free_result($result);
-	}
+	if ($values['noteId']>0) {
+            $result = query("selectnote",$config,$values,$sort,$options);
+	    if ($result!=-1) $currentrow = $result[0];
+            else echo "Nothing found.";
+            }
 
 //PAGE DISPLAY CODE
-	
-	if ($noteId>0) {
+
+	if ($values['noteId']>0) {
 		echo "<h2>Edit Note</h2>";
-		echo '<form action="updateNote.php?noteId='.$noteId.'" method="post">';
+		echo '<form action="updateNote.php?noteId='.$values['noteId'].'" method="post">';
 		}
 
 	else {
@@ -32,9 +29,6 @@
 		}
 
 	echo'<table>';
-
-	//echo '<td>Date:&nbsp;';
-        //DateDropDown(365,"date",$currentrow['date']);
 
 echo '		<td>Date:&nbsp;'."\n";
 	echo '			<form action="#" method="get">'."\n";
@@ -60,8 +54,10 @@ echo '		<td>Date:&nbsp;'."\n";
 	echo '</table>';
 
 	echo '<br />';
-	if ($noteId>0) echo '<input type="submit" class="button" value="Update Note" name="submit">';
+	if ($values['noteId']>0) echo '<input type="submit" class="button" value="Update Note" name="submit">';
 	else echo '<input type="submit" class="button" value="Add Note" name="submit">';
 	echo '<input type="reset" class="button" value="Reset">';
+
+
 	include_once('footer.php');
 ?>
