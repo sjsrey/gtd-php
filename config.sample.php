@@ -4,9 +4,9 @@
 
             //connection information
                 "host"                      => 'localhost', //the hostname of your database server
-                "db"                         => '', //the name of your database
-                "user"                      => '', //username for database access
-                "pass"                      => '', //database password
+                "db"                         => 'gtd6', //the name of your database
+                "user"                      => 'serge', //username for database access
+                "pass"                      => 'some_pass', //database password
 
             //database information
                 "dbtype"                    => 'mysql',  //database type: currently only mysql is valid.  DO NOT CHANGE!

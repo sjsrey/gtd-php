@@ -18,10 +18,16 @@ $timeId=(int) $_POST['timeId'];
 $completedNas = $_POST['completedNas'];
 $isNext = (int) $_POST['isNext'];
 
+//Check if Session Variables Should be Updated
 if ($_GET['contextId']>0) $contextId=(int) $_GET['contextId'];
 else $contextId=(int) $_POST['contextId'];
+if ($contextId>0) $_SESSION['contextId']=$contextId;
 if ($_GET['categoryId']>0) $categoryId=(int) $_GET['categoryId'];
 else $categoryId=(int) $_POST['categoryId'];
+
+if ($categoryId>0) $_SESSION['categoryId']=$categoryId;
+else $categoryId=$_SESSION['categoryId'];
+
 
 
 //SQL CODE

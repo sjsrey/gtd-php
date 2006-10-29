@@ -11,10 +11,6 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 $values['type']=$_GET["type"]{0};
 $values['pType']=$_GET["pType"]{0};
 if ($values['pType']!="s") $values['pType']="p";
-if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
-else $values['contextId']=(int) $_POST['contextId'];
-if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
-else $values['categoryId']=(int) $_POST['categoryId'];
 if ($_GET['timeId']>0) $values['timeframeId']=(int) $_GET['timeId'];
 else $values['timeframeId']=(int) $_POST['timeId'];
 
@@ -25,6 +21,28 @@ $values['notcategory']=$_POST['notcategory'];
 
 if ($values['pType']=='s') $values['ptypequery']='y';
 else $values['ptypequery']='n';
+
+//Check Session Variables
+if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
+else $values['contextId']=(int) $_POST['contextId'];
+
+//If we have contextId from a new  filter, change Session value
+$contextId=$values['contextId'];
+if ($contextId>0) $_SESSION['contextId']=$contextId;
+else $values['contextId']=$_SESSION['contextId'];
+
+//ditto for category
+
+//Check Session Variables
+if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
+else $values['categoryId']=(int) $_POST['categoryId'];
+
+//If we have categoryId from a new  filter, change Session value
+$categoryId=$values['categoryId'];
+if ($categoryId>0) $_SESSION['categoryId']=$categoryId;
+else $values['categoryId']=$_SESSION['categoryId'];
+
+
 
 //Set page titles
 if ($values['type']=="a") {

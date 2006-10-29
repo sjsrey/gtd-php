@@ -29,8 +29,8 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 
 
     //check if gtd db has been created
-    $msg='<font color="red">Unable to select gtd database.<br>Please create the gtd mysql database and rerun this script.';
-	mysql_select_db($db) or die ($msg);
+    $msg='<font color="red">Unable to select gtd database.<br>Please create the '.$config['db'].' mysql database and rerun this script.';
+	mysql_select_db($config['db']) or die ($msg);
 
 
 

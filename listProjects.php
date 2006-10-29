@@ -34,6 +34,11 @@ else {
 	}
 
 
+//Check if Session Variables Should be Updated
+if ($categoryId>0) $_SESSION['categoryId']=$categoryId;
+else $categoryId=$_SESSION['categoryId'];
+
+
 //SQL CODE
 //select all categories for dropdown list
 $query = "SELECT categories.categoryId, categories.category, categories.description from categories ORDER BY categories.category ASC";
