@@ -74,8 +74,6 @@ else {
 	$result = mysql_query($query) or die ("Error in query");
 	}
 
-if (mysql_num_rows($result) > 0){
-
 //PAGE DISPLAY CODE
 
 	echo '<h2>';
@@ -94,6 +92,8 @@ if (mysql_num_rows($result) > 0){
 	echo "</form>\n";
 	echo "</div>\n";
 
+if (mysql_num_rows($result) > 0){
+
 //Project Update form
 	echo "<p>Select project for individual report.</p>\n";
 	echo '<form action="processProjectUpdate.php" method="post">'."\n";
@@ -107,7 +107,6 @@ if (mysql_num_rows($result) > 0){
 	echo "		<td>Edit</td>\n";
 	if ($completed!="y") echo "		<td>Completed</td>\n";
 	echo "	</thead>\n";
-
 
 	while($row = mysql_fetch_assoc($result)){
 		echo "	<tr>\n";
@@ -137,15 +136,25 @@ if (mysql_num_rows($result) > 0){
 		echo '		<td><a href="project.php?projectId='.$row['projectId'].'" title="Edit '.htmlspecialchars(stripslashes($row['name'])).' project">Edit</a></td>'."\n";
         if ($completed!="y") echo '		<td align="center"><input type="checkbox" align="center" title="Mark '.htmlspecialchars(stripslashes($row['name'])).' project completed. Will hide incomplete associated items." name="completedProj[]" value="'.$row['projectId'].'" /></td>'."\n";
 		echo "	</tr>\n";
-		}
+                }
 	echo "</table>\n";
 	echo '<input type="hidden" name="referrer" value="l" />'."\n";
 	echo '<input type="hidden" name="type" value="'.$pType.'" />'."\n";
 	echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit" />'."\n";
 	echo "</form>\n";
-	}
+        }
 
-else echo "<h4>Nothing was found</h4>";
+//        else {
+//            $message="Nothing was found.";
+//           nothingFound($message);
+//             }
+        
+        else {
+                $message="You have no ".$typename." remaining.";
+                $prompt="Would you like to create a new ".str_replace("s","",$typename)."?";
+                $yeslink="project.php?type=p";
+                nothingFound($message,$prompt,$yeslink);
+        }
 
 	include_once('footer.php');
 ?>

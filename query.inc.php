@@ -72,7 +72,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
     if($config['dbtype']=="mysql") {
         $reply = mysql_query($query) or die (($config['debug']=="true" || $config['debug']=="developer") ? "Error in query: ". $querylabel."<br />".mysql_error():"Error in query");
 
-        if (mysql_num_rows($reply)>0) {
+        if (@mysql_num_rows($reply)>0) {
             $i = 0;
            while ($field = mysql_fetch_field($reply)) {
                 /* Create an array $fields which contains all of the column names */

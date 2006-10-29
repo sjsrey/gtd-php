@@ -17,41 +17,50 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 //SQL Code
 	$values['isSomeday'] = "n";
 	$pres = query("projectssummary",$config,$values,$options,$sort);
-	$np = count($pres)-2;
 
 	$values['isSomeday'] = "y";
 	$sm = query("projectssummary",$config,$values,$options,$sort);
-	$nsm = count($sm)-2;
 
 	$result = query("spacecontextselectbox",$config,$values,$options,$sort);
-	$ncon = count($result)-2;
 
-//    $nNextActions=getNumberOfNextActions();
-    $result=query("countnextactions",$config,$values);
+//        $numbercontexts = query("countspacecontexts",$config,$values);
+
+        $numberprojects = query("countactiveprojects",$config,$values);
+
+        $numbernextactions = query("countnextactions",$config,$values);
+        
+        $numberitems = query("countactiveitems",$config,$values);
+
+//set empty database counts to zero
+    if($numbercontexts[0]['ncontexts']=="") $numbercontexts[0]['ncontexts']="0";
+    if($numberprojects[0]['nprojects']=="") $numberprojects[0]['nprojects']="0";
+    if($numberprojects[1]['nprojects']=="") $numberprojects[1]['nprojects']="0";
+    if($numberitems[0]['nitems']=="") $numberitems[0]['nitems']="0";
+    if($numbernextactions[0]['nnextactions']=="") $numbernextactions[0]['nnextactions']="0";
+
+
     echo "<div class='reportsection'>\n";
 	echo "<h3>Next Actions</h3>\n";
-    if($result[0]['nnextactions']==1){
-                echo '<p>There is ' .$result[0]['nnextactions']. ' <a href="listItems.php?type=n">Next Action</a> pending';
+    if($numbernextactions[0]['nnextactions']==1){
+                echo '<p>There is ' .$numbernextactions[0]['nnextactions']. ' <a href="listItems.php?type=n">Next Action</a> pending';
             }else{
-                echo '<p>There are ' .$result[0]['nnextactions']. ' <a href="listItems.php?type=n">Next Actions</a> pending';
+                echo '<p>There are ' .$numbernextactions[0]['nnextactions']. ' <a href="listItems.php?type=n">Next Actions</a> pending';
             }
-    $result=query("countactiveitems",$config,$values);
-//    $nActions=getNumberOfActions();
-    echo ' out of a total of ' .$result[0]['nitems']. ' <a href="listItems.php?type=a">Actions</a>.';
+    echo ' out of a total of ' .$numberitems[0]['nitems']. ' <a href="listItems.php?type=a">Actions</a>.';
 	echo "</p>\n";
 	echo "</div>\n";
 
     echo "<div class='reportsection'>\n";
 	echo "<h3>Contexts</h3>\n";
-    if($ncon==1){
-        echo '<p>There is ' .$ncon. ' <a href="listItems.php?type=n">Spatial Context</a>.<p>'."\n";
+    if($numbercontexts[0]['ncontexts']==1){
+        echo '<p>There is ' .$numbercontexts[0]['ncontexts']. ' <a href="listItems.php?type=n">Spatial Context</a>.<p>'."\n";
     }else{
-        echo '<p>There are ' .$ncon. ' <a href="listItems.php?type=n">Spatial Contexts</a>.<p>'."\n";
+        echo '<p>There are ' .$numbercontexts[0]['ncontexts']. ' <a href="listItems.php?type=n">Spatial Contexts</a>.<p>'."\n";
     }
 	echo "</div>\n";
 
 	$i=0;
-	$w1=$np/3;
+	$w1=$numberprojects[1]['nprojects']/3;
         if ($pres!=-1) {
 	foreach($pres as $row) {
 		if($i < $w1){
@@ -75,7 +84,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //Somedays
 	$i=0;
-        $w2=$nsm/3;
+        $w2=$numberprojects[0]['nprojects']/3;
         if ($sm!=-1) {
 	foreach($sm as $row) {
                 if($i < $w2){
@@ -102,10 +111,10 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
     echo "<div class='reportsection'>\n";
 	echo "<h3>Projects</h3>\n";
 
-    if($np==1){
-        echo '<p>There is ' .$np. ' <a href="listProjects.php?type=p">Project</a>.<p>'."\n";
+    if($numberprojects[1]['nprojects']==1){
+        echo '<p>There is ' .$numberprojects[1]['nprojects']. ' <a href="listProjects.php?type=p">Project</a>.<p>'."\n";
     }else{
-        echo '<p>There are ' .$np. ' <a href="listProjects.php?type=p">Projects</a>.<p>'."\n";
+        echo '<p>There are ' .$numberprojects[1]['nprojects']. ' <a href="listProjects.php?type=p">Projects</a>.<p>'."\n";
     }
 
 	$s='<table>'."\n";
@@ -128,10 +137,10 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
     echo "<div class='reportsection'>\n";
 	echo "<h3>Someday/Maybe</h3>\n";
 
-    if($nsm==1){
-        echo '<p>There is ' .$nsm. ' <a href="listProjects.php?type=s">Someday/Maybe</a>.</p>'."\n";
+    if($numberprojects[0]['nprojects']==1){
+        echo '<p>There is ' .$numberprojects[0]['nprojects']. ' <a href="listProjects.php?type=s">Someday/Maybe</a>.</p>'."\n";
     }else{
-        echo '<p>There are ' .$nsm. ' <a href="listProjects.php?type=s">Someday/Maybes</a>.</p>'."\n";
+        echo '<p>There are ' .$numberprojects[0]['nprojects']. ' <a href="listProjects.php?type=s">Someday/Maybes</a>.</p>'."\n";
     }
 
 

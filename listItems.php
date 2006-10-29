@@ -198,8 +198,8 @@ $result = mysql_query($query) or die ("Error in query");
 			nothingFound($message);
 		}
 	}else{
-		$message="You have no actions remaining.";
-		$prompt="Would you like to create a new action?";
+		$message="You have no ".$typename." remaining.";
+		$prompt="Would you like to create a new ".str_replace("s","",$typename)."?";
 		$yeslink="item.php?type=a";
 		nothingFound($message,$prompt,$yeslink);
 	}
