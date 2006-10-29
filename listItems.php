@@ -105,11 +105,9 @@ foreach ($result as $row) {
     }
 
 //Select items
-
-    //include correct SQL parts query library as chosen in config
-    //kludge: need more elegant solution to minimize repetitive code and multiple query files per database
+//include correct SQL parts query library as chosen in config
     switch ($config['dbtype']) {
-        case "frontbase":include("frontbaseparts.inc.php");
+        case "frontbase":require("frontbaseparts.inc.php");
         break;
         case "msql":require("msqlparts.inc.php");
         break;
@@ -132,7 +130,6 @@ if ($values['contextId'] != NULL && $values['notspacecontext']=="true") $values[
 
 if ($values['timeframeId'] !=NULL && $values['nottimecontext']!="true") $values['filterquery'] .= $sqlparts['timeframefilter'];
 if ($values['timeframeId'] !=NULL && $values['nottimecontext']=="true") $values['filterquery'] .= $sqlparts['nottimeframefilter'];
-
 
 $result = query("getitems",$config,$values,$options,$sort);
 

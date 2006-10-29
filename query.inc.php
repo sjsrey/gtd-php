@@ -46,7 +46,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 
     //include correct SQL query library as chosen in config
     switch ($config['dbtype']) {
-        case "frontbase":include("frontbase.inc.php");
+        case "frontbase":require("frontbase.inc.php");
         break;
         case "msql":require("msql.inc.php");
         break;

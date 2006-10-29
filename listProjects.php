@@ -33,6 +33,9 @@ else {
 	$typename="Projects";
 	}
 
+//Check if Session Variables Should be Updated
+if ($values['categoryId']>0) $_SESSION['categoryId']=$values['categoryId'];
+ else $values['categoryId']=$_SESSION['categoryId'];
 
 //Check if Session Variables Should be Updated
 if ($categoryId>0) $_SESSION['categoryId']=$categoryId;
@@ -40,44 +43,40 @@ else $categoryId=$_SESSION['categoryId'];
 
 
 //SQL CODE
+$values['filterquery']="";
+
 //select all categories for dropdown list
-$query = "SELECT categories.categoryId, categories.category, categories.description from categories ORDER BY categories.category ASC";
-$result = mysql_query($query) or die("Error in query");
+$result = query("categoryselectbox",$config,$values,$options,$sort);
 $cshtml="";
-while($row = mysql_fetch_assoc($result)) {
-        $cshtml .= '	<option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-	if($row['categoryId']==$categoryId) $cshtml .= ' SELECTED';
-	$cshtml .= '>'.stripslashes($row['category'])."</option>\n";
+foreach($result as $row) {
+        $cshtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+        if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
+        $cshtml .= '>'.stripslashes($row['category'])."</option>\n";
         }
 
-if ($values['completed']=="y") $compq = "projectstatus.dateCompleted > 0";
-else $compq = "(projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00')
-                AND (((CURDATE()>=DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY))
-                    OR projectattributes.suppress='n'))";
-
 //Select Projects
+    switch ($config['dbtype']) {
+        case "frontbase":require("frontbaseparts.inc.php");
+        break;
+        case "msql":require("msqlparts.inc.php");
+        break;
+        case "mysql":require("mysqlparts.inc.php");
+        break;
+        case "mssql":require("mssqlparts.inc.php");
+        break;
+        case "postgres":require("postgresparts.inc.php");
+        break;
+        case "sqlite":require("sqliteparts.inc.php");
+        break;
+        }
+
 if ($categoryId==NULL) $categoryId='0';
-if ($categoryId=='0') {
-	$query="SELECT projects.projectId, projects.name, projects.description, projectattributes.categoryId, categories.category,
-		projectattributes.deadline, projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil
-		FROM projects, projectattributes, projectstatus, categories
-		WHERE projectattributes.projectId=projects.projectId AND projectattributes.categoryId=categories.categoryId
-		AND projectstatus.projectId=projects.projectId AND projectattributes.isSomeday = '{$values['isSomeday']}' AND ".$compq."
-		ORDER BY categories.category, projects.name ASC";
+if ($categoryId!='0') $values['filterquery'] .= $sqlparts['categoryfilter'];
 
-	$result = mysql_query($query) or die ("Error in query");
-	}
+if ($values['completed']=="y") $values['filterquery'] .= $sqlparts['completedprojects'];
+else $values['filterquery'] .= $sqlparts['activeprojects'];
 
-else {
-	$query="SELECT projects.projectId, projects.name, projects.description, projectattributes.categoryId, categories.category,
-		projectattributes.deadline, projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil
-		FROM projects, projectattributes, projectstatus, categories
-		WHERE projectattributes.projectId=projects.projectId AND projectattributes.categoryId=categories.categoryId
-		AND projectstatus.projectId=projects.projectId AND (".$compq.") AND projectattributes.categoryId='$categoryId'
-		AND projectattributes.isSomeday='{$values['isSomeday']}'
-		ORDER BY categories.category, projects.name ASC";
-	$result = mysql_query($query) or die ("Error in query");
-	}
+$result = query("selectprojects",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 
@@ -97,7 +96,7 @@ else {
 	echo "</form>\n";
 	echo "</div>\n";
 
-if (mysql_num_rows($result) > 0){
+if ($result!="-1"){
 
 //Project Update form
 	echo "<p>Select project for individual report.</p>\n";
@@ -113,7 +112,7 @@ if (mysql_num_rows($result) > 0){
 	if ($values['completed']!="y") echo "		<td>Completed</td>\n";
 	echo "	</thead>\n";
 
-	while($row = mysql_fetch_assoc($result)){
+	foreach ($result as $row) {
 		echo "	<tr>\n";
 		echo "		<td>";
 
