@@ -9,41 +9,41 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 
 
 //GET URL VARIABLES
-$type=$_GET["type"]{0};
-$pType=$_GET["pType"]{0};
-if ($pType!="s") $pType="p";
-if ($_GET['contextId']>0) $contextId=(int) $_GET['contextId'];
-else $contextId=(int) $_POST['contextId'];
-if ($_GET['categoryId']>0) $categoryId=(int) $_GET['categoryId'];
-else $categoryId=(int) $_POST['categoryId'];
-if ($_GET['timeId']>0) $timeId=(int) $_GET['timeId'];
-else $timeId=(int) $_POST['timeId'];
+$values['type']=$_GET["type"]{0};
+$values['pType']=$_GET["pType"]{0};
+if ($values['pType']!="s") $values['pType']="p";
+if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
+else $values['contextId']=(int) $_POST['contextId'];
+if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
+else $values['categoryId']=(int) $_POST['categoryId'];
+if ($_GET['timeId']>0) $values['timeId']=(int) $_GET['timeId'];
+else $values['timeId']=(int) $_POST['timeId'];
 
 
-if ($ptype=='s') $ptypequery='y';
-else $ptypequery='n';
+if ($values['pType']=='s') $values['ptypequery']='y';
+else $values['ptypequery']='n';
 
 //Set page titles
-if ($type=="a") {
+if ($values['type']=="a") {
 	$typename="Actions";
-	$typequery="a";
+	$values['typequery']="a";
 	}
-elseif ($type=="n") {
+elseif ($values['type']=="n") {
 	$typename="Next Actions";
 	$display="nextonly";
-	$typequery="a";
+	$values['typequery']="a";
 	}
-elseif ($type=="r") {
+elseif ($values['type']=="r") {
 	$typename="References";
-	$typequery="r";
+	$values['typequery']="r";
 	}
-elseif ($type=="w") {
+elseif ($values['type']=="w") {
 	$typename="Waiting On";
-	$typequery="w";
+	$values['typequery']="w";
 	}
 else {
 	$typename="Items";
-	$typequery="a";
+	$values['typequery']="a";
 	}
 
 //SQL CODE
@@ -53,7 +53,7 @@ $result = mysql_query($query) or die("Error in query");
 $cshtml="";
 while($row = mysql_fetch_assoc($result)) {
 	$cshtml .= '	<option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-	if($row['contextId']==$contextId) $cshtml .= ' SELECTED';
+	if($row['contextId']==$values['contextId']) $cshtml .= ' SELECTED';
 	$cshtml .= '>'.stripslashes($row['name'])."</option>\n";
 }
 mysql_free_result($result);
@@ -64,7 +64,7 @@ $timeframeResults = mysql_query($query) or die ("Error in query");
 $thtml="";
 while($row = mysql_fetch_assoc($timeframeResults)) {
     $thtml .= '	<option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['timeframeId'])).'"';
-    if($row['timeframeId']==$timeId) $thtml .=' SELECTED';
+    if($row['timeframeId']==$values['timeId']) $thtml .=' SELECTED';
     $thtml .= '>'.stripslashes($row['timeframe'])."</option>\n";
 }
 
@@ -84,7 +84,7 @@ $result = mysql_query($query) or die("Error in query");
 $cashtml="";
 while($row = mysql_fetch_assoc($result)) {
 	$cashtml .= '	<option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-	if($row['categoryId']==$categoryId) $cashtml .= ' SELECTED';
+	if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
 	$cashtml .= '>'.stripslashes($row['category'])."</option>\n";
 }
 mysql_free_result($result);
@@ -94,9 +94,9 @@ mysql_free_result($result);
 $catquery = "";
 $contextquery = "";
 $timequery ="";
-if ($contextId != NULL) $contextquery = "AND itemattributes.contextId = '$contextId'";
-if ($categoryId != NULL) $catquery = " AND projectattributes.categoryId = '$categoryId'";
-if ($timeId !=NULL) $timequery = "AND itemattributes.timeframeId ='$timeId'";
+if ($values['contextId'] != NULL) $contextquery = "AND itemattributes.contextId = '{$values['contextId']}'";
+if ($values['categoryId'] != NULL) $catquery = " AND projectattributes.categoryId = '{$values['categoryId']}'";
+if ($values['timeId'] !=NULL) $timequery = "AND itemattributes.timeframeId ='{$values['timeId']}'";
 
 $query = "SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated,
 	context.contextId, context.name AS cname, items.itemId, itemstatus.dateCompleted, itemattributes.deadline,
@@ -105,7 +105,7 @@ $query = "SELECT itemattributes.projectId, projects.name AS pname, items.title, 
 	WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId
 	AND itemattributes.contextId = context.contextId AND itemattributes.projectId = projects.projectId
 	AND projectattributes.projectId=itemattributes.projectId AND projectstatus.projectId = itemattributes.projectId
-	AND itemattributes.type = '$typequery' " .$catquery.$contextquery.$timequery. " AND projectattributes.isSomeday='$ptypequery'
+	AND itemattributes.type = '{$values['typequery']}' " .$catquery.$contextquery.$timequery. " AND projectattributes.isSomeday='{$values['ptypequery']}'
 	AND (itemstatus.dateCompleted IS NULL OR itemstatus.dateCompleted = '0000-00-00')
 	AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00')
 	AND ((CURDATE() >= DATE_ADD(itemattributes.deadline, INTERVAL -(itemattributes.suppressUntil) DAY))
@@ -117,8 +117,8 @@ $query = "SELECT itemattributes.projectId, projects.name AS pname, items.title, 
 $result = mysql_query($query) or die ("Error in query");
 
 //PAGE DISPLAY CODE
-	echo '<h2><a href="item.php?type='.$type.'" title="Add new '.str_replace("s","",$typename).'">'.$typename."</a></h2>\n";
-	echo '<form action="listItems.php?type='.$type.'" method="post">'."\n";
+	echo '<h2><a href="item.php?type='.$values['type'].'" title="Add new '.str_replace("s","",$typename).'">'.$typename."</a></h2>\n";
+	echo '<form action="listItems.php?type='.$values['type'].'" method="post">'."\n";
 	echo "<p>Category:&nbsp;\n";
 	echo '<select name="categoryId" title="Filter items by project category">'."\n";
 	echo '	<option value="">All</option>'."\n";
@@ -187,9 +187,9 @@ $result = mysql_query($query) or die ("Error in query");
 			echo "	</thead>\n";
 			echo $tablehtml;
 			echo "</table>\n";
-			echo '<input type="hidden" name="type" value="'.$type.'" />'."\n";
-			echo '<input type="hidden" name="contextId" value="'.$contextId.'" />'."\n";
-			echo '<input type="hidden" name="timeId" value="'.$timeId.'" />'."\n";
+			echo '<input type="hidden" name="type" value="'.$values['type'].'" />'."\n";
+			echo '<input type="hidden" name="contextId" value="'.$values['contextId'].'" />'."\n";
+			echo '<input type="hidden" name="timeId" value="'.$values['timeId'].'" />'."\n";
 			echo '<input type="hidden" name="referrer" value="i" />'."\n";
 			echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit">'."\n";
 			echo "</form>\n";
