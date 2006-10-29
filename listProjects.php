@@ -9,7 +9,8 @@ $connection = mysql_connect($config['host'], $config['user'], $config['pass']) o
 mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //RETRIEVE URL VARIABLES
-$categoryId=(int) $_POST['categoryId'];
+if ($_GET['categoryId']>0) $categoryId=(int) $_GET['categoryId'];
+else $categoryId=(int) $_POST['categoryId'];
 $pType=$_GET["pType"]{0};
 
 if ($pType=="s") {
@@ -140,6 +141,7 @@ if (mysql_num_rows($result) > 0){
 	echo "</table>\n";
 	echo '<input type="hidden" name="referrer" value="l" />'."\n";
 	echo '<input type="hidden" name="type" value="'.$pType.'" />'."\n";
+	echo '<input type="hidden" name="categoryId" value="'.$categoryId.'" />'."\n";
 	echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit" />'."\n";
 	echo "</form>\n";
         }

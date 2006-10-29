@@ -8,6 +8,7 @@ $type=$_POST['type']{0};
 $referrer=$_POST['referrer']{0};
 $projectId=(int) $_GET['projectId'];
 
+
 //GET FORM VARIABLES
 $completedProj = $_POST['completedProj'];
 
@@ -72,7 +73,7 @@ if ($referrer=="p") {
 	}
 
 elseif ($referrer=="l") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listProjects.php?pType='.$type.'">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listProjects.php?pType='.$type.'&categoryId='.$categoryId.'">';
 	}
 
 elseif ($referrer=="c") {
