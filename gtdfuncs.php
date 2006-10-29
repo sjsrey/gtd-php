@@ -203,7 +203,7 @@
 		}
 	}
 
-	function nothingFound($message, $prompt, $yeslink, $nolink="index.php"){
+	function nothingFound($message, $prompt=NULL, $yeslink=NULL, $nolink="index.php"){
 		///Give user ability to create a new entry, or go back to the index.
 		echo "<h4>$message</h4>";
 		if($prompt){

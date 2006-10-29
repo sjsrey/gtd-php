@@ -18,6 +18,11 @@ else $values['categoryId']=(int) $_POST['categoryId'];
 if ($_GET['timeId']>0) $values['timeframeId']=(int) $_GET['timeId'];
 else $values['timeframeId']=(int) $_POST['timeId'];
 
+$values['notspacecontext']=$_POST['notspacecontext'];
+$values['nottimecontext']=$_POST['nottimecontext'];
+$values['notcategory']=$_POST['notcategory'];
+
+
 if ($values['pType']=='s') $values['ptypequery']='y';
 else $values['ptypequery']='n';
 
@@ -101,9 +106,15 @@ foreach ($result as $row) {
         }
 
 $values['filterquery'] = "";
-if ($values['contextId'] != NULL) $values['filterquery'] .= $sqlparts['contextfilter'];
-if ($values['categoryId'] != NULL) $values['filterquery'] .= $sqlparts['categoryfilter'];
-if ($values['timeframeId'] !=NULL) $values['filterquery'] .= $sqlparts['timeframefilter'];
+if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= $sqlparts['categoryfilter'];
+if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= $sqlparts['notcategoryfilter'];
+
+if ($values['contextId'] != NULL && $values['notspacecontext']!="true") $values['filterquery'] .= $sqlparts['contextfilter'];
+if ($values['contextId'] != NULL && $values['notspacecontext']=="true") $values['filterquery'] .= $sqlparts['notcontextfilter'];
+
+if ($values['timeframeId'] !=NULL && $values['nottimecontext']!="true") $values['filterquery'] .= $sqlparts['timeframefilter'];
+if ($values['timeframeId'] !=NULL && $values['nottimecontext']=="true") $values['filterquery'] .= $sqlparts['nottimeframefilter'];
+
 
 $result = query("getitems",$config,$values,$options,$sort);
 
@@ -115,21 +126,30 @@ $result = query("getitems",$config,$values,$options,$sort);
 	echo '	<option value="">All</option>'."\n";
 	echo $cashtml;
 	echo "</select>\n";
+        echo '<input type="checkbox" name="notcategory" title="Exclude category from list" value="true"';
+        if ($values['notcategory']=="true") echo " CHECKED";
+        echo '> NOT'."\n";
 	echo "&nbsp;&nbsp;&nbsp;\nContext:&nbsp;\n";
 	echo '<select name="contextId" title="Filter items by context">'."\n";
 	echo '	<option value="">All</option>'."\n";
 	echo $cshtml;
 	echo "</select>\n";
-	echo "&nbsp;&nbsp;&nbsp;\nTime:&nbsp;\n";
+        echo '<input type="checkbox" name="notspacecontext" title="Exclude spatial context from list" value="true"';
+        if ($values['notspacecontext']=="true") echo " CHECKED";
+        echo '> NOT'."\n";
+        echo "&nbsp;&nbsp;&nbsp;\nTime:&nbsp;\n";
 	echo '<select name="timeId" title="Filter items by time context">'."\n";
 	echo '	<option value="">All</option>'."\n";
 	echo $tshtml;
 	echo "</select>\n";
-	echo '<input type="submit" class="button" value="Filter" name="submit" title="Filter '.$typename.' by category and/or contexts">'."\n";
+        echo '<input type="checkbox" name="nottimecontext" title="Exclude time context from list" value="true"';
+        if ($values['nottimecontext']=="true") echo " CHECKED";
+        echo '> NOT'."\n";
+        echo '&nbsp;&nbsp;&nbsp;<input type="submit" class="button" value="Filter" name="submit" title="Filter '.$typename.' by category and/or contexts">'."\n";
 	echo "</p>\n";
 	echo "</form>\n\n";
 
-	if ($GLOBALS['ecode']==0) {
+	if ($result!="-1") {
                 $tablehtml="";
                 foreach ($result as $row) {
 //		while($row = mysql_fetch_assoc($result)){

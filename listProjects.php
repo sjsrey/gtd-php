@@ -9,27 +9,27 @@ $connection = mysql_connect($config['host'], $config['user'], $config['pass']) o
 mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //RETRIEVE URL VARIABLES
-if ($_GET['categoryId']>0) $categoryId=(int) $_GET['categoryId'];
-else $categoryId=(int) $_POST['categoryId'];
-$pType=$_GET["pType"]{0};
+if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
+else $values['categoryId']=(int) $_POST['categoryId'];
+$values['pType']=$_GET["pType"]{0};
 
-if ($pType=="s") {
-	$completed="n";
-	$isSomeday="y";
+if ($values['pType']=="s") {
+	$values['completed']="n";
+	$values['isSomeday']="y";
 	$typename="Someday/Maybe";
 	}
 
-elseif ($pType=="c") {
-	$completed="y";
-	$pType="p";
-	$isSomeday="n";
+elseif ($values['pType']=="c") {
+	$values['completed']="y";
+	$values['pType']="p";
+	$values['isSomeday']="n";
 	$typename="Projects";
 	}
 
 else {
-	$completed="n";
-	$pType="p";
-	$isSomeday="n";
+	$values['completed']="n";
+	$values['pType']="p";
+	$values['isSomeday']="n";
 	$typename="Projects";
 	}
 
@@ -45,7 +45,7 @@ while($row = mysql_fetch_assoc($result)) {
 	$cshtml .= '>'.stripslashes($row['category'])."</option>\n";
         }
 
-if ($completed=="y") $compq = "projectstatus.dateCompleted > 0";
+if ($values['completed']=="y") $compq = "projectstatus.dateCompleted > 0";
 else $compq = "(projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00')
                 AND (((CURDATE()>=DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY))
                     OR projectattributes.suppress='n'))";
@@ -57,7 +57,7 @@ if ($categoryId=='0') {
 		projectattributes.deadline, projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil
 		FROM projects, projectattributes, projectstatus, categories
 		WHERE projectattributes.projectId=projects.projectId AND projectattributes.categoryId=categories.categoryId
-		AND projectstatus.projectId=projects.projectId AND projectattributes.isSomeday = '$isSomeday' AND ".$compq."
+		AND projectstatus.projectId=projects.projectId AND projectattributes.isSomeday = '{$values['isSomeday']}' AND ".$compq."
 		ORDER BY categories.category, projects.name ASC";
 
 	$result = mysql_query($query) or die ("Error in query");
@@ -69,7 +69,7 @@ else {
 		FROM projects, projectattributes, projectstatus, categories
 		WHERE projectattributes.projectId=projects.projectId AND projectattributes.categoryId=categories.categoryId
 		AND projectstatus.projectId=projects.projectId AND (".$compq.") AND projectattributes.categoryId='$categoryId'
-		AND projectattributes.isSomeday='$isSomeday'
+		AND projectattributes.isSomeday='{$values['isSomeday']}'
 		ORDER BY categories.category, projects.name ASC";
 	$result = mysql_query($query) or die ("Error in query");
 	}
@@ -77,12 +77,12 @@ else {
 //PAGE DISPLAY CODE
 
 	echo '<h2>';
-	if ($completed=="y") echo 'Completed&nbsp;'.$typename."</h2>\n";
-	else echo '<a href="project.php?type='.$pType.'" title="Add new '.str_replace("s","",$typename).'">'.$typename."</a></h2>\n";
+	if ($values['completed']=="y") echo 'Completed&nbsp;'.$typename."</h2>\n";
+	else echo '<a href="project.php?type='.$values['pType'].'" title="Add new '.str_replace("s","",$typename).'">'.$typename."</a></h2>\n";
 
 	//category selection form
 	echo '<div id="filter">'."\n";
-	echo '<form action="listProjects.php?pType='.$pType.'" method="post">'."\n";
+	echo '<form action="listProjects.php?pType='.$values['pType'].'" method="post">'."\n";
 	echo "<p>Category:&nbsp;\n";
 	echo '<select name="categoryId">'."\n";
 	echo '	<option value="0">All</option>'."\n";
@@ -105,7 +105,7 @@ if (mysql_num_rows($result) > 0){
 	echo "		<td>Deadline</td>\n";
 	echo "		<td>Repeat</td>\n";
 	echo "		<td>Edit</td>\n";
-	if ($completed!="y") echo "		<td>Completed</td>\n";
+	if ($values['completed']!="y") echo "		<td>Completed</td>\n";
 	echo "	</thead>\n";
 
 	while($row = mysql_fetch_assoc($result)){
@@ -120,26 +120,26 @@ if (mysql_num_rows($result) > 0){
                 else $nonext="true";
                 
 		echo '<a href = "projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).' project report">';
-		if ($nonext=="true" && $completed!="y") echo '<span class="noNextAction" title="No next action defined!">!</span>';
+		if ($nonext=="true" && $values['completed']!="y") echo '<span class="noNextAction" title="No next action defined!">!</span>';
 		echo stripslashes($row['name'])."</a></td>\n";
 		echo '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
 		echo '		<td><a href="editCategory.php?categoryId='.$row['categoryId'].'" title="Edit the '.htmlspecialchars(stripslashes($row['category'])).' category">'.stripslashes($row['category'])."</a></td>\n";
 		echo '		<td>';
                 if(($row['deadline']) == "0000-00-00" || $row['deadline']==NULL) $tablehtml .= "&nbsp;";
-                elseif(($row['deadline']) < date("Y-m-d") && $completed!="y") echo '<font color="red"><strong title="Project overdue">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';
-                elseif(($row['deadline']) == date("Y-m-d") && $completed!="y") echo '<font color="green"><strong title="Project due today">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';
+                elseif(($row['deadline']) < date("Y-m-d") && $values['completed']!="y") echo '<font color="red"><strong title="Project overdue">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';
+                elseif(($row['deadline']) == date("Y-m-d") && $values['completed']!="y") echo '<font color="green"><strong title="Project due today">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';
                 else echo date("D M j, Y",strtotime($row['deadline']));
 
 		echo "</td>\n";
 		if ($row['repeat']=="0") echo "		<td>--</td>\n";
 		else echo "		<td>".$row['repeat']."</td>\n";
 		echo '		<td><a href="project.php?projectId='.$row['projectId'].'" title="Edit '.htmlspecialchars(stripslashes($row['name'])).' project">Edit</a></td>'."\n";
-        if ($completed!="y") echo '		<td align="center"><input type="checkbox" align="center" title="Mark '.htmlspecialchars(stripslashes($row['name'])).' project completed. Will hide incomplete associated items." name="completedProj[]" value="'.$row['projectId'].'" /></td>'."\n";
+        if ($values['completed']!="y") echo '		<td align="center"><input type="checkbox" align="center" title="Mark '.htmlspecialchars(stripslashes($row['name'])).' project completed. Will hide incomplete associated items." name="completedProj[]" value="'.$row['projectId'].'" /></td>'."\n";
 		echo "	</tr>\n";
                 }
 	echo "</table>\n";
 	echo '<input type="hidden" name="referrer" value="l" />'."\n";
-	echo '<input type="hidden" name="type" value="'.$pType.'" />'."\n";
+	echo '<input type="hidden" name="type" value="'.$values['pType'].'" />'."\n";
 	echo '<input type="hidden" name="categoryId" value="'.$categoryId.'" />'."\n";
 	echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit" />'."\n";
 	echo "</form>\n";
