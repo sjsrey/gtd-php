@@ -32,7 +32,7 @@ if($values['delete']=="y"){
     query("deleteitemattributes",$config,$values);
     query("deleteitem",$config,$values);
 
-        echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=projectReport.php?projectId='.$values['projectId'].'" />';
+        echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$values['projectId'].'" />';
 //        echo "<p>Number of Records Deleted: ";
 //        echo mysql_affected_rows();
 	if ($values['nextAction']=='y') query("deletenextaction",$config,$values);
@@ -48,7 +48,7 @@ else {
 	if ($values['nextAction']=='y') query("updatenextaction",$config,$values);
         else query("deletenextaction",$config,$values);
 
-        echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=projectReport.php?projectId='.$values['projectId'].'" />';
+        echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$values['projectId'].'" />';
 	}
 
 mysql_close($connection);
