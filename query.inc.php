@@ -92,7 +92,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
         //always included; text/codes shown in errors on individual pages as warranted...
         $GLOBALS['ecode'] = mysql_errno();
         $GLOBALS['etext'] = mysql_error();
-        mysql_close($connection);
+//        mysql_close($connection);
         }
 
     elseif($config['dbtype']=="postgres") {

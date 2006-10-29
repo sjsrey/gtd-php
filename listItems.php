@@ -16,8 +16,8 @@ if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
 else $values['contextId']=(int) $_POST['contextId'];
 if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
 else $values['categoryId']=(int) $_POST['categoryId'];
-if ($_GET['timeId']>0) $values['timeId']=(int) $_GET['timeId'];
-else $values['timeId']=(int) $_POST['timeId'];
+if ($_GET['timeId']>0) $values['timeframeId']=(int) $_GET['timeId'];
+else $values['timeframeId']=(int) $_POST['timeId'];
 
 
 if ($values['pType']=='s') $values['ptypequery']='y';
@@ -47,27 +47,33 @@ else {
 	}
 
 //SQL CODE
-//select all contexts for dropdown list
-$query = "SELECT contextId, name, description  FROM context ORDER BY name ASC";
-$result = mysql_query($query) or die("Error in query");
+
+//select space contexts for dropdown list
+$result = query("spacecontextselectbox",$config,$values,$options,$sort);
 $cshtml="";
-while($row = mysql_fetch_assoc($result)) {
-	$cshtml .= '	<option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-	if($row['contextId']==$values['contextId']) $cshtml .= ' SELECTED';
-	$cshtml .= '>'.stripslashes($row['name'])."</option>\n";
-}
-mysql_free_result($result);
+    foreach($result as $row) {
+        $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+        if($row['contextId']==$values['contextId']) $cshtml .= ' SELECTED';
+        $cshtml .= '>'.stripslashes($row['name'])."</option>\n";
+        }
 
 //select time contexts for dropdown list
-$query = "SELECT timeframeId, timeframe, description FROM timeitems";
-$timeframeResults = mysql_query($query) or die ("Error in query");
-$thtml="";
-while($row = mysql_fetch_assoc($timeframeResults)) {
-    $thtml .= '	<option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['timeframeId'])).'"';
-    if($row['timeframeId']==$values['timeId']) $thtml .=' SELECTED';
-    $thtml .= '>'.stripslashes($row['timeframe'])."</option>\n";
-}
+$result = query("timecontextselectbox",$config,$values,$options,$sort);
+$tshtml="";
+foreach($result as $row) {
+    $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+    if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' SELECTED';
+    $tshtml .= '>'.stripslashes($row['timeframe'])."</option>\n";
+    }
 
+//select all categories for dropdown list
+$result = query("categoryselectbox",$config,$values,$options,$sort);
+$cashtml="";
+foreach($result as $row) {
+        $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+        if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
+        $cashtml .= '>'.stripslashes($row['category'])."</option>\n";
+}
 
 //select all nextactions for test
 $query = "SELECT projectId, nextaction FROM nextactions";
@@ -78,25 +84,13 @@ while ($nextactiontest = mysql_fetch_assoc($result)) {
 	$nextactions[$nextactiontest['projectId']] = $nextactiontest['nextaction'];
 }
 
-//select all categories for dropdown list
-$query = "SELECT categories.categoryId, categories.category, categories.description from categories ORDER BY categories.category ASC";
-$result = mysql_query($query) or die("Error in query");
-$cashtml="";
-while($row = mysql_fetch_assoc($result)) {
-	$cashtml .= '	<option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-	if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
-	$cashtml .= '>'.stripslashes($row['category'])."</option>\n";
-}
-mysql_free_result($result);
-
-
 //Select items
 $catquery = "";
 $contextquery = "";
 $timequery ="";
 if ($values['contextId'] != NULL) $contextquery = "AND itemattributes.contextId = '{$values['contextId']}'";
 if ($values['categoryId'] != NULL) $catquery = " AND projectattributes.categoryId = '{$values['categoryId']}'";
-if ($values['timeId'] !=NULL) $timequery = "AND itemattributes.timeframeId ='{$values['timeId']}'";
+if ($values['timeframeId'] !=NULL) $timequery = "AND itemattributes.timeframeId ='{$values['timeframeId']}'";
 
 $query = "SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated,
 	context.contextId, context.name AS cname, items.itemId, itemstatus.dateCompleted, itemattributes.deadline,
@@ -132,7 +126,7 @@ $result = mysql_query($query) or die ("Error in query");
 	echo "&nbsp;&nbsp;&nbsp;\nTime:&nbsp;\n";
 	echo '<select name="timeId" title="Filter items by time context">'."\n";
 	echo '	<option value="">All</option>'."\n";
-	echo $thtml;
+	echo $tshtml;
 	echo "</select>\n";
 	echo '<input type="submit" class="button" value="Filter" name="submit" title="Filter '.$typename.' by category and/or contexts">'."\n";
 	echo "</p>\n";
@@ -189,7 +183,7 @@ $result = mysql_query($query) or die ("Error in query");
 			echo "</table>\n";
 			echo '<input type="hidden" name="type" value="'.$values['type'].'" />'."\n";
 			echo '<input type="hidden" name="contextId" value="'.$values['contextId'].'" />'."\n";
-			echo '<input type="hidden" name="timeId" value="'.$values['timeId'].'" />'."\n";
+			echo '<input type="hidden" name="timeId" value="'.$values['timeframeId'].'" />'."\n";
 			echo '<input type="hidden" name="referrer" value="i" />'."\n";
 			echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit">'."\n";
 			echo "</form>\n";
