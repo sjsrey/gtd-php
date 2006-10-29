@@ -17,14 +17,14 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 //SQL Code
 	$values['isSomeday'] = "n";
 	$pres = query("projectssummary",$config,$values,$options,$sort);
-	$np = count($pres);
+	$np = count($pres)-2;
 
 	$values['isSomeday'] = "y";
 	$sm = query("projectssummary",$config,$values,$options,$sort);
-	$nsm = count($sm);
+	$nsm = count($sm)-2;
 
 	$result = query("spacecontextselectbox",$config,$values,$options,$sort);
-	$ncon = count($result);
+	$ncon = count($result)-2;
 
 //    $nNextActions=getNumberOfNextActions();
     $result=query("countnextactions",$config,$values);
