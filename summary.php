@@ -8,33 +8,31 @@ $connection = mysql_connect($config['host'], $config['user'], $config['pass']) o
 mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //RETRIEVE FORM AND URL VARIABLES
-	$values['pId'] = (int) $_GET['projectId'];
-	$values['pName'] =(string) $_GET['projectName'];
+//	$values['pId'] = (int) $_GET['projectId'];
+//	$values['pName'] =(string) $_GET['projectName'];
 
 	echo "<h2>GTD Summary</h2>\n";
 	echo '<h4>Today is '.date("l, F jS, Y").'. (Week '.date("W").'/52 & Day '.date("z").'/'.(365+date("L")).')</h4>'."\n";
 
 //SQL Code
-	$values['isSomeday'] = "n";
-	$pres = query("projectssummary",$config,$values,$options,$sort);
-
-	$values['isSomeday'] = "y";
-	$sm = query("projectssummary",$config,$values,$options,$sort);
-
+       
 	$result = query("spacecontextselectbox",$config,$values,$options,$sort);
-
-//        $numbercontexts = query("countspacecontexts",$config,$values);
-
-        $numberprojects = query("countactiveprojects",$config,$values);
-
+        $numbercontexts = query("countspacecontexts",$config,$values);
         $numbernextactions = query("countnextactions",$config,$values);
-        
         $numberitems = query("countactiveitems",$config,$values);
 
+        $values['isSomeday'] = "n";
+        $numberprojects = query("countactiveprojects",$config,$values);
+        $pres = query("projectssummary",$config,$values,$options,$sort);
+
+        $values['isSomeday'] = "y";
+        $numbersomeday = query("countactiveprojects",$config,$values);
+        $sm = query("projectssummary",$config,$values,$options,$sort);
+ 
 //set empty database counts to zero
     if($numbercontexts[0]['ncontexts']=="") $numbercontexts[0]['ncontexts']="0";
     if($numberprojects[0]['nprojects']=="") $numberprojects[0]['nprojects']="0";
-    if($numberprojects[1]['nprojects']=="") $numberprojects[1]['nprojects']="0";
+    if($numbersomeday[0]['nprojects']=="") $numbersomeday[0]['nprojects']="0";
     if($numberitems[0]['nitems']=="") $numberitems[0]['nitems']="0";
     if($numbernextactions[0]['nnextactions']=="") $numbernextactions[0]['nnextactions']="0";
 
@@ -60,7 +58,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 	echo "</div>\n";
 
 	$i=0;
-	$w1=$numberprojects[1]['nprojects']/3;
+	$w1=$numberprojects[0]['nprojects']/3;
         if ($pres!=-1) {
 	foreach($pres as $row) {
 		if($i < $w1){
@@ -111,10 +109,10 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
     echo "<div class='reportsection'>\n";
 	echo "<h3>Projects</h3>\n";
 
-    if($numberprojects[1]['nprojects']==1){
-        echo '<p>There is ' .$numberprojects[1]['nprojects']. ' <a href="listProjects.php?type=p">Project</a>.<p>'."\n";
+    if($numberprojects[0]['nprojects']==1){
+        echo '<p>There is ' .$numberprojects[0]['nprojects']. ' <a href="listProjects.php?type=p">Project</a>.<p>'."\n";
     }else{
-        echo '<p>There are ' .$numberprojects[1]['nprojects']. ' <a href="listProjects.php?type=p">Projects</a>.<p>'."\n";
+        echo '<p>There are ' .$numberprojects[0]['nprojects']. ' <a href="listProjects.php?type=p">Projects</a>.<p>'."\n";
     }
 
 	$s='<table>'."\n";

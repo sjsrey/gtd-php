@@ -12,16 +12,16 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
     //for developer testing only--- testing data handling
     //testing passed variables
     if ($config['debug']=="developer") {
-        echo "<p>Query label: ".$querylabel."<br />";
-        echo "Config: ";
-        echo "<pre>".print_r($config)."</pre>";
+        echo "<p><b>Query label: ".$querylabel."</b><br />";
+        echo "<pre>Config: ";
+        print_r($config);
         echo "<br />Values: ";
-        echo "<pre>".print_r($values)."</pre>";
+        print_r($values);
         echo "<br />Options: ";
-        echo "<pre>".print_r($options)."</pre>";
+        print_r($options);
         echo "<br />Sort: ";
-        echo "<pre>".print_r($sort)."</pre>"; 
-        echo "</p>";
+        print_r($sort);
+        echo "</pre></p>";
     }
 /*
     //sanitize input variables
@@ -88,6 +88,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
                 $ii++;
                 }
             }
+        else $result="-1";
 
         //always included; text/codes shown in errors on individual pages as warranted...
         $GLOBALS['ecode'] = mysql_errno();
@@ -123,7 +124,11 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
     else die("Database type not configured.  Please edit the config.php file.");
 
     //for developer testing only, print result array
-    if ($config['debug']=="developer") print_r($result);
+    if ($config['debug']=="developer") {
+        echo "<pre>Result: ";
+        print_r($result);
+        echo "</pre>";
+        }
 
     return $result;
     }

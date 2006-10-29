@@ -188,7 +188,8 @@ $sql = array(
 
         "selectspacecontext"          =>"SELECT contextId, name, description FROM context WHERE contextId = '{$values['contextId']}'",
         "newspacecontext"           => "INSERT INTO context  VALUES (NULL, '{$values['name']}', '{$values['description']}')",
-
+        "countspacecontexts"          => "SELECT COUNT(name) AS ncontexts FROM context",
+ 
 //TimeContexts
 
         "selecttimecontext"          =>"SELECT timeframeId, timeframe, description FROM timeitems WHERE timeframeId = '{$values['tcId']}'",
@@ -260,7 +261,7 @@ $query=>"SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`descripti
         "countnextactions"          => "SELECT COUNT(nextaction) AS nnextactions FROM nextactions",
         "countactiveitems"                => "SELECT `type`, COUNT(*) AS nitems FROM `itemattributes`, `itemstatus` WHERE `itemattributes`.`itemId`=`itemstatus`.`itemId` AND (`itemstatus`.`datecompleted`='0000-00-00' OR `itemstatus`.`datecompleted` IS NULL) GROUP BY type",
 
-        "countactiveprojects"                => "SELECT `isSomeday`, COUNT(*) AS nprojects FROM `projectattributes`, `projectstatus` WHERE `projectattributes`.`projectId`=`projectstatus`.`projectId` AND (`projectstatus`.`datecompleted`='0000-00-00' OR `projectstatus`.`datecompleted` IS NULL) GROUP BY isSomeday",
+        "countactiveprojects"                => "SELECT `isSomeday`, COUNT(*) AS nprojects FROM `projectattributes`, `projectstatus` WHERE `projectattributes`.`projectId`=`projectstatus`.`projectId` AND `projectattributes`.`isSomeday`='{$values['isSomeday']}' AND (`projectstatus`.`datecompleted`='0000-00-00' OR `projectstatus`.`datecompleted` IS NULL) GROUP BY isSomeday",
 
         
         "countallitems"             => "SELECT `type`, COUNT(*) AS nitems FROM `itemattributes` GROUP BY type",

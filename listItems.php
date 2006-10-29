@@ -194,7 +194,7 @@ $result = query("getitems",$config,$values,$options,$sort);
 	}else{
 		$message="You have no ".$typename." remaining.";
 		$prompt="Would you like to create a new ".str_replace("s","",$typename)."?";
-		$yeslink="item.php?type=a";
+		$yeslink="item.php?type=".$values['type'];
 		nothingFound($message,$prompt,$yeslink);
 	}
 
