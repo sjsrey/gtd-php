@@ -44,7 +44,6 @@ while($row = mysql_fetch_assoc($result)) {
 	if($row['categoryId']==$categoryId) $cshtml .= ' SELECTED';
 	$cshtml .= '>'.stripslashes($row['category'])."</option>\n";
         }
-mysql_free_result($result);
 
 if ($completed=="y") $compq = "projectstatus.dateCompleted > 0";
 else $compq = "(projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00')

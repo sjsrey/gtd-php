@@ -75,13 +75,17 @@ foreach($result as $row) {
 }
 
 //select all nextactions for test
-$query = "SELECT projectId, nextaction FROM nextactions";
-$result = mysql_query($query) or die ("Error in query");
-$nextactions = array();
-while ($nextactiontest = mysql_fetch_assoc($result)) {
-	//populates $nextactions with itemIds using projectId as key
-	$nextactions[$nextactiontest['projectId']] = $nextactiontest['nextaction'];
-}
+$result = query("getnextactions",$config,$values,$options,$sort);
+
+foreach ($result as $row) {
+    //populates $nextactions with itemIds using projectId as key
+    $nextactions[$row['projectId']] = $row['nextaction'];
+    }
+//while ($nextactiontest = mysql_fetch_assoc($result)) {
+        //populates $nextactions with itemIds using projectId as key
+//      $nextactions[$nextactiontest['projectId']] = $nextactiontest['nextaction'];
+//}
+
 
 //Select items
 $catquery = "";
@@ -137,7 +141,7 @@ $result = mysql_query($query) or die ("Error in query");
 
 			$showme="y";
 			//filter out all but nextactions if $display=nextonly
-			if (($display=='nextonly')  && !($key=array_search($row['itemId'],$nextactions))) $showme="n";
+			if (($display=='nextonly')  && !($key = array_search($row['itemId'],$nextactions))) $showme="n";
 
 			if($showme=="y") {
 
@@ -183,8 +187,8 @@ $result = mysql_query($query) or die ("Error in query");
 			echo '<input type="hidden" name="type" value="'.$values['type'].'" />'."\n";
 			echo '<input type="hidden" name="contextId" value="'.$values['contextId'].'" />'."\n";
 			echo '<input type="hidden" name="timeId" value="'.$values['timeframeId'].'" />'."\n";
-			echo '<input type="hidden" name="contextId" value="'.$values['contextId'].'" />'."\n";
-			echo '<input type="hidden" name="categoryId" value="'.$values['categoryId'].'" />'."\n";
+                        echo '<input type="hidden" name="contextId" value="'.$values['contextId'].'" />'."\n";
+                        echo '<input type="hidden" name="categoryId" value="'.$values['categoryId'].'" />'."\n";
 			echo '<input type="hidden" name="referrer" value="i" />'."\n";
 			echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit">'."\n";
 			echo "</form>\n";

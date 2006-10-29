@@ -40,17 +40,13 @@ $sql = array(
 
         "timecontextselectbox"         =>"SELECT `timeframeId`, `timeframe`, `description` FROM `timeitems` ORDER BY {$sort['timecontextselectbox']}",
 
-
-
         "selectcategory"          => "SELECT categoryId, category, description FROM categories WHERE categoryId = '{$values['categoryId']}'",
 
         "selectnote"              => "SELECT ticklerId, title, note, date FROM tickler WHERE ticklerId='{$values['noteId']}'",
 
-
         "projectssummary"         => "SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`description` FROM `projects`, `projectattributes`, `projectstatus` WHERE `projectattributes`.`projectId`=`projects`.`projectId` AND `projectstatus`.`projectId`=`projects`.`projectId` AND (`projectstatus`.`dateCompleted` IS NULL OR `projectstatus`.`dateCompleted` = '0000-00-00') AND `projectattributes`.`isSomeday`='{$values['isSomeday']}' ORDER BY {$sort['projectssummary']}",
 
         "testnextaction"              =>"SELECT `projectId`, `nextaction` FROM `nextactions` WHERE `nextaction`='{$values['itemId']}'",
-
 
         "updatespacecontext"     =>  "UPDATE `context` SET `name` ='{$values['name']}', `description`='{$values['description']}' WHERE `contextId` ='{$values['contextId']}'",
 
@@ -145,7 +141,6 @@ $sql = array(
 
         "newcategory"                   =>"INSERT INTO categories VALUES (NULL, '{$values['category']}', '{$values['description']}')",
 
-
         "updategoal"              => "UPDATE `goals` SET `goal` = '{$values['goal']}', `description` = '{$values['description']}', `created` = '{$values['created']}', `deadline` = '{$values['deadline']}', `completed` = '{$values['completed']}', `type`='{$values['type']}', `projectId` = '{$values['projectId']}' WHERE `id` = '{$values['gid']}'",
 
         "newchecklistitem"              =>"INSERT INTO `checklistItems`  VALUES (NULL, '{$values['item']}', '{$values['notes']}', '{$values['checklistId']}', 'n')",
@@ -160,7 +155,7 @@ $sql = array(
 
         "completelistitem"              =>"UPDATE `listItems` SET `dateCompleted`='{$values['date']}' WHERE `listItemId`='{$values['completedLi']}'",
 
-
+        "getnextactions"              =>"SELECT `projectId`, `nextaction` FROM `nextactions`",
 
 
 
@@ -261,7 +256,7 @@ $query=>"SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`descripti
         "selectprojectstatusforcopy" => "",
 
 //nextactions
-        "getnextactions"              =>"SELECT `projectId`, `nextaction` FROM `nextactions`",
+
         "countnextactions"          => "SELECT COUNT(nextaction) AS nnextactions FROM nextactions",
         "countactiveitems"                => "SELECT `type`, COUNT(*) AS nitems FROM `itemattributes`, `itemstatus` WHERE `itemattributes`.`itemId`=`itemstatus`.`itemId` AND (`itemstatus`.`datecompleted`='0000-00-00' OR `itemstatus`.`datecompleted` IS NULL) GROUP BY type",
 
