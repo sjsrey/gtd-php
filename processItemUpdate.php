@@ -18,6 +18,12 @@ $timeId=(int) $_POST['timeId'];
 $completedNas = $_POST['completedNas'];
 $isNext = (int) $_POST['isNext'];
 
+if ($_GET['contextId']>0) $contextId=(int) $_GET['contextId'];
+else $contextId=(int) $_POST['contextId'];
+if ($_GET['categoryId']>0) $categoryId=(int) $_GET['categoryId'];
+else $categoryId=(int) $_POST['categoryId'];
+
+
 //SQL CODE
 
 if(isset($completedNas)){
@@ -95,7 +101,7 @@ if (isset($isNext)){
 }
 
 if ($referrer=="i") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$type.'&contextId='.$contextId.'&timeId='.$timeId.'">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$type.'&contextId='.$contextId.'&timeId='.$timeId.'&categoryId='.$categoryId.'">';
 	}
 
 elseif ($referrer=="p") {

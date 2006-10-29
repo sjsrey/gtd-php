@@ -19,7 +19,6 @@ else $values['categoryId']=(int) $_POST['categoryId'];
 if ($_GET['timeId']>0) $values['timeframeId']=(int) $_GET['timeId'];
 else $values['timeframeId']=(int) $_POST['timeId'];
 
-
 if ($values['pType']=='s') $values['ptypequery']='y';
 else $values['ptypequery']='n';
 
@@ -184,6 +183,8 @@ $result = mysql_query($query) or die ("Error in query");
 			echo '<input type="hidden" name="type" value="'.$values['type'].'" />'."\n";
 			echo '<input type="hidden" name="contextId" value="'.$values['contextId'].'" />'."\n";
 			echo '<input type="hidden" name="timeId" value="'.$values['timeframeId'].'" />'."\n";
+			echo '<input type="hidden" name="contextId" value="'.$values['contextId'].'" />'."\n";
+			echo '<input type="hidden" name="categoryId" value="'.$values['categoryId'].'" />'."\n";
 			echo '<input type="hidden" name="referrer" value="i" />'."\n";
 			echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit">'."\n";
 			echo "</form>\n";
