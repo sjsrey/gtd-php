@@ -90,8 +90,8 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
             }
 
         //always included; text/codes shown in errors on individual pages as warranted...
-        $result['ecode'] = mysql_errno();
-        $result['etext'] = mysql_error();
+        $GLOBALS['ecode'] = mysql_errno();
+        $GLOBALS['etext'] = mysql_error();
         mysql_close($connection);
         }
 

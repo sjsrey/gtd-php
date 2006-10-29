@@ -30,7 +30,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 	//select item details
 	if ($values['itemId']>0) {
 	   $result = query("selectitem",$config,$values,$options,$sort);
-           if ($result['ecode']==0) {
+           if ($GLOBALS['ecode']==0) {
             $currentrow = $result[0];
             $values['type']=$currentrow['type'];
 
@@ -42,7 +42,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 
 	//select create projects, timecontext, and spacecontext selectboxes
 	$result = query("projectselectbox",$config,$values,$options,$sort);
-	$pshtml="";
+	$pshtml="";     
 	foreach($result as $row) {
 		$pshtml .= '			<option value="'.$row['projectId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
 		if($row['projectId']==$currentrow['projectId'] || $row['projectId']==$values['projectId']) $pshtml .= ' SELECTED';

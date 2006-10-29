@@ -19,10 +19,10 @@ if ($values['delete']=="y") {
 
 else $result = query("updatecategory",$config,$values);
 
-    if ($result['ecode']=="0") echo "Category ".$values['category']." updated.";
+    if ($GLOBALS['ecode']=="0") echo "Category ".$values['category']." updated.";
     else {
         echo "Category NOT updated.";
-        if ($config['debug']=="true" || $config['debug']=="developer") echo $result['ecode'].": ".$result['etext'];
+        if ($config['debug']=="true" || $config['debug']=="developer") echo $GLOBALS['ecode'].": ".$GLOBALS['etext'];
         }
 
 echo '<META HTTP-EQUIV="Refresh" CONTENT="20; url=listProjects.php"/>';

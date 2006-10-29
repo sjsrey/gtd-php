@@ -33,9 +33,9 @@ else {
 
    $result = query("newtimecontext",$config,$values);
 
-    if ($result['ecode']=="0") echo "Time context ".$values['name']." inserted.";
+    if ($GLOBALS['ecode']=="0") echo "Time context ".$values['name']." inserted.";
     else echo "Time  context NOT inserted.";
-    if (($config['debug']=="true" || $config['debug']=="developer") && $result['ecode']!="0") echo "<p>Error Code: ".$result['ecode']."=> ".$result['etext']."</p>";
+    if (($config['debug']=="true" || $config['debug']=="developer") && $GLOBALS['ecode']!="0") echo "<p>Error Code: ".$GLOBALS['ecode']."=> ".$GLOBALS['etext']."</p>";
 
     echo '<META HTTP-EQUIV="Refresh" CONTENT="2; url=newTimeContext.php" />';
     }
