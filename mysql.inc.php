@@ -27,7 +27,6 @@ Create documentation
 eventually sessions/cookies
 */
 
-
 $sql = array(
 
 //Finalized/works/used
@@ -74,6 +73,7 @@ $sql = array(
 
         "removeitems"              => "DELETE `itemattributes` FROM `itemattributes`, `items`, `itemstatus` WHERE `items`.`itemId`=`itemattributes`.`itemId` AND `itemstatus`.`itemId`=`itemattributes`.`itemId` AND `itemattributes`.`projectId` = '{$values['projectId']}'",
 
+        "getitems"                  => "SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated, context.contextId, context.name AS cname, items.itemId, itemstatus.dateCompleted, itemattributes.deadline, itemattributes.repeat, itemattributes.suppress, itemattributes.suppressUntil FROM items, itemattributes, itemstatus, projects, projectattributes, projectstatus, context WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId AND itemattributes.contextId = context.contextId AND itemattributes.projectId = projects.projectId AND projectattributes.projectId=itemattributes.projectId AND projectstatus.projectId = itemattributes.projectId AND itemattributes.type = '{$values['typequery']}' " .$values['filterquery']. " AND projectattributes.isSomeday='{$values['ptypequery']}' AND (itemstatus.dateCompleted IS NULL OR itemstatus.dateCompleted = '0000-00-00') AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00') AND ((CURDATE() >= DATE_ADD(itemattributes.deadline, INTERVAL -(itemattributes.suppressUntil) DAY)) OR itemattributes.suppress='n' OR ((CURDATE() >= DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY)))) ORDER BY projects.name, itemattributes.deadline, items.title",
 
 
 /*
@@ -272,12 +272,6 @@ $query=>"SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`descripti
         "completenextaction"        =>"DELETE FROM nextactions WHERE nextAction=''{$values['completedNa']}'",
 //items
 
-//        "getitems"              =>"SELECT `itemattributes`.`projectId`, `projects`.`name` AS `pname`, `items`.`title`, `items`.`description`, `itemstatus`.`dateCreated`, `context`.`contextId, `context`.`name` AS `cname`, `items`.`itemId`, `itemstatus`.`dateCompleted`, `itemattributes`.`deadline`, `itemattributes`.`repeat`, `itemattributes`.`suppress`, `itemattributes`.`suppressUntil` FROM `items`, `itemattributes`, `itemstatus`, `projects`, `projectattributes`, `projectstatus`, `context` WHERE `itemstatus`.`itemId` = `items`.`itemId` AND `itemattributes`.`itemId` = `items`.`itemId` AND `itemattributes`.`contextId` = `context`.`contextId` AND `itemattributes`.`projectId` = `projects`.`projectId` AND `projectattributes`.`projectId`=`itemattributes`.`projectId` AND `projectstatus`.`projectId` = `itemattributes`.`projectId` AND `itemattributes`.`type = '$typequery' " `.`$catquery`.`$contextquery`.`$timequery`.` " AND `projectattributes`.`isSomeday='$ptypequery' AND (`itemstatus`.`dateCompleted` IS NULL OR `itemstatus`.`dateCompleted` = '0000-00-00') AND (`projectstatus`.`dateCompleted` IS NULL OR `projectstatus`.`dateCompleted` = '0000-00-00') AND ((CURDATE() >= DATE_ADD(`itemattributes`.`deadline`, INTERVAL -(`itemattributes`.`suppressUntil`) DAY)) OR `itemattributes`.`suppress`='n' OR ((CURDATE() >= DATE_ADD(`projectattributes`.`deadline`, INTERVAL -(`projectattributes`.`suppressUntil`) DAY)))) ORDER BY `projects`.`name`, `itemattributes`.`deadline`, items`.`title`",
-/*
-if ($contextId != NULL) $contextquery => "AND `itemattributes``.`contextId = '{$values['contextId']}'";
-if ($categoryId != NULL) $catquery => " AND `projectattributes`.`categoryId` = '{$values['categoryId']}'";
-if ($timeId !=NULL) $timequery => "AND `itemattributes``.`timeframeId ='$timeId'";
-*/
 
         "newitem"              => "INSERT INTO `items` (title,description) VALUES ('{$values['title']}','{$values['description']}')",
         "newitemattributes"     => "INSERT INTO `itemattributes` (itemId,type,`projectId`,contextId,timeframeId,deadline,`repeat`,suppress,suppressUntil) VALUES ('{$values['itemId']}','{$values['type']}','{$values['projectId']}','{$values['contextId']}','{$values['timeframeId']}','{$values['deadline']}','{$values['repeat']}','{$values['suppress']}','{$values['suppressUntil']}')",
@@ -338,4 +332,6 @@ if ($timeId !=NULL) $timequery => "AND `itemattributes``.`timeframeId ='$timeId'
 
 
 
-);
+    );
+
+

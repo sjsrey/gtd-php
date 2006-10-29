@@ -14,13 +14,13 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
     if ($config['debug']=="developer") {
         echo "<p>Query label: ".$querylabel."<br />";
         echo "Config: ";
-        print_r($config);
-        echo "<br />Sort: ";
-        print_r($sort);
+        echo "<pre>".print_r($config)."</pre>";
         echo "<br />Values: ";
-        print_r($values);
+        echo "<pre>".print_r($values)."</pre>";
         echo "<br />Options: ";
-        print_r($options);
+        echo "<pre>".print_r($options)."</pre>";
+        echo "<br />Sort: ";
+        echo "<pre>".print_r($sort)."</pre>"; 
         echo "</p>";
     }
 /*
@@ -96,32 +96,27 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
         }
 
     elseif($config['dbtype']=="postgres") {
-        $reply = pg_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".mysql_error():"Error in query");
+        $reply = pg_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".pg_error():"Error in query");
         echo ("Database not yet supported.");
          }
 
-
     elseif($config['dbtype']=="sqlite") {
-        $reply = sqllite_query($query)  or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".mysql_error():"Error in query");
+        $reply = sqllite_query($query)  or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".sqllite_error():"Error in query");
         echo ("Database not yet supported.");
         }
-
 
     elseif($config['dbtype']=="msql") {
-        $reply = msql_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".mysql_error():"Error in query");
+        $reply = msql_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".msql_error():"Error in query");
         echo ("Database not yet supported.");
         }
-
-
 
     elseif($config['dbtype']=="mssql") {
-        $reply = mssql_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".mysql_error():"Error in query");
+        $reply = mssql_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".mssql_error():"Error in query");
         echo ("Database not yet supported.");
         }
 
-
     elseif($config['dbtype']=="frontbase") {
-        $reply = fbsql_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".mysql_error():"Error in query");
+        $reply = fbsql_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".fbsql_error():"Error in query");
         echo ("Database not yet supported.");
         }
 

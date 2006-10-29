@@ -7,7 +7,6 @@ include_once('header.php');
 $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
 mysql_select_db($config['db']) or die ("Unable to select database!");
 
-
 //GET URL VARIABLES
 $values['type']=$_GET["type"]{0};
 $values['pType']=$_GET["pType"]{0};
@@ -81,37 +80,34 @@ foreach ($result as $row) {
     //populates $nextactions with itemIds using projectId as key
     $nextactions[$row['projectId']] = $row['nextaction'];
     }
-//while ($nextactiontest = mysql_fetch_assoc($result)) {
-        //populates $nextactions with itemIds using projectId as key
-//      $nextactions[$nextactiontest['projectId']] = $nextactiontest['nextaction'];
-//}
-
 
 //Select items
-$catquery = "";
-$contextquery = "";
-$timequery ="";
-if ($values['contextId'] != NULL) $contextquery = "AND itemattributes.contextId = '{$values['contextId']}'";
-if ($values['categoryId'] != NULL) $catquery = " AND projectattributes.categoryId = '{$values['categoryId']}'";
-if ($values['timeframeId'] !=NULL) $timequery = "AND itemattributes.timeframeId ='{$values['timeframeId']}'";
 
-$query = "SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated,
-	context.contextId, context.name AS cname, items.itemId, itemstatus.dateCompleted, itemattributes.deadline,
-	itemattributes.repeat, itemattributes.suppress, itemattributes.suppressUntil
-	FROM items, itemattributes, itemstatus, projects, projectattributes, projectstatus, context
-	WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId
-	AND itemattributes.contextId = context.contextId AND itemattributes.projectId = projects.projectId
-	AND projectattributes.projectId=itemattributes.projectId AND projectstatus.projectId = itemattributes.projectId
-	AND itemattributes.type = '{$values['typequery']}' " .$catquery.$contextquery.$timequery. " AND projectattributes.isSomeday='{$values['ptypequery']}'
-	AND (itemstatus.dateCompleted IS NULL OR itemstatus.dateCompleted = '0000-00-00')
-	AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00')
-	AND ((CURDATE() >= DATE_ADD(itemattributes.deadline, INTERVAL -(itemattributes.suppressUntil) DAY))
-		OR itemattributes.suppress='n'
-		OR ((CURDATE() >= DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY))))
-	ORDER BY projects.name, itemattributes.deadline, items.title";
+    //include correct SQL parts query library as chosen in config
+    //kludge: need more elegant solution to minimize repetitive code and multiple query files per database
+    switch ($config['dbtype']) {
+        case "frontbase":include("frontbaseparts.inc.php");
+        break;
+        case "msql":require("msqlparts.inc.php");
+        break;
+        case "mysql":require("mysqlparts.inc.php");
+        break;
+        case "mssql":require("mssqlparts.inc.php");
+        break;
+        case "postgres":require("postgresparts.inc.php");
+        break;
+        case "sqlite":require("sqliteparts.inc.php");
+        break;
+        }
 
+$values['filterquery'] = "";
+if ($values['contextId'] != NULL) $values['filterquery'] .= $sqlparts['contextfilter'];
+if ($values['categoryId'] != NULL) $values['filterquery'] .= $sqlparts['categoryfilter'];
+if ($values['timeframeId'] !=NULL) $values['filterquery'] .= $sqlparts['timeframefilter'];
 
-$result = mysql_query($query) or die ("Error in query");
+echo "FILTERQUERY: ".$values['filterquery'];
+
+$result = query("getitems",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 	echo '<h2><a href="item.php?type='.$values['type'].'" title="Add new '.str_replace("s","",$typename).'">'.$typename."</a></h2>\n";
@@ -135,9 +131,10 @@ $result = mysql_query($query) or die ("Error in query");
 	echo "</p>\n";
 	echo "</form>\n\n";
 
-	if (mysql_num_rows($result) > 0) {
-		$tablehtml="";
-		while($row = mysql_fetch_assoc($result)){
+	if ($GLOBALS['ecode']==0) {
+                $tablehtml="";
+                foreach ($result as $row) {
+//		while($row = mysql_fetch_assoc($result)){
 
 			$showme="y";
 			//filter out all but nextactions if $display=nextonly
@@ -203,8 +200,5 @@ $result = mysql_query($query) or die ("Error in query");
 		nothingFound($message,$prompt,$yeslink);
 	}
 
-
-	mysql_free_result($result);
-	mysql_close($connection);
 	include_once('footer.php');
 ?>
