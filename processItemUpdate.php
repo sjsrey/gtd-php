@@ -8,14 +8,15 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //GET URL VARIABLES
 $itemId = (int) $_GET['itemId'];
+
+//GET FORM VARIABLES
 $contextId=(int) $_POST['contextId'];
 $type=$_POST['type']{0};
 $referrer=$_POST['referrer']{0};
 $projectId=(int) $_GET['projectId'];
 $timeId=(int) $_POST['timeId'];
-
-//GET FORM VARIABLES
 $completedNas = $_POST['completedNas'];
+$isNext = (int) $_POST['isNext'];
 
 //SQL CODE
 
@@ -86,30 +87,30 @@ if(isset($completedNas)){
 }
 
 // Check on user radio button reset of next action 
-$isNext=$_POST['isNext'];
 if (isset($isNext)){
-   $query = "INSERT INTO nextactions (projectId,nextAction) VALUES ('$projectId','$newitemId')
+
+   $query = "INSERT INTO nextactions (projectId,nextAction) VALUES ('$projectId','$isNext')
        	 	        		ON DUPLICATE KEY UPDATE nextaction='$isNext'";
    $result = mysql_query($query) or die ("Error in query");
 }
 
 if ($referrer=="i") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$type.'&contextId='.$contextId.'&timeId='.$timeId.'">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=listItems.php?type='.$type.'&contextId='.$contextId.'&timeId='.$timeId.'">';
 	}
 
 elseif ($referrer=="p") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$projectId.'">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=projectReport.php?projectId='.$projectId.'">';
 	}
 
 elseif ($referrer=="c") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=reportContext.php">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=reportContext.php">';
 	}
 
 elseif ($referrer=="t") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=tickler.php">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=tickler.php">';
 }
 else{
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=reportContext.php">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=reportContext.php">';
 	}
 
 mysql_close($connection);

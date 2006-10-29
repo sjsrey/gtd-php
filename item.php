@@ -2,6 +2,8 @@
 //INCLUDES
 	include_once('header.php');
 
+$nextactioncheck="n";
+
 //RETRIEVE URL VARIABLES
 	$values['projectId']= (int) $_GET["projectId"];
 	$values['itemId']= (int) $_GET["itemId"];
