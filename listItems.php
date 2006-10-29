@@ -105,8 +105,6 @@ if ($values['contextId'] != NULL) $values['filterquery'] .= $sqlparts['contextfi
 if ($values['categoryId'] != NULL) $values['filterquery'] .= $sqlparts['categoryfilter'];
 if ($values['timeframeId'] !=NULL) $values['filterquery'] .= $sqlparts['timeframefilter'];
 
-echo "FILTERQUERY: ".$values['filterquery'];
-
 $result = query("getitems",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
