@@ -155,7 +155,7 @@ if ($result!="-1"){
 //           nothingFound($message);
 //             }
         
-        else {
+        elseif($values['completed']!="y") {
                 $message="You have no ".$typename." remaining.";
                 $prompt="Would you like to create a new ".str_replace("s","",$typename)."?";
                 $yeslink="project.php?type=p";

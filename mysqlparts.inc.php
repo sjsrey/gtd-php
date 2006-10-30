@@ -8,7 +8,7 @@ $sqlparts = array(
     "notcategoryfilter"    =>  " AND projectattributes.categoryId != '{$values['categoryId']}' ",
     "nottimeframefilter"   =>  " AND itemattributes.timeframeId !='{$values['timeframeId']}' ",
     "activeprojects"    =>      " AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00') AND (((CURDATE()>=DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY)) OR projectattributes.suppress='n')) ",
-    "completedprojects"     =>  " projectstatus.dateCompleted > 0 ",
+    "completedprojects"     =>  " AND `projectstatus`.`dateCompleted` > 0 ",
     );
 
 ?>

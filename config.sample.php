@@ -33,6 +33,6 @@
             "selectactiveprojects"      => "`categories`.`category`, `projectattributes`.`deadline`, `projects`.`name` ASC",
             "getlistitems"                  => "`listItems`.`item` ASC",
             "getcompletedlistitems" => "`listItems`.`dateCompleted` ASC",
-
+            "getitems"              => "`projects`.`name`, `itemattributes`.`deadline`, `items`.`title` ASC",
                 );
 ?>
