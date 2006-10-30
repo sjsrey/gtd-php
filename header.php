@@ -7,8 +7,13 @@
 
 <head>
 <?php
-require_once("gtdfuncs.php");
 require_once("config.php");
+
+//CONNECT TO DATABASE
+$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
+mysql_select_db($config['db']) or die ("Unable to select database!");
+
+require_once("gtdfuncs.php");
 require_once("query.inc.php");
 
 echo'	<title>'.$config['title']."</title>\n";

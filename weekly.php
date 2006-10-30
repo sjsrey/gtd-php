@@ -29,12 +29,16 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 
 	echo "		<p><ul>Projects without Next Actions defined:\n";
 
-
+        $counter=0;
 	foreach($result as $row) {
-		$nonext=nonext($row['projectId']);
-		if ($nonext=="true") echo '			<li><a href="projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).'  project report">'.stripslashes($row['name'])."</a></li>\n";
-	}
-
+            $values['projectId']=$row['projectId'];
+            $nonext=query("selectnextaction",$config,$values);
+		if ($nonext=="-1") {
+                    echo '			<li><a href="projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).'  project report">'.stripslashes($row['name'])."</a></li>\n";
+	       $counter++;
+                } 
+           }
+        if ($counter==0) echo "<li>None!</li>";
 	echo "		</ul></p>\n";
 	echo "	</td></tr>\n";
 	echo '	<tr><td>Review <a href="listItems.php?type=a">Actions list</a></td><td>Mark off any completed actions, review for reminders of further actions to capture.</td></tr>'."\n";
