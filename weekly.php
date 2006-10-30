@@ -1,7 +1,6 @@
-
 <?php
 //INCLUDES
-	include_once('header.php');
+include_once('header.php');
 
 //CONNECT TO DATABASE
 $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
@@ -10,7 +9,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 //SQL CODE AREA
 //select active projects
         $values['isSomeday']="n";
-        $result = query(selectactiveprojects,$config,$values,$options,$sort);
+        $result = query("selectprojects",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 	echo "<h2>The Weekly Review</h2>
