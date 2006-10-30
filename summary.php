@@ -32,7 +32,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 //set empty database counts to zero
     if($numbercontexts[0]['ncontexts']=="") $numbercontexts[0]['ncontexts']="0";
     if($numberprojects[0]['nprojects']=="" || $pres=="-1") $numberprojects[0]['nprojects']="0";
-    if($numbersomeday[0]['nprojects']==""|| $sm=="-1") $numbersomeday[0]['nprojects']="0";
+    if($numbersomeday[0]['nprojects']=="" || $sm=="-1") $numbersomeday[0]['nprojects']="0";
     if($numberitems[0]['nitems']=="") $numberitems[0]['nitems']="0";
     if($numbernextactions[0]['nnextactions']=="") $numbernextactions[0]['nnextactions']="0";
 
@@ -82,7 +82,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //Somedays
 	$i=0;
-        $w2=$numberprojects[0]['nprojects']/3;
+        $w2=$numbersomeday[0]['nprojects']/3;
         if ($sm!=-1) {
 	foreach($sm as $row) {
                 if($i < $w2){
@@ -110,9 +110,9 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 	echo "<h3>Projects</h3>\n";
 
     if($numberprojects[0]['nprojects']==1){
-        echo '<p>There is ' .$numberprojects[0]['nprojects']. ' <a href="listProjects.php?type=p">Project</a>.<p>'."\n";
+        echo '<p>There is ' .$numberprojects[0]['nprojects']. ' <a href="listProjects.php?pType=p">Project</a>.<p>'."\n";
     }else{
-        echo '<p>There are ' .$numberprojects[0]['nprojects']. ' <a href="listProjects.php?type=p">Projects</a>.<p>'."\n";
+        echo '<p>There are ' .$numberprojects[0]['nprojects']. ' <a href="listProjects.php?pType=p">Projects</a>.<p>'."\n";
     }
 
 	$s='<table>'."\n";
@@ -135,10 +135,10 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
     echo "<div class='reportsection'>\n";
 	echo "<h3>Someday/Maybe</h3>\n";
 
-    if($numberprojects[0]['nprojects']==1){
-        echo '<p>There is ' .$numberprojects[0]['nprojects']. ' <a href="listProjects.php?type=s">Someday/Maybe</a>.</p>'."\n";
+    if($numbersomeday[0]['nprojects']==1){
+        echo '<p>There is ' .$numbersomeday[0]['nprojects']. ' <a href="listProjects.php?pType=s">Someday/Maybe</a>.</p>'."\n";
     }else{
-        echo '<p>There are ' .$numberprojects[0]['nprojects']. ' <a href="listProjects.php?type=s">Someday/Maybes</a>.</p>'."\n";
+        echo '<p>There are ' .$numbersomeday[0]['nprojects']. ' <a href="listProjects.php?pType=s">Someday/Maybes</a>.</p>'."\n";
     }
 
 
