@@ -50,7 +50,7 @@ $result = query("categoryselectbox",$config,$values,$options,$sort);
 $cshtml="";
 foreach($result as $row) {
         $cshtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-        if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
+        if($row['categoryId']==$values['categoryId']) $cshtml .= ' SELECTED';
         $cshtml .= '>'.stripslashes($row['category'])."</option>\n";
         }
 
@@ -120,8 +120,9 @@ if ($result!="-1"){
 
                 $values['projectId']=$row['projectId'];
                 $nexttext=query("selectnextaction",$config,$values);
-                if ($nexttext[0]['nextaction']!="") $nonext="false";
-                else $nonext="true";
+                //if ($nexttext[0]['nextaction']!="") $nonext="false";
+                //else $nonext="true";
+                $nonext="false";
                 
 		echo '<a href = "projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).' project report">';
 		if ($nonext=="true" && $values['completed']!="y") echo '<span class="noNextAction" title="No next action defined!">!</span>';
