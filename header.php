@@ -12,6 +12,8 @@ require_once("config.php");
 require_once("query.inc.php");
 
 echo'	<title>'.$config['title']."</title>\n";
+
+$config['theme']=$_SESSION['theme'];
 ?>
 
 	<!-- theme main stylesheet -->
@@ -99,6 +101,7 @@ echo'	<title>'.$config['title']."</title>\n";
 				<li><a href="newCategory.php" title="Meta-Categories">Categories</a></li>
 				<li><a href="newContext.php" title="Spatial Contexts">Space Contexts</a></li>
 				<li><a href="newTimeContext.php" title="Time Contexts">Time Contexts</a></li>
+				<li><a href="preferences.php" title="User Preferences">User Preferences</a></li>
 			</ul>
 
 		<li>About
