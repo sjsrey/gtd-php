@@ -26,7 +26,16 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
         $pres = query("projectssummary",$config,$values,$options,$sort);
 
         $values['isSomeday'] = "y";
-        $numbersomeday = query("countactiveprojects",$config,$values);
+        // sr debugging kludge
+        $numbersomedayq = query("countactiveprojects",$config,$values);
+        if($numbersomedayq=='-1'){
+           //create a new array 
+           $numbersomeday[0]['nprojects']="";
+        }else{
+           //just copy the returned array
+           $numbersomeday=$numbersomedayq;
+        };
+
         $sm = query("projectssummary",$config,$values,$options,$sort);
  
 //set empty database counts to zero
