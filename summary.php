@@ -31,8 +31,8 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
  
 //set empty database counts to zero
     if($numbercontexts[0]['ncontexts']=="") $numbercontexts[0]['ncontexts']="0";
-    if($numberprojects[0]['nprojects']=="") $numberprojects[0]['nprojects']="0";
-    if($numbersomeday[0]['nprojects']=="") $numbersomeday[0]['nprojects']="0";
+    if($numberprojects[0]['nprojects']=="" || $pres=="-1") $numberprojects[0]['nprojects']="0";
+    if($numbersomeday[0]['nprojects']==""|| $sm=="-1") $numbersomeday[0]['nprojects']="0";
     if($numberitems[0]['nitems']=="") $numberitems[0]['nitems']="0";
     if($numbernextactions[0]['nnextactions']=="") $numbernextactions[0]['nnextactions']="0";
 
