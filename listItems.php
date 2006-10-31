@@ -26,9 +26,9 @@ else $values['ptypequery']='n';
 if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
 else $values['contextId']=(int) $_POST['contextId'];
 
-//If we have contextId from a new  filter, change Session value
+//If we have contextId from a new filter, change Session value
 $contextId=$values['contextId'];
-if ($contextId>0) $_SESSION['contextId']=$contextId;
+if ($contextId>=0) $_SESSION['contextId']=$contextId;
 else $values['contextId']=$_SESSION['contextId'];
 
 //ditto for category
@@ -37,12 +37,10 @@ else $values['contextId']=$_SESSION['contextId'];
 if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
 else $values['categoryId']=(int) $_POST['categoryId'];
 
-//If we have categoryId from a new  filter, change Session value
+//If we have categoryId from a new filter, change Session value
 $categoryId=$values['categoryId'];
-if ($categoryId>0) $_SESSION['categoryId']=$categoryId;
+if ($categoryId>=0) $_SESSION['categoryId']=$categoryId;
 else $values['categoryId']=$_SESSION['categoryId'];
-
-
 
 //Set page titles
 if ($values['type']=="a") {
@@ -131,6 +129,7 @@ if ($values['contextId'] != NULL && $values['notspacecontext']=="true") $values[
 if ($values['timeframeId'] !=NULL && $values['nottimecontext']!="true") $values['filterquery'] .= $sqlparts['timeframefilter'];
 if ($values['timeframeId'] !=NULL && $values['nottimecontext']=="true") $values['filterquery'] .= $sqlparts['nottimeframefilter'];
 
+//Get items for display
 $result = query("getitems",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
@@ -167,14 +166,10 @@ $result = query("getitems",$config,$values,$options,$sort);
 	if ($result!="-1") {
                 $tablehtml="";
                 foreach ($result as $row) {
-//		while($row = mysql_fetch_assoc($result)){
-
 			$showme="y";
 			//filter out all but nextactions if $display=nextonly
 			if (($display=='nextonly')  && !($key = array_search($row['itemId'],$nextactions))) $showme="n";
-
 			if($showme=="y") {
-
 				$tablehtml .= "	<tr>\n";
 				$tablehtml .= '		<td><a href = "projectReport.php?projectId='.$row['projectId'].'"title="Go to '.htmlspecialchars(stripslashes($row['pname'])).' project report">'.stripslashes($row['pname'])."</a></td>\n";
 
@@ -184,12 +179,10 @@ $result = query("getitems",$config,$values,$options,$sort);
 				$tablehtml .= '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
 				$tablehtml .= '		<td><a href = "editContext.php?contextId='.$row['contextId'].'" title="Go to '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.stripslashes($row['cname'])."</td>\n";
 				$tablehtml .= "		<td>";
-
 				if(($row['deadline']) == "0000-00-00" || $row['deadline'] ==NULL) $tablehtml .= "&nbsp;";
 				elseif(($row['deadline']) < date("Y-m-d")) $tablehtml .= '<font color="red"><strong title="Item overdue">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';  //highlight overdue actions
 				elseif(($row['deadline']) == date("Y-m-d")) $tablehtml .= '<font color="green"><strong title="Item due today">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>'; //highlight actions due today
 				else $tablehtml .= date("D M j, Y",strtotime($row['deadline']));
-
 				$tablehtml .= "</td>\n";
 				if ($row['repeat']=="0") $tablehtml .= "		<td>--</td>\n";
 				else $tablehtml .= "		<td>".$row['repeat']."</td>\n";

@@ -24,14 +24,13 @@
 //simplify all options down to a few...
 
         $sort = array(
-
             "projectssummary"       => "`projects`.`name` ASC",
-            "spacecontextselectbox"          => "`context`.`name` ASC",
-            "categoryselectbox"             => "`categories`.`category` ASC",
-            "projectselectbox"          => "`projects`.`name` ASC",
-            "timecontextselectbox"       => "`timeitems`.`timeframe` DESC",
-            "selectactiveprojects"      => "`categories`.`category`, `projectattributes`.`deadline`, `projects`.`name` ASC",
-            "getlistitems"                  => "`listItems`.`item` ASC",
+            "spacecontextselectbox" => "`context`.`name` ASC",
+            "categoryselectbox"     => "`categories`.`category` ASC",
+            "projectselectbox"      => "`projects`.`name` ASC",
+            "timecontextselectbox"  => "`timeitems`.`timeframe` DESC",
+            "selectactiveprojects"  => "`categories`.`category`, `projectattributes`.`deadline`, `projects`.`name` ASC",
+            "getlistitems"          => "`listItems`.`item` ASC",
             "getcompletedlistitems" => "`listItems`.`dateCompleted` ASC",
             "getitems"              => "`projects`.`name`, `itemattributes`.`deadline`, `items`.`title` ASC",
                 );

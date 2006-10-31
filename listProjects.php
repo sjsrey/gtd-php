@@ -1,8 +1,6 @@
 <?php
-
 //INCLUDES
 	include_once('header.php');
-
 
 //CONNECT TO DATABASE
 $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
@@ -34,13 +32,12 @@ else {
 	}
 
 //Check if Session Variables Should be Updated
-if ($values['categoryId']>0) $_SESSION['categoryId']=$values['categoryId'];
+if ($values['categoryId']>=0) $_SESSION['categoryId']=$values['categoryId'];
  else $values['categoryId']=$_SESSION['categoryId'];
 
 //Check if Session Variables Should be Updated
-if ($categoryId>0) $_SESSION['categoryId']=$categoryId;
+if ($categoryId>=0) $_SESSION['categoryId']=$categoryId;
 else $categoryId=$_SESSION['categoryId'];
-
 
 //SQL CODE
 $values['filterquery']="";
@@ -97,7 +94,6 @@ $result = query("selectprojects",$config,$values,$options,$sort);
 	echo "</div>\n";
 
 if ($result!="-1"){
-
 //Project Update form
 	echo "<p>Select project for individual report.</p>\n";
 	echo '<form action="processProjectUpdate.php" method="post">'."\n";
@@ -116,8 +112,6 @@ if ($result!="-1"){
 		echo "	<tr>\n";
 		echo "		<td>";
 
-//$nonext=nonext($row['projectId']);
-
                 $values['projectId']=$row['projectId'];
                 $nexttext=query("selectnextaction",$config,$values);
                 //if ($nexttext[0]['nextaction']!="") $nonext="false";
@@ -134,7 +128,6 @@ if ($result!="-1"){
                 elseif(($row['deadline']) < date("Y-m-d") && $values['completed']!="y") echo '<font color="red"><strong title="Project overdue">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';
                 elseif(($row['deadline']) == date("Y-m-d") && $values['completed']!="y") echo '<font color="green"><strong title="Project due today">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';
                 else echo date("D M j, Y",strtotime($row['deadline']));
-
 		echo "</td>\n";
 		if ($row['repeat']=="0") echo "		<td>--</td>\n";
 		else echo "		<td>".$row['repeat']."</td>\n";
@@ -149,11 +142,6 @@ if ($result!="-1"){
 	echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit" />'."\n";
 	echo "</form>\n";
         }
-
-//        else {
-//            $message="Nothing was found.";
-//           nothingFound($message);
-//             }
         
         elseif($values['completed']!="y") {
                 $message="You have no ".$typename." remaining.";
@@ -164,4 +152,3 @@ if ($result!="-1"){
 
 	include_once('footer.php');
 ?>
-
