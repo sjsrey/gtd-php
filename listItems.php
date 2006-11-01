@@ -3,10 +3,6 @@
 //INCLUDES
 include_once('header.php');
 
-//CONNECT TO DATABASE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 //GET URL VARIABLES
 $values['type']=$_GET["type"]{0};
 $values['pType']=$_GET["pType"]{0};
@@ -100,31 +96,18 @@ if ($result!="-1") {
 else $nextactions[0] = NULL;
 
 //Select items
-//include correct SQL parts query library as chosen in config
-    switch ($config['dbtype']) {
-        case "frontbase":require("frontbaseparts.inc.php");
-        break;
-        case "msql":require("msqlparts.inc.php");
-        break;
-        case "mysql":require("mysqlparts.inc.php");
-        break;
-        case "mssql":require("mssqlparts.inc.php");
-        break;
-        case "postgres":require("postgresparts.inc.php");
-        break;
-        case "sqlite":require("sqliteparts.inc.php");
-        break;
-        }
 
+//set query fragments based on filters
 $values['filterquery'] = "";
-if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= $sqlparts['categoryfilter'];
-if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= $sqlparts['notcategoryfilter'];
 
-if ($values['contextId'] != NULL && $values['notspacecontext']!="true") $values['filterquery'] .= $sqlparts['contextfilter'];
-if ($values['contextId'] != NULL && $values['notspacecontext']=="true") $values['filterquery'] .= $sqlparts['notcontextfilter'];
+if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= sqlparts("categoryfilter",$config,$values);
+if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("notcategoryfilter",$config,$values);
 
-if ($values['timeframeId'] !=NULL && $values['nottimecontext']!="true") $values['filterquery'] .= $sqlparts['timeframefilter'];
-if ($values['timeframeId'] !=NULL && $values['nottimecontext']=="true") $values['filterquery'] .= $sqlparts['nottimeframefilter'];
+if ($values['contextId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= sqlparts("contextfilter",$config,$values);
+if ($values['contextId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("notcontextfilter",$config,$values);
+
+if ($values['timeframeId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= sqlparts("timeframefilter",$config,$values);
+if ($values['timeframeId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("nottimeframefilter",$config,$values);
 
 //Get items for display
 $result = query("getitems",$config,$values,$options,$sort);

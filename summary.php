@@ -3,10 +3,6 @@
 //INCLUDES
 include_once('header.php');
 
-//CONNECT TO DATABASE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 //RETRIEVE FORM AND URL VARIABLES
 //	$values['pId'] = (int) $_GET['projectId'];
 //	$values['pName'] =(string) $_GET['projectName'];

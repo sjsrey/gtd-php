@@ -1,27 +1,6 @@
 <?php
 	include_once('header.php');
 
-/*
-    switch ($config['dbtype']) {
-        case "frontbase":require("frontbaseparts.inc.php");
-        break;
-        case "msql":require("msqlparts.inc.php");
-        break;
-        case "mysql":require("mysqlparts.inc.php");
-        break;
-        case "mssql":require("mssqlparts.inc.php");
-        break;
-        case "postgres":require("postgresparts.inc.php");
-        break;
-        case "sqlite":require("sqliteparts.inc.php");
-        break;
-        }
-
-*/
-
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
         $values['listId'] = (int) $_GET['listId'];
 
     $result = query("selectlist",$config,$values,$options,$sort);
@@ -37,7 +16,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 
 	echo '<h2><a href = "newListItem.php?listId='.$row['listId'].'" style="text-decoration:none">List Items</a></h2>'."\n";
 
-        $values['filterquery']=$sqlparts['activelistitems'];
+        $values['filterquery']= sqlparts("activelistitems",$config,$values);
         $result=query("getlistitems",$config,$values,$options,$sort);
 
 	if ($result!="-1") {
@@ -68,7 +47,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 		echo "None";
 	}
 
-        $values['filterquery']=$sqlparts['completedlistitems'];
+        $values['filterquery']= sqlparts("completedlistitems",$config,$sort);
 	$result = query("getlistitems",$config,$values,$options,$sort);
 
 	echo "<h2>Completed List Items</h2>\n";

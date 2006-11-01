@@ -4,17 +4,18 @@
 
             //connection information
                 "host"                      => 'localhost', //the hostname of your database server
-                "db"                         => 'gtd6', //the name of your database
-                "user"                      => 'serge', //username for database access
-                "pass"                      => 'some_pass', //database password
+                "db"                        => '', //the name of your database
+                "user"                      => '', //username for database access
+                "pass"                      => '', //database password
 
             //database information
                 "dbtype"                    => 'mysql',  //database type: currently only mysql is valid.  DO NOT CHANGE!
 
-            //user preferences
-                "debug"                     => 'true',  // false | true |  developer
+            //user preferences : MOVE TO DATABASE
+
+                "debug"                     => 'false',  // false | true |  developer
                 "theme"                     => 'default', //default | menu_sidebar
-                "contextsummary"     => 'all',  //all | nextaction
+                "contextsummary"            => 'all',  //all | nextaction
                 );
 
 
@@ -31,7 +32,6 @@
             "timecontextselectbox"  => "`timeitems`.`timeframe` DESC",
             "selectactiveprojects"  => "`categories`.`category`, `projectattributes`.`deadline`, `projects`.`name` ASC",
             "getlistitems"          => "`listItems`.`item` ASC",
-            "getcompletedlistitems" => "`listItems`.`dateCompleted` ASC",
             "getitems"              => "`projects`.`name`, `itemattributes`.`deadline`, `items`.`title` ASC",
                 );
 ?>

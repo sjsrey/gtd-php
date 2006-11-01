@@ -3,9 +3,6 @@
 
 	include_once('header.php');
 
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 	$query = "SELECT * from projects order by name";
 	$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
 

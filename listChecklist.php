@@ -1,9 +1,6 @@
 <?php
 	include_once('header.php');
 
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 	echo "<h2>Checklists</h2>\n";
 
 //SELECT categoryId, category, description FROM categories ORDER by category ASC

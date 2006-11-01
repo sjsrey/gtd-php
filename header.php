@@ -12,22 +12,7 @@ require_once("config.php");
 //CONNECT TO DATABASE
 $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
 mysql_select_db($config['db']) or die ("Unable to select database!");
-/*
-    switch ($config['dbtype']) {
-        case "frontbase":require_once("frontbaseparts.inc.php");
-        break;
-        case "msql":require_once("msqlparts.inc.php");
-        break;
-        case "mysql":require_once("mysqlparts.inc.php");
-        break;
-        case "mssql":require_once("mssqlparts.inc.php");
-        break;
-        case "postgres":require_once("postgresparts.inc.php");
-        break;
-        case "sqlite":require_once("sqliteparts.inc.php");
-        break;
-        }
-*/
+
 require_once("gtdfuncs.php");
 require_once("query.inc.php");
 

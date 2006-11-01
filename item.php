@@ -23,10 +23,6 @@ $nextactioncheck="n";
 		$pTypename="Project";
 	}
 
-//SQL CODE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 	//select item details
 	if ($values['itemId']>0) {
 	   $result = query("selectitem",$config,$values,$options,$sort);

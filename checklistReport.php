@@ -11,9 +11,6 @@
 
 	$values['checklistId'] = (int) $_GET['checklistId'];
 
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
         $result = query("selectchecklist",$config,$values,$options,$sort);
         if ($result!="-1") $row=$result[0];
 

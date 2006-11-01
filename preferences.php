@@ -3,8 +3,6 @@
 //INCLUDES
 include_once('header.php');
 
-
-
 // stub for querying theme directory to build dropdown selector
 $themes[0]='default';
 $themes[1]='menu_sidebar';

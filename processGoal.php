@@ -3,9 +3,6 @@
 
 	include_once('header.php');
 
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 	echo '<p>New Next action added at ';
 	echo date('H:i, jS F');
 	echo '</p>';

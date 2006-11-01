@@ -5,10 +5,6 @@
 //RETRIEVE URL VARIABLES
 	$contextId =(int) $_GET["contextId"];
 
-//SQL CODE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
         //select all contexts for selectbox (would make good function!)
         $query = "SELECT contextId, name FROM context ORDER BY name ASC";
         $result = mysql_query($query) or die("Error in query");

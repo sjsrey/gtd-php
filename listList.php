@@ -6,12 +6,6 @@
 //RETRIEVE URL AND FORM DATA
 $values['categoryId']=(int)$_POST['categoryId'];
 
-
-//CONNECT TO DATABASE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
-
 //select all categories for dropdown list
 $cshtml=categoryselectbox($config,$values,$options,$sort);
 

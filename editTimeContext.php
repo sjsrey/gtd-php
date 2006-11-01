@@ -5,10 +5,6 @@
 //RETRIEVE URL VARIABLES
 	$tcId =(int) $_GET["tcId"];
 
-//SQL CODE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
         //select all timeframes for selectbox (would make good function!)
         $query = "SELECT timeframeId, timeframe FROM timeitems ORDER BY timeframe ASC";
         $result = mysql_query($query) or die("Error in query");

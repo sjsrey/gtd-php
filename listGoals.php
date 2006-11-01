@@ -1,9 +1,6 @@
 <?php
 	include_once('header.php');
 
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 //SECTION WILL BE COMPLETELY REWRITTEN
 
 	$query = "SELECT * from goals order by type asc";

@@ -5,9 +5,6 @@ include_once('header.php');
 
 //RETRIEVE URL VARIABLES
 $pId = (int) $_GET['projectId'];
-//SQL CODE AREA
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //GET project details
 $query = "SELECT projects.name, projects.description, projects.desiredOutcome, projectstatus.dateCreated,

@@ -5,10 +5,6 @@
 
 function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
 
-//connect to database
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
     //for developer testing only--- testing data handling
     //testing passed variables
     if ($config['debug']=="developer") {

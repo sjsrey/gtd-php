@@ -3,9 +3,6 @@
 
 	$values['listId'] =(int) $_GET["listId"];
 
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 	$query = "SELECT title, description, categoryId FROM list WHERE listId = '{$values['listId']}'";
 	$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
 	$row = mysql_fetch_array($result);

@@ -211,6 +211,26 @@
 		}
 	}
 
+        function sqlparts($part,$config,$values)  {
+            //include correct SQL parts query library as chosen in config
+            switch ($config['dbtype']) {
+                case "frontbase":require("frontbaseparts.inc.php");
+                break;
+                case "msql":require("msqlparts.inc.php");
+                break;
+                case "mysql":require("mysqlparts.inc.php");
+                break;
+                case "mssql":require("mssqlparts.inc.php");
+                break;
+                case "postgres":require("postgresparts.inc.php");
+                break;
+                case "sqlite":require("sqliteparts.inc.php");
+                break;
+                }
+            $queryfragment = $sqlparts[$part];
+            return $queryfragment;
+            }
+
         function categoryselectbox($config,$values,$options,$sort) {
             $result = query("categoryselectbox",$config,$values,$options,$sort);
             $cshtml="";

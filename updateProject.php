@@ -9,11 +9,6 @@
 
 //INCLUDES
 include_once('header.php');
-include_once('config.php');
-
-//CONNECT TO DATABASE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
 
 //FORM DATA COLLECTION AND PARSING
 $values['projectId'] = (int) $_GET['projectId'];

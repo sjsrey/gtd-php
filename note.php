@@ -5,10 +5,6 @@
 //RETRIEVE URL VARIABLES
 	$values['noteId']= (int) $_GET["noteId"];
 
-//SQL CODE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 	//select note details
 	if ($values['noteId']>0) {
             $result = query("selectnote",$config,$values,$sort,$options);

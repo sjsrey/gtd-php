@@ -15,10 +15,6 @@
 	}
     echo "<h2>gtd-php installation/upgrade</h2>\n";
 
-    //connect
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
     // get server information for problem reports
     $v="<h3>Installation Info</h3>\n";
     $v.="<ul><li>";

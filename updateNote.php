@@ -2,10 +2,6 @@
 //INCLUDES
 include_once('header.php');
 
-//CONNECT TO DATABASE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 //FORM DATA COLLECTION AND PARSING
 $values['title'] = mysql_real_escape_string($_POST['title']);
 $values['note'] = mysql_real_escape_string($_POST['note']);

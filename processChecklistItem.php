@@ -2,10 +2,6 @@
 //INCLUDES
 	include_once('header.php');
 
-//CONNECT TO DATABASE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 //RETRIEVE URL AND FORM VARIABLES
 	$values['checklistId']=(int) $_POST['checklistId'];
 	$values['item']=mysql_real_escape_string($_POST['item']);

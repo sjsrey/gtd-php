@@ -12,10 +12,6 @@ $projectId=(int) $_GET['projectId'];
 //GET FORM VARIABLES
 $completedProj = $_POST['completedProj'];
 
-//SQL CODE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 if(isset($completedProj)){
 	$today=strtotime("now");
 	$date=date('Y-m-d');

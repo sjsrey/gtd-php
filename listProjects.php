@@ -2,10 +2,6 @@
 //INCLUDES
 	include_once('header.php');
 
-//CONNECT TO DATABASE
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 //RETRIEVE URL VARIABLES
 if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
 else $values['categoryId']=(int) $_POST['categoryId'];
@@ -41,27 +37,12 @@ $cshtml=categoryselectbox($config,$values,$options,$sort);
 
 //SQL CODE
 $values['filterquery']="";
-    
-    switch ($config['dbtype']) {
-        case "frontbase":require_once("frontbaseparts.inc.php");
-        break;
-        case "msql":require_once("msqlparts.inc.php");
-        break;
-        case "mysql":require_once("mysqlparts.inc.php");
-        break;
-        case "mssql":require_once("mssqlparts.inc.php");
-        break;
-        case "postgres":require_once("postgresparts.inc.php");
-        break;
-        case "sqlite":require_once("sqliteparts.inc.php");
-        break;
-        }
 
-if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= $sqlparts['categoryfilter'];
-if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= $sqlparts['notcategoryfilter'];
+if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= sqlparts("categoryfilter",$config,$values);
+if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("notcategoryfilter",$config,$values);
 
-if ($values['completed']=="y") $values['filterquery'] .= $sqlparts['completedprojects'];
-else $values['filterquery'] .= $sqlparts['activeprojects'];
+if ($values['completed']=="y") $values['filterquery'] .= sqlparts("completedprojects",$config,$values);
+else $values['filterquery'] .= sqlparts("activeprojects",$config,$values);
 
 $result = query("selectprojects",$config,$values,$options,$sort);
 

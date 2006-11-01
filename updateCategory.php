@@ -1,10 +1,6 @@
 <?php
 include_once('header.php');
 
-//need to connect to database to escape data
-$connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-mysql_select_db($config['db']) or die ("Unable to select database!");
-
 //GET URL AND FORM DATA
 $values['categoryId'] = (int) $_GET['categoryId'];
 $values['category']=mysql_real_escape_string($_POST['category']);
@@ -25,7 +21,7 @@ else $result = query("updatecategory",$config,$values);
         if ($config['debug']=="true" || $config['debug']=="developer") echo $GLOBALS['ecode'].": ".$GLOBALS['etext'];
         }
 
-echo '<META HTTP-EQUIV="Refresh" CONTENT="20; url=listProjects.php"/>';
+echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listProjects.php"/>';
 
 include_once('footer.php');
 ?>
