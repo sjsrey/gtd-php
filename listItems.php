@@ -86,21 +86,18 @@ foreach($result as $row) {
     }
 
 //select all categories for dropdown list
-$result = query("categoryselectbox",$config,$values,$options,$sort);
-$cashtml="";
-foreach($result as $row) {
-        $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-        if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
-        $cashtml .= '>'.stripslashes($row['category'])."</option>\n";
-}
+$cashtml=categoryselectbox($config,$values,$options,$sort);
 
 //select all nextactions for test
 $result = query("getnextactions",$config,$values,$options,$sort);
 
-foreach ($result as $row) {
+if ($result!="-1") {
+    foreach ($result as $row) {
     //populates $nextactions with itemIds using projectId as key
-    $nextactions[$row['projectId']] = $row['nextaction'];
+        $nextactions[$row['projectId']] = $row['nextaction'];
+        }
     }
+else $nextactions[0] = NULL;
 
 //Select items
 //include correct SQL parts query library as chosen in config
@@ -174,7 +171,7 @@ $result = query("getitems",$config,$values,$options,$sort);
 				$tablehtml .= '		<td><a href = "projectReport.php?projectId='.$row['projectId'].'"title="Go to '.htmlspecialchars(stripslashes($row['pname'])).' project report">'.stripslashes($row['pname'])."</a></td>\n";
 
 				//if nextaction, add icon in front of action (* for now)
-				if ($key = array_search($row['itemId'],$nextactions)) $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">*&nbsp;'.stripslashes($row['title'])."</td>\n";
+                                if ($key = array_search($row['itemId'],$nextactions)) $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">*&nbsp;'.stripslashes($row['title'])."</td>\n";
 				else $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.stripslashes($row['title']).'</td>';
 				$tablehtml .= '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
 				$tablehtml .= '		<td><a href = "editContext.php?contextId='.$row['contextId'].'" title="Go to '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.stripslashes($row['cname'])."</td>\n";

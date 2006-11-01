@@ -26,18 +26,7 @@ if ($projectId>0) {
 	}
 
 //select all categories for dropdown list
-$query = "SELECT categories.categoryId, categories.category from categories ORDER BY categories.category ASC";
-$result = mysql_query($query) or die("Error in query");
-$cshtml="";
-while($catrow = mysql_fetch_assoc($result)) {
-	if($catrow['categoryId']==$row['categoryId']){
-		$cshtml .= "					<option selected value='" .$catrow['categoryId'] . "'>" . stripslashes($catrow['category']) . "</option>\n";
-	}
-	else {
-		$cshtml .= "					<option value='" .$catrow['categoryId'] . "'>" . stripslashes($catrow['category']) . "</option>\n";
-	}
-}
-mysql_free_result($result);
+$cshtml=categoryselectbox($config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 //determine project labels

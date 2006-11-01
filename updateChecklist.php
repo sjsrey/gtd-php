@@ -1,4 +1,3 @@
-
 <?php
 //INCLUDES
 include_once('header.php');

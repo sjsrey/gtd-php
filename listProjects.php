@@ -11,6 +11,7 @@ if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
 else $values['categoryId']=(int) $_POST['categoryId'];
 $values['pType']=$_GET["pType"]{0};
 
+
 if ($values['pType']=="s") {
 	$values['completed']="n";
 	$values['isSomeday']="y";
@@ -35,40 +36,29 @@ else {
 if ($values['categoryId']>=0) $_SESSION['categoryId']=$values['categoryId'];
  else $values['categoryId']=$_SESSION['categoryId'];
 
-//Check if Session Variables Should be Updated
-if ($categoryId>=0) $_SESSION['categoryId']=$categoryId;
-else $categoryId=$_SESSION['categoryId'];
+//select all categories for dropdown list
+$cshtml=categoryselectbox($config,$values,$options,$sort);
 
 //SQL CODE
 $values['filterquery']="";
-
-//select all categories for dropdown list
-$result = query("categoryselectbox",$config,$values,$options,$sort);
-$cshtml="";
-foreach($result as $row) {
-        $cshtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-        if($row['categoryId']==$values['categoryId']) $cshtml .= ' SELECTED';
-        $cshtml .= '>'.stripslashes($row['category'])."</option>\n";
-        }
-
-//Select Projects
+    
     switch ($config['dbtype']) {
-        case "frontbase":require("frontbaseparts.inc.php");
+        case "frontbase":require_once("frontbaseparts.inc.php");
         break;
-        case "msql":require("msqlparts.inc.php");
+        case "msql":require_once("msqlparts.inc.php");
         break;
-        case "mysql":require("mysqlparts.inc.php");
+        case "mysql":require_once("mysqlparts.inc.php");
         break;
-        case "mssql":require("mssqlparts.inc.php");
+        case "mssql":require_once("mssqlparts.inc.php");
         break;
-        case "postgres":require("postgresparts.inc.php");
+        case "postgres":require_once("postgresparts.inc.php");
         break;
-        case "sqlite":require("sqliteparts.inc.php");
+        case "sqlite":require_once("sqliteparts.inc.php");
         break;
         }
 
-if ($categoryId==NULL) $categoryId='0';
-if ($categoryId!='0') $values['filterquery'] .= $sqlparts['categoryfilter'];
+if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= $sqlparts['categoryfilter'];
+if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= $sqlparts['notcategoryfilter'];
 
 if ($values['completed']=="y") $values['filterquery'] .= $sqlparts['completedprojects'];
 else $values['filterquery'] .= $sqlparts['activeprojects'];

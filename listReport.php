@@ -1,6 +1,7 @@
 <?php
 	include_once('header.php');
 
+/*
     switch ($config['dbtype']) {
         case "frontbase":require("frontbaseparts.inc.php");
         break;
@@ -16,6 +17,7 @@
         break;
         }
 
+*/
 
 $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
 mysql_select_db($config['db']) or die ("Unable to select database!");

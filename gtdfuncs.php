@@ -1,4 +1,3 @@
-
 <?php
 
 
@@ -212,4 +211,14 @@
 		}
 	}
 
+        function categoryselectbox($config,$values,$options,$sort) {
+            $result = query("categoryselectbox",$config,$values,$options,$sort);
+            $cshtml="";
+            foreach($result as $row) {
+                $cshtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+                if($row['categoryId']==$values['categoryId']) $cshtml .= ' SELECTED';
+                $cshtml .= '>'.stripslashes($row['category'])."</option>\n";
+                }
+            return $cshtml;
+            }
 ?>

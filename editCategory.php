@@ -10,14 +10,9 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 	$values['categoryId'] =(int) $_GET["categoryId"];
 
 //SQL CODE
-        //create category selectbox
-        $result = query("categoryselectbox",$config,$values,$options,$sort);
-        $cshtml="";
-        foreach ($result as $row) {
-	        $cshtml .= '			<option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-       		if($row['categoryId']==$categoryId) $cshtml .= ' SELECTED';
-        	$cshtml .= '>'.stripslashes($row['category'])."</option>\n";
-        }
+
+//select all categories for dropdown list
+$cshtml=categoryselectbox($config,$values,$options,$sort);
 
         //Select category to edit
         $result = query("selectcategory",$config,$values,$options,$sort);

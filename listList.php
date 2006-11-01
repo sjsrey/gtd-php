@@ -3,38 +3,37 @@
 //INCLUDES
 	include_once('header.php');
 
+//RETRIEVE URL AND FORM DATA
+$values['categoryId']=(int)$_POST['categoryId'];
+
+
 //CONNECT TO DATABASE
 $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
 mysql_select_db($config['db']) or die ("Unable to select database!");
 
+
+//select all categories for dropdown list
+$cshtml=categoryselectbox($config,$values,$options,$sort);
+
+
+//PAGE DISPLAY CODE
 	echo "<h2>Lists</h2>\n";
 
-//SJK  Allows viewing of checklists by category
-	echo '<form action="listList.php" method="post">'."\n";
-	echo '<p>Category:&nbsp;';
-	$categoryId=(int)$_POST['categoryId'];
-
-//SELECT categoryId, category.name FROM categories ORDER BY category.name ASC
-
-	$query = "select * from categories";
-	$result = mysql_query($query) or die("Error in query");
-	echo '<select name="categoryId">'."\n";
-	echo '	<option value="0">All</option>'."\n";
-	while($row = mysql_fetch_row($result)){
-	if($row[0]==$categoryId){
-			echo "	<option selected value='" .$row[0] . "'>".stripslashes($row[1])."</option>\n";
-	} else {
-			echo "	<option value='" .$row[0] . "'>" .stripslashes($row[1]). "</option>\n";
-			}
-	}
-	echo "</select>\n";
-	mysql_free_result($result);
-	echo '<input type="submit" align="right" class="button" value="Update" name="submit">'."\n";
-	echo "</p>\n";  // $
+        //category selection form
+        echo '<div id="filter">'."\n";
+        echo '<form action="listList.php" method="post">'."\n";
+        echo "<p>Category:&nbsp;\n";
+        echo '<select name="categoryId">'."\n";
+        echo '  <option value="0">All</option>'."\n";
+        echo $cshtml."</select>\n";
+        echo '<input type="submit" class="button" value="Filter" name="submit" title="Filter list by category" />'."\n";
+        echo "</p>\n";
+        echo "</form>\n";
+        echo "</div>\n";
 
 
-	if ($categoryId==NULL) $categoryId='0';
-	if ($categoryId=='0') {
+	if ($values['categoryId']==NULL) $values['categoryId']='0';
+	if ($values['categoryId']=='0') {
 	   $query = "SELECT list.listId, list.title, list.description,
 				list.categoryId, categories.category
 				FROM list, categories
@@ -45,7 +44,7 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 	   $query = "SELECT list.listId, list.title, list.description,
 				list.categoryId, categories.category
 				FROM list, categories
-				WHERE list.categoryId=categories.categoryId AND list.categoryId='$categoryId'
+				WHERE list.categoryId=categories.categoryId AND list.categoryId='{$values['categoryId']}'
 				ORDER BY categories.category ASC";
 		$result = mysql_query($query) or die ("Error in query");
 	}
