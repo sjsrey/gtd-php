@@ -9,7 +9,7 @@
 <?php
 require_once("config.php");
 
-//CONNECT TO DATABASE
+//CONNECT TO DATABASE: this will need modification to connect to other dtabases (use SWITCH)
 $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
 mysql_select_db($config['db']) or die ("Unable to select database!");
 

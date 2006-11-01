@@ -156,7 +156,7 @@ foreach ($contextArray as $contextId => $timeframe) {
                         //if nextaction, add icon in front of action (* for now)
                         if ($key = array_search($row['itemId'],$nextactions)) $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars($row['title']).'">*&nbsp;'.stripslashes($row['title'])."</td>\n";
                         else $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.stripslashes($row['title'])."</td>\n";
-                        $tablehtml .= '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
+                        $tablehtml .= '		<td>'.nl2br(substr(stripslashes($row['description']),0,72))."</td>\n";
                         $tablehtml .= "		<td>";
                         if(($row['deadline']) == "0000-00-00") $tablehtml .= "&nbsp;";
                         elseif(($row['deadline']) < date("Y-m-d")) $tablehtml .= '<font color="red"><strong title ="Overdue">'.$row['deadline'].'</strong></font>';  //highlight overdue actions

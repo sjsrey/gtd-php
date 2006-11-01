@@ -55,7 +55,7 @@
 			echo "	<tr>\n";
 			echo "		<td>".stripslashes($row[4])."</td>\n";
 			echo '		<td><a href="checklistReport.php?checklistId='.$row[0].'&checklistTitle='.urlencode($row[1]).'">'.stripslashes($row[1])."</a></td>\n";
-			echo "		<td>".stripslashes($row[2])."</td>\n";
+			echo "		<td>".nl2br(substr(stripslashes($row[2]),0,72))."</td>\n";
 			echo "	</tr>\n";
 		}
 		echo "</table>\n";

@@ -92,7 +92,7 @@ if ($result!="-1"){
 		echo '<a href = "projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).' project report">';
 		if ($nonext=="true" && $values['completed']!="y") echo '<span class="noNextAction" title="No next action defined!">!</span>';
 		echo stripslashes($row['name'])."</a></td>\n";
-		echo '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
+		echo '		<td>'.nl2br(substr(stripslashes($row['description']),0,72))."</td>\n";
 		echo '		<td><a href="editCategory.php?categoryId='.$row['categoryId'].'" title="Edit the '.htmlspecialchars(stripslashes($row['category'])).' category">'.stripslashes($row['category'])."</a></td>\n";
 		echo '		<td>';
                 if(($row['deadline']) == "0000-00-00" || $row['deadline']==NULL) $tablehtml .= "&nbsp;";
