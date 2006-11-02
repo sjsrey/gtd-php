@@ -13,7 +13,7 @@ if ($values['categoryId']!=0) $values['filterquery']=sqlparts("getlists",$config
 $result = query("getlists",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
-echo "<h2>Lists</h2>\n";
+echo '<h2><a href="newList.php" title="Add new list" >Lists</a></h2>'."\n";
 
 //category selection form
 echo '<div id="filter">'."\n";

@@ -13,7 +13,7 @@ if ($values['categoryId']!=0) $values['filterquery']=sqlparts("getchecklists",$c
 $result = query("getchecklists",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
-echo "<h2>Checklists</h2>\n";
+echo '<h2><a href="newChecklist.php" title="Add new checklist" >Checklists</a></h2>'."\n";
 
 //category selection form
 echo '<div id="filter">'."\n";

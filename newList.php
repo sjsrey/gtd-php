@@ -4,16 +4,12 @@ include_once('header.php');
 
 if (!isset($_POST['submit'])) {
 	//form not submitted
-	?>
+?>
 <h1>New List</h1>
 
 <form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
 <?php
-
-//SELECT categories.categoryId, categories.name FROM categories ORDER BY categories.name ASC
-
-	$query = "select * from categories";
-	$result = mysql_query($query) or die("Error in query");
+$cashtml=categoryselectbox($config,$values,$options,$sort);
 ?>
 	<div class='form'>
 		<div class='formrow'>
@@ -24,11 +20,7 @@ if (!isset($_POST['submit'])) {
 		<div class='formrow'>
 			<label for='category' class='left first'>Category:</label>
 			<select name='categoryId' id='category'>
-<?php
-	while($row = mysql_fetch_row($result)){
-			echo "			<option value='" .$row[0] . "'>" . stripslashes($row[1]) . "</option>\n";
-	}
-?>
+                        <?php echo $cashtml ?>
 			</select>
 		</div>
 
@@ -45,18 +37,20 @@ if (!isset($_POST['submit'])) {
 <?php
 }else {
 
-	$title = empty($_POST['title']) ? die("Error: Enter a list title") : mysql_real_escape_string($_POST['title']);
-	$description = empty($_POST['description']) ? die("Error: Enter a list description") : mysql_real_escape_string($_POST['description']);
-	$categoryId = (int) $_POST['categoryId'];
-	$dateCreated = date('Y-m-d');
+    $values['title'] = empty($_POST['title']) ? die("Error: Enter a list title") : mysql_real_escape_string($_POST['title']);
+    $values['description'] = mysql_real_escape_string($_POST['description']);
+    $values['categoryId'] = (int) $_POST['categoryId'];
+//    $values['dateCreated'] = date('Y-m-d');
 
-	# don't forget null
-	$query = "INSERT into list values (NULL, '$title', '$categoryId', '$description')";
-	$result = mysql_query($query) or die ("Error in query");
+    $result= query("newlist",$config,$values,$options,$sort);
 
-    echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listReport.php?listID='.mysql_insert_id().'&listTitle='.$title.'">';
-	mysql_close($connection);
-}
+    if ($GLOBALS['ecode']=="0") echo "List: ".$values['title']." inserted.";
+    else echo "List NOT inserted.";
+    if (($config['debug']=="true" || $config['debug']=="developer") && $GLOBALS['ecode']!="0") echo "<p>Error Code: ".$GLOBALS['ecode']."=> ".$GLOBALS['etext']."</p>";
+
+    echo '<META HTTP-EQUIV="Refresh" CONTENT="2; url=listReport.php?listId='.mysql_insert_id().'&listTitle='.urlencode($values['title']).'">';
+    }
+
 include_once('footer.php');
 ?>
 

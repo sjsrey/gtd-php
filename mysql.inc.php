@@ -54,7 +54,9 @@ $sql = array(
         "getlists"                  => "SELECT `list`.`listId`, `list`.`title`, `list`.`description`, `list`.`categoryId`, `categories`.`category` FROM `list`, `categories` WHERE `list`.`categoryId`=`categories`.`categoryId` ".$values['filterquery']." ORDER BY {$sort['getlists']}",
         "getnextactions"            => "SELECT `projectId`, `nextaction` FROM `nextactions`",
         "newcategory"               => "INSERT INTO `categories` VALUES (NULL, '{$values['category']}', '{$values['description']}')",
+        "newchecklist"              =>"INSERT INTO `checklist` VALUES (NULL, '{$values['title']}', '{$values['categoryId']}', '{$values['description']}')",
         "newchecklistitem"          => "INSERT INTO `checklistItems`  VALUES (NULL, '{$values['item']}', '{$values['notes']}', '{$values['checklistId']}', 'n')",
+        "newlist"                   => "INSERT INTO `list` VALUES (NULL, '{$values['title']}', '{$values['categoryId']}', '{$values['description']}')",
         "newlistitem"               => "INSERT INTO `listItems` VALUES (NULL, '{$values['item']}', '{$values['notes']}', '{$values['listId']}', 'n')",
         "newnote"                   => "INSERT INTO `tickler` (date,title,note) VALUES ('{$values['date']}','{$values['title']}','{$values['note']}')",
         "newspacecontext"           => "INSERT INTO `context`  VALUES (NULL, '{$values['name']}', '{$values['description']}')",
@@ -232,7 +234,7 @@ $query=>"SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`descripti
 
         //"listchecklists"              =>"SELECT checklistId, title FROM checklist ORDER BY title",
 
-        "newchecklist"              =>"INSERT INTO checklist VALUES (NULL, '{$values['title']}', '{$values['categoryId']}', '{$values['description']}')",
+
 
         "getchecklistitems"              =>"SELECT checklistItems`.`checklistitemId, checklistItems`.`item, checklistItems`.`notes, checklistItems`.`checklistId, checklistItems`.`checked FROM checklistItems LEFT JOIN checklist on checklistItems`.`checklistId = checklist`.`checklistId WHERE checklist`.`checklistId = '{$values['checklistId']}' ORDER BY checklistItems`.`checked DESC, checklistItems`.`item ASC",
         "selectchecklistitem"              =>"SELECT checklistItemId, item, notes, checklistId, checked FROM checklistItems WHERE checklistItemId = '{$values['$checklistItemId']}'",
