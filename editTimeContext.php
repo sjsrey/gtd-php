@@ -3,29 +3,19 @@
 	include_once('header.php');
 
 //RETRIEVE URL VARIABLES
-	$tcId =(int) $_GET["tcId"];
+	$values['tcId'] =(int) $_GET["tcId"];
 
-        //select all timeframes for selectbox (would make good function!)
-        $query = "SELECT timeframeId, timeframe FROM timeitems ORDER BY timeframe ASC";
-        $result = mysql_query($query) or die("Error in query");
-        $cshtml="";
-        while($row = mysql_fetch_assoc($result)){
-                if($row['timeframeId']==$currentrow['timeframeId']){
-                        $cshtml .= "			<option selected value='" .$row['timeframeId'] . "' title='".htmlspecialchars(stripslashes($row['description']))."'>" . stripslashes($row['timeframe']) . "</option>\n";
-                } else {
-                        $cshtml .= "			<option value='" .$row['timeframeId'] . "' title='".htmlspecialchars(stripslashes($row['description']))."'>" . stripslashes($row['timeframe']) . "</option>\n";
-                }
-        }
-        mysql_free_result($result);
+//SQL CODE
+$tshtml=timecontextselectbox($config,$values,$options,$sort);
 
 	//Select timeframe to edit
-	$query = "SELECT timeframeId, timeframe, description FROM timeitems WHERE timeframeId = '$tcId'";
+	$query = "SELECT timeframeId, timeframe, description FROM timeitems WHERE timeframeId = '{$values['tcId']}'";
 	$result = mysql_query($query) or die ("Error in query");
 	$row = mysql_fetch_assoc($result);
 
 //PAGE DISPLAY CODE
 	echo "<h2>Edit Timeframe</h2>\n";
-	echo '<form action="updateTimeContext.php?tcId='.$tcId.'" method="post">'."\n";
+	echo '<form action="updateTimeContext.php?tcId='.$values['tcId'].'" method="post">'."\n";
 	echo '<table border="0">'."\n";
 	echo '	<tr><td colspan="2">Timeframe Name</td></tr>'."\n";
 	echo '	<tr><td colspan="2">';
@@ -41,7 +31,7 @@
 	echo '		<td><input type="checkbox" name="delete" value="y">Delete Timeframe</td>'."\n";
 	echo "		<td>Reassign Items to timeframe:&nbsp;\n";
 	echo '			<select name="ntcId">'."\n";
-	echo $cshtml;
+	echo $tshtml;
 	echo "			</select>\n";
 	echo "		</td>\n";
 	echo "	</tr>\n";

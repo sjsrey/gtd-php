@@ -233,12 +233,45 @@
 
         function categoryselectbox($config,$values,$options,$sort) {
             $result = query("categoryselectbox",$config,$values,$options,$sort);
+            $cashtml="";
+            foreach($result as $row) {
+                $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+                if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
+                $cashtml .= '>'.stripslashes($row['category'])."</option>\n";
+                }
+            return $cashtml;
+            }
+
+        function contextselectbox($config,$values,$options,$sort) {
+            $result = query("spacecontextselectbox",$config,$values,$options,$sort);
             $cshtml="";
             foreach($result as $row) {
-                $cshtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-                if($row['categoryId']==$values['categoryId']) $cshtml .= ' SELECTED';
-                $cshtml .= '>'.stripslashes($row['category'])."</option>\n";
+                $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+                if($row['contextId']==$values['contextId']) $cshtml .= ' SELECTED';
+                $cshtml .= '>'.stripslashes($row['name'])."</option>\n";
                 }
             return $cshtml;
+            }
+
+        function timecontextselectbox($config,$values,$options,$sort) {
+            $result = query("timecontextselectbox",$config,$values,$options,$sort);
+            $tshtml="";
+            foreach($result as $row) {
+                $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+                if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' SELECTED';
+                $tshtml .= '>'.stripslashes($row['timeframe'])."</option>\n";
+                }
+            return $tshtml;
+            }
+
+        function projectselectbox($config,$values,$options,$sort) {
+            $result = query("projectselectbox",$config,$values,$options,$sort);
+            $pshtml="";
+            foreach($result as $row) {
+                $pshtml .= '                    <option value="'.$row['projectId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+                if($row['projectId']==$currentrow['projectId'] || $row['projectId']==$values['projectId']) $pshtml .= ' SELECTED';
+                $pshtml .= '>'.stripslashes($row['name'])."</option>\n";
+                }
+            return $pshtml;
             }
 ?>

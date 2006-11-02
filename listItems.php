@@ -63,26 +63,10 @@ else {
 
 //SQL CODE
 
-//select space contexts for dropdown list
-$result = query("spacecontextselectbox",$config,$values,$options,$sort);
-$cshtml="";
-    foreach($result as $row) {
-        $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-        if($row['contextId']==$values['contextId']) $cshtml .= ' SELECTED';
-        $cshtml .= '>'.stripslashes($row['name'])."</option>\n";
-        }
-
-//select time contexts for dropdown list
-$result = query("timecontextselectbox",$config,$values,$options,$sort);
-$tshtml="";
-foreach($result as $row) {
-    $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-    if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' SELECTED';
-    $tshtml .= '>'.stripslashes($row['timeframe'])."</option>\n";
-    }
-
-//select all categories for dropdown list
+//create filter selectboxes
 $cashtml=categoryselectbox($config,$values,$options,$sort);
+$cshtml=contextselectbox($config,$values,$options,$sort);
+$tshtml=timecontextselectbox($config,$values,$options,$sort);
 
 //select all nextactions for test
 $result = query("getnextactions",$config,$values,$options,$sort);

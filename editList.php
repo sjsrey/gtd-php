@@ -3,6 +3,8 @@
 
 	$values['listId'] =(int) $_GET["listId"];
 
+$cashtml = categoryselectbox($config,$values,$options,$sort);
+
 	$query = "SELECT title, description, categoryId FROM list WHERE listId = '{$values['listId']}'";
 	$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
 	$row = mysql_fetch_array($result);
@@ -20,15 +22,7 @@
 		<div class='formrow'>
 			<label for='category' class='left first'>Category:</label>
 			<select name='newcategoryId' id='category'>
-<?php
-//SELECT categoryId, category, description from categories
-		$catquery = "select * from categories";
-		$catresult = mysql_query($catquery) or die("Error in query");
-		while($catrow = mysql_fetch_row($catresult)){
-			if ($catrow[0]==$row[2]) echo "				<option value='" .$catrow[0] . "' SELECTED>".stripslashes($catrow[1])."</option>\n";
-			else echo "				<option value='".$catrow[0]."'>".stripslashes($catrow[1])."</option>\n";
-			}
-?>
+                        <?php echo $cashtml; ?>
 			</select>
 		</div>
 

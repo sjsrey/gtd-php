@@ -36,30 +36,10 @@ $nextactioncheck="n";
             }
         }
 
-	//select create projects, timecontext, and spacecontext selectboxes
-	$result = query("projectselectbox",$config,$values,$options,$sort);
-	$pshtml="";     
-	foreach($result as $row) {
-		$pshtml .= '			<option value="'.$row['projectId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-		if($row['projectId']==$currentrow['projectId'] || $row['projectId']==$values['projectId']) $pshtml .= ' SELECTED';
-		$pshtml .= '>'.stripslashes($row['name'])."</option>\n";
-	}
-
-        $result = query("spacecontextselectbox",$config,$values,$options,$sort);
-	$cshtml="";
-	foreach($result as $row) {
-		$cshtml .= '			<option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-		if($row['contextId']==$currentrow['contextId']) $cshtml .= ' SELECTED';
-		$cshtml .= '>'.stripslashes($row['name'])."</option>\n";
-	}
-
-        $result = query("timecontextselectbox",$config,$values,$options,$sort);
-	$tshtml="";
-        foreach($result as $row) {
-		$tshtml .= '			<option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-		if($row['timeframeId']==$currentrow['timeframeId']) $tshtml .= ' SELECTED';
-		$tshtml .= '>'.stripslashes($row['timeframe'])."</option>\n";
-	}
+//create project, timecontext, and spacecontext selectboxes
+$pshtml = projectselectbox($config,$values,$options,$sort);
+$cshtml = contextselectbox($config,$values,$options,$sort);
+$tshtml = timecontextselectbox($config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 	//determine item label

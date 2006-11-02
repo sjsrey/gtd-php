@@ -33,5 +33,7 @@
             "selectactiveprojects"  => "`categories`.`category`, `projectattributes`.`deadline`, `projects`.`name` ASC",
             "getlistitems"          => "`listItems`.`item` ASC",
             "getitems"              => "`projects`.`name`, `itemattributes`.`deadline`, `items`.`title` ASC",
-                );
+            "selectchecklist"       => "`checklist`.`title` ASC",
+            "getchecklists"         => "`categories`.`category` ASC",
+            );
 ?>
