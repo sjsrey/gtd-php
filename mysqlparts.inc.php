@@ -12,5 +12,6 @@ $sqlparts = array(
     "activelistitems"       =>  " AND (`listItems`.`dateCompleted` IS NOT NULL AND `listItems`.`dateCompleted` ='0000-00-00') ",
     "completedlistitems"    =>  " AND (`listItems`.`dateCompleted`!='0000-00-00' AND `listItems`.`dateCompleted` IS NOT NULL) ",
     "getchecklists"         =>  " AND `checklist`.`categoryId`='{$values['categoryId']}' ",
+    "getlists"         =>  " AND `list`.`categoryId`='{$values['categoryId']}' ",
     );
 ?>

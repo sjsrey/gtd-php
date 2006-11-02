@@ -35,5 +35,6 @@
             "getitems"              => "`projects`.`name`, `itemattributes`.`deadline`, `items`.`title` ASC",
             "selectchecklist"       => "`checklist`.`title` ASC",
             "getchecklists"         => "`categories`.`category` ASC",
-            );
+            "getlists"              => "`categories`.`category` ASC",
+                        );
 ?>

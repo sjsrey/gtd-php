@@ -51,6 +51,7 @@ $sql = array(
         "getchecklists"           => "SELECT `checklist`.`checklistId`, `checklist`.`title`, `checklist`.`description`, `checklist`.`categoryId`, `categories`.`category` FROM `checklist`, `categories` WHERE `checklist`.`categoryId`=`categories`.`categoryId` ".$values['filterquery']." ORDER BY {$sort['getchecklists']}",
         "getitems"                  => "SELECT `itemattributes`.`projectId`, `projects`.`name` AS pname, `items`.`title`, `items`.`description`, `itemstatus`.`dateCreated`, `context`.`contextId`, `context`.`name` AS cname, `items`.`itemId`, `itemstatus`.`dateCompleted`, `itemattributes`.`deadline`, `itemattributes`.`repeat`, `itemattributes`.`suppress`, `itemattributes`.`suppressUntil` FROM `items`, `itemattributes`, `itemstatus`, `projects`, `projectattributes`, `projectstatus`, `context` WHERE `itemstatus`.`itemId` = `items`.`itemId` AND `itemattributes`.`itemId` = `items`.`itemId` AND `itemattributes`.`contextId` = `context`.`contextId` AND `itemattributes`.`projectId` = `projects`.`projectId` AND `projectattributes`.`projectId`=`itemattributes`.`projectId` AND `projectstatus`.`projectId` = `itemattributes`.`projectId` AND `itemattributes`.`type` = '{$values['typequery']}' " .$values['filterquery']. " AND `projectattributes`.`isSomeday`='{$values['ptypequery']}' AND (`itemstatus`.`dateCompleted` IS NULL OR `itemstatus`.`dateCompleted` = '0000-00-00') AND (`projectstatus`.`dateCompleted` IS NULL OR `projectstatus`.`dateCompleted` = '0000-00-00') AND ((CURDATE() >= DATE_ADD(`itemattributes`.`deadline`, INTERVAL -(`itemattributes`.`suppressUntil`) DAY)) OR `itemattributes`.`suppress`='n' OR ((CURDATE() >= DATE_ADD(`projectattributes`.`deadline`, INTERVAL -(`projectattributes`.`suppressUntil`) DAY)))) ORDER BY {$sort['getitems']}",
         "getlistitems"              => "SELECT `listItems`.`listItemId`, `listItems`.`item`, `listItems`.`notes`, `listItems`.`listId` FROM `listItems` LEFT JOIN `list` on `listItems`.`listId` = `list`.`listId` WHERE `list`.`listId` = '{$values['listId']}' ".$values['filterquery']." ORDER BY {$sort['getlistitems']}",
+        "getlists"                  => "SELECT `list`.`listId`, `list`.`title`, `list`.`description`, `list`.`categoryId`, `categories`.`category` FROM `list`, `categories` WHERE `list`.`categoryId`=`categories`.`categoryId` ".$values['filterquery']." ORDER BY {$sort['getlists']}",
         "getnextactions"            => "SELECT `projectId`, `nextaction` FROM `nextactions`",
         "newcategory"               => "INSERT INTO `categories` VALUES (NULL, '{$values['category']}', '{$values['description']}')",
         "newchecklistitem"          => "INSERT INTO `checklistItems`  VALUES (NULL, '{$values['item']}', '{$values['notes']}', '{$values['checklistId']}', 'n')",
@@ -218,9 +219,7 @@ $query=>"SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`descripti
         "copyitemattributes" =>"SELECT `itemattributes``.``projectId`, `itemattributes``.`contextId, `itemattributes``.`timeframeId, `itemattributes``.`deadline, `itemattributes``.`repeat, `itemattributes``.`suppress, `itemattributes``.`suppressUntil FROM `itemattributes` WHERE `itemattributes``.`itemId=''{$values['completed']}'Na'",
         "copyitemstatus" =>"",
 
-        "getlists"              =>"SELECT list`.`listId, list`.`title, list`.`description,list`.`categoryId, `categories`.`category` FROM list, categories WHERE list`.`categoryId=categories`.`categoryId ORDER BY `categories`.`category` ASC",
-        //find  wayto merge  with above (generic problem)
-        "getlistsincategory"              =>"SELECT list`.`listId, list`.`title, list`.`description, list`.`categoryId, `categories`.`category` FROM list, categories WHERE list`.`categoryId=categories`.`categoryId AND list`.`categoryId='{$values['categoryId']}' ORDER BY `categories`.`category` ASC",
+
 
         "newlist"              =>"",
 
@@ -232,8 +231,6 @@ $query=>"SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`descripti
 
 
         //"listchecklists"              =>"SELECT checklistId, title FROM checklist ORDER BY title",
-        "getchecklists"            =>"SELECT checklist`.`checklistId, checklist`.`title, checklist`.`description, checklist`.`categoryId, `categories`.`category` FROM checklist, categories WHERE checklist`.`categoryId=categories`.`categoryId ORDER BY `categories`.`category` ASC",
-//getchecklistsincategory        SELECT checklist`.`checklistId, checklist`.`title, checklist`.`description, checklist`.`categoryId, `categories`.`category` FROM checklist, categories WHERE checklist`.`categoryId=categories`.`categoryId AND checklist`.`categoryId='{$values['categoryId']}' ORDER BY `categories`.`category` ASC
 
         "newchecklist"              =>"INSERT INTO checklist VALUES (NULL, '{$values['title']}', '{$values['categoryId']}', '{$values['description']}')",
 

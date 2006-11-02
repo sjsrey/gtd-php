@@ -9,20 +9,24 @@ $values['categoryId']=(int) $_POST['categoryId'];
 $cashtml = categoryselectbox($config,$values,$options,$sort);
 
 $values['filterquery']="";
-//if ($values['categoryId']==NULL) $values['categoryId']=0;
 if ($values['categoryId']!=0) $values['filterquery']=sqlparts("getchecklists",$config,$values);
 $result = query("getchecklists",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 echo "<h2>Checklists</h2>\n";
+
+//category selection form
+echo '<div id="filter">'."\n";
 echo '<form action="listChecklist.php" method="post">'."\n";
 echo "<p>Category:&nbsp;\n";
 echo '<select name="categoryId" title="Filter checklists by category">'."\n";
 echo '	<option value="0">All</option>'."\n";
 echo $cashtml;
 echo "</select>\n";
-echo '<input type="submit" align="right" class="button" value="Update" name="submit">'."\n";
+echo '<input type="submit" align="right" class="button" value="Filter" name="submit" title="filter checklist by category" />'."\n";
 echo "</p>\n";
+echo "</form>\n";
+echo "</div>\n";
 
 if ($result!="-1") {
     echo "<p>Select checklist for report.</p>\n";
