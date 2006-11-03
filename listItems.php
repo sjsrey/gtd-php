@@ -14,9 +14,8 @@ $values['notspacecontext']=$_POST['notspacecontext'];
 $values['nottimecontext']=$_POST['nottimecontext'];
 $values['notcategory']=$_POST['notcategory'];
 
-
-if ($values['pType']=='s') $values['ptypequery']='y';
-else $values['ptypequery']='n';
+if ($values['pType']=='s') $values['isSomeday']='y';
+else $values['isSomeday']='n';
 
 //Check Session Variables
 if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
@@ -41,24 +40,21 @@ else $values['categoryId']=$_SESSION['categoryId'];
 //Set page titles
 if ($values['type']=="a") {
 	$typename="Actions";
-	$values['typequery']="a";
 	}
 elseif ($values['type']=="n") {
 	$typename="Next Actions";
 	$display="nextonly";
-	$values['typequery']="a";
+	$values['type']="a";
 	}
 elseif ($values['type']=="r") {
 	$typename="References";
-	$values['typequery']="r";
 	}
 elseif ($values['type']=="w") {
 	$typename="Waiting On";
-	$values['typequery']="w";
 	}
 else {
-	$typename="Items";
-	$values['typequery']="a";
+	$values['type']="a";
+        $typename="Items"; 
 	}
 
 //SQL CODE
@@ -94,6 +90,10 @@ if ($values['timeframeId'] != NULL && $values['notcategory']!="true") $values['f
 if ($values['timeframeId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("nottimeframefilter",$config,$values);
 
 //Get items for display
+$values['filterquery'] .= sqlparts("typefilter",$config,$values);
+$values['filterquery'] .= sqlparts("issomeday",$config,$values);
+$values['filterquery'] .= sqlparts("activeitems",$config,$values);
+$values['filterquery'] .= sqlparts("activeitemsinproject",$config,$values);
 $result = query("getitems",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE

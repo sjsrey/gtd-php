@@ -36,7 +36,7 @@ if ($values['categoryId']>=0) $_SESSION['categoryId']=$values['categoryId'];
 $cshtml=categoryselectbox($config,$values,$options,$sort);
 
 //SQL CODE
-$values['filterquery']="";
+$values['filterquery']=sqlparts("issomeday",$config,$values);
 
 if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= sqlparts("categoryfilter",$config,$values);
 if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("notcategoryfilter",$config,$values);
@@ -44,7 +44,7 @@ if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['fi
 if ($values['completed']=="y") $values['filterquery'] .= sqlparts("completedprojects",$config,$values);
 else $values['filterquery'] .= sqlparts("activeprojects",$config,$values);
 
-$result = query("selectprojects",$config,$values,$options,$sort);
+$result = query("getprojects",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 
@@ -85,9 +85,9 @@ if ($result!="-1"){
 
                 $values['projectId']=$row['projectId'];
                 $nexttext=query("selectnextaction",$config,$values);
-                //if ($nexttext[0]['nextaction']!="") $nonext="false";
-                //else $nonext="true";
-                $nonext="false";
+                if ($nexttext[0]['nextaction']!="") $nonext="false";
+                else $nonext="true";
+
                 
 		echo '<a href = "projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).' project report">';
 		if ($nonext=="true" && $values['completed']!="y") echo '<span class="noNextAction" title="No next action defined!">!</span>';

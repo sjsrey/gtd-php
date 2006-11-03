@@ -4,62 +4,34 @@
 include_once('header.php');
 
 //RETRIEVE URL VARIABLES
-$pId = (int) $_GET['projectId'];
+$values['projectId'] = (int) $_GET['projectId'];
 
 //GET project details
-$query = "SELECT projects.name, projects.description, projects.desiredOutcome, projectstatus.dateCreated,
-	projectstatus.dateCompleted, projectstatus.lastModified, projectattributes.deadline, projectattributes.repeat,
-	projectattributes.suppress, projectattributes.suppressUntil, projectattributes.isSomeday
-	FROM projects,projectattributes, projectstatus
-	WHERE projectstatus.projectId = projects.projectId AND projectattributes.projectId = projects.projectId AND
-	projects.projectId = '$pId'";
-$result = mysql_query($query) or die ("Error in query");
-$project = mysql_fetch_assoc($result);
+$result = query("selectproject",$config,$values,$options,$sort);
+
+$project = $result[0];
 if ($project['isSomeday']=="y") $pType="s";
 else $pType="p";
-mysql_free_result($result);
-
-//Function to select items of a specific type
-function doitemquery($projectId,$type,$completed='n') {
-	if ($completed=="y") $compq = "itemstatus.dateCompleted > 0";
-	else $compq = "itemstatus.dateCompleted IS NULL OR itemstatus.dateCompleted = '0000-00-00'";
-
-	$query = "SELECT items.itemId, items.title, items.description, itemstatus.dateCreated, itemstatus.dateCompleted,
-		context.contextId, context.name AS cname, itemattributes.deadline, itemattributes.repeat,
-		itemattributes.suppress, itemattributes.suppressUntil
-		FROM items, itemattributes, itemstatus, context
-		WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId AND
-		itemattributes.contextId = context.contextId AND itemattributes.projectId = '$projectId'
-		AND itemattributes.type = '$type' AND (".$compq.") ORDER BY items.title ASC, cname ASC";
-	$result = mysql_query($query) or die ("Error in query");
-	return $result;
-}
 
 //select all nextactions for test
-$query = "SELECT projectId, nextaction FROM nextactions";
-$result = mysql_query($query) or die ("Error in query");
+$result = query("selectnextaction",$config,$values,$options,$sort);
 $nextactions = array();
-while ($nextactiontest = mysql_fetch_assoc($result)) {
-	//populates $nextactions with itemIds using projectId as key
-	$nextactions[$nextactiontest['projectId']] = $nextactiontest['nextaction'];
-}
+if ($result!="-1") {
+    $i=0;
+    foreach ($result as $row) {
+        $nextactions[$i] = $row['nextaction'];
+        $i++;
+        }
+    }
 //Find previous and next projects
-$compq = "(projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00')
-			AND (((CURDATE()>=DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY))
-			OR projectattributes.suppress='n'))";
-$isSomeday="n";
-$query="SELECT projects.projectId, projects.name, projects.description, projectattributes.categoryId, categories.category,
-		projectattributes.deadline, projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil
-		FROM projects, projectattributes, projectstatus, categories
-		WHERE projectattributes.projectId=projects.projectId AND projectattributes.categoryId=categories.categoryId
-		AND projectstatus.projectId=projects.projectId AND projectattributes.isSomeday = '$isSomeday' AND ".$compq."
-		ORDER BY categories.category, projects.name ASC";
-
-$result = mysql_query($query) or die ("Error in query");
+$values['isSomeday']="n";
+$values['filterquery'] = sqlparts("activeprojects",$config,$values);
+$values['filterquery'] .= sqlparts("issomeday",$config,$values);
+$result = query("getprojects",$config,$values,$options,$sort);
 $c=0;
-while($row = mysql_fetch_assoc($result)){
+foreach ($result as $row) {
     $ids[$c]=$row['projectId'];
-    if($ids[$c]==$pId){
+    if($ids[$c]==$values['projectId']){
         $id=$c;
     }
     $c++;
@@ -84,10 +56,10 @@ if(isset($id)){
 if ($pType=="s") $typename="Someday/Maybe";
 else $typename="Project";
 
-echo '<form action="processItemUpdate.php?projectId='.$pId.'" method="post">'."\n";
+echo '<form action="processItemUpdate.php?projectId='.$values['projectId'].'" method="post">'."\n";
 
 echo "<h1>".$typename."&nbsp;Report:&nbsp;".stripslashes($project['name'])."</h1>\n";
-echo '[ <a href="project.php?projectId='.$pId.'" title="Edit '.stripslashes($project['name']).'">Edit</a> ]'."\n";
+echo '[ <a href="project.php?projectId='.$values['projectId'].'" title="Edit '.stripslashes($project['name']).'">Edit</a> ]'."\n";
 if(isset($previousId)){
     echo '[ <a href="projectReport.php?projectId='.$previousId.'" title="Previous Project">Previous</a> ]'."\n";
 }
@@ -112,10 +84,17 @@ foreach ($completed as $comp) {
 foreach ($type as $value) {
 	echo "<div class='reportsection'>\n";
 	if ($comp=="y") echo '<h2>Completed&nbsp;'.$typelabel[$value]."</h2>\n";
-	else echo '<h2><a href = "item.php?type='.$value.'&projectId='.$pId.'&pType='.$pType.'" title="Add new '.str_replace("s","",$typelabel[$value]).'">'.$typelabel[$value]."</a></h2>\n";
+	else echo '<h2><a href = "item.php?type='.$value.'&projectId='.$values['projectId'].'&pType='.$pType.'" title="Add new '.str_replace("s","",$typelabel[$value]).'">'.$typelabel[$value]."</a></h2>\n";
 
-	$result=doitemquery($pId,$value,$comp);
-	if (mysql_num_rows($result) > 0) {
+    //Select items by type
+    $values['type']=$value;
+    $values['filterquery'] = sqlparts("typefilter",$config,$values);
+    $values['filterquery'] .= sqlparts("projectfilter",$config,$values);
+    if ($comp=="y") $values['filterquery'] .= sqlparts("completeditems",$config,$values);
+    else $values['filterquery'] .= sqlparts("activeitemsandproject",$config,$values);
+    $result = query("getitems",$config,$values,$options,$sort);
+	
+        if ($result != "-1") {
 		$counter=0;
 		echo "<table class='datatable'>\n";
 		echo "	<thead>\n";
@@ -132,11 +111,10 @@ foreach ($type as $value) {
 		}
 		echo "	</thead>\n";
 
-		while($row = mysql_fetch_assoc($result)) {
-
+		foreach ($result as $row) {
 			//if nextaction, add icon in front of action (* for now)
-			if ($key = array_search($row['itemId'],$nextactions)) {
-				echo "	<tr class = 'nextactionrow'>\n";
+			if ($key = in_array($row['itemId'],$nextactions)) {
+                                echo "	<tr class = 'nextactionrow'>\n";
                                 $naText='<td align=center><input type="radio"';
                                 $naText.=' name="isNext" value="';
                                 $naText.=$row['itemId'].'" checked><br></td>';
@@ -197,11 +175,7 @@ foreach ($type as $value) {
 		echo "</div>\n";
 	}
 }
-
 echo "</form>\n";
-
-mysql_free_result($result);
-mysql_close($connection);
 
 include_once('footer.php');
 ?>
