@@ -3,23 +3,28 @@
 //INCLUDES
 include_once('header.php');
 
-// stub for querying theme directory to build dropdown selector
-$themes[0]='default';
-$themes[1]='menu_sidebar';
+// query theme directory to build dropdown selector
+$themedir = "./themes";
+if ($handle = opendir($themedir)) {	while (false !== ($file = readdir($handle))) {
+		if ($file != "." && $file != ".." && is_dir($themedir. "/" . $file)) {
+			$themes[] = $file;		}	}	closedir($handle);}
+
 $html="";
-foreach ($themes as $theme) {
-   $html.= '<option value="'.$theme;
-   $html.='"';
-   if($theme == $_SESSION['theme']) $html.=" SELECTED ";
-   $html.='>'.$theme;
-   $html.="</option>";
-   $html.="\n";
+
+// ran into a strange PHP bug when using "foreach ($themes as $theme)", so just using $t
+foreach ($themes as $t) {
+	$html.= '<option value="'.$t;
+	$html.='"';
+	if($t == $_SESSION['theme']) $html.=" SELECTED ";
+	$html.='>'.$t;
+	$html.="</option>";
+	$html.="\n";
 }
 
 
 // Display code
 echo "<h2>Theme</h2>\n";
-echo '<form action="updatePreferences.php?theme='.$theme.'" method="post">';
+echo '<form action="updatePreferences.php" method="post">';
 echo '<select name="theme">';
 echo "\n";
 echo $html;
