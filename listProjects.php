@@ -85,7 +85,7 @@ if ($result!="-1"){
 
                 $values['projectId']=$row['projectId'];
                 $nexttext=query("selectnextaction",$config,$values);
-                if ($nexttext[0]['nextaction']!="") $nonext="false";
+                if($nexttext==-1) $nonext="false";
                 else $nonext="true";
 
                 
