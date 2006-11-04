@@ -12,7 +12,7 @@
                 "dbtype"                    => 'mysql',  //database type: currently only mysql is valid.  DO NOT CHANGE!
 
             //user preferences : MOVE TO DATABASE
-
+				"title"						=> 'GTD-PHP', // site name (appears at the top of each page)
                 "debug"                     => 'false',  // false | true |  developer
                 "theme"                     => 'default', //default | menu_sidebar
                 "contextsummary"            => 'all',  //all | nextaction
