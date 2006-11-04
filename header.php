@@ -30,7 +30,8 @@ $config['theme']=$_SESSION['theme'];
 	<!-- theme script (should check to see if this actually exists) -->
 	<script type="text/javascript" src="themes/<?php echo $config['theme']; ?>/theme.js"></script>
 
-
+	<link rel="shortcut icon" href="./favicon.ico" />
+	
 	<!-- calendar stylesheet -->
 	<link rel="stylesheet" type="text/css" media="all" href="calendar-win2k-cold-1.css" title="win2k-cold-1" />
 
