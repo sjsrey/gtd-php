@@ -33,6 +33,7 @@
             "selectproject"         => "`projects`.`name` ASC",
             "getprojects"           => "`categories`.`category`, `projectattributes`.`deadline`, `projects`.`name` ASC",
             "getlistitems"          => "`listItems`.`item` ASC",
+            "getcompleteditems"		=> "`itemstatus`.`dateCompleted` DESC, `projects`.`name`, `items`.`title` ASC",
             "getitems"              => "`projects`.`name`, `itemattributes`.`deadline`, `items`.`title` ASC",
             "selectchecklist"       => "`checklist`.`title` ASC",
             "getchecklists"         => "`categories`.`category` ASC",

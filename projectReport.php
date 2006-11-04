@@ -90,9 +90,13 @@ foreach ($type as $value) {
     $values['type']=$value;
     $values['filterquery'] = sqlparts("typefilter",$config,$values);
     $values['filterquery'] .= sqlparts("projectfilter",$config,$values);
-    if ($comp=="y") $values['filterquery'] .= sqlparts("completeditems",$config,$values);
-    else $values['filterquery'] .= sqlparts("activeitemsandproject",$config,$values);
-    $result = query("getitems",$config,$values,$options,$sort);
+    if ($comp=="y") {
+		$values['filterquery'] .= sqlparts("completeditems",$config,$values);
+		$result = query("getcompleteditems",$config,$values,$options,$sort);
+	} else {
+		$values['filterquery'] .= sqlparts("activeitemsandproject",$config,$values);
+		$result = query("getitems",$config,$values,$options,$sort);
+	}
 	
         if ($result != "-1") {
 		$counter=0;
@@ -102,12 +106,14 @@ foreach ($type as $value) {
 		echo "		<td>".$typelabel[$value]."</td>\n";
 		echo "		<td>Description</td>\n";
 		echo "		<td>Context</td>\n";
-		echo "		<td>Date Created</td>\n";
 		if ($comp=="n") {
+			echo "		<td>Date Created</td>\n";
 			echo "		<td>Deadline</td>\n";
 			echo "		<td>Repeat</td>\n";
 			echo "		<td>Suppress</td>\n";
 			echo "		<td>Completed</td>\n";
+		} else {
+			echo "		<td>Date Completed</td>\n";
 		}
 		echo "	</thead>\n";
 
@@ -117,7 +123,7 @@ foreach ($type as $value) {
                                 echo "	<tr class = 'nextactionrow'>\n";
                                 $naText='<td align=center><input type="radio"';
                                 $naText.=' name="isNext" value="';
-                                $naText.=$row['itemId'].'" checked><br></td>';
+                                $naText.=$row['itemId'].'" checked><br></td>'."\n";
                                 echo $naText;
                                 
 				echo '		<td class="nextactioncell"><a href="item.php?itemId='.$row['itemId'].'&pType='.$pType.'" class="nextactionlink" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'"><span class="nextActionMarker" title="Next Action">*</span>'.stripslashes($row['title'])."</a></td>\n";
@@ -126,7 +132,7 @@ foreach ($type as $value) {
                                 
                                 $naText='<td align=center><input type="radio"';                  
                                 $naText.=' name="isNext" value="';
-                                $naText.=$row['itemId'].'"><br></td>';
+                                $naText.=$row['itemId'].'"><br></td>'."\n";
                                 echo $naText;
 
 				echo '		<td><a href = "item.php?itemId='.$row['itemId'].'&pType='.$pType.'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.stripslashes($row['title'])."</a></td>\n";
@@ -134,9 +140,9 @@ foreach ($type as $value) {
 
 			echo '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
 			echo '		<td><a href = "reportContext.php?contextId='.$row['contextId'].'" title="Go to '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.stripslashes($row['cname'])."</a></td>\n";
-			echo "		<td>".date("D M j, Y",strtotime($row['dateCreated']))."</td>\n";
 
 			if ($comp=="n") {
+				echo "		<td>".date("D M j, Y",strtotime($row['dateCreated']))."</td>\n";
 				echo "		<td>";
 				//Blank out empty deadlines
 				if(($row['deadline']) == "0000-00-00") echo "&nbsp;";
@@ -157,7 +163,9 @@ foreach ($type as $value) {
 				echo '		<td align=center><input type="checkbox" align="center" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="';
 				echo $row['itemId'];
 				echo '"></td>'."\n";
-				}
+			} else {
+				echo "		<td>".date("D M j, Y",strtotime($row['dateCompleted']))."</td>\n";
+			}
 
 			echo "	</tr>\n";
 			$counter = $counter+1;
