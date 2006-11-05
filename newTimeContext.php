@@ -4,7 +4,7 @@ include_once('header.php');
 if (!isset($_POST['submit'])) {
 	//form not submitted
 	?>
-	<h1>New Temporal Context Definition </h1>
+	<h1>New Time Context Definition </h1>
 	<form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
 		<div class='form'>
 			<div class='formrow'>
