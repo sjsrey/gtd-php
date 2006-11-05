@@ -72,10 +72,10 @@
 	background: #960200;
 	font-size: 10px;
 	color: #eed;
-	font-weight: bold;
 }
 #menudiv li a {
 	color: #eed;
+	font-weight: normal;
 	/*text-decoration: none;*/
 	border: 0 none;
 }
