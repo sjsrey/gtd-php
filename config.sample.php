@@ -28,6 +28,7 @@
             "projectssummary"       => "`projects`.`name` ASC",
             "spacecontextselectbox" => "`context`.`name` ASC",
             "categoryselectbox"     => "`categories`.`category` ASC",
+            "checklistselectbox"    =>  "`checklist`.`title` ASC",
             "projectselectbox"      => "`projects`.`name` ASC",
             "timecontextselectbox"  => "`timeitems`.`timeframe` DESC",
             "selectproject"         => "`projects`.`name` ASC",

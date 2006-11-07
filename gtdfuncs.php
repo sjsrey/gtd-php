@@ -274,4 +274,15 @@
                 }
             return $pshtml;
             }
+
+        function checklistselectbox($config,$values,$options,$sort) {
+            $result = query("checklistselectbox",$config,$values,$options,$sort);
+            $cshtml="";
+            foreach($result as $row) {
+                $cshtml .= '                    <option value="'.$row['checklistId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+                if($row['checklistId']==$values['checklistId']) $cshtml .= ' SELECTED';
+                $cshtml .= '>'.stripslashes($row['title'])."</option>\n";
+                }
+            return $cshtml;
+            }
 ?>
