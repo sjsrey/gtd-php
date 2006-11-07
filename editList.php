@@ -1,14 +1,16 @@
 <?php
-	include_once('header.php');
+//INCLUDES
+include_once('header.php');
 
-	$values['listId'] =(int) $_GET["listId"];
+//RETRIEVE ALL URL AND FORM VARIABLES
+$values['listId'] =(int) $_GET["listId"];
 
+//SQL CODE
 $cashtml = categoryselectbox($config,$values,$options,$sort);
+$row = query("selectlist",$config,$values,$options,$sort);
 
-	$query = "SELECT title, description, categoryId FROM list WHERE listId = '{$values['listId']}'";
-	$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
-	$row = mysql_fetch_array($result);
 
+//PAGE DISPLAY CODE
 	echo "<h2>Edit List: {$values['listTitle']}</h2>\n";
 	echo '<form action="updateList.php?listId='.$values['listId'].'" method="POST">'."\n";
 ?>
@@ -16,7 +18,7 @@ $cashtml = categoryselectbox($config,$values,$options,$sort);
 	<div class='form'>
 		<div class='formrow'>
 			<label for='title' class='left first'>List Title:</label>
-			<input type='text' name='newlistTitle' id='title' value='<?php echo $row[0]; ?>'>
+			<input type='text' name='newlistTitle' id='title' value='<?php echo $row[0]['title']; ?>'>
 		</div>
 
 		<div class='formrow'>
@@ -28,7 +30,7 @@ $cashtml = categoryselectbox($config,$values,$options,$sort);
 
 		<div class='formrow'>
 			<label for='description' class='left first'>Description:</label>
-			<textarea rows="10" name="newdescription" id="description" wrap="virtual"><?php echo $row[1]; ?></textarea>
+			<textarea rows="10" name="newdescription" id="description" wrap="virtual"><?php echo $row[0]['description']; ?></textarea>
 		</div>
 	</div>
 	<div class='formbuttons'>

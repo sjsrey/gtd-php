@@ -269,7 +269,7 @@
             $pshtml="";
             foreach($result as $row) {
                 $pshtml .= '                    <option value="'.$row['projectId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-                if($row['projectId']==$currentrow['projectId'] || $row['projectId']==$values['projectId']) $pshtml .= ' SELECTED';
+                if($row['projectId']==$values['projectId']) $pshtml .= ' SELECTED';
                 $pshtml .= '>'.stripslashes($row['name'])."</option>\n";
                 }
             return $pshtml;
@@ -285,4 +285,16 @@
                 }
             return $cshtml;
             }
+
+        function listselectbox($config,$values,$options,$sort) {
+            $result = query("listselectbox",$config,$values,$options,$sort);
+            $lshtml="";
+            foreach($result as $row) {
+                $lshtml .= '                    <option value="'.$row['listId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+                if($row['listId']==$values['listId']) $lshtml .= ' SELECTED';
+                $lshtml .= '>'.stripslashes($row['title'])."</option>\n";
+                }
+            return $lshtml;
+            }
+
 ?>
