@@ -1,17 +1,18 @@
 <?php
 
 //INCLUDES
-	include_once('header.php');
+include_once('header.php');
 
 //RETRIEVE URL VARIABLES
-	$checklistId = (int) $_GET['checklistId'];
+$checklistId = (int) $_GET['checklistId'];
 
 //SQL CODE AREA
-	$query = "SELECT checklistId, title from checklist order by title";
-	$result = mysql_query($query) or die ("Error in query");
+$query = "SELECT checklistId, title from checklist order by title";
+$result = mysql_query($query) or die ("Error in query");
 
-	if (mysql_num_rows($result) > 0){
+if (mysql_num_rows($result) > 0){
 ?>
+
 <h2>New Checklist Item</h2>
 <form action="processChecklistItem.php" method="POST">
 	<div class='form'>

@@ -83,11 +83,11 @@ $values['filterquery'] = "";
 if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= sqlparts("categoryfilter",$config,$values);
 if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("notcategoryfilter",$config,$values);
 
-if ($values['contextId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= sqlparts("contextfilter",$config,$values);
-if ($values['contextId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("notcontextfilter",$config,$values);
+if ($values['contextId'] != NULL && $values['notspacecontext']!="true") $values['filterquery'] .= sqlparts("contextfilter",$config,$values);
+if ($values['contextId'] != NULL && $values['notspacecontext']=="true") $values['filterquery'] .= sqlparts("notcontextfilter",$config,$values);
 
-if ($values['timeframeId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= sqlparts("timeframefilter",$config,$values);
-if ($values['timeframeId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("nottimeframefilter",$config,$values);
+if ($values['timeframeId'] != NULL && $values['nottimecontext']!="true") $values['filterquery'] .= sqlparts("timeframefilter",$config,$values);
+if ($values['timeframeId'] != NULL && $values['nottimecontext']=="true") $values['filterquery'] .= sqlparts("nottimeframefilter",$config,$values);
 
 //Get items for display
 $values['filterquery'] .= sqlparts("typefilter",$config,$values);
