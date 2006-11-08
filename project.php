@@ -75,7 +75,7 @@ if ($row['deadline']=="0000-00-00" || $row['deadline']==NULL) {
 if ($row['dateCompleted']=="0000-00-00" || $row['dateCompleted']==NULL) {
 	echo "				<input type='text' size='10' name='dateCompleted' id='dateCompleted' value=''/>\n";
 } else {
-	echo "				<input type='text' size='10' name='dateCompleted' id='dateCompleted' value='".$currentrow['dateCompleted']."'/>\n";
+	echo "				<input type='text' size='10' name='dateCompleted' id='dateCompleted' value='".$row['dateCompleted']."'/>\n";
 }
 
 ?>
