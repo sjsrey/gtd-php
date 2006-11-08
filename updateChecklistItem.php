@@ -13,19 +13,14 @@ $values['delete']=$_POST['delete']{0};
 
 //SQL CODE AREA
 if($values['delete']=="y") {
-        query("deletechecklistitem",$config,$values);
-        echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=checklistReport.php?checklistId='.$values['checklistId'].'">';
-//        echo "<p>Number of Records Deleted: ";
-//        echo mysql_affected_rows();
-	}
-else {
-    query("updatechecklistitem",$config,$values);
+    query("deletechecklistitem",$config,$values);
     echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=checklistReport.php?checklistId='.$values['checklistId'].'">';
-//	echo "Number of Records Updated: ";
-//	echo mysql_affected_rows();
-	}
+    }
+else {
+query("updatechecklistitem",$config,$values);
+echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=checklistReport.php?checklistId='.$values['checklistId'].'">';
+    }
 
-mysql_close($connection);
 include_once('footer.php');
 ?>
 

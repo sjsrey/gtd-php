@@ -19,7 +19,5 @@ $sqlparts = array(
     "getlists"              =>  " AND `list`.`categoryId`='{$values['categoryId']}' ",
     "typefilter"            =>  " AND `itemattributes`.`type` = '{$values['type']}' ",
     "projectfilter"         =>  " AND itemattributes.projectId = '{$values['projectId']}' ",
-
-    
     );
 ?>

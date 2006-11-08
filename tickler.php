@@ -198,7 +198,5 @@ echo '<p>To add an item to the tickler file:
 		}
 
 
-	mysql_free_result($result);
-	mysql_close($connection);
 	include_once('footer.php');
 ?>

@@ -26,7 +26,5 @@ else {
     echo '</p>';
     }
 
-mysql_close($connection);
-
 include_once('footer.php');
 ?>

@@ -1,39 +1,32 @@
 <?php
-
 //INCLUDES
 include_once('header.php');
 
-//RETRIEVE FORM AND URL VARIABLES
-//	$values['pId'] = (int) $_GET['projectId'];
-//	$values['pName'] =(string) $_GET['projectName'];
-
-	echo "<h2>GTD Summary</h2>\n";
-	echo '<h4>Today is '.date("l, F jS, Y").'. (Week '.date("W").'/52 & Day '.date("z").'/'.(365+date("L")).')</h4>'."\n";
-
 //SQL Code
-       
-	$result = query("spacecontextselectbox",$config,$values,$options,$sort);
-        $numbercontexts = query("countspacecontexts",$config,$values);
-        $numbernextactions = query("countnextactions",$config,$values);
-        $numberitems = query("countactiveitems",$config,$values);
+$result = query("spacecontextselectbox",$config,$values,$options,$sort);
+$numbercontexts = query("countspacecontexts",$config,$values);
+$numbernextactions = query("countnextactions",$config,$values);
+$numberitems = query("countactiveitems",$config,$values);
 
-        $values['isSomeday'] = "n";
-        $numberprojects = query("countactiveprojects",$config,$values);
-        $pres = query("projectssummary",$config,$values,$options,$sort);
+$values['isSomeday'] = "n";
+$numberprojects = query("countactiveprojects",$config,$values);
+$pres = query("projectssummary",$config,$values,$options,$sort);
 
-        $values['isSomeday'] = "y";
-        // sr debugging kludge
-        $numbersomedayq = query("countactiveprojects",$config,$values);
-        if($numbersomedayq=='-1'){
-           //create a new array 
-           $numbersomeday[0]['nprojects']="";
-        }else{
-           //just copy the returned array
-           $numbersomeday=$numbersomedayq;
-        };
+$values['isSomeday'] = "y";
+// sr debugging kludge
+$numbersomedayq = query("countactiveprojects",$config,$values);
+if($numbersomedayq=='-1') {
+    //create a new array
+    $numbersomeday[0]['nprojects']="";
+    }
 
-        $sm = query("projectssummary",$config,$values,$options,$sort);
- 
+else {
+    //just copy the returned array
+    $numbersomeday=$numbersomedayq;
+    }
+
+$sm = query("projectssummary",$config,$values,$options,$sort);
+
 //set empty database counts to zero
     if($numbercontexts[0]['ncontexts']=="") $numbercontexts[0]['ncontexts']="0";
     if($numberprojects[0]['nprojects']=="" || $pres=="-1") $numberprojects[0]['nprojects']="0";
@@ -41,49 +34,52 @@ include_once('header.php');
     if($numberitems[0]['nitems']=="") $numberitems[0]['nitems']="0";
     if($numbernextactions[0]['nnextactions']=="") $numbernextactions[0]['nnextactions']="0";
 
+//PAGE DISPLAY CODE
+echo "<h2>GTD Summary</h2>\n";
+echo '<h4>Today is '.date("l, F jS, Y").'. (Week '.date("W").'/52 & Day '.date("z").'/'.(365+date("L")).')</h4>'."\n";
 
-    echo "<div class='reportsection'>\n";
-	echo "<h3>Next Actions</h3>\n";
-    if($numbernextactions[0]['nnextactions']==1){
-                echo '<p>There is ' .$numbernextactions[0]['nnextactions']. ' <a href="listItems.php?type=n">Next Action</a> pending';
-            }else{
-                echo '<p>There are ' .$numbernextactions[0]['nnextactions']. ' <a href="listItems.php?type=n">Next Actions</a> pending';
-            }
-    echo ' out of a total of ' .$numberitems[0]['nitems']. ' <a href="listItems.php?type=a">Actions</a>.';
-	echo "</p>\n";
-	echo "</div>\n";
-
-    echo "<div class='reportsection'>\n";
-	echo "<h3>Contexts</h3>\n";
-    if($numbercontexts[0]['ncontexts']==1){
-        echo '<p>There is ' .$numbercontexts[0]['ncontexts']. ' <a href="listItems.php?type=n">Spatial Context</a>.<p>'."\n";
-    }else{
-        echo '<p>There are ' .$numbercontexts[0]['ncontexts']. ' <a href="listItems.php?type=n">Spatial Contexts</a>.<p>'."\n";
-    }
-	echo "</div>\n";
-
-	$i=0;
-	$w1=$numberprojects[0]['nprojects']/3;
-        if ($pres!=-1) {
-	foreach($pres as $row) {
-		if($i < $w1){
-			$c1[]=stripslashes($row['name']);
-			$i1[]=$row['projectId'];
-                        $q1[]=stripslashes($row['description']);
-		}
-		elseif($i< 2*$w1){
-			$c2[]=stripslashes($row['name']);
-			$i2[]=$row['projectId'];
-                        $q2[]=stripslashes($row['description']);
-		}
-		else{
-			$c3[]=stripslashes($row['name']);
-			$i3[]=$row['projectId'];
-                        $q3[]=stripslashes($row['description']);
-		}
-		$i+=1;
-	       }
+echo "<div class='reportsection'>\n";
+    echo "<h3>Next Actions</h3>\n";
+if($numbernextactions[0]['nnextactions']==1) {
+            echo '<p>There is ' .$numbernextactions[0]['nnextactions']. ' <a href="listItems.php?type=n">Next Action</a> pending';
+        } else {
+            echo '<p>There are ' .$numbernextactions[0]['nnextactions']. ' <a href="listItems.php?type=n">Next Actions</a> pending';
         }
+echo ' out of a total of ' .$numberitems[0]['nitems']. ' <a href="listItems.php?type=a">Actions</a>.';
+    echo "</p>\n";
+    echo "</div>\n";
+
+echo "<div class='reportsection'>\n";
+    echo "<h3>Contexts</h3>\n";
+if($numbercontexts[0]['ncontexts']==1) {
+    echo '<p>There is ' .$numbercontexts[0]['ncontexts']. ' <a href="listItems.php?type=n">Spatial Context</a>.<p>'."\n";
+} else {
+    echo '<p>There are ' .$numbercontexts[0]['ncontexts']. ' <a href="listItems.php?type=n">Spatial Contexts</a>.<p>'."\n";
+    }
+    echo "</div>\n";
+
+    $i=0;
+    $w1=$numberprojects[0]['nprojects']/3;
+    if ($pres!=-1) {
+    foreach($pres as $row) {
+            if($i < $w1){
+                    $c1[]=stripslashes($row['name']);
+                    $i1[]=$row['projectId'];
+                    $q1[]=stripslashes($row['description']);
+            }
+            elseif($i< 2*$w1){
+                    $c2[]=stripslashes($row['name']);
+                    $i2[]=$row['projectId'];
+                    $q2[]=stripslashes($row['description']);
+            }
+            else{
+                    $c3[]=stripslashes($row['name']);
+                    $i3[]=$row['projectId'];
+                    $q3[]=stripslashes($row['description']);
+            }
+            $i+=1;
+            }
+    }
 
 //Somedays
 	$i=0;

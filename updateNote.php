@@ -13,8 +13,6 @@ $values['noteId'] = (int) $_GET['noteId'];
 if($values['delete']=="y"){
     query("deletenote",$config,$values);
     echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=tickler.php" />';
-//    echo "<p>Number of Records Deleted: ";
-//    echo mysql_affected_rows();
 
 } else {
     query("updatenote",$config,$values);

@@ -1,300 +1,98 @@
 <?php
 
+function nothingFound($message, $prompt=NULL, $yeslink=NULL, $nolink="index.php"){
+        ///Give user ability to create a new entry, or go back to the index.
+        echo "<h4>$message</h4>";
+        if($prompt){
+                echo $prompt;
+                echo "<a href=$yeslink> Yes </a><a href=$nolink>No</a>\n";
+        }
+}
 
-
-    function DateDropDown($size=90,$datevar="dateCompleted",$default="DropDate") {
-       // $size = the number of days to display in the drop down
-       // $default = string for variable name to hold date selected
-       // $skip = if set then the program will skip Sundays and Saturdays
-       //
-       // Notes
-       // sjr adapted this from an original implementation by Kenneth Brill. 
-       // Original header follows:
-        /**
-        * This file creates a simple date picking drop down box prefilled with the
-        * next 60 days dates and days of the week.
-        *
-        * This function is provided 'AS IS' and is therefore not liable for any damage
-        * caused to a system using it.
-        *
-        * This code may be used by anyone aslong as the header is kept and recognition
-        * given.
-        *
-        *
-        * @author Kenneth Brill
-        * @version 1.0
-        * #email kbrill@multi.com
-        */
-
-       $skip=0;
-       
-       echo "<select name=$datevar STYLE=\"font-family: monospace;\">\n";
-       echo "<option value=\"None\" $selected>$option</option>\n";
-       for ($i = 0; $i <= $size; $i++) {
-          $theday = mktime (0,0,0,date("m") ,date("d")+$i ,date("Y"));
-          $option=date("D M j, Y",$theday);
-          //$value=date("m:d:Y",$theday);
-          $value=date("Y-m-d",$theday);
-          $dow=date("D",$theday);
-          if ($dow=="Mon") {
-             echo "<option disabled>&nbsp;</option>\n";
-          }
-          if ($value == $default) {
-             $selected="SELECTED";
-          } else {
-             $selected="";
-          }
-          if (($dow!="Sun" and $dow!="Sat") or !$skip) {
-             echo '<option value="'.$value.'" '.$selected.' title="In '.$i.' days">'.$option.'</option>';
-          }
-       }
-       echo "</select>\n";
+function sqlparts($part,$config,$values)  {
+    //include correct SQL parts query library as chosen in config
+    switch ($config['dbtype']) {
+        case "frontbase":require("frontbaseparts.inc.php");
+        break;
+        case "msql":require("msqlparts.inc.php");
+        break;
+        case "mysql":require("mysqlparts.inc.php");
+        break;
+        case "mssql":require("mssqlparts.inc.php");
+        break;
+        case "postgres":require("postgresparts.inc.php");
+        break;
+        case "sqlite":require("sqliteparts.inc.php");
+        break;
+        }
+    $queryfragment = $sqlparts[$part];
+    return $queryfragment;
     }
 
-/* DEPRECIATED
-    function getNextActions(){
-
-       // Get all next actions, distinguishing between regular actions and 
-        // next actions.
-        // Argument:
-        //      none
-        // Return:
-        // list: associative array with two elements
-        //       n: count of next actions
-        //       result: mysql result object 
-        //
-        $query = "SELECT nextaction  FROM nextactions";
-        $result = mysql_query($query) or die ("Error in query");
-        $nr=mysql_numrows($result);
-        $list['n']=$nr;
-        $list['result']=$result;
-        return $list;
-    }
-*/
-
-/* DEPRECIATED
-    function getActions(){
-        // Get all (completed and pending) of the next actions 
-        // Argument:
-        //   none
-        // Return:
-        // list: associative array with two elements
-        //       n: count of next actions
-        //       result: mysql result object 
-        $query = "SELECT itemattributes.itemid FROM itemattributes WHERE type = 'a'";
-        $result = mysql_query($query) or die ("Error in query");
-        $nr=mysql_numrows($result);
-        $list['n']=$nr;
-        $list['result']=$result;
-        return $list;
+function categoryselectbox($config,$values,$options,$sort) {
+    $result = query("categoryselectbox",$config,$values,$options,$sort);
+    $cashtml="";
+    foreach($result as $row) {
+        $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+        if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
+        $cashtml .= '>'.stripslashes($row['category'])."</option>\n";
+        }
+    return $cashtml;
     }
 
-*/
-
-    function getCompletedNextActions(){
-    $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-    mysql_select_db($config['db']) or die ("Unable to select database!");
-
-        // Get completed next actions 
-        // Argument:
-        //   none
-        // Return:
-        // list: associative array with two elements
-        //       n: count of next actions
-        //       result: mysql result object 
-        $result = mysql_query("SELECT itemstatus.itemId FROM itemstatus, itemattributes 
-				WHERE itemattributes.itemId=itemstatus.itemId AND itemattributes.type='a' AND dateCompleted >0");
-        $nr=mysql_numrows($result);
-        $list['n']=$nr;
-        $list['result']=$result;
-        return $list;
+function contextselectbox($config,$values,$options,$sort) {
+    $result = query("spacecontextselectbox",$config,$values,$options,$sort);
+    $cshtml="";
+    foreach($result as $row) {
+        $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+        if($row['contextId']==$values['contextId']) $cshtml .= ' SELECTED';
+        $cshtml .= '>'.stripslashes($row['name'])."</option>\n";
+        }
+    return $cshtml;
     }
 
-
-    function getNumberOfAllNextActions(){
-        // Get the number of all next actions (completed and pending)
-        // Argument:
-        //  none
-        // Return:
-        //  n: integer
-        $result=getAllNextActions();
-        return $result['n'];
+function timecontextselectbox($config,$values,$options,$sort) {
+    $result = query("timecontextselectbox",$config,$values,$options,$sort);
+    $tshtml="";
+    foreach($result as $row) {
+        $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+        if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' SELECTED';
+        $tshtml .= '>'.stripslashes($row['timeframe'])."</option>\n";
+        }
+    return $tshtml;
     }
 
-    function getNumberOfNextActions(){
-        // Get the number of pending next actions 
-        // Argument:
-        //  none
-        // Return:
-        //  n: integer
-        $result=getNextActions();
-        return $result['n'];
+function projectselectbox($config,$values,$options,$sort) {
+    $result = query("projectselectbox",$config,$values,$options,$sort);
+    $pshtml="";
+    foreach($result as $row) {
+        $pshtml .= '                    <option value="'.$row['projectId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+        if($row['projectId']==$values['projectId']) $pshtml .= ' SELECTED';
+        $pshtml .= '>'.stripslashes($row['name'])."</option>\n";
+        }
+    return $pshtml;
     }
 
-    function getNumberOfActions(){
-        // Get the number of pending  actions 
-        // Argument:
-        //  none
-        // Return:
-        //  n: integer count of all actions (next and regular) that are 
-        //  pending.
-        $result=getActions();
-        $ntotal=$result['n'];
-        $result=getCompletedNextActions();
-        $ncomp=$result['n'];
-        $npending = $ntotal-$ncomp;
-        return $npending;
+function checklistselectbox($config,$values,$options,$sort) {
+    $result = query("checklistselectbox",$config,$values,$options,$sort);
+    $cshtml="";
+    foreach($result as $row) {
+        $cshtml .= '                    <option value="'.$row['checklistId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+        if($row['checklistId']==$values['checklistId']) $cshtml .= ' SELECTED';
+        $cshtml .= '>'.stripslashes($row['title'])."</option>\n";
+        }
+    return $cshtml;
     }
 
-    function getProjectTitle($projectId){
-    $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-    mysql_select_db($config['db']) or die ("Unable to select database!");
-
-        // Get the title of a project
-        // Argument:
-        //  projectId: int project id 
-        // Return:
-        //  projectTitle: string
-        $query="select name from projects where projectId='$projectId'";
-        $result=mysql_query($query) or die ("Error in query");
-        $row=mysql_fetch_row($result);
-        $projectTitle=stripslashes($row[0]);
-        return $projectTitle;
+function listselectbox($config,$values,$options,$sort) {
+    $result = query("listselectbox",$config,$values,$options,$sort);
+    $lshtml="";
+    foreach($result as $row) {
+        $lshtml .= '                    <option value="'.$row['listId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+        if($row['listId']==$values['listId']) $lshtml .= ' SELECTED';
+        $lshtml .= '>'.stripslashes($row['title'])."</option>\n";
+        }
+    return $lshtml;
     }
-
-	function projectName($projectId){
-		// Get project name
-		// Argument:
-		//	projectId: int
-		// Return:
-		//	name: string
-		//	-1: if projectId not in result set not found
-		$projectRes = mysql_query("select * from projects");
-		$names = array();
-		$flag=1;
-		while($row = mysql_fetch_array($projectRes,MYSQL_ASSOC)){
-			$id = $row['projectId'];
-			$name = stripslashes($row['name']);
-			if($id==$projectId){
-				$flag = 0;
-				return $name;
-			}
-		}
-		return -1;
-	}
-
-	function nonext($projectId) {
-     $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-    mysql_select_db($config['db']) or die ("Unable to select database!");
-       
-		$query = "SELECT projectId, nextaction FROM nextactions WHERE projectId='$projectId'";
-		$result = mysql_query($query) or die ("Error in query: $query.  ".mysql_error());
-		if (mysql_num_rows($result)>0) $nonext="false";
-		else $nonext="true";
-		return $nonext;
-		}
-
-	function doquery($query){
-		$result = mysql_query($query); 
-       		if ($result) return $result;
-		else{
-			die ("Error in query: $query. MySQL Error: ".mysql_error());
-		}
-	}
-
-	function nothingFound($message, $prompt=NULL, $yeslink=NULL, $nolink="index.php"){
-		///Give user ability to create a new entry, or go back to the index.
-		echo "<h4>$message</h4>";
-		if($prompt){
-			echo $prompt;
-			echo "<a href=$yeslink> Yes </a><a href=$nolink>No</a>\n";
-		}
-	}
-
-        function sqlparts($part,$config,$values)  {
-            //include correct SQL parts query library as chosen in config
-            switch ($config['dbtype']) {
-                case "frontbase":require("frontbaseparts.inc.php");
-                break;
-                case "msql":require("msqlparts.inc.php");
-                break;
-                case "mysql":require("mysqlparts.inc.php");
-                break;
-                case "mssql":require("mssqlparts.inc.php");
-                break;
-                case "postgres":require("postgresparts.inc.php");
-                break;
-                case "sqlite":require("sqliteparts.inc.php");
-                break;
-                }
-            $queryfragment = $sqlparts[$part];
-            return $queryfragment;
-            }
-
-        function categoryselectbox($config,$values,$options,$sort) {
-            $result = query("categoryselectbox",$config,$values,$options,$sort);
-            $cashtml="";
-            foreach($result as $row) {
-                $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-                if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
-                $cashtml .= '>'.stripslashes($row['category'])."</option>\n";
-                }
-            return $cashtml;
-            }
-
-        function contextselectbox($config,$values,$options,$sort) {
-            $result = query("spacecontextselectbox",$config,$values,$options,$sort);
-            $cshtml="";
-            foreach($result as $row) {
-                $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-                if($row['contextId']==$values['contextId']) $cshtml .= ' SELECTED';
-                $cshtml .= '>'.stripslashes($row['name'])."</option>\n";
-                }
-            return $cshtml;
-            }
-
-        function timecontextselectbox($config,$values,$options,$sort) {
-            $result = query("timecontextselectbox",$config,$values,$options,$sort);
-            $tshtml="";
-            foreach($result as $row) {
-                $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-                if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' SELECTED';
-                $tshtml .= '>'.stripslashes($row['timeframe'])."</option>\n";
-                }
-            return $tshtml;
-            }
-
-        function projectselectbox($config,$values,$options,$sort) {
-            $result = query("projectselectbox",$config,$values,$options,$sort);
-            $pshtml="";
-            foreach($result as $row) {
-                $pshtml .= '                    <option value="'.$row['projectId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-                if($row['projectId']==$values['projectId']) $pshtml .= ' SELECTED';
-                $pshtml .= '>'.stripslashes($row['name'])."</option>\n";
-                }
-            return $pshtml;
-            }
-
-        function checklistselectbox($config,$values,$options,$sort) {
-            $result = query("checklistselectbox",$config,$values,$options,$sort);
-            $cshtml="";
-            foreach($result as $row) {
-                $cshtml .= '                    <option value="'.$row['checklistId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-                if($row['checklistId']==$values['checklistId']) $cshtml .= ' SELECTED';
-                $cshtml .= '>'.stripslashes($row['title'])."</option>\n";
-                }
-            return $cshtml;
-            }
-
-        function listselectbox($config,$values,$options,$sort) {
-            $result = query("listselectbox",$config,$values,$options,$sort);
-            $lshtml="";
-            foreach($result as $row) {
-                $lshtml .= '                    <option value="'.$row['listId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-                if($row['listId']==$values['listId']) $lshtml .= ' SELECTED';
-                $lshtml .= '>'.stripslashes($row['title'])."</option>\n";
-                }
-            return $lshtml;
-            }
 
 ?>

@@ -23,7 +23,6 @@
 
 	echo "New goal inserted with ID ".mysql_insert_id();
 
-	mysql_close($connection);
 	include_once('footer.php');
 
 ?>

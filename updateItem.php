@@ -28,25 +28,20 @@ if($values['delete']=="y"){
     query("deleteitemattributes",$config,$values);
     query("deleteitem",$config,$values);
 
-        echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$values['projectId'].'" />';
-//        echo "<p>Number of Records Deleted: ";
-//        echo mysql_affected_rows();
-	if ($values['nextAction']=='y') query("deletenextaction",$config,$values);
-	}
+    echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$values['projectId'].'" />';
+    if ($values['nextAction']=='y') query("deletenextaction",$config,$values);
+    }
 
 else {
-//        $projectTitle=getProjectTitle($projectId);
-
     query("updateitemstatus",$config,$values);
     query("updateitemattributes",$config,$values);
     query("updateitem",$config,$values);
 
-	if ($values['nextAction']=='y' && ($values['dateCompleted']==NULL || $values['dateCompleted']=="0000-00-00")) query("updatenextaction",$config,$values);
-        else query("deletenextaction",$config,$values);
+    if ($values['nextAction']=='y' && ($values['dateCompleted']==NULL || $values['dateCompleted']=="0000-00-00")) query("updatenextaction",$config,$values);
+    else query("deletenextaction",$config,$values);
 
-        echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$values['projectId'].'" />';
-	}
+    echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$values['projectId'].'" />';
+    }
 
-mysql_close($connection);
 include_once('footer.php');
 ?>

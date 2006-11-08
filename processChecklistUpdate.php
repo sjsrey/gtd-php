@@ -19,6 +19,7 @@ if ((isset($values['checkedClis']))&&($values['clear']!="y")) {
 	}
 
 echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=checklistReport.php?checklistId='.$values['checklistId'].'">';
+
 include_once('footer.php');
 ?>
 

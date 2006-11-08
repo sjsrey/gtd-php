@@ -47,11 +47,9 @@ if (mysql_num_rows($result) > 0){
 	</div>
 
 <?php
-	}
-	else{
-		echo "No rows found!\n";
-	}
-	mysql_free_result($result);
-	mysql_close($connection);
-	include_once('footer.php');
+    }
+
+else echo "No rows found!\n";
+
+include_once('footer.php');
 ?>
