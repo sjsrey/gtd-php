@@ -8,7 +8,7 @@
 	//select note details
 	if ($values['noteId']>0) {
             $result = query("selectnote",$config,$values,$sort,$options);
-	    if ($result['status']!=-1) $currentrow = $result[0];
+	    if ($result!=-1) $currentrow = $result[0];
             else echo "Nothing found.";
             }
 

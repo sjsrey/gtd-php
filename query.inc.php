@@ -84,10 +84,10 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
                 $ii++;
                 }
             }
-        else $result['status']="-1";
+        else $result="-1";
 
         //get last autoincrement insert id--only valid for insert statements using autoincrement values; not updated when explicit value given for autoincrement field (MySQL "feature")
-        $result['lastinsertid'] = mysql_insert_id();
+        $GLOBALS['lastinsertid'] = mysql_insert_id();
 
         //always included; text/codes shown in errors on individual pages as warranted...
         $GLOBALS['ecode'] = mysql_errno();

@@ -37,7 +37,7 @@ if(isset($values['completedProj'])){
 
             //copy data to projects tables with new id
             $result=query("newproject",$config,$values,$options,$sort);
-            $values['newprojectId'] = $result['lastinsertid'];
+            $values['newprojectId'] = $GLOBALS['lastinsertid'];
             $result=query("newprojectattributes",$config,$values,$options,$sort);
             $result=query("newprojectstatus",$config,$values,$options,$sort);
             }

@@ -5,7 +5,7 @@
 
     $result = query("selectlist",$config,$values,$options,$sort);
 
-    if ($result['status']!="-1") {
+    if ($result!="-1") {
         $row=$result[0];
 
 	echo "<h1>List Report: ".$row['title']."</h1>\n";
@@ -19,7 +19,7 @@
         $values['filterquery']= sqlparts("activelistitems",$config,$values);
         $result=query("getlistitems",$config,$values,$options,$sort);
 
-	if ($result['status']!="-1") {
+	if ($result!="-1") {
 		$counter=0;
 
 		echo "<table class='datatable'>\n";

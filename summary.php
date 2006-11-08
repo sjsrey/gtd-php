@@ -24,7 +24,7 @@ include_once('header.php');
         $values['isSomeday'] = "y";
         // sr debugging kludge
         $numbersomedayq = query("countactiveprojects",$config,$values);
-        if($numbersomedayq['status']=='-1'){
+        if($numbersomedayq=='-1'){
            //create a new array 
            $numbersomeday[0]['nprojects']="";
         }else{
@@ -36,8 +36,8 @@ include_once('header.php');
  
 //set empty database counts to zero
     if($numbercontexts[0]['ncontexts']=="") $numbercontexts[0]['ncontexts']="0";
-    if($numberprojects[0]['nprojects']=="" || $pres['status']=="-1") $numberprojects[0]['nprojects']="0";
-    if($numbersomeday[0]['nprojects']=="" || $sm['status']=="-1") $numbersomeday[0]['nprojects']="0";
+    if($numberprojects[0]['nprojects']=="" || $pres=="-1") $numberprojects[0]['nprojects']="0";
+    if($numbersomeday[0]['nprojects']=="" || $sm=="-1") $numbersomeday[0]['nprojects']="0";
     if($numberitems[0]['nitems']=="") $numberitems[0]['nitems']="0";
     if($numbernextactions[0]['nnextactions']=="") $numbernextactions[0]['nnextactions']="0";
 
@@ -64,7 +64,7 @@ include_once('header.php');
 
 	$i=0;
 	$w1=$numberprojects[0]['nprojects']/3;
-        if ($pres['status']!=-1) {
+        if ($pres!=-1) {
 	foreach($pres as $row) {
 		if($i < $w1){
 			$c1[]=stripslashes($row['name']);
@@ -88,7 +88,7 @@ include_once('header.php');
 //Somedays
 	$i=0;
         $w2=$numbersomeday[0]['nprojects']/3;
-        if ($sm['status']!=-1) {
+        if ($sm!=-1) {
 	foreach($sm as $row) {
                 if($i < $w2){
                         $d1[]=stripslashes($row['name']);

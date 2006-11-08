@@ -15,7 +15,7 @@ $values['checklistId'] = (int) $_GET['checklistId'];
 
 //SQL CODE
 $result = query("selectchecklist",$config,$values,$options,$sort);
-if ($result['status']!="-1") $row=$result[0];
+if ($result!="-1") $row=$result[0];
 
 $result= query("getchecklistitems",$config,$values,$options,$sort);
 
@@ -26,7 +26,7 @@ echo '[ <a href="editChecklist.php?checklistId='.$row['checklistId'].'&checklist
 echo "<br />\n";
 echo '<h2><a href = "newChecklistItem.php?checklistId='.$row['checklistId'].'" style="text-decoration:none">Checklist Items</a></h2>'."\n";
 
-if ($result['status']!="-1") {
+if ($result!="-1") {
         echo "<table class='datatable'>\n";
         echo "	<thead>\n";
         echo "		<td>Item</td>\n";
