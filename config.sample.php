@@ -32,7 +32,6 @@
             "listselectbox"         => "`list`.`title` ASC",
             "projectselectbox"      => "`projects`.`name` ASC",
             "timecontextselectbox"  => "`timeitems`.`timeframe` DESC",
-            "selectproject"         => "`projects`.`name` ASC",
             "getprojects"           => "`categories`.`category`, `projectattributes`.`deadline`, `projects`.`name` ASC",
             "getlistitems"          => "`listItems`.`item` ASC",
             "getcompleteditems"     => "`itemstatus`.`dateCompleted` DESC, `projects`.`name`, `items`.`title` ASC",

@@ -29,7 +29,7 @@ include_once('header.php');
 	foreach($result as $row) {
             $values['projectId']=$row['projectId'];
             $nonext=query("selectnextaction",$config,$values);
-		if ($nonext=="-1") {
+		if ($nonext['status']=="-1") {
                     echo '			<li><a href="projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).'  project report">'.stripslashes($row['name'])."</a></li>\n";
 	       $counter++;
                 } 

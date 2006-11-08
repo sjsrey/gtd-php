@@ -26,6 +26,10 @@ if (!isset($title)) die ("No title. Item NOT added.");
 
 //Insert new record
 
+
+
+
+
 $addquery = "INSERT INTO `items` (title,description) VALUES ('$title','$description')";
 	$addresult = mysql_query($addquery) or die ("Error in query.");
 	//Retrieve autoincrement value for itemId

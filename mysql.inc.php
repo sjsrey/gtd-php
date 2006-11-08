@@ -38,6 +38,7 @@ $sql = array(
         "categoryselectbox"         => "SELECT `categories`.`categoryId`, `categories`.`category`, `categories`.`description` FROM `categories` ORDER BY {$sort['categoryselectbox']}",
         "checklistselectbox"        => "SELECT `checklist`.`checklistId`, `checklist`.`title`, `checklist`.`description`, `checklist`.`categoryId`, `categories`.`category` FROM `checklist`, `categories` WHERE `checklist`.`categoryId`=`categories`.`categoryId` ORDER BY {$sort['checklistselectbox']}",
         "completelistitem"          => "UPDATE `listItems` SET `dateCompleted`='{$values['date']}' WHERE `listItemId`='{$values['completedLi']}'",
+        "completeproject"              =>"UPDATE `projectstatus` SET `dateCompleted`='{$values['date']}' WHERE `projectId`='{$values['completedPr']}'",
         "countactiveitems"          => "SELECT `type`, COUNT(*) AS nitems FROM `itemattributes`, `itemstatus` WHERE `itemattributes`.`itemId`=`itemstatus`.`itemId` AND (`itemstatus`.`datecompleted`='0000-00-00' OR `itemstatus`.`datecompleted` IS NULL) GROUP BY `type`",
         "countactiveprojects"       => "SELECT `isSomeday`, COUNT(*) AS nprojects FROM `projectattributes`, `projectstatus` WHERE `projectattributes`.`projectId`=`projectstatus`.`projectId` AND `projectattributes`.`isSomeday`='{$values['isSomeday']}' AND (`projectstatus`.`datecompleted`='0000-00-00' OR `projectstatus`.`datecompleted` IS NULL) GROUP BY isSomeday",
         "countnextactions"          => "SELECT COUNT(`nextaction`) AS nnextactions FROM `nextactions`",
@@ -75,6 +76,9 @@ $sql = array(
         "newlist"                   => "INSERT INTO `list` VALUES (NULL, '{$values['title']}', '{$values['categoryId']}', '{$values['description']}')",
         "newlistitem"               => "INSERT INTO `listItems` VALUES (NULL, '{$values['item']}', '{$values['notes']}', '{$values['listId']}', 'n')",
         "newnote"                   => "INSERT INTO `tickler` (date,title,note) VALUES ('{$values['date']}','{$values['title']}','{$values['note']}')",
+        "newproject"                => "INSERT INTO `projects` (`name`,`description`,`desiredOutcome`) VALUES ('{$values['name']}','{$values['description']}','{$values['desiredOutcome']}')",
+        "newprojectattributes"      => "INSERT INTO `projectattributes` (`projectId`,`categoryId`,`isSomeday`,`deadline`,`repeat`,`suppress`,`suppressUntil`) VALUES ('{$values['newprojectId']}','{$values['categoryId']}','{$values['isSomeday']}','{$values['deadline']}','{$values['repeat']}','{$values['suppress']}','{$values['suppressUntil']}')",
+        "newprojectstatus"          => "INSERT INTO `projectstatus` (`projectId`,`dateCreated`) VALUES ('{$values['newprojectId']}',CURRENT_DATE)",
         "newspacecontext"           => "INSERT INTO `context`  VALUES (NULL, '{$values['name']}', '{$values['description']}')",
         "newtimecontext"            => "INSERT INTO `timeitems`  VALUES (NULL, '{$values['name']}', '{$values['description']}')",
         "projectselectbox"          => "SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`description` FROM `projects`, `projectattributes`, `projectstatus` WHERE `projectattributes`.`projectId`=`projects`.`projectId` AND `projectstatus`.`projectId`=`projects`.`projectId` AND (`projectstatus`.`dateCompleted` IS NULL OR `projectstatus`.`dateCompleted` = '0000-00-00') AND `projectattributes`.`isSomeday`='{$values['isSomeday']}' ORDER BY {$sort['projectselectbox']}",
@@ -95,10 +99,11 @@ $sql = array(
         "selectlistitem"            => "SELECT `listItems`.`listItemId`, `listItems`.`item`, `listItems`.`notes`, `listItems`.`listId`, `listItems`.`dateCompleted` FROM `listItems` WHERE `listItems`.`listItemId` = {$values['listItemId']}",
         "selectnextaction"          => "SELECT `nextactions`.`projectId`, `nextactions`.`nextaction` FROM `nextactions` WHERE `nextactions`.`projectId` = '{$values['projectId']}'",
         "selectnote"                => "SELECT `tickler`.`ticklerId`, `tickler`.`title`, `tickler`.`note`, `tickler`.`date` FROM `tickler` WHERE `tickler`.`ticklerId` = '{$values['noteId']}'",
-        "selectproject"            => "SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`description`, `projectattributes`.`categoryId`, `categories`.`category`, `projectattributes`.`deadline`, `projectattributes`.`repeat`, `projectattributes`.`suppress`, `projectattributes`.`suppressUntil`, `projects`.`desiredOutcome`, `projectstatus`.`dateCreated`, `projectstatus`.`dateCompleted`, `projectstatus`.`lastModified`, `projectattributes`.`isSomeday` FROM `projects`, `projectattributes`, `projectstatus`, `categories` WHERE `projectattributes`.`projectId`=`projects`.`projectId` AND `projectattributes`.`categoryId`=`categories`.`categoryId` AND `projectstatus`.`projectId`=`projects`.`projectId`  AND `projects`.`projectId` = '{$values['projectId']}' ORDER BY {$sort['selectproject']}",
+        "selectproject"            => "SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`description`, `projectattributes`.`categoryId`, `categories`.`category`, `projectattributes`.`deadline`, `projectattributes`.`repeat`, `projectattributes`.`suppress`, `projectattributes`.`suppressUntil`, `projects`.`desiredOutcome`, `projectstatus`.`dateCreated`, `projectstatus`.`dateCompleted`, `projectstatus`.`lastModified`, `projectattributes`.`isSomeday` FROM `projects`, `projectattributes`, `projectstatus`, `categories` WHERE `projectattributes`.`projectId`=`projects`.`projectId` AND `projectattributes`.`categoryId`=`categories`.`categoryId` AND `projectstatus`.`projectId`=`projects`.`projectId`  AND `projects`.`projectId` = '{$values['projectId']}'",
         "selecttimecontext"          =>"SELECT `timeitems`.`timeframeId`, `timeitems`.`timeframe`, `timeitems`.`description` FROM `timeitems` WHERE `timeitems`.`timeframeId` = '{$values['tcId']}'",
         "spacecontextselectbox"     => "SELECT `contextId`, `name`, `description` FROM `context` ORDER BY {$sort['spacecontextselectbox']}",
         "testnextaction"            => "SELECT `projectId`, `nextaction` FROM `nextactions` WHERE `nextaction`='{$values['itemId']}'",
+        "testprojectrepeat"              =>"SELECT `projectattributes`.`repeat` FROM `projectattributes` WHERE `projectattributes`.`projectId`='{$values['completedPr']}'",
         "timecontextselectbox"      => "SELECT `timeframeId`, `timeframe`, `description` FROM `timeitems` ORDER BY {$sort['timecontextselectbox']}",
         "updatecategory"            => "UPDATE `categories` SET `category` ='{$values['category']}', `description` ='{$values['description']}' WHERE `categoryId` ='{$values['categoryId']}'",
         "updatechecklist"           => "UPDATE `checklist` SET `title` = '{$values['newchecklistTitle']}', `description` = '{$values['newdescription']}', `categoryId` = '{$values['newcategoryId']}' WHERE `checklistId` ='{$values['checklistId']}'",
@@ -185,12 +190,9 @@ $query=>"SELECT `projects`.`projectId`, `projects`.`name`, `projects`.`descripti
 
 
 
-        "newproject"              =>"INSERT INTO projects (name,description,desiredOutcome) VALUES ('{$values['name']}','{$values['description']}','{$values['desiredOutcome']}')",
-        "newprojectattributes" =>"INSERT INTO projectattributes (`projectId`,categoryId,isSomeday,deadline,`repeat`,suppress,suppressUntil) VALUES ('{$values['projectId']}','{$values['categoryId']}','{$values['isSomeday']}','{$values['deadline']}','{$values['repeat']}','{$values['suppress']}','{$values['suppressUntil']}')",
-        "newprojectstatus" => "INSERT INTO projectstatus (`projectId`,dateCreated) VALUES ('{$values['projectId']}',CURRENT_DATE)",
 
-        "completeproject"              =>"UPDATE projectstatus SET dateCompleted='{$values['date']}' WHERE `projectId`='{$values['completedPr']}'",
-        "doesprojectrepeat"              =>"SELECT `projectattributes`.`repeat` FROM projectattributes WHERE projectattributes`.``projectId`='{$values['completedPr']}'",
+
+        
         "selectprojectbynextaction"              =>"SELECT `projectId`, nextaction FROM nextactions WHERE nextaction='{$values['itemId']}'",
         "selectprojectdetails"              =>"",
         "selectprojectname"              =>"SELECT name FROM projects WHERE `projectId`='{$values['projectId']}'",

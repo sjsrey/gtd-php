@@ -27,6 +27,12 @@ if ($categoryId<=0) die ("No category choosen. Project NOT added.");
 //Insert new record
 //don't forge null
 
+/*
+$result=query("newproject",$config,$values,$options,$sort);
+$result=query("newprojectattributes",$config,$values,$options,$sort);
+$result=query("newprojectstatus",$config,$values,$options,$sort);
+*/
+
 $addquery = "INSERT INTO projects (name,description,desiredOutcome) VALUES ('$name','$description','$desiredOutcome')";
         $addresult = mysql_query($addquery) or die ("Error in query");
         //Retrieve autoincrement value for projectId

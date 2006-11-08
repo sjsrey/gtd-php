@@ -16,7 +16,7 @@ else $pType="p";
 //select all nextactions for test
 $result = query("selectnextaction",$config,$values,$options,$sort);
 $nextactions = array();
-if ($result!="-1") {
+if ($result['status']!="-1") {
     $i=0;
     foreach ($result as $row) {
         $nextactions[$i] = $row['nextaction'];
@@ -98,7 +98,7 @@ foreach ($type as $value) {
 		$result = query("getitems",$config,$values,$options,$sort);
 	}
 	
-        if ($result != "-1") {
+        if ($result['status'] != "-1") {
 		$counter=0;
 		echo "<table class='datatable'>\n";
 		echo "	<thead>\n";
