@@ -15,7 +15,6 @@ if(isset($completedLis)){
 }
 
 echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listReport.php?listId='.$values['listId'].'">';
-mysql_close($connection);
 include_once('footer.php');
 ?>
 

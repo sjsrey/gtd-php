@@ -9,7 +9,6 @@ $values['referrer'] = $_POST['referrer']{0};
 $values['projectId'] = (int) $_GET['projectId'];
 $values['completedProj'] = $_POST['completedProj'];
 
-
 //SQL CODE
 if(isset($values['completedProj'])){
     $today=strtotime("now");
@@ -48,19 +47,19 @@ if(isset($values['completedProj'])){
     }
 
 if ($values['referrer']=="p") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=projectReport.php?projectId='.$values['projectId'].'">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$values['projectId'].'">';
 	}
 
 elseif ($values['referrer']=="l") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=listProjects.php?pType='.$values['type'].'&categoryId='.$values['categoryId'].'">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listProjects.php?pType='.$values['type'].'&categoryId='.$values['categoryId'].'">';
 	}
 
 elseif ($values['referrer']=="c") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=reportContext.php">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=reportContext.php">';
 	}
 
 elseif ($values['referrer']=="t") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="10; url=tickler.php">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=tickler.php">';
 	}
 
 mysql_close($connection);

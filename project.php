@@ -3,35 +3,29 @@
 include_once('header.php');
 
 //RETRIEVE URL VARIABLES
-$projectId =(int) $_GET["projectId"];
-$type = $_GET['type']{0};
+$values['projectId'] =(int) $_GET["projectId"];
+$values['type'] = $_GET['type']{0};
 
 //Get project details
-if ($projectId>0) {
-	$query= "SELECT projects.projectId, projects.name, projects.description, projects.desiredOutcome,
-		projectstatus.dateCreated, projectstatus.dateCompleted, projectattributes.categoryId, projectattributes.deadline,
-		projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil, projectattributes.isSomeday
-		FROM projects, projectattributes, projectstatus
-		WHERE projectstatus.projectId=projects.projectId and projectattributes.projectId=projects.projectId and
-		projects.projectId = '$projectId'";
-	$result = mysql_query($query) or die ("Error in query");
-	$row = mysql_fetch_assoc($result);
-	mysql_free_result($result);
-	if ($type=$row['isSomeday']=="y") $type='s';
-	else $type='p';
+if ($values['projectId']>0) {
+        $result = query("selectproject",$config,$values,$options,$sort);
+	$row = $result[0];
+	if ($values['type']=$row['isSomeday']=="y") $values['type']='s';
+	else $values['type']='p';
 	}
 
 //select all categories for dropdown list
-$cshtml=categoryselectbox($config,$values,$options,$sort);
+$values['categoryId'] = $row['categoryId'];
+$cashtml=categoryselectbox($config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 //determine project labels
-if ($type=="s") $typename="Someday/Maybe";
+if ($values['type']=="s") $typename="Someday/Maybe";
 else $typename="Project";
 
-if ($projectId>0) {
+if ($values['projectId']>0) {
 	echo "	<h2>Edit&nbsp;".$typename."</h2>\n";
-	echo '	<form action="updateProject.php?projectId='.$projectId.'" method="post">'."\n";
+	echo '	<form action="updateProject.php?projectId='.$values['projectId'].'" method="post">'."\n";
 }
 
 else {
@@ -47,9 +41,7 @@ else {
 			<div class='formrow'>
 				<label for='category' class='left first'>Category:</label>
 				<select name='categoryId' id='category'>
-<?php
-echo $cshtml;
-?>
+                                <?php echo $cashtml; ?>
 				</select>
 				<label for='deadline' class='left'>Deadline:</label>
 <?php
@@ -103,24 +95,24 @@ if ($row['dateCompleted']=="0000-00-00" || $row['dateCompleted']==NULL) {
 				<label for='repeat' class='left first'>Repeat every</label><input type='text' name='repeat' id='repeat' size='3' value='<?php echo $row['repeat'] ?>'><label for='repeat'>&nbsp;days</label>
 			</div>
 			<div class='formrow'>
-				<label for='suppress' class='left first'>Tickler:</label><input type='checkbox' name='suppress' id='suppress' value='y' <?php if ($row['suppress']=="y") echo "CHECKED "; ?>title='Hides this project from the active view'><label for='suppress'>Tickle&nbsp;</label>
+				<label for='suppress' class='left first'>Tickler:</label><input type='checkbox' name='suppress' id='suppress' value='y' <?php if ($row['suppress']=="y") echo "CHECKED "; ?>title='Puts this project in the tickler file, hiding from active view'><label for='suppress'>Tickle&nbsp;</label>
 				<input type='text' size='3' name='suppressUntil' id='suppressUntil' value='<?php echo $row['suppressUntil']; ?>'><label for='suppressUntil'>&nbsp;days before deadline</label>
 			</div>
 			<div class='formrow'>
-				<label for='someday' class='left first'>Someday:</label><input type='checkbox' name='isSomeday' id='someday' value='y' title='Places project in Someday file'<?php if ($type=='s') echo ' CHECKED';?>>
+				<label for='someday' class='left first'>Someday:</label><input type='checkbox' name='isSomeday' id='someday' value='y' title='Places project in Someday file'<?php if ($values['type']=='s') echo ' CHECKED';?>>
 			</div>
 
 		</div> <!-- form -->
 		<div class='formbuttons'>
-			<input type="hidden" name="type" value="<?php echo $type; ?>" />
+			<input type="hidden" name="type" value="<?php echo $values['type']; ?>" />
 <?php
-if ($projectId>0) {
+if ($values['projectId']>0) {
 	echo '			<input type="submit" class="button" value="Update '.$typename.'" name="submit">'."\n";
 	echo "			<input type='checkbox' name='delete' id='delete' value='y' title='Deletes project and ALL associated items'><label for='delete'>&nbsp;Delete&nbsp;Project</label>\n";
 } else echo '			<input type="submit" class="button" value="Add '.$typename.'" name="submit">'."\n";
 ?>
 		</div>
-<?php if ($projectId>0) { ?>
+<?php if ($values['projectId']>0) { ?>
 		<div class='project2'>
 			<span class='detail'>Date Added: <?php echo $row['dateCreated']; ?></span>
 			<span class='detail'>Last Modified: <?php echo $row['lastModified']; ?></span>
@@ -132,3 +124,4 @@ if ($projectId>0) {
 <?php
 include_once('footer.php');
 ?>
+2

@@ -27,18 +27,22 @@ eventually sessions/cookies
 */
 
 //GENERAL RULES:
-//"Select" = query for something by its id
-//"Get" = query for something of a particular type
+//"select" = query for something by its id; a single-row result
+//"get" = query for something of a particular type; a multi-row result
 //"new", "update", "delete" are self-explanatory
+//"check"="complete" for checklistselectbox
+//"complete" = set status to completed
 //"remove" = remove by association Id (items associated with a project, etc)
-//"Count" = count of a particular types
+//"Count" = # of a particular type in table
 //"selectbox" = get results to create a selectbox- for assignment or filter
 
 $sql = array(
         "categoryselectbox"         => "SELECT `categories`.`categoryId`, `categories`.`category`, `categories`.`description` FROM `categories` ORDER BY {$sort['categoryselectbox']}",
+        "checkchecklistitem"        => "UPDATE `checklistItems` SET `checked` = 'y' WHERE `checklistItemId`='{$values['Cli']}'",
         "checklistselectbox"        => "SELECT `checklist`.`checklistId`, `checklist`.`title`, `checklist`.`description`, `checklist`.`categoryId`, `categories`.`category` FROM `checklist`, `categories` WHERE `checklist`.`categoryId`=`categories`.`categoryId` ORDER BY {$sort['checklistselectbox']}",
+        "clearchecklist"            => "UPDATE `checklistItems` SET `checked` = 'n' WHERE `checklistId` = '{$values['checklistId']}'",
         "completelistitem"          => "UPDATE `listItems` SET `dateCompleted`='{$values['date']}' WHERE `listItemId`='{$values['completedLi']}'",
-        "completeproject"              =>"UPDATE `projectstatus` SET `dateCompleted`='{$values['date']}' WHERE `projectId`='{$values['completedPr']}'",
+        "completeproject"           => "UPDATE `projectstatus` SET `dateCompleted`='{$values['date']}' WHERE `projectId`='{$values['completedPr']}'",
         "countactiveitems"          => "SELECT `type`, COUNT(*) AS nitems FROM `itemattributes`, `itemstatus` WHERE `itemattributes`.`itemId`=`itemstatus`.`itemId` AND (`itemstatus`.`datecompleted`='0000-00-00' OR `itemstatus`.`datecompleted` IS NULL) GROUP BY `type`",
         "countactiveprojects"       => "SELECT `isSomeday`, COUNT(*) AS nprojects FROM `projectattributes`, `projectstatus` WHERE `projectattributes`.`projectId`=`projectstatus`.`projectId` AND `projectattributes`.`isSomeday`='{$values['isSomeday']}' AND (`projectstatus`.`datecompleted`='0000-00-00' OR `projectstatus`.`datecompleted` IS NULL) GROUP BY isSomeday",
         "countnextactions"          => "SELECT COUNT(`nextaction`) AS nnextactions FROM `nextactions`",
