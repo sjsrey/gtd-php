@@ -92,7 +92,6 @@ if ($values['timeframeId'] != NULL && $values['nottimecontext']=="true") $values
 //Get items for display
 $values['filterquery'] .= sqlparts("typefilter",$config,$values);
 $values['filterquery'] .= sqlparts("issomeday",$config,$values);
-$values['filterquery'] .= sqlparts("activeitems",$config,$values);
 $values['filterquery'] .= sqlparts("activeitemsinproject",$config,$values);
 $result = query("getitems",$config,$values,$options,$sort);
 
