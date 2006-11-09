@@ -67,13 +67,14 @@ $tshtml=timecontextselectbox($config,$values,$options,$sort);
 //select all nextactions for test
 $result = query("getnextactions",$config,$values,$options,$sort);
 
+$nextactions = array();
 if ($result!="-1") {
+    $i=0;
     foreach ($result as $row) {
-    //populates $nextactions with itemIds using projectId as key
-        $nextactions[$row['projectId']] = $row['nextaction'];
+        $nextactions[$i] = $row['nextaction'];
+        $i++;
         }
     }
-else $nextactions[0] = NULL;
 
 //Select items
 
