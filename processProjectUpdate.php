@@ -29,7 +29,6 @@ if(isset($values['completedProj'])){
             $values['desiredOutcome']=$copyresult[0]['desiredOutcome'];
             $values['categoryId']=$copyresult[0]['categoryId'];
             $values['isSomeday']=$copyresult[0]['isSomeday'];
-            $values['deadline']=$copyresult[0]['deadline'];
             $values['repeat']=$copyresult[0]['repeat'];
             $values['suppress']=$copyresult[0]['suppress'];
             $values['suppressUntil']=$copyresult[0]['suppressUntil'];
@@ -37,6 +36,7 @@ if(isset($values['completedProj'])){
             //copy data to projects tables with new id
             $result=query("newproject",$config,$values,$options,$sort);
             $values['newprojectId'] = $GLOBALS['lastinsertid'];
+            $values['deadline']=$values['nextduedate'];
             $result=query("newprojectattributes",$config,$values,$options,$sort);
             $result=query("newprojectstatus",$config,$values,$options,$sort);
             }

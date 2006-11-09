@@ -3,124 +3,99 @@
 include_once('header.php');
 
 //GET URL VARIABLES
-$itemId = (int) $_GET['itemId'];
+$values['itemId'] = (int) $_GET['itemId'];
 
 //GET FORM VARIABLES
-$contextId=(int) $_POST['contextId'];
-$type=$_POST['type']{0};
-$referrer=$_POST['referrer']{0};
-$projectId=(int) $_GET['projectId'];
-$timeId=(int) $_POST['timeId'];
-$completedNas = $_POST['completedNas'];
-$isNext = (int) $_POST['isNext'];
+$values['contextId']=(int) $_POST['contextId'];
+$values['type']=$_POST['type']{0};
+$values['referrer']=$_POST['referrer']{0};
+$values['projectId']=(int) $_GET['projectId'];
+$values['timeId']=(int) $_POST['timeId'];
+$values['completedNas'] = $_POST['completedNas'];
+$values['isNext'] = (int) $_POST['isNext'];
 
 //Check if Session Variables Should be Updated
-if ($_GET['contextId']>0) $contextId=(int) $_GET['contextId'];
-else $contextId=(int) $_POST['contextId'];
-if ($contextId>0) $_SESSION['contextId']=$contextId;
-if ($_GET['categoryId']>0) $categoryId=(int) $_GET['categoryId'];
-else $categoryId=(int) $_POST['categoryId'];
-
-if ($categoryId>0) $_SESSION['categoryId']=$categoryId;
-else $categoryId=$_SESSION['categoryId'];
-
-
+if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
+else $values['contextId']=(int) $_POST['contextId'];
+if ($values['contextId']>0) $_SESSION['contextId']=$values['contextId'];
+if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
+else $values['categoryId']=(int) $_POST['categoryId'];
+if ($values['categoryId']>0) $_SESSION['categoryId']=$values['categoryId'];
+else $values['categoryId']=$_SESSION['categoryId'];
 
 //SQL CODE
+if(isset($values['completedNas'])){
+    $today=strtotime("now");
+    $values['date']=date('Y-m-d');
+    foreach ($values['completedNas'] as $values['completedNa']) {
 
-if(isset($completedNas)){
-	$today=strtotime("now");
-	$date=date('Y-m-d');
-    foreach ($completedNas as $completedNa) {
-                //echo "Updating item: ";
-                //echo $completedNa.'<br>';
+    //test to see if action is repeating
+        $testrow = query("testitemrepeat",$config,$values);
+        //if repeating, copy result row to new row (new action) with updated due date
+        if ($testrow[0]['repeat']!=0) {
+            $nextdue=strtotime("+".$testrow[0]['repeat']."day");
+            $values['nextduedate']=gmdate("Y-m-d", $nextdue);
+            $values['itemId']=$values['completedNa'];
 
-//test to see if action is repeating
-		$testquery = "SELECT itemattributes.repeat FROM itemattributes WHERE itemattributes.itemId='$completedNa'";
-		$testresult = mysql_query($testquery) or die ("Error in query");
-		$testrow = mysql_fetch_assoc($testresult);
+            //retrieve item details
+            $copyresult = query("selectitem",$config,$values,$options,$sort);
+            $values['projectId']=$copyresult[0]['projectId'];
+            $values['contextId']=$copyresult[0]['contextId'];
+            $values['timeframeId']=$copyresult[0]['timeframeId'];
+            $values['type']=$copyresult[0]['type'];
+            $values['title']=$copyresult[0]['title'];
+            $values['description']=$copyresult[0]['description'];
+            $values['categoryId']=$copyresult[0]['categoryId'];
+            $values['isSomeday']=$copyresult[0]['isSomeday'];
+            $values['repeat']=$copyresult[0]['repeat'];
+            $values['suppress']=$copyresult[0]['suppress'];
+            $values['suppressUntil']=$copyresult[0]['suppressUntil'];
 
-//if repeating, copy result row to new row (new action) with updated due date
+            //copy data to projects tables with new id
+            $result=query("newitem",$config,$values,$options,$sort);
+            $values['newitemId'] = $GLOBALS['lastinsertid'];
+            $values['deadline']=$values['nextduedate'];
+            $result=query("newitemattributes",$config,$values,$options,$sort);
+            $result=query("newitemstatus",$config,$values,$options,$sort);
 
-		if ($testrow['repeat']!=0) {
-
-			$nextdue=strtotime("+".$testrow['repeat']."day");
-			$nextduedate=gmdate("Y-m-d", $nextdue);
-
-			//retrieve item details
-			$copyquery = "SELECT items.title, items.description FROM items WHERE items.itemId='$completedNa'";
-			$copyresult = mysql_query($copyquery) or die ("Error in query");
-			$copyitem = mysql_fetch_assoc($copyresult);
-
-			//copy data to items table with new id
-			$addquery = "INSERT INTO `items` (title,description) VALUES ('".addslashes(stripslashes($copyitem['title']))."','".addslashes(stripslashes($copyitem['description']))."')";
-			$addresult = mysql_query($addquery) or die ("Error in query");
-			$newitemId = mysql_insert_id();
-
-			//retrieve item attributes
-			$copyquery = "SELECT itemattributes.projectId, itemattributes.contextId, itemattributes.timeframeId,
-					itemattributes.deadline, itemattributes.repeat, itemattributes.suppress, itemattributes.suppressUntil
-					FROM itemattributes WHERE itemattributes.itemId='$completedNa'";
-			$copyresult = mysql_query($copyquery) or die ("Error in query");
-			$copyattributes = mysql_fetch_assoc($copyresult);
-
-			//copy data to itemattributes table with newid and new due date
-			$addquery = "INSERT INTO `itemattributes` (itemId,projectId,contextId,timeframeId,deadline,`repeat`,suppress,suppressUntil) VALUES ('$newitemId','".$copyattributes['projectId']."','".$copyattributes['contextId']."','".$copyattributes['timeframeId']."','$nextduedate','".$copyattributes['repeat']."','".$copyattributes['suppress']."','".$copyattributes['suppressUntil']."')";
-			$addresult = mysql_query($addquery) or die ("Error in query:");
-
-			//add newid to itemstatus table
-			$addquery = "INSERT INTO `itemstatus` (itemId,dateCreated) VALUES ('$newitemId','$date')";
-			$addresult = mysql_query($addquery) or die ("Error in query");
-
-			//test to see if item is a nextaction
-			$copyquery = "SELECT projectId, nextaction FROM nextactions WHERE nextaction='$completedNa'";
-			$copyresult = mysql_query($copyquery) or die ("Error in query");
-			$nextactiontest = mysql_fetch_assoc($copyresult);
-
-			//update nextactions list with new itemId if nextaction (may want to set user option for this later)
-			if ($nextactiontest['nextaction']==$completedNa) {
-				$query = "INSERT INTO nextactions (projectId,nextAction) VALUES ('".$copyattributes['projectId']."','$newitemId')
-       	 	        		ON DUPLICATE KEY UPDATE nextaction='$newitemId'";
-        			$result = mysql_query($query) or die ("Error in query");
+            //test to see if item is a nextaction
+            $nextactiontest=query("testnextaction",$config,$values);
+            //update nextactions list with new itemId if nextaction (may want to set user option for this later)
+            if ($nextactiontest[0]['nextaction']==$values['completedNa']) $result = query("copynextaction",$config,$values);
             }
-        }
-		//in either case, set original row completed
-        $query= "UPDATE itemstatus SET dateCompleted='$date' where itemId='$completedNa'";
-        $result = mysql_query($query) or die ("Error in query");
 
-		//remove original row from nextActions list
-        $query= "DELETE FROM nextactions WHERE nextAction='$completedNa'";
-        $result = mysql_query($query) or die ("Error in query");
-   }    
-}
+        //in either case, set original row completed
+        $result = query("completeitem",$config,$values);
+    
+        //remove original row from nextActions list
+        $result = query("deletenextaction",$config,$values);
+        } 
+    }
 
 // Check on user radio button reset of next action 
-if (isset($isNext)){
+if (isset($values['isNext'])){
+    $values['itemId'] = $values['isNext'];
+    $result = query("updatenextaction",$config,$values);
+    }
 
-   $query = "INSERT INTO nextactions (projectId,nextAction) VALUES ('$projectId','$isNext')
-       	 	        		ON DUPLICATE KEY UPDATE nextaction='$isNext'";
-   $result = mysql_query($query) or die ("Error in query");
-}
-
-if ($referrer=="i") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$type.'&contextId='.$contextId.'&timeId='.$timeId.'&categoryId='.$categoryId.'">';
+if ($values['referrer']=="i") {
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$values['type'].'&contextId='.$values['contextId'].'&timeId='.$values['timeId'].'&categoryId='.$values['categoryId'].'">';
 	}
 
-elseif ($referrer=="p") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$projectId.'">';
+elseif ($values['referrer']=="p") {
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$values['projectId'].'">';
 	}
 
-elseif ($referrer=="c") {
+elseif ($values['referrer']=="c") {
 	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=reportContext.php">';
 	}
 
-elseif ($referrer=="t") {
+elseif ($values['referrer']=="t") {
 	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=tickler.php">';
 }
-else{
+else {
 	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=reportContext.php">';
 	}
 
-mysql_close($connection);
 include_once('footer.php');
 ?>

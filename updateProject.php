@@ -34,7 +34,7 @@ if($values['delete']=="y"){
     query("deleteprojectattributes",$config,$values);
     query("deleteprojectstatus",$config,$values);
     query("removeitems",$config,$values);
-    query("removenextaction",$config,$values);
+    query("removenextactions",$config,$values);
 
     echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listProjects.php" />';
 //        echo "<p>Number of Items also deleted: ";
