@@ -39,8 +39,12 @@ Available Queries:
     newcategory
     newchecklist
     newchecklistitem
+    newitem
+    newitemattributes
+    newitemstatus
     newlist
     newlistitem
+    newnextaction
     newnote
     newproject
     newprojectattributes
@@ -213,19 +217,17 @@ processgoal
         '$description','$date', '$deadline',  NULL, '$type', '$projectId')
 
 processitem
-    INSERT INTO `items` (title,description) VALUES ('$title','$description')
-    INSERT INTO `itemattributes` (itemId,type,projectId,contextId,timeframeId,deadline,`repeat`,suppress,suppressUntil) VALUES ('$itemId','$type','$projectId','$contextId','$timeframeId','$deadline','$repeat','$suppress','$suppressUntil')
-    INSERT INTO `itemstatus` (itemId,dateCreated) VALUES ('$itemId',CURRENT_DATE)
-    INSERT INTO nextactions (projectId,nextaction) VALUES ('$projectId','$itemId')
-                ON DUPLICATE KEY UPDATE nextaction='$itemId'
-
+    newitem
+    newitemattributes
+    newitemstatus
+    newnextaction
 
 processitemupdate
     testitemrepeat
     selectitem
     newitem
     newitemattributes
-    newistemstatus
+    newitemstatus
     testnextaction
     completeitem
     deletenextaction

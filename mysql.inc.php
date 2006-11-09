@@ -64,6 +64,7 @@ $sql = array(
         "newitemstatus"             => "INSERT INTO `itemstatus` (`itemId`,`dateCreated`) VALUES ('{$values['newitemId']}',CURRENT_DATE)",
         "newlist"                   => "INSERT INTO `list` VALUES (NULL, '{$values['title']}', '{$values['categoryId']}', '{$values['description']}')",
         "newlistitem"               => "INSERT INTO `listItems` VALUES (NULL, '{$values['item']}', '{$values['notes']}', '{$values['listId']}', 'n')",
+        "newnextaction"             => "INSERT INTO `nextactions` (`projectId`,`nextaction`) VALUES ('{$values['projectId']}','{$values['newitemId']}') ON DUPLICATE KEY UPDATE `nextaction`='{$values['newitemId']}'",
         "newnote"                   => "INSERT INTO `tickler` (date,title,note) VALUES ('{$values['date']}','{$values['title']}','{$values['note']}')",
         "newproject"                => "INSERT INTO `projects` (`name`,`description`,`desiredOutcome`) VALUES ('{$values['name']}','{$values['description']}','{$values['desiredOutcome']}')",
         "newprojectattributes"      => "INSERT INTO `projectattributes` (`projectId`,`categoryId`,`isSomeday`,`deadline`,`repeat`,`suppress`,`suppressUntil`) VALUES ('{$values['newprojectId']}','{$values['categoryId']}','{$values['isSomeday']}','{$values['deadline']}','{$values['repeat']}','{$values['suppress']}','{$values['suppressUntil']}')",
