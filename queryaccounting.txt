@@ -1,0 +1,396 @@
+//query accounting list
+
+Available Queries:
+
+    categoryselectbox
+    checkchecklistitems
+    checklistselectbox
+    clearchecklist
+    completeitem
+    completelistitem
+    completeproject
+    countactiveitems
+    countactiveprojects
+    countnextactions
+    countspacecontexts
+    deletecategory
+    deletechecklist
+    deletechecklistitem
+    deleteitem
+    deleteitemattributes
+    deleteitemstatus
+    deletelist
+    deletelistitem
+    deletenextaction
+    deletenote
+    deleteproject
+    deleteprojectattributes
+    deleteprojectstatus
+    deletespacecontext
+    deletetimecontext
+    getchecklistitems
+    getchecklists
+    getitems
+    getlists
+    getlistitems
+    getnextactions
+    getprojects
+    listselectbox
+    newcategory
+    newchecklist
+    newchecklistitem
+    newlist
+    newlistitem
+    newnote
+    newproject
+    newprojectattributes
+    newprojectstatus
+    newspacecontext
+    newtimecontext
+    projectselectbox
+    projectssummary
+    reassigncategory
+    reassignspacecontext
+    reassigntimecontext
+    removechecklistitems
+    removeitems
+    removelistitems
+    removenextaction
+    selectcategory
+    selectchecklist
+    selectchecklistitem
+    selectcontext
+    selectitem
+    selectlist
+    selectnextaction
+    selectnote
+    selectproject
+    selecttimecontext
+    spacecontextselectbox
+    testitemrepeat
+    testnextaction
+    testprojectrepeat
+    timecontextselectbox
+    updatecategory
+    updatechecklist
+    updatechecklistitem
+    updatespacecontext
+    updategoal
+    updateitem
+    updateitemattributes
+    updateitemstatus
+    updatelist
+    updatelistitem
+    updatenextaction
+    updatenote
+    updateproject
+    updateprojectattributes
+    updateprojectstatus
+    updatetimecontext
+
+Queries by script
+
+checklistreport
+    selectchecklist
+    getchecklistitems
+
+editcategory
+    categoryselectbox
+    selectcategory
+
+editchecklist
+    selectchecklist
+    categoryselectbox
+
+editchecklistitem
+    selectchecklistitem
+    checklistselectbox
+
+editcontext
+    contextselectbox
+    selectcontext
+    
+editgoal
+    SELECT * from goals where id = $goalId
+    SELECT * from projects order by name
+
+editlist
+    selectlist
+    categoryselectbox
+
+editlistitem
+    selectlistitem
+    listselectbox
+
+edittimecontext
+    timecontextselectbox
+    selecttimecontext
+
+gtdfuncs
+    contextselectbox
+    timecontextselectbox
+    spacecontextselectbox
+    listselectbox
+    checklistselectbox
+    projectselectbox
+    categoryselectbox
+
+item
+    selectitem
+    testnextaction
+    projectselectbox
+    spacecontextselectbox
+    timecontextselectbox
+
+listChecklist
+    categoryselectbox
+    getchecklists
+
+listGoals
+    SELECT * from goals order by type asc
+    SELECT * from goals where completed is not null
+        and completed != "0000-00-00" order by created desc, type desc
+
+listitems
+    spacecontextselectbox
+    timecontextselectbox
+    categoryselectbox
+    getnextactions
+    getitems
+
+listlist
+    categoryselectbox
+    getlists
+
+listprojects
+    categoryselectbox
+    selectprojects
+    selectnextaction
+
+listreport
+    selectlist
+    getlistitems
+    getcompletedlistitems
+
+newcategory
+    newcategory
+
+newchecklist
+    categoryselectbox
+    newchecklist
+
+newchecklistitem
+    SELECT checklistId, title from checklist order by title
+
+newcontext
+    newspacecontext
+
+newgoal
+    SELECT * from projects order by name
+
+newlist
+    categoryselectbox
+    newlistitem
+
+newlistitem
+    SELECT listId, title from list order by title
+
+newtimecontext
+    newtimecontext
+
+note
+    selectnote
+
+processchecklistitem
+    newchecklistitem
+
+processchecklistupdate
+    clearchecklist
+    checkchecklistitems
+
+processgoal
+    INSERT into goals  values (NULL, '$goal',
+        '$description','$date', '$deadline',  NULL, '$type', '$projectId')
+
+processitem
+    INSERT INTO `items` (title,description) VALUES ('$title','$description')
+    INSERT INTO `itemattributes` (itemId,type,projectId,contextId,timeframeId,deadline,`repeat`,suppress,suppressUntil) VALUES ('$itemId','$type','$projectId','$contextId','$timeframeId','$deadline','$repeat','$suppress','$suppressUntil')
+    INSERT INTO `itemstatus` (itemId,dateCreated) VALUES ('$itemId',CURRENT_DATE)
+    INSERT INTO nextactions (projectId,nextaction) VALUES ('$projectId','$itemId')
+                ON DUPLICATE KEY UPDATE nextaction='$itemId'
+
+
+processitemupdate
+    testitemrepeat
+    selectitem
+    newitem
+    newitemattributes
+    newistemstatus
+    testnextaction
+    completeitem
+    deletenextaction
+    updatenextaction
+
+processlistitem
+    newlistitem
+
+processlistupdate
+    completelistitem
+
+processnote
+    newnote
+
+processproject
+    newproject
+    newprojectattributes
+    newprojectstatus
+
+processprojectupdate
+    testprojectrepeat
+    selectproject
+    newproject
+    newprojectattributes
+    newprojectstatus
+    completeproject
+
+project
+    selectproject
+    categoryselectbox
+
+projectreport
+    selectproject
+    selectnextaction
+    getitems
+
+reportcontext
+    SELECT projectId, name FROM projects
+    SELECT contextId, name FROM context
+    SELECT timeframeId, timeframe, description FROM timeitems
+    SELECT projectId, nextaction FROM nextactions
+    SELECT itemattributes.contextId, itemattributes.timeframeId, COUNT(*) AS count
+        FROM itemattributes, itemstatus, projectattributes, projectstatus, nextactions
+        WHERE itemstatus.itemId=itemattributes.itemId AND projectattributes.projectId=itemattributes.projectId
+    AND nextactions.nextaction = itemstatus.itemId
+        AND projectstatus.projectId=projectattributes.projectId AND itemattributes.type='a' AND projectattributes.isSomeday='n'
+        AND (itemstatus.dateCompleted is null OR itemstatus.dateCompleted='0000-00-00')
+        AND (projectstatus.dateCompleted is null OR projectstatus.dateCompleted='0000-00-00')
+        AND ((CURDATE() >= DATE_ADD(itemattributes.deadline, INTERVAL -(itemattributes.suppressUntil) DAY))
+                OR projectattributes.suppress='n'
+                OR (CURDATE() >= DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY)))
+        GROUP BY itemattributes.contextId, itemattributes.timeframeId
+    SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated,
+                        items.itemId, itemstatus.dateCompleted, itemattributes.deadline,
+                        itemattributes.repeat, itemattributes.suppress, itemattributes.suppressUntil
+                        FROM items, itemattributes, itemstatus, projects, projectattributes, projectstatus, nextactions
+                        WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId
+                        AND itemattributes.projectId = projects.projectId
+                        AND projectattributes.projectId=itemattributes.projectId AND projectstatus.projectId = itemattributes.projectId
+                        AND nextactions.nextaction=items.itemId
+                        AND itemattributes.type = 'a' AND itemattributes.timeframeId='$timeframeId' AND projectattributes.isSomeday='n'
+                        AND itemattributes.contextId='$contextId' AND (itemstatus.dateCompleted IS NULL OR itemstatus.dateCompleted = '0000-00-00')
+                        AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00')
+                        AND ((CURDATE() >= DATE_ADD(itemattributes.deadline, INTERVAL -(itemattributes.suppressUntil) DAY))
+                                OR projectattributes.suppress='n'
+                                OR (CURDATE() >= DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY)))
+                        ORDER BY projects.name
+
+summary
+    spacecontextselectbox
+    countspacecontexts
+    countnextactions
+    countactiveitems
+    countactiveprojects
+    projectssummary
+    countactiveprojects
+    projectssummary
+
+tickler
+    SELECT projectId, nextaction FROM nextactions
+    SELECT ticklerId, title, note, date FROM tickler WHERE (date IS NULL OR date = '0000-00-00') OR (CURDATE()<= date)
+    SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated,
+        context.contextId, context.name AS cname, items.itemId, itemstatus.dateCompleted, itemattributes.deadline,
+        itemattributes.repeat, itemattributes.suppress, itemattributes.suppressUntil, itemattributes.type
+        FROM items, itemattributes, itemstatus, projects, projectstatus, context
+        WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId
+        AND itemattributes.contextId = context.contextId AND itemattributes.projectId = projects.projectId
+        AND projectstatus.projectId = itemattributes.projectId
+        AND (itemstatus.dateCompleted IS NULL OR itemstatus.dateCompleted = '0000-00-00')
+        AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00') AND (itemattributes.suppress='y')
+        ORDER BY itemattributes.deadline, cname, pname
+    SELECT projects.projectId, projects.name, projects.description, projectstatus.dateCreated,
+        categories.categoryId, categories.category AS cname, projectattributes.deadline,
+        projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil
+        FROM projects, projectattributes, projectstatus, categories
+        WHERE projectstatus.projectId = projects.projectId AND projectattributes.projectId = projects.projectId
+        AND categories.categoryId=projectattributes.categoryId
+        AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00') AND (projectattributes.suppress='y')
+        ORDER BY projectattributes.deadline, cname, projects.name
+
+updatecategory
+    reassigncategory
+    deletecategory
+    updatecategory
+
+updatechecklist
+    deletechecklist
+    removechecklistitems
+    updatechecklist
+
+updatechecklistitem
+    deletechecklistitem
+    updatechecklistitem
+
+updatecontext
+    reassignspacecontext
+    deletespacecontext
+    updatespacecontext
+
+updategoal
+    updategoal
+
+updateitem
+    deleteitemstatus
+    deleteitemattributes
+    deleteitem
+    deletenextaction
+    updateitemstatus
+    updateitemattributes
+    updateitem
+    updatenextaction
+    deletenextaction
+
+updatelist
+    deletelist
+    removelistitems
+    updatelist
+
+updatelistitem
+    deletelistitem
+    updatelistitem
+
+updatenote
+    deletenote
+    updatenote
+
+updateproject
+    deleteproject
+    deleteprojectattributes
+    deleteprojectstatus
+    removeitems
+    removenextaction
+    updateproject
+    updateprojectattributes
+    updateprojectstatus
+
+updatetimecontext
+    reassigntimecontext
+    deletetimecontext
+    updatetimecontext
+
+weekly
+    selectprojects
+    selectnextaction
+
+
+mysql.inc
+mysqlparts.inc
