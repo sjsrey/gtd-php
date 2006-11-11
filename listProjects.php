@@ -88,8 +88,6 @@ if ($result!="-1"){
                 if ($nexttext[0]['nextaction']!="") $nonext="false"; 
                 else $nonext="true";
 
-
-                
 		echo '<a href = "projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['name'])).' project report">';
 		if ($nonext=="true" && $values['completed']!="y") echo '<span class="noNextAction" title="No next action defined!">!</span>';
 		echo stripslashes($row['name'])."</a></td>\n";

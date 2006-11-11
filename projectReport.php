@@ -14,7 +14,7 @@ if ($project['isSomeday']=="y") $pType="s";
 else $pType="p";
 
 //select all nextactions for test
-$result = query("selectnextaction",$config,$values,$options,$sort);
+$result = query("getnextactions",$config,$values,$options,$sort);
 $nextactions = array();
 if ($result!="-1") {
     $i=0;
@@ -50,7 +50,6 @@ if(isset($id)){
         $previousId=$ids[$id-1];
     }
 }
-
 
 //PAGE DISPLAY AREA
 if ($pType=="s") $typename="Someday/Maybe";

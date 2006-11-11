@@ -9,9 +9,12 @@ Available Queries:
     completeitem
     completelistitem
     completeproject
+    copynextaction
     countactiveitems
     countactiveprojects
     countnextactions
+    countcontextreport_naonly
+    countcontextreport_all
     countspacecontexts
     deletecategory
     deletechecklist
@@ -30,11 +33,15 @@ Available Queries:
     deletetimecontext
     getchecklistitems
     getchecklists
+    getcompleteditems
     getitems
-    getlists
     getlistitems
+    getlists
+    getnotes
     getnextactions
     getprojects
+    getspacecontexts
+    gettimecontexts
     listselectbox
     newcategory
     newchecklist
@@ -59,13 +66,15 @@ Available Queries:
     removechecklistitems
     removeitems
     removelistitems
-    removenextaction
+    removenextactions
+    removenextactionitem
     selectcategory
     selectchecklist
     selectchecklistitem
     selectcontext
     selectitem
     selectlist
+    selectlistitem
     selectnextaction
     selectnote
     selectproject
@@ -92,7 +101,31 @@ Available Queries:
     updateprojectstatus
     updatetimecontext
 
-Queries by script
+Available sqlparts:
+
+    activeitems
+    activeitemsandproject
+    activelistitems
+    activeprojects
+    categoryfilter
+    contextfilter
+    completeditems
+    completedlistitems
+    completedprojects
+    getchecklists
+    getlists
+    issomeday
+    notcategoryfilter
+    notcontextfilter
+    nottimeframefilter
+    projectfilter
+    suppresseditems
+    suppressedprojects
+    timeframefilter
+    typefilter
+
+
+Queries by script:
 
 checklistreport
     selectchecklist
@@ -184,20 +217,20 @@ newchecklist
     newchecklist
 
 newchecklistitem
-    SELECT checklistId, title from checklist order by title
+    checklistselectbox
 
 newcontext
     newspacecontext
 
 newgoal
-    SELECT * from projects order by name
+    ?projectselectbox:SELECT * from projects order by name
 
 newlist
     categoryselectbox
     newlistitem
 
 newlistitem
-    SELECT listId, title from list order by title
+    listselectbox
 
 newtimecontext
     newtimecontext
@@ -265,36 +298,12 @@ projectreport
     getitems
 
 reportcontext
-    SELECT projectId, name FROM projects
-    SELECT contextId, name FROM context
-    SELECT timeframeId, timeframe, description FROM timeitems
-    SELECT projectId, nextaction FROM nextactions
-    SELECT itemattributes.contextId, itemattributes.timeframeId, COUNT(*) AS count
-        FROM itemattributes, itemstatus, projectattributes, projectstatus, nextactions
-        WHERE itemstatus.itemId=itemattributes.itemId AND projectattributes.projectId=itemattributes.projectId
-    AND nextactions.nextaction = itemstatus.itemId
-        AND projectstatus.projectId=projectattributes.projectId AND itemattributes.type='a' AND projectattributes.isSomeday='n'
-        AND (itemstatus.dateCompleted is null OR itemstatus.dateCompleted='0000-00-00')
-        AND (projectstatus.dateCompleted is null OR projectstatus.dateCompleted='0000-00-00')
-        AND ((CURDATE() >= DATE_ADD(itemattributes.deadline, INTERVAL -(itemattributes.suppressUntil) DAY))
-                OR projectattributes.suppress='n'
-                OR (CURDATE() >= DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY)))
-        GROUP BY itemattributes.contextId, itemattributes.timeframeId
-    SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated,
-                        items.itemId, itemstatus.dateCompleted, itemattributes.deadline,
-                        itemattributes.repeat, itemattributes.suppress, itemattributes.suppressUntil
-                        FROM items, itemattributes, itemstatus, projects, projectattributes, projectstatus, nextactions
-                        WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId
-                        AND itemattributes.projectId = projects.projectId
-                        AND projectattributes.projectId=itemattributes.projectId AND projectstatus.projectId = itemattributes.projectId
-                        AND nextactions.nextaction=items.itemId
-                        AND itemattributes.type = 'a' AND itemattributes.timeframeId='$timeframeId' AND projectattributes.isSomeday='n'
-                        AND itemattributes.contextId='$contextId' AND (itemstatus.dateCompleted IS NULL OR itemstatus.dateCompleted = '0000-00-00')
-                        AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00')
-                        AND ((CURDATE() >= DATE_ADD(itemattributes.deadline, INTERVAL -(itemattributes.suppressUntil) DAY))
-                                OR projectattributes.suppress='n'
-                                OR (CURDATE() >= DATE_ADD(projectattributes.deadline, INTERVAL -(projectattributes.suppressUntil) DAY)))
-                        ORDER BY projects.name
+    getspacecontexts
+    gettimecontexts
+    getnextactions
+    countcontextreport_naonly
+    countcontextreport_all
+    getitems
 
 summary
     spacecontextselectbox
@@ -307,26 +316,10 @@ summary
     projectssummary
 
 tickler
-    SELECT projectId, nextaction FROM nextactions
-    SELECT ticklerId, title, note, date FROM tickler WHERE (date IS NULL OR date = '0000-00-00') OR (CURDATE()<= date)
-    SELECT itemattributes.projectId, projects.name AS pname, items.title, items.description, itemstatus.dateCreated,
-        context.contextId, context.name AS cname, items.itemId, itemstatus.dateCompleted, itemattributes.deadline,
-        itemattributes.repeat, itemattributes.suppress, itemattributes.suppressUntil, itemattributes.type
-        FROM items, itemattributes, itemstatus, projects, projectstatus, context
-        WHERE itemstatus.itemId = items.itemId AND itemattributes.itemId = items.itemId
-        AND itemattributes.contextId = context.contextId AND itemattributes.projectId = projects.projectId
-        AND projectstatus.projectId = itemattributes.projectId
-        AND (itemstatus.dateCompleted IS NULL OR itemstatus.dateCompleted = '0000-00-00')
-        AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00') AND (itemattributes.suppress='y')
-        ORDER BY itemattributes.deadline, cname, pname
-    SELECT projects.projectId, projects.name, projects.description, projectstatus.dateCreated,
-        categories.categoryId, categories.category AS cname, projectattributes.deadline,
-        projectattributes.repeat, projectattributes.suppress, projectattributes.suppressUntil
-        FROM projects, projectattributes, projectstatus, categories
-        WHERE projectstatus.projectId = projects.projectId AND projectattributes.projectId = projects.projectId
-        AND categories.categoryId=projectattributes.categoryId
-        AND (projectstatus.dateCompleted IS NULL OR projectstatus.dateCompleted = '0000-00-00') AND (projectattributes.suppress='y')
-        ORDER BY projectattributes.deadline, cname, projects.name
+    getnextactions
+    getnotes
+    getitems
+    getprojects
 
 updatecategory
     reassigncategory
@@ -392,7 +385,3 @@ updatetimecontext
 weekly
     selectprojects
     selectnextaction
-
-
-mysql.inc
-mysqlparts.inc
