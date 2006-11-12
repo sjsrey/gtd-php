@@ -13,7 +13,7 @@ $config = array(
 
     //user preferences : MOVE TO DATABASE
         "title"			    => 'GTD-PHP', // site name (appears at the top of each page)
-        "debug"                     => 'false',  // false | true |  developer
+        "debug"                     => 'false',  // false | true
         "theme"                     => 'default', //default | menu_sidebar
         "contextsummary"            => 'all',  //all | nextaction (Show all actions on context report, or nextactions only?)
         "nextaction"                => 'multiple', //single | multiple (Allow single or multiple nextactions per project)
