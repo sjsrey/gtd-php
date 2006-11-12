@@ -36,11 +36,10 @@ $cashtml=categoryselectbox($config,$values,$options,$sort);
 
 <?php
 }else {
-
-	$values['title'] = empty($_POST['title']) ? die("Error: Enter a checklist title") : mysql_real_escape_string($_POST['title']);
-	$values['description'] = empty($_POST['description']) ? die("Error: Enter a checklist description") : mysql_real_escape_string($_POST['description']);
-	$values['categoryId'] = (int) $_POST['categoryId'];
-//	$values['dateCreated'] = date('Y-m-d');
+    $values = array();
+    $values['title'] = empty($_POST['title']) ? die("Error: Enter a checklist title") : mysql_real_escape_string($_POST['title']);
+    $values['description'] = empty($_POST['description']) ? die("Error: Enter a checklist description") : mysql_real_escape_string($_POST['description']);
+    $values['categoryId'] = (int) $_POST['categoryId'];
 
     $result= query("newchecklist",$config,$values,$options,$sort);
 

@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE URL AND FORM VARIABLES
+$values=array();
 $values['projectId'] = (int) $_POST['project'];
 $values['goal'] = mysql_real_escape_string($_POST['goal']);
 $values['description'] = mysql_real_escape_string($_POST['newdescription']);

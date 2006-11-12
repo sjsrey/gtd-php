@@ -2,6 +2,7 @@
 include_once('header.php');
 
 //RETRIEVE URL AND FORM VARIABLES
+$values=array();
 $values['listItemId'] = (int) $_POST['listItemId'];
 $values['listId'] = (int) $_GET['listId'];
 $completedLis = $_POST['completedLis'];

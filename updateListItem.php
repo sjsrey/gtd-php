@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE URL AND FORM VARIABLES
+$values=array();
 $values['newitem']=mysql_real_escape_string($_POST['newitem']);
 $values['newnotes']=mysql_real_escape_string($_POST['newnotes']);
 $values['listId'] = (int) $_POST['listId'];

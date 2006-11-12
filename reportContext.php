@@ -2,8 +2,9 @@
 //INCLUDES
 include_once('header.php');
 
-//SQL CODE AREA
+$values=array();
 
+//SQL CODE AREA
 //obtain all contexts
 $contextResults = query("getspacecontexts",$config,$values,$option,$sort);
 $contextNames=array();

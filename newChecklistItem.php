@@ -4,6 +4,7 @@
 include_once('header.php');
 
 //RETRIEVE URL VARIABLES
+$values = array();
 $values['checklistId'] = (int) $_GET['checklistId'];
 
 //SQL CODE AREA

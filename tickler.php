@@ -3,6 +3,8 @@
 //INCLUDES
 include_once('header.php');
 
+$values=array();
+
 //SQL CODE
 //select all nextactions for test
 $result = query("getnextactions",$config,$values,$options,$sort);

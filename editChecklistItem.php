@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE URL AND FORM VARIABLES
+$values = array();
 $values['checklistItemId'] = (int) $_GET["checklistItemId"];
 
 //SQL CODE

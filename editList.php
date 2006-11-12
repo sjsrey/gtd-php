@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE ALL URL AND FORM VARIABLES
+$values = array();
 $values['listId'] =(int) $_GET["listId"];
 
 //SQL CODE

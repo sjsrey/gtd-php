@@ -1,16 +1,9 @@
 <?php
-
-///////////////////////////////////////////////////
-//File: UpdateProject.php                        //
-//Description: Edits project entry in database   //
-//Accessed From: project.php                     //
-//Links to: ProjectReport.php for updated project//
-///////////////////////////////////////////////////
-
 //INCLUDES
 include_once('header.php');
 
 //FORM DATA COLLECTION AND PARSING
+$values=array();
 $values['projectId'] = (int) $_GET['projectId'];
 $values['name']=mysql_real_escape_string($_POST['name']);
 $values['description']=mysql_real_escape_string($_POST['description']);

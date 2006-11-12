@@ -7,6 +7,9 @@
 
 <head>
 <?php
+$config = array();
+$options = array();
+$sort = array();
 require_once("config.php");
 
 //CONNECT TO DATABASE: this will need modification to connect to other dtabases (use SWITCH)
@@ -44,8 +47,6 @@ $config['theme']=$_SESSION['theme'];
 	<!-- the following script defines the Calendar.setup helper function, which makes
 		  adding a calendar a matter of 1 or 2 lines of code. -->
 	<script type="text/javascript" src="calendar-setup.js"></script>
-
-
 </head>
 <body>
 

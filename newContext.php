@@ -27,9 +27,7 @@ if (!isset($_POST['submit'])) {
 
 else {
 
-    $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
-    mysql_select_db($config['db']) or die ("Unable to select database!");
-
+    $values = array();
     $values['name'] = ($_POST['name']=="") ? die('<META HTTP-EQUIV="Refresh" CONTENT="2; url=newCategory.php" /><p>Error: Enter a context name</p>') : mysql_real_escape_string($_POST['name']);
     $values['description'] = mysql_real_escape_string($_POST['description']);
 

@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE URL VARIABLES
+$values = array();
 $values['tcId'] =(int) $_GET["tcId"];
 
 //SQL CODE

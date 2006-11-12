@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE URL VARIABLES
+$values=array();
 $values['projectId'] =(int) $_GET["projectId"];
 $values['type'] = $_GET['type']{0};
 

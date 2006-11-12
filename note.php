@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE URL VARIABLES
+$values=array();
 $values['noteId']= (int) $_GET["noteId"];
 
 //select note details

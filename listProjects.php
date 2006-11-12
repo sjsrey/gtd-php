@@ -1,8 +1,9 @@
 <?php
 //INCLUDES
-	include_once('header.php');
+include_once('header.php');
 
 //RETRIEVE URL VARIABLES
+$values = array();
 if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
 else $values['categoryId']=(int) $_POST['categoryId'];
 $values['pType']=$_GET["pType"]{0};

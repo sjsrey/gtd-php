@@ -2,6 +2,8 @@
 //INCLUDES
 include_once('header.php');
 
+$values=array();
+
 //SQL CODE AREA
 //select active projects
         $values['isSomeday']="n";

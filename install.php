@@ -1,7 +1,5 @@
 <?php
 	include_once('header.php');
-	include_once('config.php');
-
 
 	function report($tableName,$success){
 		$html="<tr><td>$tableName</td><td>";

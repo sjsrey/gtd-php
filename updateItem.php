@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //FORM DATA COLLECTION AND PARSING
+$values=array();
 $values['title'] = mysql_real_escape_string($_POST['title']);
 $values['description'] = mysql_real_escape_string($_POST['description']);
 $values['projectId'] = (int) $_POST['projectId'];

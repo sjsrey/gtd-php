@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIVE FORM VARIABLES
+$values=array();
 $values['projectId'] = (int) $_POST['projectId'];
 $values['contextId'] = (int) $_POST['contextId'];
 $values['timeframeId'] = (int) $_POST['timeframeId'];

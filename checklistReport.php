@@ -1,16 +1,9 @@
 <?php
-
-////////////////////////////////////////////////////////
-//File: ChecklistReport.php                           //
-//Description: Show details about individual checklist//
-//Accessed From: listChecklist.php                    //
-//Links to: editChecklist.php, newChecklistItem.php   //
-////////////////////////////////////////////////////////
-
 //INCLUDES
 include_once('header.php');
 
 //RETRIEVE URL AND FORM VARIABLES
+$values=array();
 $values['checklistId'] = (int) $_GET['checklistId'];
 
 //SQL CODE

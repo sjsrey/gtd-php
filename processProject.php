@@ -4,6 +4,7 @@
 include_once('header.php');
 
 //RETRIEVE FORM VARIABLES
+$values=array();
 $values['projectId']=(int) $_POST['projectId'];
 $values['name']=mysql_real_escape_string($_POST['name']);
 $values['description']=mysql_real_escape_string($_POST['description']);

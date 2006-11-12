@@ -1,7 +1,8 @@
 <?php
-    include_once('header.php');
+include_once('header.php');
 
-    $values['listId'] = (int) $_GET['listId'];
+$values = array();
+$values['listId'] = (int) $_GET['listId'];
 
 $result = query("selectlist",$config,$values,$options,$sort);
 
@@ -19,16 +20,16 @@ if ($result!="-1") {
     $values['filterquery']= sqlparts("activelistitems",$config,$values);
     $result=query("getlistitems",$config,$values,$options,$sort);
     if ($result!="-1") {
-            $counter=0;
+        $counter=0;
 
-            echo "<table class='datatable'>\n";
-            echo "	<thead>\n";
-            echo "		<td>Item</td>\n";
-            echo "		<td>Description</td>\n";
-            echo "		<td>Completed</td>\n";
-            echo "	</thead>\n";
+        echo "<table class='datatable'>\n";
+        echo "	<thead>\n";
+        echo "		<td>Item</td>\n";
+        echo "		<td>Description</td>\n";
+        echo "		<td>Completed</td>\n";
+        echo "	</thead>\n";
 
-            foreach($result as $row) {
+        foreach($result as $row) {
             echo '	<tr>'."\n";
             echo '		<td><a href = "editListItem.php?listItemId='.$row['listItemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['item'])).'">'.stripslashes($row['item']).'</td>'."\n";
             echo '		<td>'.stripslashes($row['notes']).'</td>'."\n";
@@ -36,15 +37,13 @@ if ($result!="-1") {
             echo '	</tr>'."\n";
             $counter = $counter+1;
             }
-            echo '</table>'."\n\n";
+        echo '</table>'."\n\n";
         echo '<input type="submit" align="right" class="button" value="Update List Items" name="submit">'."\n";
-            if($counter==0){
-                    echo "No list items";
+        if($counter==0){
+            echo "No list items";
             }
-    }
-    else {
-            echo "None";
-    }
+        }
+    else echo "None";
 
     $values['filterquery']= sqlparts("completedlistitems",$config,$sort);
     $result = query("getlistitems",$config,$values,$options,$sort);
@@ -64,11 +63,9 @@ if ($result!="-1") {
             echo "	</tr>\n";
             }
             echo "</table>\n";
+        }
+    else echo "None";
     }
-    else{
-            echo "None";
-    }
-}
 
 else echo "Invalid List ID.";
 

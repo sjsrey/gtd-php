@@ -38,6 +38,7 @@ $cashtml=categoryselectbox($config,$values,$options,$sort);
     }
 
 else {
+    $values = array();
     $values['title'] = empty($_POST['title']) ? die("Error: Enter a list title") : mysql_real_escape_string($_POST['title']);
     $values['description'] = mysql_real_escape_string($_POST['description']);
     $values['categoryId'] = (int) $_POST['categoryId'];

@@ -2,10 +2,9 @@
 //INCLUDES
 include_once('header.php');
 
-//GET URL VARIABLES
+//GET URL ND FORM VARIABLES
+$values=array();
 $values['itemId'] = (int) $_GET['itemId'];
-
-//GET FORM VARIABLES
 $values['contextId']=(int) $_POST['contextId'];
 $values['type']=$_POST['type']{0};
 $values['referrer']=$_POST['referrer']{0};

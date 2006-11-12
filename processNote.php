@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIVE FORM VARIABLES
+$values=array();
 $values['date'] = $_POST['date'];
 $values['title'] = mysql_real_escape_string($_POST['title']);
 $values['note'] = mysql_real_escape_string($_POST['note']);

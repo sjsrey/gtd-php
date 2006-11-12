@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE URL AND FORM VARIABLES
+$values=array();
 $values['checklistId'] = (int) $_GET['checklistId'];
 $values['newchecklistTitle']=mysql_real_escape_string($_POST['newchecklistTitle']);
 $values['newcategoryId']=(int) $_POST['newcategoryId'];

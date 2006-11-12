@@ -2,6 +2,8 @@
 //INCLUDES
 include_once('header.php');
 
+$values=array();
+
 //SQL Code
 $result = query("spacecontextselectbox",$config,$values,$options,$sort);
 $numbercontexts = query("countspacecontexts",$config,$values);

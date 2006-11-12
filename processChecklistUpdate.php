@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE URL AND FORM VARIABLES
+$values = array();
 $values['date']=$_POST['date'];
 $values['checklistItemId'] = (int) $_POST['checklistItemId'];
 $values['checklistId'] = (int) $_GET['checklistId'];

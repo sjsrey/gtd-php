@@ -5,6 +5,7 @@ include_once('header.php');
 $nextactioncheck="n";
 
 //RETRIEVE URL VARIABLES
+$values = array();
 $values['projectId']= (int) $_GET["projectId"];
 $values['itemId']= (int) $_GET["itemId"];
 $values['type']=$_GET["type"]{0};

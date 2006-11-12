@@ -2,6 +2,7 @@
 include_once('header.php');
 
 //GET URL AND FORM DATA
+$values=array();
 $values['tcId'] = (int) $_GET['tcId'];
 $values['name']=mysql_real_escape_string($_POST['timeframe']);
 $values['description']=mysql_real_escape_string($_POST['description']);

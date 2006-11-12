@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE URL VARIABLES
+$values = array();
 $values['listId'] = (int) $_GET['listId'];
 
 //SQL CODE AREA

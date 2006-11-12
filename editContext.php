@@ -3,6 +3,7 @@
 include_once('header.php');
 
 //RETRIEVE URL VARIABLES
+$values = array();
 $values['contextId'] =(int) $_GET["contextId"];
 
 //SQL CODE

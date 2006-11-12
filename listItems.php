@@ -4,6 +4,7 @@
 include_once('header.php');
 
 //GET URL VARIABLES
+$values = array();
 $values['type']=$_GET["type"]{0};
 $values['pType']=$_GET["pType"]{0};
 if ($values['pType']!="s") $values['pType']="p";

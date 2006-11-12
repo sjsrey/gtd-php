@@ -1,9 +1,9 @@
 <?php
-
 //INCLUDES
 include_once('header.php');
 
 //RETRIEVE URL VARIABLES
+$values=array();
 $values['projectId'] = (int) $_GET['projectId'];
 
 //GET project details
