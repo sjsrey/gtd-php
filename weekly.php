@@ -7,7 +7,7 @@ $values=array();
 //SQL CODE AREA
 //select active projects
         $values['isSomeday']="n";
-        $result = query("selectproject",$config,$values,$options,$sort);
+        $result = query("getprojects",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 	echo "<h2>The Weekly Review</h2>
