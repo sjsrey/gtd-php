@@ -19,7 +19,7 @@ $row = query("selectlist",$config,$values,$options,$sort);
 	<div class='form'>
 		<div class='formrow'>
 			<label for='title' class='left first'>List Title:</label>
-			<input type='text' name='newlistTitle' id='title' value='<?php echo $row[0]['title']; ?>'>
+			<input type='text' name='newlistTitle' id='title' value='<?php echo htmlspecialchars(stripslashes($row[0]['title'])); ?>'>
 		</div>
 
 		<div class='formrow'>
@@ -31,7 +31,7 @@ $row = query("selectlist",$config,$values,$options,$sort);
 
 		<div class='formrow'>
 			<label for='description' class='left first'>Description:</label>
-			<textarea rows="10" name="newdescription" id="description" wrap="virtual"><?php echo $row[0]['description']; ?></textarea>
+			<textarea rows="10" name="newdescription" id="description" wrap="virtual"><?php echo htmlspecialchars(stripslashes($row[0]['description'])); ?></textarea>
 		</div>
 	</div>
 	<div class='formbuttons'>

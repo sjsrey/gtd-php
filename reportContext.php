@@ -9,14 +9,14 @@ $values=array();
 $contextResults = query("getspacecontexts",$config,$values,$option,$sort);
 $contextNames=array();
 foreach ($contextResults as $row) {
-	$contextNames[$row[contextId]]=stripslashes($row[name]);
+	$contextNames[$row[contextId]]=htmlspecialchars(stripslashes($row[name]));
 	}
 
 //obtain all timeframes
 $timeframeResults = query("gettimecontexts",$config,$values,$options,$sort);
 $timeframeNames=array();
 foreach($timeframeResults as $row) {
-	$timeframeNames[$row[timeframeId]]=stripslashes($row[timeframe]);
+	$timeframeNames[$row[timeframeId]]=htmlspecialchars(stripslashes($row[timeframe]));
 	$timeframeDesc[$row[timeframeId]]=htmlspecialchars(stripslashes($row[timeframe]));
 	}
 
@@ -57,7 +57,7 @@ $timeframeTotal=0;
 foreach ($contextNames as $contextId => $cname) {
 	$contextCount=0;
 	echo "	<tr>\n";
-	echo '		<td><a href="editContext.php?contextId='.$contextId.'" title="Edit the '.htmlspecialchars($cname).' context">'.$cname."</a></td>\n";
+	echo '		<td><a href="editContext.php?contextId='.$contextId.'" title="Edit the '.htmlspecialchars(stripslashes($cname)).' context">'.$cname."</a></td>\n";
 	foreach ($timeframeNames as $timeframeId => $tname) {
 		if ($contextArray[$contextId][$timeframeId]!="") {
 			$count=$contextArray[$contextId][$timeframeId];
@@ -66,7 +66,7 @@ foreach ($contextNames as $contextId => $cname) {
 			}
 		else echo "		<td>0</td>\n";
 		}
-	echo '		<td><a href="#'.htmlspecialchars($cname).'">'.$contextCount."</a></td>\n";
+	echo '		<td><a href="#'.htmlspecialchars(stripslashes($cname)).'">'.$contextCount."</a></td>\n";
 	$contextTotal=$contextTotal+$contextCount;
 	echo "	</tr>\n";
 	}
@@ -92,7 +92,7 @@ echo "<p>To move to a particular space-time context, select the number.<br />To 
 foreach ($contextArray as $values['contextId'] => $timeframe) {
 
     echo '<a name="'.$contextNames[$values['contextId']].'"></a>'."\n";
-    echo '<h2>Context:&nbsp;'.$contextNames[$values['contextId']]."</h2>\n";
+    echo '<h2><a href="editContext.php?contextId='.$values['contextId'].'" title="Edit the '.$contextNames[$values['contextId']].' context">Context:&nbsp;'.$contextNames[$values['contextId']]."</a></h2>\n";
 
     foreach ($timeframe as $values['timeframeId'] => $itemCount) {
         echo '<a name="'.$contextNames[$values['contextId']].'_'.$values['timeframeId'].'"></a>'."\n";
@@ -100,10 +100,10 @@ foreach ($contextArray as $values['contextId'] => $timeframe) {
 
         $values['type'] = "a";
         $values['isSomeday'] = "n";
-        $values['filterquery'] = sqlparts("activeitemsandproject",$config,$values);
+        $values['filterquery']  = sqlparts("typefilter-w",$config,$values);
+        $values['filterquery'] .= sqlparts("activeitems",$config,$values);
         $values['filterquery'] .= sqlparts("timeframefilter",$config,$values);
         $values['filterquery'] .= sqlparts("contextfilter",$config,$values);
-        $values['filterquery'] .= sqlparts("typefilter",$config,$values);
         $values['filterquery'] .= sqlparts("isSomeday",$config,$values);
         $result = query("getitems",$config,$values,$options,$sort);
 
@@ -112,8 +112,8 @@ foreach ($contextArray as $values['contextId'] => $timeframe) {
             $tablehtml .= "	<tr>\n";
             $tablehtml .= '		<td><a href = "projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['pname'])).' project report">'.stripslashes($row['pname'])."</a></td>\n";
             //if nextaction, add icon in front of action (* for now)
-            if ($key = array_search($row['itemId'],$nextactions)) $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars($row['title']).'">*&nbsp;'.stripslashes($row['title'])."</td>\n";
-            else $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.stripslashes($row['title'])."</td>\n";
+            if ($key = array_search($row['itemId'],$nextactions)) $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars($row['title']).'">*&nbsp;'.htmlspecialchars(stripslashes($row['title']))."</td>\n";
+            else $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.htmlspecialchars(stripslashes($row['title']))."</td>\n";
             $tablehtml .= '		<td>'.nl2br(substr(stripslashes($row['description']),0,72))."</td>\n";
             $tablehtml .= "		<td>";
             if(($row['deadline']) == "0000-00-00") $tablehtml .= "&nbsp;";

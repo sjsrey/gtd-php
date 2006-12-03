@@ -4,11 +4,10 @@ include_once('header.php');
 
 //GET URL ND FORM VARIABLES
 $values=array();
-$values['itemId'] = (int) $_GET['itemId'];
-$values['contextId']=(int) $_POST['contextId'];
 $values['type']=$_POST['type']{0};
 $values['referrer']=$_POST['referrer']{0};
-$values['projectId']=(int) $_GET['projectId'];
+$values['categoryId'] = (int) $_POST['categoryId'];
+$values['contextId']=(int) $_POST['contextId'];
 $values['timeId']=(int) $_POST['timeId'];
 $values['completedNas'] = $_POST['completedNas'];
 $values['isNext'] = (int) $_POST['isNext'];
@@ -27,6 +26,15 @@ if(isset($values['completedNas'])){
     $today=strtotime("now");
     $values['date']=date('Y-m-d');
     foreach ($values['completedNas'] as $values['completedNa']) {
+        $values['itemId']=$values['completedNa'];
+
+        //lookup parent of item
+        $parentresult = query("lookupparent",$config,$values);
+        if ($parentresult!="-1") $values['parentId']=$parentresult[0]['parentId'];
+
+        //test to see if item is a nextaction
+        $nextactiontest=query("testnextaction",$config,$values);
+        if ($nextactiontest[0]['nextaction']==$values['completedNa']) $isna="true";
 
     //test to see if action is repeating
         $testrow = query("testitemrepeat",$config,$values);
@@ -34,16 +42,16 @@ if(isset($values['completedNas'])){
         if ($testrow[0]['repeat']!=0) {
             $nextdue=strtotime("+".$testrow[0]['repeat']."day");
             $values['nextduedate']=gmdate("Y-m-d", $nextdue);
-            $values['itemId']=$values['completedNa'];
 
             //retrieve item details
             $copyresult = query("selectitem",$config,$values,$options,$sort);
-            $values['projectId']=$copyresult[0]['projectId'];
             $values['contextId']=$copyresult[0]['contextId'];
+            $values['categoryId']=$copyresult[0]['categoryId'];
             $values['timeframeId']=$copyresult[0]['timeframeId'];
             $values['type']=$copyresult[0]['type'];
             $values['title']=$copyresult[0]['title'];
             $values['description']=$copyresult[0]['description'];
+            $values['desiredOutcome']=$copyresult[0]['desiredOutcome'];
             $values['categoryId']=$copyresult[0]['categoryId'];
             $values['isSomeday']=$copyresult[0]['isSomeday'];
             $values['repeat']=$copyresult[0]['repeat'];
@@ -51,28 +59,31 @@ if(isset($values['completedNas'])){
             $values['suppressUntil']=$copyresult[0]['suppressUntil'];
 
             //copy data to projects tables with new id
-            $result=query("newitem",$config,$values,$options,$sort);
+            $result=query("newitem",$config,$values);
             $values['newitemId'] = $GLOBALS['lastinsertid'];
             $values['deadline']=$values['nextduedate'];
-            $result=query("newitemattributes",$config,$values,$options,$sort);
-            $result=query("newitemstatus",$config,$values,$options,$sort);
+            $result=query("newitemattributes",$config,$values);
+            $result=query("newitemstatus",$config,$values);
 
-            //test to see if item is a nextaction
-            $nextactiontest=query("testnextaction",$config,$values);
+            //copy parent information with new id
+            if ($values['parentId']>0) $result=query("newparent",$config,$values);
+
+
             //update nextactions list with new itemId if nextaction (may want to set user option for this later)
-            if ($nextactiontest[0]['nextaction']==$values['completedNa']) $result = query("copynextaction",$config,$values);
+
+            if ($isna=="true") $result = query("copynextaction",$config,$values);
             }
 
         //in either case, set original row completed
         $result = query("completeitem",$config,$values);
-    
+
         //remove original row from nextActions list
-        $result = query("deletenextaction",$config,$values);
-        } 
+        if ($isna=="true") $result = query("deletenextaction",$config,$values);
+        }
     }
 
 // Check on user radio button reset of next action 
-if (isset($values['isNext'])){
+if (($values['isNext']>0)){
     $values['itemId'] = $values['isNext'];
     $result = query("updatenextaction",$config,$values);
     }
@@ -82,7 +93,7 @@ if ($values['referrer']=="i") {
 	}
 
 elseif ($values['referrer']=="p") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=projectReport.php?projectId='.$values['projectId'].'">';
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=itemReport.php?itemId='.$values['parentId'].'">';
 	}
 
 elseif ($values['referrer']=="c") {

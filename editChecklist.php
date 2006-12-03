@@ -1,6 +1,6 @@
 <?php
 //INCLUDES
-	include_once('header.php');
+include_once('header.php');
 
 //RETRIEVE URL FORM VARIABLES
 $values=array();	
@@ -23,7 +23,7 @@ echo '<form action="updateChecklist.php?checklistId='.$values['checklistId'].'" 
 <div class='form'>
         <div class='formrow'>
                 <label for='title' class='left first'>Checklist Title:</label>
-                <input type='text' name='newchecklistTitle' id='title' value='<?php echo $row['title']; ?>'>
+                <input type='text' name='newchecklistTitle' id='title' value='<?php echo htmlspecialchars(stripslashes($row['title'])); ?>'>
         </div>
 
         <div class='formrow'>
@@ -36,7 +36,7 @@ echo '<form action="updateChecklist.php?checklistId='.$values['checklistId'].'" 
 
         <div class='formrow'>
                 <label for='description' class='left first'>Description:</label>
-                <textarea rows="10" name="newdescription" id="description" wrap="virtual"><?php echo $row['description']; ?></textarea>
+                <textarea rows="10" name="newdescription" id="description" wrap="virtual"><?php echo htmlspecialchars(stripslashes($row['description'])); ?></textarea>
         </div>
 </div>
 

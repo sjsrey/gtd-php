@@ -25,14 +25,12 @@ $lshtml = listselectbox($config,$values,$options,$sort);
 <table>
     <tr>
         <td>Item</td>
-        <td><input type="text" name="item" value="<?php echo(stripslashes($values['item'])); ?>"></td>
+        <td><input type="text" name="item" value="<?php echo htmlspecialchars(stripslashes($values['item'])); ?>"></td>
     </tr>
     <tr>
         <td>Notes</td>
         <td>
-            <textarea cols="60" rows="3" name="notes" wrap="virtual">
-            <?php echo(stripslashes($values['notes'])); ?>
-            </textarea>
+            <textarea cols="60" rows="3" name="notes" wrap="virtual"><?php echo htmlspecialchars(stripslashes($values['notes'])); ?></textarea>
         </td>
     </tr>
 </table>

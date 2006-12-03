@@ -31,66 +31,82 @@ function sqlparts($part,$config,$values)  {
 
 function categoryselectbox($config,$values,$options,$sort) {
     $result = query("categoryselectbox",$config,$values,$options,$sort);
-    $cashtml="";
-    foreach($result as $row) {
-        $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-        if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
-        $cashtml .= '>'.stripslashes($row['category'])."</option>\n";
+    $cashtml='<option value="0">--</option>'."\n";
+    if ($result!="-1") {
+        foreach($result as $row) {
+            $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+            if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
+            $cashtml .= '>'.htmlspecialchars(stripslashes($row['category']))."</option>\n";
+            }
         }
     return $cashtml;
     }
 
 function contextselectbox($config,$values,$options,$sort) {
     $result = query("spacecontextselectbox",$config,$values,$options,$sort);
-    $cshtml="";
-    foreach($result as $row) {
-        $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-        if($row['contextId']==$values['contextId']) $cshtml .= ' SELECTED';
-        $cshtml .= '>'.stripslashes($row['name'])."</option>\n";
+    $cshtml='<option value="0">--</option>'."\n";
+    if ($result!="-1") {
+            foreach($result as $row) {
+            $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+            if($row['contextId']==$values['contextId']) $cshtml .= ' SELECTED';
+            $cshtml .= '>'.htmlspecialchars(stripslashes($row['name']))."</option>\n";
+            }
         }
     return $cshtml;
     }
 
 function timecontextselectbox($config,$values,$options,$sort) {
     $result = query("timecontextselectbox",$config,$values,$options,$sort);
-    $tshtml="";
-    foreach($result as $row) {
-        $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-        if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' SELECTED';
-        $tshtml .= '>'.stripslashes($row['timeframe'])."</option>\n";
+    $tshtml='<option value="0">--</option>'."\n";
+    if ($result!="-1") {
+        foreach($result as $row) {
+            $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+            if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' SELECTED';
+            $tshtml .= '>'.htmlspecialchars(stripslashes($row['timeframe']))."</option>\n";
+            }
         }
     return $tshtml;
     }
 
-function projectselectbox($config,$values,$options,$sort) {
-    $result = query("projectselectbox",$config,$values,$options,$sort);
-    $pshtml="";
-    foreach($result as $row) {
-        $pshtml .= '                    <option value="'.$row['projectId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-        if($row['projectId']==$values['projectId']) $pshtml .= ' SELECTED';
-        $pshtml .= '>'.stripslashes($row['name'])."</option>\n";
+function parentselectbox($config,$values,$options,$sort) {
+    $result = query("parentselectbox",$config,$values,$options,$sort);
+    $pshtml='<option value="0">--</option>'."\n";
+    if ($result!="-1") {
+        foreach($result as $row) {
+            $pshtml .= '                    <option value="'.$row['itemId'].'" title="'.htmlspecialchars(stripslashes($row['description']));
+            if ($row['isSomeday']=="y") $pshtml .= ' (Someday)';
+            $pshtml .= '"';
+            if(in_array($row['itemId'],$values['parentId'])) $pshtml .= ' SELECTED';
+            $pshtml .= '>'.htmlspecialchars(stripslashes($row['title']));
+            if ($row['isSomeday']=="y") $pshtml .= ' (s)';
+            $pshtml .="</option>\n";
+            }
         }
     return $pshtml;
     }
 
 function checklistselectbox($config,$values,$options,$sort) {
     $result = query("checklistselectbox",$config,$values,$options,$sort);
-    $cshtml="";
-    foreach($result as $row) {
-        $cshtml .= '                    <option value="'.$row['checklistId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-        if($row['checklistId']==$values['checklistId']) $cshtml .= ' SELECTED';
-        $cshtml .= '>'.stripslashes($row['title'])."</option>\n";
+    $cshtml='<option value="0">--</option>'."\n";
+    if ($result!="-1") {
+        foreach($result as $row) {
+            $cshtml .= '                    <option value="'.$row['checklistId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+            if($row['checklistId']==$values['checklistId']) $cshtml .= ' SELECTED';
+            $cshtml .= '>'.htmlspecialchars(stripslashes($row['title']))."</option>\n";
+            }
         }
     return $cshtml;
     }
 
 function listselectbox($config,$values,$options,$sort) {
     $result = query("listselectbox",$config,$values,$options,$sort);
-    $lshtml="";
-    foreach($result as $row) {
-        $lshtml .= '                    <option value="'.$row['listId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-        if($row['listId']==$values['listId']) $lshtml .= ' SELECTED';
-        $lshtml .= '>'.stripslashes($row['title'])."</option>\n";
+    $lshtml='<option value="0">--</option>'."\n";
+    if ($result!="-1") {
+        foreach($result as $row) {
+            $lshtml .= '                    <option value="'.$row['listId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
+            if($row['listId']==$values['listId']) $lshtml .= ' SELECTED';
+            $lshtml .= '>'.htmlspecialchars(stripslashes($row['title']))."</option>\n";
+            }
         }
     return $lshtml;
     }

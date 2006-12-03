@@ -8,8 +8,8 @@ Development Team
 		<TH>Who</TH>
 		<TH>What</TH>
 	</TR>
-	<tr><td><a href="mailto:sjrey@users.sf.net?subject=gtd-php">Serge Rey</a></td><td>Project Founder and Director</td></tr>
-	<tr><td><a href="mailto:skorvek@gtd-php.com?subject=gtd-php">Scott Jason Korvek</a></td><td>GTD Enhancements</td></tr>
+	<tr><td><a href="mailto:sjrey@users.sf.net?subject=gtd-php">Serge Rey</a></td><td>Project Founder</td></tr>
+	<tr><td><a href="mailto:skorvek@gtd-php.com?subject=gtd-php">Scott Jason Korvek</a></td><td>Database and Enhancements</td></tr>
 	 <tr><td><a href="http://burnettsonline.org/">Josh Burnett</a></td><td>CSS</td></tr> 	  
 </table>
 

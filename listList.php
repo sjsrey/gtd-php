@@ -38,9 +38,9 @@ if ($result!="-1") {
         echo "	</thead>\n";
         foreach ($result as $row) {
                 echo "	<tr>\n";
-                echo "		<td>".stripslashes($row['category'])."</td>\n";
-                echo '		<td><a href="listReport.php?listId='.$row['listId'].'">'.stripslashes($row['title'])."</a></td>\n";
-                echo "		<td>".nl2br(substr(stripslashes($row['description']),0,72))."</td>\n";
+                echo "		<td>".htmlspecialchars(stripslashes($row['category']))."</td>\n";
+                echo '		<td><a href="listReport.php?listId='.$row['listId'].'">'.htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
+                echo "		<td>".nl2br(substr(htmlspecialchars(stripslashes($row['description'])),0,72))."</td>\n";
                 echo "	</tr>\n";
         }
         echo "</table>\n";

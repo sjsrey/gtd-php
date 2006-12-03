@@ -2,127 +2,124 @@
 
 Available Queries:
 
-    categoryselectbox
-    checkchecklistitems
-    checklistselectbox
-    clearchecklist
-    completeitem
-    completelistitem
-    completeproject
-    copynextaction
-    countactiveitems
-    countactiveprojects
-    countnextactions
-    countcontextreport_naonly
-    countcontextreport_all
-    countspacecontexts
-    deletecategory
-    deletechecklist
-    deletechecklistitem
-    deleteitem
-    deleteitemattributes
-    deleteitemstatus
-    deletelist
-    deletelistitem
-    deletenextaction
-    deletenote
-    deleteproject
-    deleteprojectattributes
-    deleteprojectstatus
-    deletespacecontext
-    deletetimecontext
-    getchecklistitems
-    getchecklists
-    getcompleteditems
-    getitems
-    getlistitems
-    getlists
-    getnotes
-    getnextactions
-    getprojects
-    getspacecontexts
-    gettimecontexts
-    listselectbox
-    newcategory
-    newchecklist
-    newchecklistitem
-    newitem
-    newitemattributes
-    newitemstatus
-    newlist
-    newlistitem
-    newnextaction
-    newnote
-    newproject
-    newprojectattributes
-    newprojectstatus
-    newspacecontext
-    newtimecontext
-    projectselectbox
-    projectssummary
-    reassigncategory
-    reassignspacecontext
-    reassigntimecontext
-    removechecklistitems
-    removeitems
-    removelistitems
-    removenextactions
-    removenextactionitem
-    selectcategory
-    selectchecklist
-    selectchecklistitem
-    selectcontext
-    selectitem
-    selectlist
-    selectlistitem
-    selectnextaction
-    selectnote
-    selectproject
-    selecttimecontext
-    spacecontextselectbox
-    testitemrepeat
-    testnextaction
-    testprojectrepeat
-    timecontextselectbox
-    updatecategory
-    updatechecklist
-    updatechecklistitem
-    updatespacecontext
-    updategoal
-    updateitem
-    updateitemattributes
-    updateitemstatus
-    updatelist
-    updatelistitem
-    updatenextaction
-    updatenote
-    updateproject
-    updateprojectattributes
-    updateprojectstatus
-    updatetimecontext
+categoryselectbox
+checkchecklistitem
+checklistselectbox
+clearchecklist
+completeitem
+completelistitem
+copynextaction
+countitems
+countnextactions
+countcontextreport_naonly
+countcontextreport_all
+countspacecontexts
+deletecategory
+deletechecklist
+deletechecklistitem
+deleteitem
+deleteitemattributes
+deleteitemstatus
+deletelist
+deletelistitem
+deletelookup
+deletenextaction
+deletenote
+deletespacecontext
+deletetimecontext
+getchecklistitems
+getchecklists
+getchildren
+getitems
+getitemsandparent
+getlistitems
+getlists
+getnotes
+getnextactions
+getorphaneditems
+getspacecontexts
+gettimecontexts
+listselectbox
+lookupparent
+newcategory
+newchecklist
+newchecklistitem
+newitem
+newitemattributes
+newitemstatus
+newlist
+newlistitem
+newnextaction
+newnote
+newparent
+newspacecontext
+newtimecontext
+parentselectbox
+reassigncategory
+reassignspacecontext
+reassigntimecontext
+removechecklistitems
+removelistitems
+repeatnote
+selectcategory
+selectchecklist
+selectchecklistitem
+selectcontext
+selectitem
+selectlist
+selectlistitem
+selectnextaction
+selectnote
+selecttimecontext
+spacecontextselectbox
+testitemrepeat
+testnextaction
+timecontextselectbox
+updatecategory
+updatechecklist
+updatechecklistitem
+updatespacecontext
+updateitem
+updateitemattributes
+updateitemstatus
+updatelist
+updatelistitem
+updateparent
+updatenextaction
+updatenote
+updatetimecontext
+
 
 Available sqlparts:
 
-    activeitems
-    activeitemsandproject
-    activelistitems
-    activeprojects
-    categoryfilter
-    contextfilter
-    completeditems
-    completedlistitems
-    completedprojects
-    getchecklists
-    getlists
-    issomeday
-    notcategoryfilter
-    notcontextfilter
-    nottimeframefilter
-    projectfilter
-    suppresseditems
-    suppressedprojects
-    timeframefilter
-    typefilter
+activeitems
+activelistitems
+categoryfilter
+contextfilter
+completeditems
+completedlistitems
+getchecklists
+getlists
+issomeday
+notcategoryfilter
+notcontextfilter
+nottimeframefilter
+suppresseditems
+timeframefilter
+timegoals
+timeitems
+ptypefilter-w
+typefilter-w
+typefilter
+repeats
+doesnotrepeat
+deadline
+nodeadline
+duetoday
+neglected
+selectitem
+incompleteitems
+notefilter
 
 
 Queries by script:
@@ -132,172 +129,134 @@ checklistreport
     getchecklistitems
 
 editcategory
-    categoryselectbox
     selectcategory
 
 editchecklist
     selectchecklist
-    categoryselectbox
 
 editchecklistitem
     selectchecklistitem
-    checklistselectbox
 
 editcontext
-    contextselectbox
     selectcontext
-    
-editgoal
-    SELECT * from goals where id = $goalId
-    SELECT * from projects order by name
 
 editlist
     selectlist
-    categoryselectbox
 
 editlistitem
     selectlistitem
-    listselectbox
 
 edittimecontext
-    timecontextselectbox
     selecttimecontext
 
 gtdfuncs
-    contextselectbox
-    timecontextselectbox
-    spacecontextselectbox
-    listselectbox
-    checklistselectbox
-    projectselectbox
     categoryselectbox
+    checklistselectbox
+    listselectbox
+    parentselectbox
+    spacecontextselectbox
+    timecontextselectbox
 
 item
     selectitem
     testnextaction
-    projectselectbox
-    spacecontextselectbox
-    timecontextselectbox
+    lookupparent
 
-listChecklist
-    categoryselectbox
-    getchecklists
-
-listGoals
-    SELECT * from goals order by type asc
-    SELECT * from goals where completed is not null
-        and completed != "0000-00-00" order by created desc, type desc
-
-listitems
-    spacecontextselectbox
-    timecontextselectbox
-    categoryselectbox
+itemReport
+    selectitem
     getnextactions
     getitems
+    getchildren
 
-listlist
-    categoryselectbox
+leadership
+
+
+listChecklist
+    getchecklists
+
+listitems
+    getnextactions
+    getnotes
+    getitemsandparent
+
+listList
     getlists
 
-listprojects
-    categoryselectbox
-    selectprojects
-    selectnextaction
-
-listreport
+listReport
     selectlist
     getlistitems
-    getcompletedlistitems
 
-newcategory
+management
+
+
+newCategory
     newcategory
 
-newchecklist
-    categoryselectbox
+newChecklist
     newchecklist
 
-newchecklistitem
-    checklistselectbox
+newChecklistItem
 
-newcontext
+newContext
     newspacecontext
 
-newgoal
-    ?projectselectbox:SELECT * from projects order by name
+newList
+    newlist
 
-newlist
-    categoryselectbox
-    newlistitem
+newListItem
 
-newlistitem
-    listselectbox
-
-newtimecontext
+newTimeContext
     newtimecontext
 
 note
     selectnote
 
-processchecklistitem
+orphans
+    getorphaneditems
+
+preferences
+
+
+processChecklistItem
     newchecklistitem
 
-processchecklistupdate
+processChecklistUpdate
     clearchecklist
     checkchecklistitems
 
-processgoal
-    INSERT into goals  values (NULL, '$goal',
-        '$description','$date', '$deadline',  NULL, '$type', '$projectId')
-
-processitem
+processItem
     newitem
     newitemattributes
     newitemstatus
     newnextaction
+    newparent
 
-processitemupdate
+processItemUpdate
+    lookupparent
+    testnextaction
     testitemrepeat
     selectitem
     newitem
     newitemattributes
     newitemstatus
-    testnextaction
-    completeitem
+    newparent
+    copynextaction
     deletenextaction
     updatenextaction
+    completeitem
 
-processlistitem
+processListItem
     newlistitem
 
-processlistupdate
+processListUpdate
     completelistitem
 
-processnote
+processNote
     newnote
 
-processproject
-    newproject
-    newprojectattributes
-    newprojectstatus
+reportCategory
 
-processprojectupdate
-    testprojectrepeat
-    selectproject
-    newproject
-    newprojectattributes
-    newprojectstatus
-    completeproject
-
-project
-    selectproject
-    categoryselectbox
-
-projectreport
-    selectproject
-    selectnextaction
-    getitems
-
-reportcontext
+reportContext
     getspacecontexts
     gettimecontexts
     getnextactions
@@ -305,83 +264,69 @@ reportcontext
     countcontextreport_all
     getitems
 
+reportTimeContext
+
 summary
-    spacecontextselectbox
+    getnotes
     countspacecontexts
     countnextactions
-    countactiveitems
-    countactiveprojects
-    projectssummary
-    countactiveprojects
-    projectssummary
-
-tickler
-    getnextactions
-    getnotes
+    countitems
     getitems
-    getprojects
 
-updatecategory
+updateCategory
     reassigncategory
     deletecategory
     updatecategory
 
-updatechecklist
+updateChecklist
     deletechecklist
     removechecklistitems
     updatechecklist
 
-updatechecklistitem
+updateChecklistitem
     deletechecklistitem
     updatechecklistitem
 
-updatecontext
+updateContext
     reassignspacecontext
     deletespacecontext
     updatespacecontext
 
-updategoal
-    updategoal
-
-updateitem
+updateItem
     deleteitemstatus
     deleteitemattributes
     deleteitem
+    deletelookup
     deletenextaction
     updateitemstatus
     updateitemattributes
     updateitem
     updatenextaction
+    updateparent
     deletenextaction
 
-updatelist
+updateList
     deletelist
     removelistitems
     updatelist
 
-updatelistitem
+updateListItem
     deletelistitem
     updatelistitem
 
-updatenote
+updateNote
     deletenote
+    repeatnote
     updatenote
 
-updateproject
-    deleteproject
-    deleteprojectattributes
-    deleteprojectstatus
-    removeitems
-    removenextaction
-    updateproject
-    updateprojectattributes
-    updateprojectstatus
+updatePreferences
 
-updatetimecontext
+
+updateTimeContext
     reassigntimecontext
     deletetimecontext
     updatetimecontext
 
 weekly
-    selectprojects
+    getitems
     selectnextaction

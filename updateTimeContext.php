@@ -6,6 +6,7 @@ $values=array();
 $values['tcId'] = (int) $_GET['tcId'];
 $values['name']=mysql_real_escape_string($_POST['timeframe']);
 $values['description']=mysql_real_escape_string($_POST['description']);
+$values['type']=mysql_real_escape_string($_POST['type']);
 $values['delete']=$_POST['delete']{0};
 $values['ntcId']=(int) $_POST['ntcId'];
 
@@ -18,6 +19,5 @@ else query("updatetimecontext",$config,$values);
 
 echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=reportContext.php" />';
 
-mysql_close($connection);
 include_once('footer.php');
 ?>

@@ -31,7 +31,7 @@ if ($result!="-1") {
 
         foreach($result as $row) {
             echo '	<tr>'."\n";
-            echo '		<td><a href = "editListItem.php?listItemId='.$row['listItemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['item'])).'">'.stripslashes($row['item']).'</td>'."\n";
+            echo '		<td><a href = "editListItem.php?listItemId='.$row['listItemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['item'])).'">'.htmlspecialchars(stripslashes($row['item'])).'</td>'."\n";
             echo '		<td>'.stripslashes($row['notes']).'</td>'."\n";
             echo '		<td align="center"><input type="checkbox" align="center" name="completedLis[]" title="Complete '.htmlspecialchars(stripslashes($row['item'])).'" value="'.$row['listItemId'].'"></td>'."\n";
             echo '	</tr>'."\n";
@@ -58,8 +58,8 @@ if ($result!="-1") {
             echo "	</thead>\n";
             foreach($result as $row) {
                     echo "	<tr>\n";
-            echo '               <td><a href = "editListItem.php?listItemId='.$row['listItemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['item'])).'">'.stripslashes($row['item']).'</td>'."\n";
-            echo '          <td>'.stripslashes($row['notes']).'</td>'."\n";
+            echo '               <td><a href = "editListItem.php?listItemId='.$row['listItemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['item'])).'">'.htmlspecialchars(stripslashes($row['item'])).'</td>'."\n";
+            echo '          <td>'.htmlspecialchars(stripslashes($row['notes'])).'</td>'."\n";
             echo "	</tr>\n";
             }
             echo "</table>\n";

@@ -33,10 +33,9 @@
     $titemstatus=0;
     //echo $db;
     //checking for table itemstatus (new in 0.6)
-    $tables = mysql_list_tables($db);
+    $tables = mysql_list_tables($config['db']);
     while (list($temp) = mysql_fetch_array($tables)){
         //echo "<br>";
-        //echo $temp;
         if($temp == 'itemstatus'){
             $titemstatus=1;
         }

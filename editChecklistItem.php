@@ -28,12 +28,12 @@ $cshtml = checklistselectbox($config,$values,$options,$sort);
 
 		<div class='formrow'>
 			<label for='newitem' class='left first'>Item:</label>
-			<textarea rows='2' name='newitem' wrap='virtual'><?php echo $currentrow['item']; ?></textarea>
+			<textarea rows='2' name='newitem' wrap='virtual'><?php echo htmlspecialchars(stripslashes($currentrow['item'])); ?></textarea>
 		</div>
 
 		<div class='formrow'>
 			<label for='notes' class='left first'>Notes:</label>
-			<textarea rows="3" name="newnotes" id="notes" wrap="virtual"><?php echo $currentrow['notes']; ?></textarea>
+			<textarea rows="3" name="newnotes" id="notes" wrap="virtual"><?php echo htmlspecialchars(stripslashes($currentrow['notes'])); ?></textarea>
 		</div>
 	</div>
 	<div class='formbuttons'>

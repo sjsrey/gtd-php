@@ -60,70 +60,83 @@ $config['theme']=$_SESSION['theme'];
 
 	 	<li>Capture
 			<ul>
-				<li><a href="item.php?type=n" title="Define a new Next Action">Next Action</a></li>
-				<li><a href="item.php?type=a" title="Define a new Action">Action</a></li>
-				<li><a href="project.php?type=p" title="Define a new Project">Project</a></li>
-				<li><a href="item.php?type=w" title="Define a new Waiting On Item">Waiting On</a></li>
-				<li><a href="item.php?type=r" title="Define a Reference">Reference</a></li>
-				<li><a href="project.php?type=s" title="Define a Future Project">Someday/Maybe</a></li>
-				<li><a href="newList.php" title="Define a general purpose list">List</a></li>
-				<li><a href="newChecklist.php" title="Define a reusable list">Checklist</a></li>
+                                <li><a href="item.php?type=i" title="Drop an item into the inbox">Inbox item</a></li>
+                                <li><a href="note.php" title="Create a reminder note">Note</a></li>
+                                <li><a href="item.php?type=n" title="Create a new next action">Next Action</a></li>
+				<li><a href="item.php?type=a" title="Create a new action">Action</a></li>
+                                <li><a href="item.php?type=w" title="Create a new waiting on item">Waiting On</a></li>
+                                <li><a href="item.php?type=r" title="Create a reference">Reference</a></li>
+				<li><a href="item.php?type=p" title="Create a new project">Project</a></li>
+                                <li><a href="item.php?type=s" title="Create a future project">Someday/Maybe</a></li>
+                                <li><a href="item.php?type=o" title="Define a new role">Role</a></li>
+                                <li><a href="item.php?type=g" title="Define a new goal">Goal</a></li>
+                                <li><a href="item.php?type=v" title="Define a new vision">Vision</a></li>
+                                <li><a href="item.php?type=m" title="Define a new value">Value</a></li>
+				<li><a href="newList.php" title="Create a general purpose list">List</a></li>
+				<li><a href="newChecklist.php" title="Create a reusable list">Checklist</a></li>
 				<li><a href="newContext.php" title="Define a geographical context">Space Context</a></li>
 				<li><a href="newTimeContext.php" title="Define a time window for items">Time Context</a></li>
-				<li><a href="newCategory.php" title="Meta categories to group projects">Category</a></li>
+				<li><a href="newCategory.php" title="Define an new meta-category">Category</a></li>
 			</ul>
 
 		<li>Process
 			<ul>
-				<li><a href="reportContext.php" title="Active items sorted by context">Contexts</a></li>
-				<li><a href="listProjects.php?pType=p" title="Active projects">Projects</a></li>
-				<li><a href="listItems.php?type=n" title="Active Next Actions">Next Actions</a></li>
-				<li><a href="listItems.php?type=a" title="Active actions">Actions</a></li>
-				<li><a href="listItems.php?type=w" title="Active waiting">Waiting On</a></li>
-				<li><a href="listItems.php?type=r" title="Active references">References</a></li>
-				<li><a href="listProjects.php?pType=s" title="Someday projects">Someday/Maybe</a></li>
+                                <li><a href="listItems.php?type=i" title="Inbox">Inbox</a></li> 
+                                <li><a href="reportCategory.php" title="Active items sorted by category">Categories</a></li>
+              			<li><a href="reportContext.php" title="Active items sorted by space context">Space Contexts</a></li>
+                                <li><a href="reportTimeContext.php" title="Active items sorted by time context">Time Contexts</a></li>
+				<li><a href="listItems.php?type=p" title="Projects">Projects</a></li>
+				<li><a href="listItems.php?type=n" title="Next actions">Next Actions</a></li>
+				<li><a href="listItems.php?type=a" title="Actions">Actions</a></li>
+				<li><a href="listItems.php?type=w" title="Waiting On">Waiting On</a></li>
+				<li><a href="listItems.php?type=r" title="References">References</a></li>
+				<li><a href="listItems.php?type=s" title="Someday projects">Someday/Maybes</a></li>
 				<li><a href="listList.php" title="General-purpose lists">Lists</a></li>
 				<li><a href="listChecklist.php" title="Reusable checklists">Checklists</a></li>
-				<li><a href="listProjects.php?pType=c" title="Completed projects">Achievements</a></li>
-				<li><a href="summaryAlone.php" title="Summary view">Summary</a></li>
-				<li><a href="tickler.php" title="Hidden items and reminders">Tickler File</a></li>
+                                <li><a href="summaryAlone.php" title="Summary view">Summary</a></li>
 			</ul>
 
 		<li>Review
 			<ul>
 				<li><a href="weekly.php" title="Steps in the Weekly Review">Weekly Review</a></li>
-				<li><a href="listGoals.php" title="List set goals">List Goals</a></li>
-				<li><a href="newGoal.php" title="Define a new goal">Set Goal</a></li>
+                                <li><a href="orphans.php" title="List items without a parent item">Orphaned Items</a></li>
+                                <li><a href="leadership.php" title="Leadership view">Leadership</a></li>
+                                <li><a href="management.php" title="Management view">Management</a></li>
+                                <li><a href="listItems.php?type=m" title="Values / Mission">Values</a></li>
+                                <li><a href="listItems.php?type=v" title="Visions">Visions</a></li>
+                                <li><a href="listItems.php?type=g" title="Goals">Goals</a></li>
+                                <li><a href="listItems.php?type=o" title="Roles / Areas of Responsibility">Roles</a></li>
+                                <li><a href="listItems.php?type=c" title="Notable Achivements">Achievements</a></li>
+                                <li><a href="listItems.php?type=t" title="Hidden items and reminders">Tickler File</a></li>
+
 			</ul>
 
-        <li>Lists
+                <li>Lists
 			<ul>
 				<li><a href="listList.php" title="General-purpose lists">Lists</a></li>
 				<li><a href="listChecklist.php" title="Reuseable checklists lists">Checklists</a></li>
 			</ul>
 
-        <li>Config
+                <li>Configure
 
-			<ul>
-				<li><a href="newCategory.php" title="Meta-Categories">Categories</a></li>
-				<li><a href="newContext.php" title="Spatial Contexts">Space Contexts</a></li>
-				<li><a href="newTimeContext.php" title="Time Contexts">Time Contexts</a></li>
-				<li><a href="preferences.php" title="User Preferences">User Preferences</a></li>
+			<ul><!-- need to change from capture to management view  //-->
+				<li><a href="newCategory.php" title="Meta-categories">Categories</a></li>
+				<li><a href="newContext.php" title="Spatial contexts">Space Contexts</a></li>  
+				<li><a href="newTimeContext.php" title="Time contexts">Time Contexts</a></li>
+				<li><a href="preferences.php" title="User preferences">User Preferences</a></li>
 			</ul>
 
 		<li>About
 			<ul>
 				<li><a href="about.php">License</a></li>
 				<li><a href="credits.php">Credits</a></li>
-				<li><a href="http://toae.org/boards">Mailing List</a></li>
-				<li><a href="http://www.gtd-php.com">Wiki</a></li>
-				<li><a href="http://www.frappr.com/gtdphp">Frappr Map</a></li>
-				<li><a href="donate.php">Donate</a></li>
+				<li><a href="http://toae.org/boards" title="Help and development discussions">Forum</a></li>
+				<li><a href="http://www.gtd-php.com" title="Documentation">Wiki</a></li>
+                                <li><a href="https://www.hosted-projects.com/trac/toae/gtdphp" title="Bug tracking and project development">Trac Page</a></li>
+				<li><a href="http://www.frappr.com/gtdphp" title="Tell us where you are">Frappr Map</a></li>
+				<li><a href="donate.php" title="Help us defray our costs">Donate</a></li>
 			</ul>
 	</ul>
 </div>
 
 <div id="main">
-
-
-

@@ -7,12 +7,11 @@ $config = array(
         "db"                        => '', //the name of your database
         "user"                      => '', //username for database access
         "pass"                      => '', //database password
-
     //database information
         "dbtype"                    => 'mysql',  //database type: currently only mysql is valid.  DO NOT CHANGE!
 
     //user preferences : MOVE TO DATABASE
-        "title"			    => 'GTD-PHP', // site name (appears at the top of each page)
+        "title"                     => 'GTD-PHP', // site name (appears at the top of each page)
         "debug"                     => 'false',  // false | true
         "theme"                     => 'default', //default | menu_sidebar
         "contextsummary"            => 'all',  //all | nextaction (Show all actions on context report, or nextactions only?)
@@ -31,15 +30,19 @@ $sort = array(
     "categoryselectbox"     => "`categories`.`category` ASC",
     "checklistselectbox"    => "`checklist`.`title` ASC",
     "listselectbox"         => "`list`.`title` ASC",
-    "projectselectbox"      => "`projects`.`name` ASC",
+    "parentselectbox"       => "`items`.`title` ASC",
     "timecontextselectbox"  => "`timeitems`.`timeframe` DESC",
     "getprojects"           => "`categories`.`category`, `projectattributes`.`deadline`, `projects`.`name` ASC",
     "getlistitems"          => "`listItems`.`item` ASC",
     "getcompleteditems"     => "`itemstatus`.`dateCompleted` DESC, `projects`.`name`, `items`.`title` ASC",
-    "getitems"              => "`projects`.`name`, `itemattributes`.`deadline`, `items`.`title` ASC",
+    "getitemsandparent"     => "ptitle ASC, pcatname ASC, type ASC, deadline ASC, title ASC, dateCreated DESC",
+    "getorphaneditems"      => "`itemattributes`.`type` ASC, `items`.`title` ASC",
     "selectchecklist"       => "`checklist`.`title` ASC",
     "getchecklists"         => "`categories`.`category` ASC",
     "getlists"              => "`categories`.`category` ASC",
     "getchecklistitems"     => "`checklistItems`.`checked` DESC, `checklistItems`.`item` ASC",
+    "getchildren"           => "`itemattributes`.`type` ASC",
+    "getitems"              =>  " `categories`.`category`, `items`.`title` ASC ",
+    "getnotes"              => " `tickler`.`date` DESC ",
     );
 ?>

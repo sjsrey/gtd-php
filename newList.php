@@ -25,8 +25,7 @@ $cashtml=categoryselectbox($config,$values,$options,$sort);
 		</div>
 
 		<div class='formrow'>
-			<label for='description' class='left first'>Description:</label>
-			<textarea rows="10" name="description" id="description" wrap="virtual"></textarea>
+			<label for='description' class='left first'>Description:</label><textarea rows="10" name="description" id="description" wrap="virtual"></textarea>
 		</div>
 	</div>
 	<div class='formbuttons'>
