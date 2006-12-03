@@ -60,6 +60,7 @@ $sm = query("getitems",$config,$values,$options,$sort);
 //set empty database counts to zero
     if($numbercontexts[0]['ncontexts']=="") $numbercontexts[0]['ncontexts']="0";
     if($numberprojects[0]['nitems']=="" || $pres=="-1") $numberprojects[0]['nitems']="0";
+    if($numbersomeday!='-1')
     if($numbersomeday[0]['nitems']=="" || $sm=="-1") $numbersomeday[0]['nitems']="0";
     if($numberitems[0]['nitems']=="") $numberitems[0]['nitems']="0";
     if($numbernextactions[0]['nnextactions']=="") $numbernextactions[0]['nnextactions']="0";
