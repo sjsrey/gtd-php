@@ -22,6 +22,7 @@ if ($_POST['isSomeday']{0}=='y') $values['isSomeday']='y';
 else $values['isSomeday']='n';
 
 
+
 //CRUDE error checking
 if ($values['suppress']!="y") $values['suppress']="n";
 if ($values['nextaction']!="y") $values['nextaction']="n";
@@ -36,6 +37,7 @@ $result = query("newitemstatus",$config,$values);
 if($values['nextAction']=='y') $result = query("newnextaction",$config,$values);
     if ($parents>0) foreach ($parents as $values['parentId']) $result = query("newparent",$config,$values);
 
+if($values['isSomeday']=='y') $values['type']='s';
 echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$values['type'].'">';
 
 include_once('footer.php');
