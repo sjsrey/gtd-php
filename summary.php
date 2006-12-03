@@ -129,6 +129,7 @@ if($numbercontexts[0]['ncontexts']==1) {
     }
 
 //Somedays
+   if($numbersomeday!='-1'){
 	$i=0;
         $w2=$numbersomeday[0]['nitems']/3;
         if ($sm!=-1) {
@@ -151,7 +152,7 @@ if($numbercontexts[0]['ncontexts']==1) {
                 $i+=1;
             }
         }
-
+   }
 
     echo "<div class='reportsection'>\n";
 	echo "<h3>Project</h3>\n";
@@ -181,6 +182,7 @@ if($numbercontexts[0]['ncontexts']==1) {
     echo "<div class='reportsection'>\n";
 	echo "<h3>Someday/Maybes</h3>\n";
 
+    if($numbersomeday!='-1)
     if($numbersomeday[0]['nitems']==1){
         echo '<p>There is ' .$numbersomeday[0]['nitems']. ' <a href="listItems.php?type=s">Someday/Maybe</a>.</p>'."\n";
     }else{
