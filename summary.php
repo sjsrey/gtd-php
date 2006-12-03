@@ -182,7 +182,7 @@ if($numbercontexts[0]['ncontexts']==1) {
     echo "<div class='reportsection'>\n";
 	echo "<h3>Someday/Maybes</h3>\n";
 
-    if($numbersomeday!='-1)
+    if($numbersomeday!='-1')
     if($numbersomeday[0]['nitems']==1){
         echo '<p>There is ' .$numbersomeday[0]['nitems']. ' <a href="listItems.php?type=s">Someday/Maybe</a>.</p>'."\n";
     }else{
