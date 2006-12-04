@@ -36,8 +36,9 @@ if ($values['itemId']>0) {
 
     //Test to see if nextaction
     $result = query("testnextaction",$config,$values,$options,$sort);
-    if ($result!="-1")
-    if ($result[0]['nextaction']==$values['itemId']) $nextactioncheck='true';
+    if ($result!="-1") {
+        if ($result[0]['nextaction']==$values['itemId']) $nextactioncheck='true';
+        }
     }
 }
 
