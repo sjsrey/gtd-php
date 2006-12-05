@@ -2,6 +2,10 @@
 //INCLUDES
 include_once('header.php');
 
+
+//seperate referrer values from copied item values
+//check for repeating item--- if repeating, need to create new item...
+
 //GET URL ND FORM VARIABLES
 $values=array();
 $values['type']=$_POST['type']{0};
@@ -34,7 +38,10 @@ if(isset($values['completedNas'])){
 
         //test to see if item is a nextaction
         $nextactiontest=query("testnextaction",$config,$values);
-        if ($nextactiontest[0]['nextaction']==$values['completedNa']) $isna="true";
+        if ($nextactiontest!="-1") {
+            if ($nextactiontest[0]['nextaction']==$values['completedNa']) $isna="true";
+            }
+        else $isna="false";
 
     //test to see if action is repeating
         $testrow = query("testitemrepeat",$config,$values);
