@@ -99,9 +99,37 @@ ALTER TABLE `items` CHANGE `itemId` `itemId` INT( 10 ) UNSIGNED NOT NULL;
 ALTER TABLE `itemattributes` CHANGE `itemId` `itemId` INT( 10 ) UNSIGNED NOT NULL;
 ALTER TABLE `itemstatus` CHANGE `itemId` `itemId` INT( 10 ) UNSIGNED NOT NULL;
 
-UPDATE `items` SET `prikey`=`itemId`+(SELECT (SELECT MAX(`id`) FROM `goals`)+(SELECT MAX(`projectId`) FROM `projects`));
-UPDATE `itemattributes` SET `prikey`=`itemId`+(SELECT (SELECT MAX(`id`) FROM `goals`)+(SELECT MAX(`projectId`) FROM `projects`));
-UPDATE `itemstatus` SET `prikey`=`itemId`+(SELECT (SELECT MAX(`id`) FROM `goals`)+(SELECT MAX(`projectId`) FROM `projects`));
+UPDATE `items` SET `prikey`=`itemId` +( 
+	CASE  WHEN (SELECT MAX(`id`) FROM `goals`) IS NULL THEN 0
+		ELSE (SELECT MAX(`id`) FROM `goals`)
+	END
+	)+(
+	CASE  WHEN (SELECT MAX(`projectId`) FROM `projects`) IS NULL THEN 0
+		ELSE (SELECT MAX(`projectId`) FROM `projects`)
+	END
+	);
+
+UPDATE `itemattributes` SET `prikey`=`itemId`+(
+	CASE  WHEN (SELECT MAX(`id`) FROM `goals`) IS NULL THEN 0
+		ELSE (SELECT MAX(`id`) FROM `goals`)
+	END
+	)+(
+	CASE  WHEN (SELECT MAX(`projectId`) FROM `projects`) IS NULL THEN 0
+		ELSE (SELECT MAX(`projectId`) FROM `projects`)
+	END
+	);
+
+
+UPDATE `itemstatus` SET `prikey`=`itemId`+(
+	CASE  WHEN (SELECT MAX(`id`) FROM `goals`) IS NULL THEN 0
+		ELSE (SELECT MAX(`id`) FROM `goals`)
+	END
+	)+(
+	CASE  WHEN (SELECT MAX(`projectId`) FROM `projects`) IS NULL THEN 0
+		ELSE (SELECT MAX(`projectId`) FROM `projects`)
+	END
+	);
+
 ALTER TABLE `items` DROP PRIMARY KEY, ADD PRIMARY KEY (`prikey`);
 ALTER TABLE `itemattributes` DROP PRIMARY KEY, ADD PRIMARY KEY (`prikey`);
 ALTER TABLE `itemstatus` DROP PRIMARY KEY, ADD PRIMARY KEY (`prikey`);
@@ -115,10 +143,26 @@ ALTER TABLE `itemattributes` CHANGE `prikey` `itemId` INT( 10 ) UNSIGNED NOT NUL
 ALTER TABLE `itemstatus` CHANGE `prikey` `itemId` INT( 10 ) UNSIGNED NOT NULL DEFAULT '0';
 
 DELETE FROM `nextactions` WHERE `nextaction` ='0';
-UPDATE `nextactions` SET `nextaction`=`nextaction`+(SELECT MAX(`projectId`) FROM `projects`);
+UPDATE `nextactions` SET `nextaction`=`nextaction`+(
+	CASE  WHEN (SELECT MAX(`id`) FROM `goals`) IS NULL THEN 0
+		ELSE (SELECT MAX(`id`) FROM `goals`)
+	END
+	)+(
+	CASE  WHEN (SELECT MAX(`projectId`) FROM `projects`) IS NULL THEN 0
+		ELSE (SELECT MAX(`projectId`) FROM `projects`)
+	END
+	);
 
 ALTER TABLE `lookup` ADD `prikey` INT UNSIGNED NOT NULL;
-UPDATE `lookup` SET `prikey` =`itemId`+(SELECT (SELECT MAX(`id`) FROM `goals`)+(SELECT MAX(`projectId`) FROM `projects`));
+UPDATE `lookup` SET `prikey` =`itemId`+(
+	CASE  WHEN (SELECT MAX(`id`) FROM `goals`) IS NULL THEN 0
+		ELSE (SELECT MAX(`id`) FROM `goals`)
+	END
+	)+(
+	CASE  WHEN (SELECT MAX(`projectId`) FROM `projects`) IS NULL THEN 0
+		ELSE (SELECT MAX(`projectId`) FROM `projects`)
+	END
+	);
 ALTER TABLE `lookup` DROP PRIMARY KEY, ADD PRIMARY KEY (`parentId` , `prikey`);
 ALTER TABLE `lookup` DROP `itemId`;
 ALTER TABLE `lookup` CHANGE `prikey` `itemId` INT( 10 ) UNSIGNED NOT NULL DEFAULT '0';
@@ -131,7 +175,11 @@ INSERT INTO `itemstatus` (`itemId`,`dateCreated`, `lastModified`, `dateCompleted
  -- Increment goals table by max projectId -- 
 ALTER TABLE `goals` ADD `prikey` INT UNSIGNED NOT NULL FIRST;
 ALTER TABLE `goals` CHANGE `id` `id` INT( 10 ) UNSIGNED NOT NULL;
-UPDATE `goals` SET `prikey`=`id`+(SELECT MAX(`projectId`) FROM `projects`);
+UPDATE `goals` SET `prikey`=`id`+(
+	CASE  WHEN (SELECT MAX(`projectId`) FROM `projects`) IS NULL THEN 0
+		ELSE (SELECT MAX(`projectId`) FROM `projects`)
+	END
+	);
 ALTER TABLE `goals` DROP PRIMARY KEY, ADD PRIMARY KEY (`prikey`);
 ALTER TABLE `goals` DROP `id`;
 ALTER TABLE `goals` CHANGE `prikey` `id` INT( 10 ) UNSIGNED NOT NULL DEFAULT '0';
@@ -140,8 +188,16 @@ ALTER TABLE `goals` CHANGE `prikey` `id` INT( 10 ) UNSIGNED NOT NULL DEFAULT '0'
 ALTER TABLE `timeitems` ADD `type` ENUM( 'v', 'o', 'g', 'p', 'a' ) NOT NULL DEFAULT 'a';
 ALTER TABLE `timeitems` ADD INDEX ( `type` );
 ALTER TABLE `goals` ADD `timeframeId` INT UNSIGNED NOT NULL;
-UPDATE `goals` SET `timeframeId`= ((SELECT MAX(`timeframeId`) FROM `timeitems`)+1) WHERE `type`='weekly';
-UPDATE `goals` SET `timeframeId`= ((SELECT MAX(`timeframeId`) FROM `timeitems`)+2) WHERE `type`='quarterly';
+UPDATE `goals` SET `timeframeId`= (1 + (
+	CASE  WHEN (SELECT MAX(`timeframeId`) FROM `timeitems`) IS NULL THEN 0
+		ELSE (SELECT MAX(`timeframeId`) FROM `timeitems`)
+	END
+	)) WHERE `type`='weekly';
+UPDATE `goals` SET `timeframeId`= (2 + (
+	CASE  WHEN (SELECT MAX(`timeframeId`) FROM `timeitems`) IS NULL THEN 0
+		ELSE (SELECT MAX(`timeframeId`) FROM `timeitems`)
+	END
+	)) WHERE `type`='quarterly';
 ALTER TABLE `goals` CHANGE `type` `type` ENUM('g') NOT NULL DEFAULT 'g';
 
  -- Copy over data from goals -- 
@@ -182,4 +238,3 @@ ALTER TABLE `categories` ADD FULLTEXT (`description`);
  -- rename old database to name-old --
  -- rename new database to preferred name -- 
  -- User may need to adjust privileges --
-
