@@ -203,7 +203,7 @@ if ($suppressed==TRUE) $values ['childfilterquery'] .= sqlparts("suppresseditems
 else $values['childfilterquery'] .= sqlparts("activeitems",$config,$values);
 
 //parent filters based upon entire result set
-if $values['type'!="i"] {
+if ($values['type']!="i") {
 $values['filterquery'] = " WHERE ";//need to add for first instance
 $values['filterquery'] .= sqlparts("activeparents",$config,$values);
 $values['filterquery'] .= sqlparts("issomeday-parents",$config,$values);
