@@ -207,6 +207,7 @@ if ($values['type']!="i") {
 $values['filterquery'] = " WHERE ";//need to add for first instance
 $values['filterquery'] .= sqlparts("activeparents",$config,$values);
 $values['filterquery'] .= sqlparts("issomeday-parents",$config,$values);
+$values['parentfilterquery'] = sqlparts("ptypefilter-w",$config,$values);
 }
  
 //filter box filters
@@ -220,9 +221,9 @@ if ($values['timeframeId'] != NULL && $values['nottimecontext']!="true") $values
 if ($values['timeframeId'] != NULL && $values['nottimecontext']=="true") $values['childfilterquery'] .= sqlparts("nottimeframefilter",$config,$values);
 
 
+
 /*
 //make generic based on type/someday, etc.
-$values['parentfilterquery'] = sqlparts("ptypefilter-w",$config,$values);
 $values['parentfilterquery'] .= sqlparts("issomeday",$config,$values);
 $values['parentfilterquery'] .= sqlparts("activeitems",$config,$values);
 
