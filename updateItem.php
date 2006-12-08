@@ -29,7 +29,6 @@ if (!isset($values['title'])) die ("No title. Item NOT updated.");
 
 //SQL CODE AREA
 if($values['delete']=="y"){
-
     query("deleteitemstatus",$config,$values);
     query("deleteitemattributes",$config,$values);
     query("deleteitem",$config,$values);
@@ -44,14 +43,38 @@ else {
     query("updateitemattributes",$config,$values);
     query("updateitem",$config,$values);
     query("deletelookup",$config,$values); //remove all parents before adding current ones
-    if ($parents>0) foreach ($parents as $values['parentId']) $result = query("updateparent",$config,$values);
-
-    if ($values['nextAction']=='y' && ($values['dateCompleted']==NULL || $values['dateCompleted']=="0000-00-00")) foreach ($parents as $values['parentId']) $result = query("updatenextaction",$config,$values);
+    if ($parents>0) {
+        foreach ($parents as $values['parentId']) {
+            if ($values['parentId']>0) {
+                $result = query("updateparent",$config,$values);
+                if ($values['nextAction']=='y' && ($values['dateCompleted']==NULL || $values['dateCompleted']=="0000-00-00")) foreach ($parents as $values['parentId']) $result = query("updatenextaction",$config,$values);
+                else $result = query("deletenextaction",$config,$values);
+                }
+            else $result = query("deletenextaction",$config,$values);
+            }
+        }
     else $result = query("deletenextaction",$config,$values);
-
-
-    echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$values['type'].'" />';
     }
+
+//check to see if manually setting item completed
+if (($values['dateCompleted'] != '0000-00-00' && $values['dateCompleted']!=NULL) && $values['repeat']>0) {
+        $nextdue=strtotime("+".$values['repeat']."day");
+        $values['nextduedate']=gmdate("Y-m-d", $nextdue);
+        //copy data to tables with new id
+        $result=query("newitem",$config,$values);
+        $values['newitemId'] = $GLOBALS['lastinsertid'];
+        $values['deadline']=$values['nextduedate'];
+        $result=query("newitemattributes",$config,$values);
+        $values['dateCompleted']=NULL;
+        $result=query("newitemstatus",$config,$values);
+        //copy parent information with new id
+        if ($values['parentId']>0) $result=query("newparent",$config,$values);
+        //make next action if necessary
+        if ($values['nextAction']=="y") $result = query("copynextaction",$config,$values);
+        }
+
+
+echo '<META HTTP-EQUIV="Refresh" CONTENT="120; url=listItems.php?type='.$values['type'].'" />';
 
 include_once('footer.php');
 ?>
