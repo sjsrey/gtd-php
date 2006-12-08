@@ -1,10 +1,12 @@
 <?php
 
 $sqlparts = array(
-    
-    "activeitems"           =>  " AND (`itemstatus`.`dateCompleted` IS NULL OR `itemstatus`.`dateCompleted` = '0000-00-00') AND ((CURDATE()>=DATE_ADD(`itemattributes`.`deadline`, INTERVAL -(`itemattributes`.`suppressUntil`) DAY)) OR `itemattributes`.`suppress`='n') ",
+    "activeparents"         =>  " (y.`pdateCompleted` IS NULL OR y.`pdateCompleted` = '0000-00-00') AND ((CURDATE()>=DATE_ADD(y.`pdeadline`, INTERVAL -(y.`psuppressUntil`) DAY)) OR y.`psuppress`!='y' OR y.`psuppress` IS NULL)",
+    "issomeday-parents"     =>  " AND y.`pisSomeday` = '{$values['isSomeday']}' ",
+    "activeitems"           =>  " AND (`itemstatus`.`dateCompleted` IS NULL OR `itemstatus`.`dateCompleted` = '0000-00-00') AND ((CURDATE()>=DATE_ADD(`itemattributes`.`deadline`, INTERVAL -(`itemattributes`.`suppressUntil`) DAY)) OR `itemattributes`.`suppress`!='y') ",
     "activelistitems"       =>  " AND (`listItems`.`dateCompleted` IS NOT NULL AND `listItems`.`dateCompleted` ='0000-00-00') ",
     "categoryfilter"        =>  " AND `itemattributes`.`categoryId` = '{$values['categoryId']}' ",
+    "categoryfilter-parent" => " AND y.`pcategoryId` = '{$values['categoryId']}' ",
     "contextfilter"         =>  " AND `itemattributes`.`contextId` = '{$values['contextId']}' ",
     "completeditems"        =>  " AND  `itemstatus`.`dateCompleted` > 0 ",
     "completedlistitems"    =>  " AND (`listItems`.`dateCompleted`!='0000-00-00' AND `listItems`.`dateCompleted` IS NOT NULL) ",
@@ -32,6 +34,5 @@ $sqlparts = array(
     "notefilter"            =>  " WHERE (`date` IS NULL OR `date` = '0000-00-00') OR (CURDATE()>= `date`) ",
     );
 
-//parentfilterquery: typefilter, issomeday, activeitems
-//childfilterquery: typefilter, issomeday, activeitems
+//NEED TO FIX ANDS AND WHERES---  move to page logic when chaining filters-- not filters themselves (no "-w" etc.. confusing)
 ?>

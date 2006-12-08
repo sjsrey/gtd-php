@@ -74,7 +74,7 @@ if (($values['dateCompleted'] != '0000-00-00' && $values['dateCompleted']!=NULL)
         }
 
 
-echo '<META HTTP-EQUIV="Refresh" CONTENT="120; url=listItems.php?type='.$values['type'].'" />';
+echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$values['type'].'" />';
 
 include_once('footer.php');
 ?>

@@ -90,6 +90,7 @@ switch ($item['type']) {
     }
 
 echo "<h1>".str_replace("s","",$typename[$item['type']])."&nbsp;Report:&nbsp;".htmlspecialchars(stripslashes($item['title']))."</h1>\n";
+//FIXME
 
 //Edit, next, and previous buttons
 echo '[ <a href="item.php?itemId='.$values['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($item['title'])).'">Edit</a> ]'."\n";

@@ -197,27 +197,37 @@ $show['checkbox']=TRUE;
 
 if ($suppressed==TRUE) $show['suppressUntil']=TRUE;
 
-//make generic based on type/someday, etc.
-$values['parentfilterquery'] = sqlparts("ptypefilter-w",$config,$values);
-//$values['parentfilterquery'] .= sqlparts("issomeday",$config,$values);
-$values['parentfilterquery'] .= sqlparts("activeitems",$config,$values);
-
-
+//child filters
 $values['childfilterquery'] = sqlparts("typefilter-w",$config,$values);
-$values['childfilterquery'] .= sqlparts("issomeday",$config,$values);  //?
-
 if ($suppressed==TRUE) $values ['childfilterquery'] .= sqlparts("suppresseditems",$config,$values);
 else $values['childfilterquery'] .= sqlparts("activeitems",$config,$values);
 
+//parent filters based upon entire result set
+$values['filterquery'] = " WHERE ";//need to add for first instance
+$values['filterquery'] .= sqlparts("activeparents",$config,$values);
+$values['filterquery'] .= sqlparts("issomeday-parents",$config,$values);
 
-if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['childfilterquery'] .= sqlparts("categoryfilter",$config,$values);
-if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['childfilterquery'] .= sqlparts("notcategoryfilter",$config,$values);
+//filter box filters
+if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= sqlparts("categoryfilter-parent",$config,$values);
+if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("notcategoryfilter-parent",$config,$values);
 
 if ($values['contextId'] != NULL && $values['notspacecontext']!="true") $values['childfilterquery'] .= sqlparts("contextfilter",$config,$values);
 if ($values['contextId'] != NULL && $values['notspacecontext']=="true") $values['childfilterquery'] .= sqlparts("notcontextfilter",$config,$values);
 
 if ($values['timeframeId'] != NULL && $values['nottimecontext']!="true") $values['childfilterquery'] .= sqlparts("timeframefilter",$config,$values);
 if ($values['timeframeId'] != NULL && $values['nottimecontext']=="true") $values['childfilterquery'] .= sqlparts("nottimeframefilter",$config,$values);
+
+
+/*
+//make generic based on type/someday, etc.
+$values['parentfilterquery'] = sqlparts("ptypefilter-w",$config,$values);
+$values['parentfilterquery'] .= sqlparts("issomeday",$config,$values);
+$values['parentfilterquery'] .= sqlparts("activeitems",$config,$values);
+
+$values['childfilterquery'] = sqlparts("typefilter-w",$config,$values);
+$values['childfilterquery'] .= sqlparts("issomeday",$config,$values);  //?
+*/
+
 
 //Get items for display
 $result = query("getitemsandparent",$config,$values,$options,$sort);
