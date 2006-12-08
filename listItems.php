@@ -239,33 +239,48 @@ $result = query("getitemsandparent",$config,$values,$options,$sort);
     if ($filterdisplay<1) {
         if ($display=="nextonly" && $values['type']=="a") $urltype="n";
         else $urltype=$values['type'];
-        echo '<div id="filter">'."\n";
-	echo '<form action="listItems.php?type='.$urltype.'" method="post">'."\n";
-	echo "<p>Category:&nbsp;\n";
-	echo '<select name="categoryId" title="Filter items by parent category">'."\n";
-	echo $cashtml;
-	echo "</select>\n";
-        echo '<input type="checkbox" name="notcategory" title="Exclude category from list" value="true"';
-        if ($values['notcategory']=="true") echo " CHECKED";
-        echo '> NOT'."\n";
-	echo "&nbsp;&nbsp;&nbsp;\nContext:&nbsp;\n";
-	echo '<select name="contextId" title="Filter items by context">'."\n";
-	echo $cshtml;
-	echo "</select>\n";
-        echo '<input type="checkbox" name="notspacecontext" title="Exclude spatial context from list" value="true"';
-        if ($values['notspacecontext']=="true") echo " CHECKED";
-        echo '> NOT'."\n";
-        echo "&nbsp;&nbsp;&nbsp;\nTime:&nbsp;\n";
-	echo '<select name="timeId" title="Filter items by time context">'."\n";
-	echo $tshtml;
-	echo "</select>\n";
-        echo '<input type="checkbox" name="nottimecontext" title="Exclude time context from list" value="true"';
-        if ($values['nottimecontext']=="true") echo " CHECKED";
-        echo '> NOT'."\n";
-        echo '&nbsp;&nbsp;&nbsp;<input type="submit" class="button" value="Filter" name="submit" title="Filter '.$typename.' by category and/or contexts">'."\n";
-	echo "</p>\n";
-	echo "</form>\n\n";
-        echo "</div>\n";
+?>
+
+<div id="filter">
+    <form action="listItems.php?type=<?php echo $urltype ?>" method="post">
+        <div class="formrow">
+            <label for='categoryId' class='left'>Category:</label>
+            <select name="categoryId" title="Filter items by parent category">
+            <?php echo $cashtml ?>
+            </select>
+            <input type="checkbox" name="notcategory" title="Exclude category from list" value="true" <?php if ($values['notcategory']=="true") echo 'CHECKED'?>>
+            <label for='notcategory' class='notfirst'>NOT</label>
+            <label for='contextId' class='left'>Context:</label>
+            <select name="contextId" title="Filter items by context">
+            <?php echo $cshtml ?>
+            </select>
+            <input type="checkbox" name="notspacecontext" title="Exclude spatial context from list" value="true" <?php if ($values['notspacecontext']=="true") echo 'CHECKED'?>>
+            <label for='notspacecontext' class='notfirst'>NOT</label>
+            <label for='timeId' class='left'>Time:</label>
+            <select name="timeId" title="Filter items by time context">
+            <?php echo $tshtml ?>
+            </select>
+            <input type="checkbox" name="nottimecontext" title="Exclude time context from list" value="true" <?php if ($values['nottimecontext']=="true") echo 'CHECKED'?>>
+            <label for='nottimecontext' class='notfirst'>NOT</label>
+        </div>
+        <div class="formrow">
+            <label class='left'>Status:</label>
+            <input type='radio' name='active' id='active' value='pending' class="first" <?php if ($values['active']=="pending") echo 'CHECKED'?> title="Show incomplete <?php echo $typename ?>" /><label for='pending' class='right' >Pending</label>
+            <input type='radio' name='active' id='completed' value='completed' class="notfirst" <?php if ($values['active']=="completed") echo 'CHECKED'?> title="Show achivements" /><label for='completed' class='right'>Completed</label>
+            <label class='left'>Tickler:</label>
+            <input type='radio' name='suppressed' id='notsuppressed' value='false' class="notfirst" <?php if ($values['suppressed']=="false") echo 'CHECKED'?> title="Show active <?php echo $typename ?>" /><label for='notsuppressed' class='right'>Active</label>
+            <input type='radio' name='suppressed' id='suppressed' value='true' class="notfirst" <?php if ($values['suppressed']=="true") echo 'CHECKED'?> title="Show tickler <?php echo $typename ?>" /><label for='completed' class='right'>Tickler</label>
+            <input type="checkbox" name="nextonly" id="nextonly" class="first" value="true" <?php if ($values['nextonly']=="true") echo 'CHECKED'?> title="Show only Next Actions"><label for='nextonly' class='right'>Next Actions</label>
+            <input type="checkbox" name="dueonly" id="dueonly" class="notfirst" value="true" <?php if ($values['dueonly']=="true") echo 'CHECKED'?> title="Show only <?php echo $typename ?> with a due date" value="true"><label for='dueonly' class='right'>Due</label>
+            <input type="checkbox" name="repeatingonly" id="repeatingonly" class="notfirst" value="true" <?php if ($values['repeatingonly']=="true") echo 'CHECKED'?> title="Show only repeating <?php echo $typename ?>"><label for='repeatingonly' class='right'>Repeating</label>
+            </div>
+            <div class="formbuttons">
+            <input type="submit" class="button" value="Filter" name="submit" title="Filter <?php echo $typename ?> by selected criteria">
+        </div>
+    </form>
+</div>
+    
+<?php
         }
         $filterdisplay++;
 
