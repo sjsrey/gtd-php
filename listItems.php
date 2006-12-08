@@ -5,20 +5,51 @@ include_once('header.php');
 
 //GET URL VARIABLES
 $values = array();
-$type=$_GET["type"]{0};
+$filter = array();
+
+$filter['type']=$_GET["type"]{0};
+$values['type']=$filter['type'];
+print_r($_POST);
+
 if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
-else $values['categoryId']=(int) $_POST['categoryId'];
+    else $values['categoryId']=(int) $_POST['categoryId'];
+$filter['notcategory']=$_POST['notcategory'];
+
 if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
-else $values['contextId']=(int) $_POST['contextId'];
+    else $values['contextId']=(int) $_POST['contextId'];
+$filter['notspacecontext']=$_POST['notspacecontext'];
+
 if ($_GET['timeId']>0) $values['timeframeId']=(int) $_GET['timeId'];
-else $values['timeframeId']=(int) $_POST['timeId'];
+    else $values['timeframeId']=(int) $_POST['timeId'];
+$filter['nottimecontext']=$_POST['nottimecontext'];
 
-$values['notspacecontext']=$_POST['notspacecontext'];
-$values['nottimecontext']=$_POST['nottimecontext'];
-$values['notcategory']=$_POST['notcategory'];
+//suppressed (tickler file): true/false
+if ($filter['type']=="t") $filter['suppressed']="true";
+    else $filter['suppressed']=$_POST['suppressed'];
 
-if ($type=='s') $values['isSomeday']='y';
-else $values['isSomeday']='n';
+//someday/maybe:true/empty or type==s
+if ($filter['type']=="s") {
+        $values['isSomeday']='y';
+        $values['type']='p';
+        }
+    else $values['isSomeday']='n';
+
+//next actions only: true/empty or type==n
+if ($filter['type']=="n") {
+    $filter['nextonly']="true";
+    $values['type']='a';
+    }
+    else $filter['nextonly']=$_POST['nextonly'];
+
+//status:pending/completed
+$filter['active']=$_POST['active'];
+
+//has due date:true/empty
+$filter['dueonly']=$_POST['dueonly'];
+
+//is repeating:true/empty
+$filter['repeatingonly']=$_POST['repeatingonly'];
+
 
 //Check Session Variables
 //If we have contextId from a new filter, change Session value
@@ -30,6 +61,43 @@ else $values['contextId']=$_SESSION['contextId'];
 $categoryId=$values['categoryId'];
 if ($categoryId>=0) $_SESSION['categoryId']=$categoryId;
 else $values['categoryId']=$_SESSION['categoryId'];
+
+
+//child filters
+$values['childfilterquery'] = sqlparts("typefilter-w",$config,$values);
+if ($filter['suppressed']=="true") $values ['childfilterquery'] .= sqlparts("suppresseditems",$config,$values);
+else $values['childfilterquery'] .= sqlparts("activeitems",$config,$values);
+
+//parent filters based upon entire result set
+if ($filter['type']!="i") {
+$values['filterquery'] = " WHERE ";//need to add for first instance
+$values['filterquery'] .= sqlparts("activeparents",$config,$values);
+//$values['filterquery'] .= sqlparts("issomeday-parents",$config,$values);
+$values['parentfilterquery'] = sqlparts("ptypefilter-w",$config,$values);
+}
+ 
+//filter box filters
+if ($values['categoryId'] != NULL && $filter['notcategory']!="true") $values['filterquery'] .= sqlparts("categoryfilter-parent",$config,$values);
+if ($values['categoryId'] != NULL && $filter['notcategory']=="true") $values['filterquery'] .= sqlparts("notcategoryfilter-parent",$config,$values);
+
+if ($values['contextId'] != NULL && $filter['notspacecontext']!="true") $values['childfilterquery'] .= sqlparts("contextfilter",$config,$values);
+if ($values['contextId'] != NULL && $filter['notspacecontext']=="true") $values['childfilterquery'] .= sqlparts("notcontextfilter",$config,$values);
+
+if ($values['timeframeId'] != NULL && $filter['nottimecontext']!="true") $values['childfilterquery'] .= sqlparts("timeframefilter",$config,$values);
+if ($values['timeframeId'] != NULL && $filter['nottimecontext']=="true") $values['childfilterquery'] .= sqlparts("nottimeframefilter",$config,$values);
+
+
+
+/*
+//make generic based on type/someday, etc.
+$values['parentfilterquery'] .= sqlparts("issomeday",$config,$values);
+$values['parentfilterquery'] .= sqlparts("activeitems",$config,$values);
+
+$values['childfilterquery'] = sqlparts("typefilter-w",$config,$values);
+$values['childfilterquery'] .= sqlparts("issomeday",$config,$values);  //?
+*/
+
+
 
 //page display options array--- can put defaults in preferences table/config/session and load into $show array as defaults...
 $show=array();
@@ -77,7 +145,7 @@ on column header
 //SQL CODE
 
 //create filters for selectboxes
-if ($type=="g") $values['timefilterquery'] = sqlparts("timegoals",$config,$values);
+if ($filter['type']=="g") $values['timefilterquery'] = sqlparts("timegoals",$config,$values);
 else $values['timefilterquery'] = sqlparts("timeitems",$config,$values);
 
 //create filter selectboxes
@@ -98,7 +166,7 @@ if ($result!="-1") {
     }
 
 //Select notes
-if ($type=="t") $reminderresult = query("getnotes",$config,$values,$options,$sort);
+if ($filter['type']=="t") $reminderresult = query("getnotes",$config,$values,$options,$sort);
 
 
 //Select items
@@ -108,19 +176,17 @@ if ($type=="t") $reminderresult = query("getnotes",$config,$values,$options,$sor
 
 
 $loop=array();
-if ($type=="t") {
+if ($filter['type']=="t") {
     $loop = array("m","v","g","o","p","a","w","r");
-    $suppressed=TRUE;
     }
 
 else {
-    $loop = array($type);
-    $suppresed=FALSE;
+    $loop = array($filter['type']);
     }
 
 
 //Tickler file header and notes section
-if ($type=="t") {
+if ($filter['type']=="t") {
     echo "<h1>Tickler File</h1>\n";
     echo "<div class='tickler'>\n";
     echo '<h4>Today is '.date("l, F jS, Y").'. (Week '.date("w").'/52 & Day '.date("z").'/'.(365+date("L")).")</h4>\n";
@@ -136,12 +202,12 @@ if ($type=="t") {
     echo "</div>\n";
     if ($reminderresult!="-1") {
             echo "<div class='notes'>\n";
-            echo '<h2><a href="note.php?&type='.$type.'&referrer=t" Title="Add new reminder">Reminder Notes</a></h2>';
+            echo '<h2><a href="note.php?&type='.$values['type'].'&referrer=t" Title="Add new reminder">Reminder Notes</a></h2>';
             $tablehtml="";
             foreach ($reminderresult as $row) {
                     $tablehtml .= " <tr>\n";
                     $tablehtml .= "         <td>".$row['date']."</td>\n";
-                    $tablehtml .= '         <td><a href = "note.php?noteId='.$row['ticklerId'].'&type='.$type.'&referrer=t" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.htmlspecialchars(stripslashes($row['title']))."</td>\n";
+                    $tablehtml .= '         <td><a href = "note.php?noteId='.$row['ticklerId'].'&type='.$values['type'].'&referrer=t" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.htmlspecialchars(stripslashes($row['title']))."</td>\n";
                     $tablehtml .= '         <td>'.nl2br(htmlspecialchars(stripslashes($row['note'])))."</td>\n";
                     $tablehtml .= " </tr>\n";
             }
@@ -186,50 +252,17 @@ $show['checkbox']=TRUE;
         case "g" : $typename="Goals"; $parentname="Vision"; $values['ptype']="v"; $show['desiredOutcome']=TRUE; $show['context']=FALSE; break;
         case "o" : $typename="Roles"; $parentname="Goal"; $values['ptype']="g"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
         case "p" : $typename="Projects"; $parentname="Role"; $values['ptype']="o"; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "s" : $typename="Someday/Maybe"; $parentname="Role"; $values['ptype']="o"; $values['type']="p"; $show['context']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['timeframe']=FALSE; $show['dateCreated']=TRUE; break;
+        case "s" : $typename="Someday/Maybe"; $parentname="Role"; $values['ptype']="o"; $show['context']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['timeframe']=FALSE; $show['dateCreated']=TRUE; break;
         case "a" : $typename="Actions"; $parentname="Project"; $values['ptype']="p"; $show['category']=FALSE; break;
-        case "n" : $typename="Next Actions"; $parentname="Project";$values['ptype']="p"; $values['type']="a"; $display="nextonly"; $show['category']=FALSE; break;
+        case "n" : $typename="Next Actions"; $parentname="Project";$values['ptype']="p"; $display="nextonly"; $show['category']=FALSE; break;
         case "w" : $typename="Waiting On"; $parentname="Project"; $values['ptype']="p"; break;
         case "r" : $typename="References"; $parentname="Project"; $values['ptype']="p"; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; break;
         case "i" : $typename="Inbox Items"; $parentname=""; $values['ptype']=""; $show['parent']=FALSE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['repeat']=FALSE; break;
         default  : $typename="Items"; $parentname=""; $values['ptype']="";
         }
 
-if ($suppressed==TRUE) $show['suppressUntil']=TRUE;
+if ($filter['suppressed']=="true") $show['suppressUntil']=TRUE;
 
-//child filters
-$values['childfilterquery'] = sqlparts("typefilter-w",$config,$values);
-if ($suppressed==TRUE) $values ['childfilterquery'] .= sqlparts("suppresseditems",$config,$values);
-else $values['childfilterquery'] .= sqlparts("activeitems",$config,$values);
-
-//parent filters based upon entire result set
-if ($values['type']!="i") {
-$values['filterquery'] = " WHERE ";//need to add for first instance
-$values['filterquery'] .= sqlparts("activeparents",$config,$values);
-$values['filterquery'] .= sqlparts("issomeday-parents",$config,$values);
-$values['parentfilterquery'] = sqlparts("ptypefilter-w",$config,$values);
-}
- 
-//filter box filters
-if ($values['categoryId'] != NULL && $values['notcategory']!="true") $values['filterquery'] .= sqlparts("categoryfilter-parent",$config,$values);
-if ($values['categoryId'] != NULL && $values['notcategory']=="true") $values['filterquery'] .= sqlparts("notcategoryfilter-parent",$config,$values);
-
-if ($values['contextId'] != NULL && $values['notspacecontext']!="true") $values['childfilterquery'] .= sqlparts("contextfilter",$config,$values);
-if ($values['contextId'] != NULL && $values['notspacecontext']=="true") $values['childfilterquery'] .= sqlparts("notcontextfilter",$config,$values);
-
-if ($values['timeframeId'] != NULL && $values['nottimecontext']!="true") $values['childfilterquery'] .= sqlparts("timeframefilter",$config,$values);
-if ($values['timeframeId'] != NULL && $values['nottimecontext']=="true") $values['childfilterquery'] .= sqlparts("nottimeframefilter",$config,$values);
-
-
-
-/*
-//make generic based on type/someday, etc.
-$values['parentfilterquery'] .= sqlparts("issomeday",$config,$values);
-$values['parentfilterquery'] .= sqlparts("activeitems",$config,$values);
-
-$values['childfilterquery'] = sqlparts("typefilter-w",$config,$values);
-$values['childfilterquery'] .= sqlparts("issomeday",$config,$values);  //?
-*/
 
 
 //Get items for display
@@ -237,42 +270,40 @@ $result = query("getitemsandparent",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
     if ($filterdisplay<1) {
-        if ($display=="nextonly" && $values['type']=="a") $urltype="n";
-        else $urltype=$values['type'];
 ?>
 
 <div id="filter">
-    <form action="listItems.php?type=<?php echo $urltype ?>" method="post">
+    <form action="listItems.php?type=<?php echo $filter['type']?>" method="post">
         <div class="formrow">
             <label for='categoryId' class='left'>Category:</label>
             <select name="categoryId" title="Filter items by parent category">
             <?php echo $cashtml ?>
             </select>
-            <input type="checkbox" name="notcategory" title="Exclude category from list" value="true" <?php if ($values['notcategory']=="true") echo 'CHECKED'?>>
+            <input type="checkbox" name="notcategory" title="Exclude category from list" value="true" <?php if ($filter['notcategory']=="true") echo 'CHECKED'?>>
             <label for='notcategory' class='notfirst'>NOT</label>
             <label for='contextId' class='left'>Context:</label>
             <select name="contextId" title="Filter items by context">
             <?php echo $cshtml ?>
             </select>
-            <input type="checkbox" name="notspacecontext" title="Exclude spatial context from list" value="true" <?php if ($values['notspacecontext']=="true") echo 'CHECKED'?>>
+            <input type="checkbox" name="notspacecontext" title="Exclude spatial context from list" value="true" <?php if ($filter['notspacecontext']=="true") echo 'CHECKED'?>>
             <label for='notspacecontext' class='notfirst'>NOT</label>
             <label for='timeId' class='left'>Time:</label>
             <select name="timeId" title="Filter items by time context">
             <?php echo $tshtml ?>
             </select>
-            <input type="checkbox" name="nottimecontext" title="Exclude time context from list" value="true" <?php if ($values['nottimecontext']=="true") echo 'CHECKED'?>>
+            <input type="checkbox" name="nottimecontext" title="Exclude time context from list" value="true" <?php if ($filter['nottimecontext']=="true") echo 'CHECKED'?>>
             <label for='nottimecontext' class='notfirst'>NOT</label>
         </div>
         <div class="formrow">
             <label class='left'>Status:</label>
-            <input type='radio' name='active' id='active' value='pending' class="first" <?php if ($values['active']=="pending") echo 'CHECKED'?> title="Show incomplete <?php echo $typename ?>" /><label for='pending' class='right' >Pending</label>
-            <input type='radio' name='active' id='completed' value='completed' class="notfirst" <?php if ($values['active']=="completed") echo 'CHECKED'?> title="Show achivements" /><label for='completed' class='right'>Completed</label>
+            <input type='radio' name='active' id='active' value='pending' class="first" <?php if ($filter['active']=="pending") echo 'CHECKED'?> title="Show incomplete <?php echo $typename ?>" /><label for='pending' class='right' >Pending</label>
+            <input type='radio' name='active' id='completed' value='completed' class="notfirst" <?php if ($filter['active']=="completed") echo 'CHECKED'?> title="Show achivements" /><label for='completed' class='right'>Completed</label>
             <label class='left'>Tickler:</label>
-            <input type='radio' name='suppressed' id='notsuppressed' value='false' class="notfirst" <?php if ($values['suppressed']=="false") echo 'CHECKED'?> title="Show active <?php echo $typename ?>" /><label for='notsuppressed' class='right'>Active</label>
-            <input type='radio' name='suppressed' id='suppressed' value='true' class="notfirst" <?php if ($values['suppressed']=="true") echo 'CHECKED'?> title="Show tickler <?php echo $typename ?>" /><label for='completed' class='right'>Tickler</label>
-            <input type="checkbox" name="nextonly" id="nextonly" class="first" value="true" <?php if ($values['nextonly']=="true") echo 'CHECKED'?> title="Show only Next Actions"><label for='nextonly' class='right'>Next Actions</label>
-            <input type="checkbox" name="dueonly" id="dueonly" class="notfirst" value="true" <?php if ($values['dueonly']=="true") echo 'CHECKED'?> title="Show only <?php echo $typename ?> with a due date" value="true"><label for='dueonly' class='right'>Due</label>
-            <input type="checkbox" name="repeatingonly" id="repeatingonly" class="notfirst" value="true" <?php if ($values['repeatingonly']=="true") echo 'CHECKED'?> title="Show only repeating <?php echo $typename ?>"><label for='repeatingonly' class='right'>Repeating</label>
+            <input type='radio' name='suppressed' id='notsuppressed' value='false' class="notfirst" <?php if ($filter['suppressed']=="false") echo 'CHECKED'?> title="Show active <?php echo $typename ?>" /><label for='notsuppressed' class='right'>Active</label>
+            <input type='radio' name='suppressed' id='suppressed' value='true' class="notfirst" <?php if ($filter['suppressed']=="true") echo 'CHECKED'?> title="Show tickler <?php echo $typename ?>" /><label for='completed' class='right'>Tickler</label>
+            <input type="checkbox" name="nextonly" id="nextonly" class="first" value="true" <?php if ($filter['nextonly']=="true") echo 'CHECKED'?> title="Show only Next Actions"><label for='nextonly' class='right'>Next Actions</label>
+            <input type="checkbox" name="dueonly" id="dueonly" class="notfirst" value="true" <?php if ($filter['dueonly']=="true") echo 'CHECKED'?> title="Show only <?php echo $typename ?> with a due date" value="true"><label for='dueonly' class='right'>Due</label>
+            <input type="checkbox" name="repeatingonly" id="repeatingonly" class="notfirst" value="true" <?php if ($filter['repeatingonly']=="true") echo 'CHECKED'?> title="Show only repeating <?php echo $typename ?>"><label for='repeatingonly' class='right'>Repeating</label>
             </div>
             <div class="formbuttons">
             <input type="submit" class="button" value="Filter" name="submit" title="Filter <?php echo $typename ?> by selected criteria">
@@ -281,6 +312,7 @@ $result = query("getitemsandparent",$config,$values,$options,$sort);
 </div>
     
 <?php
+print_r($filter);
         }
         $filterdisplay++;
 
@@ -293,8 +325,8 @@ $result = query("getitemsandparent",$config,$values,$options,$sort);
                 $tablehtml="";
                 foreach ($result as $row) {
                     $showme="y";
-                    //filter out all but nextactions if $display=nextonly
-                    if (($display=='nextonly')  && !($key = array_search($row['itemId'],$nextactions))) $showme="n";
+                    //filter out all but nextactions if $filter['nextonly']==true
+                    if (($filter['nextonly']=="true")  && !($key = array_search($row['itemId'],$nextactions))) $showme="n";
                     if($showme=="y") {
                         $tablehtml .= "	<tr>\n";
 
@@ -404,14 +436,14 @@ $result = query("getitemsandparent",$config,$values,$options,$sort);
 	}
 
 
-        elseif($values['completed']!="y" && $type!="t") {
+        elseif($values['completed']!="y" && $filter['type']!="t") {
 		$message="You have no ".$typename." remaining.";
 		$prompt="Would you like to create a new ".str_replace("s","",$typename)."?";
 		$yeslink="item.php?type=".$values['type'];
 		nothingFound($message,$prompt,$yeslink);
 	}
         
-        elseif($type="t") {
+        elseif($filter['type']="t") {
                 $message="None";
                 nothingFound($message);
         }
