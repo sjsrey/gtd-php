@@ -181,7 +181,7 @@ if ($filter['someday']=="true") {
     $values['filterquery'] .= " WHERE " .sqlparts("issomeday-parent",$config,$values);
     }
 
-else {
+else if ($values['type']!="i") {
     $values['isSomeday']="n";
     $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
     $values['filterquery'] .= " WHERE " .sqlparts("issomeday-parent",$config,$values);
