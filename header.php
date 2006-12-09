@@ -106,7 +106,7 @@ $config['theme']=$_SESSION['theme'];
                                 <li><a href="listItems.php?type=v" title="Visions">Visions</a></li>
                                 <li><a href="listItems.php?type=g" title="Goals">Goals</a></li>
                                 <li><a href="listItems.php?type=o" title="Roles / Areas of Responsibility">Roles</a></li>
-                                <li><a href="listItems.php?type=c" title="Notable Achivements">Achievements</a></li>
+                                <li><a href="achivements.php" title="Notable Achivements">Achievements</a></li>
                                 <li><a href="listItems.php?type=t" title="Hidden items and reminders">Tickler File</a></li>
 
 			</ul>
