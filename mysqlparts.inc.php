@@ -9,6 +9,7 @@ $sqlparts = array(
     "categoryfilter-parent" =>  " y.`pcategoryId` = '{$values['categoryId']}' ",
     "completeditems"        =>  " `itemstatus`.`dateCompleted` > 0 ",
     "contextfilter"         =>  " `itemattributes`.`contextId` = '{$values['contextId']}' ",
+    "due"                   =>  " (CURDATE()>=`itemattributes`.`deadline` AND `itemattributes`.`deadline` IS NOT NULL AND `itemattributes`.`deadline`!='0000-00-00') ",
     "issomeday"             =>  " `itemattributes`.`isSomeday` = '{$values['isSomeday']}' ",
     "issomeday-parent"      =>  " y.`pisSomeday` = '{$values['isSomeday']}' ",
     "pendingitems"          =>  " (`itemstatus`.`dateCompleted` IS NULL OR `itemstatus`.`dateCompleted` = '0000-00-00') ",
@@ -16,7 +17,8 @@ $sqlparts = array(
     "notcategoryfilter"     =>  " y.`pcategoryId` != '{$values['categoryId']}' ",
     "notcontextfilter"      =>  " `itemattributes`.`contextId` != '{$values['contextId']}' ",
     "nottimeframefilter"    =>  " `itemattributes`.`timeframeId` !='{$values['timeframeId']}' ",
-    "suppresseditems"       =>  " (`itemattributes`.`suppress`='y') ",
+    "repeating"             =>  " `itemattributes`.`repeat` >0 ",
+    "suppresseditems"       =>  " `itemattributes`.`suppress`='y' AND (CURDATE()<=DATE_ADD(`itemattributes`.`deadline`, INTERVAL -(`itemattributes`.`suppressUntil`) DAY)) ",
     "timeframefilter"       =>  " `itemattributes`.`timeframeId` ='{$values['timeframeId']}' ",
     "typefilter"            =>  " `itemattributes`.`type` = '{$values['type']}' ",
 

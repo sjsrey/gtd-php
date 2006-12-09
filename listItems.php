@@ -175,6 +175,17 @@ if ($values['timeframeId'] != NULL && $filter['nottimecontext']=="true") $values
 if ($filter['completed']=="completed") $values['childfilterquery'] .= " AND ".sqlparts("completeditems",$config,$values);
 else $values['childfilterquery'] .= " AND " .sqlparts("pendingitems",$config,$values);
 
+if ($filter['someday']=="true") {
+    $values['isSomeday']="y";
+    $values['filterquery'] .= " WHERE " .sqlparts("issomeday-parent",$config,$values);
+    }
+
+else {
+    $values['isSomeday']="n";
+    $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+    $values['filterquery'] .= " WHERE " .sqlparts("issomeday-parent",$config,$values);
+    }
+
 //problem: need to get all items with suppressed parents(even if child is not marked suppressed), as well as all suppressed items
 if ($filter['tickler']=="true") $values['childfilterquery'] .= " AND ".sqlparts("suppresseditems",$config,$values);
 
@@ -183,26 +194,13 @@ else {
     $values['filterquery'] .= " AND ".sqlparts("activeparents",$config,$values);
     }
 
-//problem need to filter out all someday children and all children of someday parents, even if children not marked as someday
-if ($filter['someday']=="true") {
-    $values['isSomeday']="y";
-    $values['filterquery'] .= " AND " .sqlparts("issomeday-parent",$config,$values);
-    }
+if ($filter['repeatingonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("repeating",$config,$values);
 
-else {
-    $values['isSomeday']="n";
-    $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
-    $values['filterquery'] .= " AND " .sqlparts("issomeday-parent",$config,$values);
-    }
+if ($filter['dueonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("due",$config,$values);
 
 /*
-
-$filter['dueonly']
-$filter['repeatingonly']
 $filter['nextonly']
-
 */
-
 
 //Get items for display
 $result = query("getitemsandparent",$config,$values,$options,$sort);
