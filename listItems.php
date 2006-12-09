@@ -10,14 +10,8 @@ $show=array();
 $values = array();
 $filter = array();
 
-if (isset($_POST['type'])) $filter['type']=$_POST['type'];
-else $filter['type']=$_GET["type"]{0};
-$values['type']=$filter['type'];
-
-
-print_r($_GET);
-print_r($_POST);
-print_r($filter);
+if (isset($_GET['type'])) $values['type']=$_GET["type"]{0};
+else $values['type']="a";
 
 if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
     else $values['categoryId']=(int) $_POST['categoryId'];
@@ -32,32 +26,28 @@ if ($_GET['timeId']>0) $values['timeframeId']=(int) $_GET['timeId'];
 $filter['nottimecontext']=$_POST['nottimecontext'];
 
 //suppressed (tickler file): true/false
-if ($filter['type']=="t") {
-    $filter['tickler']="true";
-    $values['type']="a";
-    }
-    else $filter['tickler']=$_POST['tickler'];
+if (isset($_GET['tickler'])) $filter['tickler']=$_GET['tickler'];
+else $filter['tickler']=$_POST['tickler'];
 
-//someday/maybe:true/empty or type==s
-if ($filter['type']=="s") {
-        $filter['someday']='true';
-        $values['type']='p';
-        }
-    else $filter['someday']=$_POST['someday'];
+//someday/maybe:true/empty
+if (isset($_GET['someday'])) $filter['someday']=$_GET['someday'];
+else $filter['someday']=$_POST['someday'];
 
-//next actions only: true/empty or type==n
-if ($filter['type']=="n") $values['type']='a';
-    $filter['nextonly']=$_POST['nextonly'];
-if ($filter['nextonly']=="true") $filter['type']='n';
+//next actions only: true/empty 
+if (isset($_GET['nextonly'])) $filter['nextonly']=$_GET['nextonly'];
+else $filter['nextonly']=$_POST['nextonly'];
 
 //status:pending/completed (empty)
-$filter['completed']=$_POST['completed'];
+if (isset($_GET['completed'])) $filter['completed']=$_GET['completed'];
+else $filter['completed']=$_POST['completed'];
 
 //has due date:true/empty
-$filter['dueonly']=$_POST['dueonly'];
+if (isset($_GET['dueonly'])) $filter['dueonly']=$_GET['dueonly'];
+else $filter['dueonly']=$_POST['dueonly'];
 
 //is repeating:true/empty
-$filter['repeatingonly']=$_POST['repeatingonly'];
+if (isset($_GET['repeatingonly'])) $filter['repeatingonly']=$_GET['repeatingonly'];
+else $filter['repeatingonly']=$_POST['repeatingonly'];
 
 
 //Check Session Variables
@@ -75,7 +65,7 @@ else $values['categoryId']=$_SESSION['categoryId'];
 //SQL CODE
 
 //create filters for selectboxes
-if ($filter['type']=="g") $values['timefilterquery'] = sqlparts("timegoals",$config,$values);
+if ($values['type']=="g") $values['timefilterquery'] = sqlparts("timegoals",$config,$values);
 else $values['timefilterquery'] = sqlparts("timeitems",$config,$values);
 
 //create filter selectboxes
@@ -96,25 +86,14 @@ if ($result!="-1") {
     }
 
 //Select notes
-if ($filter['tickler']=="true") $reminderresult = query("getnotes",$config,$values,$options,$sort);
+if ($filter['tickler']=="true") {
+    $values['filterquery'] = "";
+    $reminderresult = query("getnotes",$config,$values,$options,$sort);
+    }
 
 //Select items
 
-/*
-$loop=array();
-if ($filter['tickler']=="true") {
-    $loop = array("m","v","g","o","p","a","w","r");
-    }
-
-else {
-    $loop = array($values['type']);
-    }
-$filterdisplay=0;
-$notedisplay=0;
-foreach ($loop as $values['type']) {
-*/
-
-//reset default table column display options (kludge-- needs to be divided into multidimensional array for each table type
+//set default table column display options (kludge-- needs to be divided into multidimensional array for each table type and added to preferences table
 $show['parent']=TRUE;
 $show['title']=TRUE;
 $show['description']=TRUE;
@@ -129,6 +108,7 @@ $show['context']=TRUE;
 $show['timeframe']=TRUE;
 $show['deadline']=TRUE;
 $show['repeat']=TRUE;
+$show['dateCompleted']=FALSE;
 $show['checkbox']=TRUE;
 
 
@@ -139,67 +119,99 @@ $show['checkbox']=TRUE;
         case "g" : $typename="Goals"; $parentname="Vision"; $values['ptype']="v"; $show['desiredOutcome']=TRUE; $show['context']=FALSE; break;
         case "o" : $typename="Roles"; $parentname="Goal"; $values['ptype']="g"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
         case "p" : $typename="Projects"; $parentname="Role"; $values['ptype']="o"; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "s" : $typename="Someday/Maybe"; $parentname="Role"; $values['ptype']="o"; $show['context']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['timeframe']=FALSE; $show['dateCreated']=TRUE; break;
         case "a" : $typename="Actions"; $parentname="Project"; $values['ptype']="p"; $show['category']=FALSE; break;
-        case "n" : $typename="Next Actions"; $parentname="Project";$values['ptype']="p"; $display="nextonly"; $show['category']=FALSE; break;
         case "w" : $typename="Waiting On"; $parentname="Project"; $values['ptype']="p"; break;
         case "r" : $typename="References"; $parentname="Project"; $values['ptype']="p"; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; break;
         case "i" : $typename="Inbox Items"; $parentname=""; $values['ptype']=""; $show['parent']=FALSE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['repeat']=FALSE; break;
         default  : $typename="Items"; $parentname=""; $values['ptype']="";
         }
 
+
+if ($filter['someday']=="true") {
+    $show['dateCreated']=TRUE;
+    $show['context']=FALSE;
+    $show['repeat']=FALSE;
+    $show['deadline']=FALSE;
+    $show['timeframe']=FALSE;
+    }
+
 if ($filter['tickler']=="true") $show['suppressUntil']=TRUE;
 
+if ($filter['dueonly']=="true") $show['deadline']=TRUE;
 
-//set query fragments based on filters  : parent and child filters!
-//add other filter possibilities
+if ($filter['repeatingonly']=="true") {
+    $show['deadline']=TRUE;
+    $show['repeat']=TRUE;
+    }
 
-
-//child filters
-$values['childfilterquery'] = sqlparts("typefilter-w",$config,$values);
-if ($filter['suppressed']=="true") $values ['childfilterquery'] .= sqlparts("suppresseditems",$config,$values);
-else $values['childfilterquery'] .= sqlparts("activeitems",$config,$values);
-
-//parent filters based upon entire result set
-if ($filter['type']!="i") {
-$values['filterquery'] = " WHERE ";//need to add for first instance
-$values['filterquery'] .= sqlparts("activeparents",$config,$values);
-//$values['filterquery'] .= sqlparts("issomeday-parents",$config,$values);
-$values['parentfilterquery'] = sqlparts("ptypefilter-w",$config,$values);
+if ($filter['completed']=="completed") {
+    $show['suppress']=FALSE;
+    $show['suppressUntil']=FALSE;
+    $show['dateCreated']=TRUE;
+    $show['deadline']=FALSE;
+    $show['repeat']=FALSE;
+    $show['dateCompleted']=TRUE;
+    $show['checkbox']=FALSE;
 }
- 
+
+//set query fragments based on filters
+$values['childfilterquery'] = "";
+$values['parentfilterquery'] = "";
+$values['filterquery'] = "";
+
+//type filter
+$values['childfilterquery'] = " WHERE ".sqlparts("typefilter",$config,$values);
+
 //filter box filters
-if ($values['categoryId'] != NULL && $filter['notcategory']!="true") $values['filterquery'] .= sqlparts("categoryfilter-parent",$config,$values);
-if ($values['categoryId'] != NULL && $filter['notcategory']=="true") $values['filterquery'] .= sqlparts("notcategoryfilter-parent",$config,$values);
+if ($values['categoryId'] != NULL && $filter['notcategory']!="true") $values['filterquery'] .= " AND ".sqlparts("categoryfilter-parent",$config,$values);
+if ($values['categoryId'] != NULL && $filter['notcategory']=="true") $values['filterquery'] .= " AND ".sqlparts("notcategoryfilter-parent",$config,$values);
 
-if ($values['contextId'] != NULL && $filter['notspacecontext']!="true") $values['childfilterquery'] .= sqlparts("contextfilter",$config,$values);
-if ($values['contextId'] != NULL && $filter['notspacecontext']=="true") $values['childfilterquery'] .= sqlparts("notcontextfilter",$config,$values);
+if ($values['contextId'] != NULL && $filter['notspacecontext']!="true") $values['childfilterquery'] .= " AND ".sqlparts("contextfilter",$config,$values);
+if ($values['contextId'] != NULL && $filter['notspacecontext']=="true") $values['childfilterquery'] .= " AND ".sqlparts("notcontextfilter",$config,$values);
 
-if ($values['timeframeId'] != NULL && $filter['nottimecontext']!="true") $values['childfilterquery'] .= sqlparts("timeframefilter",$config,$values);
-if ($values['timeframeId'] != NULL && $filter['nottimecontext']=="true") $values['childfilterquery'] .= sqlparts("nottimeframeflter",$config,$values);
+if ($values['timeframeId'] != NULL && $filter['nottimecontext']!="true") $values['childfilterquery'] .= " AND ".sqlparts("timeframefilter",$config,$values);
+if ($values['timeframeId'] != NULL && $filter['nottimecontext']=="true") $values['childfilterquery'] .= " AND ".sqlparts("nottimeframefilter",$config,$values);
 
+if ($filter['completed']=="completed") $values['childfilterquery'] .= " AND ".sqlparts("completeditems",$config,$values);
+else $values['childfilterquery'] .= " AND " .sqlparts("pendingitems",$config,$values);
 
+//problem: need to get all items with suppressed parents(even if child is not marked suppressed), as well as all suppressed items
+if ($filter['tickler']=="true") $values['childfilterquery'] .= " AND ".sqlparts("suppresseditems",$config,$values);
+
+else {
+    $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
+    $values['filterquery'] .= " AND ".sqlparts("activeparents",$config,$values);
+    }
+
+//problem need to filter out all someday children and all children of someday parents, even if children not marked as someday
+if ($filter['someday']=="true") {
+    $values['isSomeday']="y";
+    $values['filterquery'] .= " AND " .sqlparts("issomeday-parent",$config,$values);
+    }
+
+else {
+    $values['isSomeday']="n";
+    $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+    $values['filterquery'] .= " AND " .sqlparts("issomeday-parent",$config,$values);
+    }
 
 /*
-//make generic based on type/someday, etc.
-$values['parentfilterquery'] .= sqlparts("issomeday",$config,$values);
-$values['parentfilterquery'] .= sqlparts("activeitems",$config,$values);
 
-$values['childfilterquery'] = sqlparts("typefilter-w",$config,$values);
-$values['childfilterquery'] .= sqlparts("issomeday",$config,$values);  //?
+$filter['dueonly']
+$filter['repeatingonly']
+$filter['nextonly']
+
 */
-
 
 
 //Get items for display
 $result = query("getitemsandparent",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
-//    if ($filterdisplay<1) {
 ?>
 
 <div id="filter">
-    <form action="listItems.php?type=<?php echo $filter['type']?>" method="post">
+    <form action="listItems.php?type=<?php echo $values['type']?>" method="post">
         <div class="formrow">
             <label for='categoryId' class='left'>Category:</label>
             <select name="categoryId" title="Filter items by parent category">
@@ -241,28 +253,12 @@ $result = query("getitemsandparent",$config,$values,$options,$sort);
         </div>
     </form>
 </div>
-    
+
 <?php
-print_r($filter);
-//        }
-//        $filterdisplay++;
 
 //Tickler file header and notes section
 if ($filter['tickler']=="true") {
-/*    echo "<h1>Tickler File</h1>\n";
-    echo "<div class='tickler'>\n";
-    echo '<h4>Today is '.date("l, F jS, Y").'. (Week '.date("w").'/52 & Day '.date("z").'/'.(365+date("L")).")</h4>\n";
-    echo '<p>To add an item to the tickler file:
-            <ul>
-                    <li>Add a new item (<a href="item.php?type=a" title="Add new action">action</a>,
-                            <a href="item.php?type=w" title="Add new waitingOn">waiting</a>,
-                            <a href="item.php?type=r" title="Add new reference">reference</a>), 
-                            <a href="note.php?referrer=t" title="Add new reminder note">note</a>, 
-                            <a href="item.php?type=p">project</a>, or <a href="item.php?type=s">someday/maybe</a> as appropriate,</li>
-                    <li>Select the tickler option, and fill in the details as desired.</li>
-            </ul></p>';
-    echo "</div>\n";
-*/    if ($reminderresult!="-1") {
+    if ($reminderresult!="-1") {
             echo "<div class='notes'>\n";
             echo '<h2><a href="note.php?&type='.$values['type'].'&referrer=t" Title="Add new reminder">Reminder Notes</a></h2>';
             $tablehtml="";
@@ -284,14 +280,20 @@ if ($filter['tickler']=="true") {
             echo "</table>\n";
             echo "</div>\n";
         }
-//    $notedisplay++;
    }
 
         echo '<h2>';
-        if ($filter['completed']=="completed") echo 'Completed&nbsp;'.$typename."</h2>\n";
-        else echo '<a href="item.php?type='.$values['type'].'" title="Add new '.str_replace("s","",$typename).'">'.$typename;
-        if ($filter['tickler']=="true") echo ' in Tickler File';
-        echo "</a></h2>\n";
+        if ($filter['completed']=="completed") echo 'Completed&nbsp;';
+        else echo '<a href="item.php?type='.$values['type'].'" title="Add new '.str_replace("s","",$typename).'">';
+            if ($filter['repeatingonly']=="true") echo "Repeating&nbsp;";
+            if ($filter['dueonly']=="true") echo "Due&nbsp;";
+            if ($filter['someday']=="true") echo "Someday/Maybe&nbsp;";
+            if ($filter['nextonly']=="true") echo "Next&nbsp;";
+            echo $typename;
+            if ($filter['tickler']=="true") echo ' in Tickler File';
+            if ($filter['completed']!="true") echo "</a>";
+            echo "</h2>\n";
+
 
 
 	if ($result!="-1") {
@@ -371,8 +373,11 @@ if ($filter['tickler']=="true") {
                         //item last modified
                         if ($show['lastModified']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['lastModified'])))."</td>\n";
 
+                        //item last modified
+                        if ($show['dateCompleted']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['dateCompleted'])))."</td>\n";
+
                         //completion checkbox
-                        if ($filter['completed']!="completed" && ($show['checkbox']!=FALSE)) $tablehtml .= '		<td align="center"><input type="checkbox" align="center" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" name="completedNas[]" value="'.$row['itemId'].'" /></td>'."\n";
+                        if ($show['checkbox']!=FALSE) $tablehtml .= '		<td align="center"><input type="checkbox" align="center" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" name="completedNas[]" value="'.$row['itemId'].'" /></td>'."\n";
                         $tablehtml .= "	</tr>\n";
                         }
                     }
@@ -392,8 +397,9 @@ if ($filter['tickler']=="true") {
 			if ($show['deadline']!=FALSE)echo "		<td>Deadline</td>\n";
 			if ($show['repeat']!=FALSE)echo "		<td>Repeat</td>\n";
                         if ($show['suppressUntil']!=FALSE) echo "            <td>Reminder Date</td>\n";
-                        if ($show['dateCreated']!=FALSE)echo "               <td>dateCreated</td>\n";
-                        if ($show['lastModified']!=FALSE)echo "               <td>lastModified</td>\n";
+                        if ($show['dateCreated']!=FALSE)echo "               <td>Date Created</td>\n";
+                        if ($show['lastModified']!=FALSE)echo "               <td>Last Modified</td>\n";
+                        if ($show['dateCompleted']!=FALSE)echo "               <td>Date Completed</td>\n";
                         if ($show['checkbox']!=FALSE) echo "           <td>Completed</td>\n";
 			echo "	</thead>\n";
 			echo $tablehtml;
@@ -409,14 +415,14 @@ if ($filter['tickler']=="true") {
 
 
 
-        elseif($filter['completed']!="completed" && $filter['type']!="t") {
+        elseif($filter['completed']!="completed" && $values['type']!="t") {
 		$message="You have no ".$typename." remaining.";
 		$prompt="Would you like to create a new ".str_replace("s","",$typename)."?";
 		$yeslink="item.php?type=".$values['type'];
 		nothingFound($message,$prompt,$yeslink);
 	}
         
-        elseif($filter['type']=="t") {
+        elseif($values['type']=="t") {
                 $message="None";
                 nothingFound($message);
         }
