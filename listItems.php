@@ -412,7 +412,20 @@ if ($filter['tickler']=="true") {
 			echo "</form>\n";
 		}
 
+        elseif($filter['completed']!="completed" && $values['type']!="t") {
+                $message="You have no ".$typename." remaining.";
+                $prompt="Would you like to create a new ".str_replace("s","",$typename)."?";
+                $yeslink="item.php?type=".$values['type'];
+                nothingFound($message,$prompt,$yeslink);
+        }
 
+
+        elseif($values['type']=="t") {
+                $message="None";
+                nothingFound($message);
+        }
+
+}
 
         elseif($filter['completed']!="completed" && $values['type']!="t") {
 		$message="You have no ".$typename." remaining.";
@@ -420,13 +433,12 @@ if ($filter['tickler']=="true") {
 		$yeslink="item.php?type=".$values['type'];
 		nothingFound($message,$prompt,$yeslink);
 	}
-        
+
+
         elseif($values['type']=="t") {
                 $message="None";
                 nothingFound($message);
         }
-
-}
 
 	include_once('footer.php');
 ?>
