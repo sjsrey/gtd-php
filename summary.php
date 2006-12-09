@@ -22,6 +22,7 @@ $values['isSomeday'] = "n";
 $values['filterquery']  = " AND ".sqlparts("typefilter",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);
 $numberitems = query("countitems",$config,$values,$options,$sort);
 
 //count active projects
@@ -30,6 +31,7 @@ $values['isSomeday'] = "n";
 $values['filterquery']  = " AND ".sqlparts("typefilter",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);
 $numberprojects = query("countitems",$config,$values,$options,$sort);
 
 //count someday projects
@@ -38,6 +40,7 @@ $values['isSomeday'] = "y";
 $values['filterquery']  = " AND ".sqlparts("typefilter",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);
 $numbersomeday = query("countitems",$config,$values,$options,$sort);
 
 //get active projects
@@ -46,6 +49,7 @@ $values['isSomeday'] = "n";
 $values['filterquery']  = " WHERE ".sqlparts("typefilter",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);
 $pres = query("getitems",$config,$values,$options,$sort);
 
 //get someday projects
