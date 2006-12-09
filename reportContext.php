@@ -100,11 +100,11 @@ foreach ($contextArray as $values['contextId'] => $timeframe) {
 
         $values['type'] = "a";
         $values['isSomeday'] = "n";
-        $values['filterquery']  = sqlparts("typefilter-w",$config,$values);
-        $values['filterquery'] .= sqlparts("activeitems",$config,$values);
-        $values['filterquery'] .= sqlparts("timeframefilter",$config,$values);
-        $values['filterquery'] .= sqlparts("contextfilter",$config,$values);
-        $values['filterquery'] .= sqlparts("isSomeday",$config,$values);
+        $values['filterquery']  = " WHERE ".sqlparts("typefilter",$config,$values);
+        $values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
+        $values['filterquery'] .= " AND ".sqlparts("timeframefilter",$config,$values);
+        $values['filterquery'] .= " AND ".sqlparts("contextfilter",$config,$values);
+        $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
         $result = query("getitems",$config,$values,$options,$sort);
 
         $tablehtml="";

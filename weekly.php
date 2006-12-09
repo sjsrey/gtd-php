@@ -8,9 +8,9 @@ $values=array();
 //select active projects
         $values['isSomeday']="n";
         $values['type']='p';
-        $values['filterquery']  = sqlparts("typefilter-w",$config,$values);
-        $values['filterquery'] .= sqlparts("issomeday",$config,$values);
-        $values['filterquery'] .= sqlparts("activeitems",$config,$values);
+        $values['filterquery']  = " WHERE " .sqlparts("typefilter",$config,$values);
+        $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+        $values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
 
         $result = query("getitems",$config,$values,$options,$sort);
 

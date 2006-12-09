@@ -7,7 +7,7 @@ $values=array();
 //SQL Code
 
 //Select notes
-$values['filterquery'] = sqlparts("notefilter",$config,$values);
+$values['filterquery'] = " WHERE ".sqlparts("notefilter",$config,$values);
 $reminderresult = query("getnotes",$config,$values,$options,$sort);
 
 //get # space contexts
@@ -19,41 +19,41 @@ $numbernextactions = query("countnextactions",$config,$values,$options,$sort);
 //count active items
 $values['type'] = "a";
 $values['isSomeday'] = "n";
-$values['filterquery']  = sqlparts("typefilter",$config,$values);
-$values['filterquery'] .= sqlparts("issomeday",$config,$values);
-$values['filterquery'] .= sqlparts("activeitems",$config,$values);
+$values['filterquery']  = " AND ".sqlparts("typefilter",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
 $numberitems = query("countitems",$config,$values,$options,$sort);
 
 //count active projects
 $values['type']= "p";
 $values['isSomeday'] = "n";
-$values['filterquery']  = sqlparts("typefilter",$config,$values);
-$values['filterquery'] .= sqlparts("issomeday",$config,$values);
-$values['filterquery'] .= sqlparts("activeitems",$config,$values);
+$values['filterquery']  = " AND ".sqlparts("typefilter",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
 $numberprojects = query("countitems",$config,$values,$options,$sort);
 
 //count someday projects
 $values['type']= "p";
 $values['isSomeday'] = "y";
-$values['filterquery']  = sqlparts("typefilter",$config,$values);
-$values['filterquery'] .= sqlparts("issomeday",$config,$values);
-$values['filterquery'] .= sqlparts("activeitems",$config,$values);
+$values['filterquery']  = " AND ".sqlparts("typefilter",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
 $numbersomeday = query("countitems",$config,$values,$options,$sort);
 
 //get active projects
 $values['type']= "p";
 $values['isSomeday'] = "n";
-$values['filterquery']  = sqlparts("typefilter-w",$config,$values);
-$values['filterquery'] .= sqlparts("issomeday",$config,$values);
-$values['filterquery'] .= sqlparts("activeitems",$config,$values);
+$values['filterquery']  = " WHERE ".sqlparts("typefilter",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
 $pres = query("getitems",$config,$values,$options,$sort);
 
 //get someday projects
 $values['type']= "p";
 $values['isSomeday'] = "y";
-$values['filterquery']  = sqlparts("typefilter-w",$config,$values);
-$values['filterquery'] .= sqlparts("isSomeday",$config,$values);
-$values['filterquery'] .= sqlparts("activeitems",$config,$values);
+$values['filterquery']  = " WHERE ".sqlparts("typefilter",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
 $sm = query("getitems",$config,$values,$options,$sort);
 
 

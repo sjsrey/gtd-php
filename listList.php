@@ -10,7 +10,7 @@ $values['categoryId']=(int)$_POST['categoryId'];
 $cashtml=categoryselectbox($config,$values,$options,$sort);
 
 $values['filterquery']="";
-if ($values['categoryId']!=0) $values['filterquery']=sqlparts("getlists",$config,$values);
+if ($values['categoryId']!=0) $values['filterquery']= " AND ".sqlparts("listcategoryfilter",$config,$values);
 $result = query("getlists",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
@@ -21,7 +21,6 @@ echo '<div id="filter">'."\n";
 echo '<form action="listList.php" method="post">'."\n";
 echo "<p>Category:&nbsp;\n";
 echo '<select name="categoryId" title="Filter lists by category">'."\n";
-echo '  <option value="0">All</option>'."\n";
 echo $cashtml."</select>\n";
 echo '<input type="submit" class="button" value="Filter" name="submit" title="Filter list by category" />'."\n";
 echo "</p>\n";

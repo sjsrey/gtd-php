@@ -65,8 +65,8 @@ else $values['categoryId']=$_SESSION['categoryId'];
 //SQL CODE
 
 //create filters for selectboxes
-if ($values['type']=="g") $values['timefilterquery'] = sqlparts("timegoals",$config,$values);
-else $values['timefilterquery'] = sqlparts("timeitems",$config,$values);
+if ($values['type']=="g") $values['timefilterquery'] = " WHERE ".sqlparts("timegoals",$config,$values);
+else $values['timefilterquery'] = " WHERE ".sqlparts("timeitems",$config,$values);
 
 //create filter selectboxes
 $cashtml=categoryselectbox($config,$values,$options,$sort);
@@ -175,6 +175,7 @@ if ($values['timeframeId'] != NULL && $filter['nottimecontext']=="true") $values
 if ($filter['completed']=="completed") $values['childfilterquery'] .= " AND ".sqlparts("completeditems",$config,$values);
 else $values['childfilterquery'] .= " AND " .sqlparts("pendingitems",$config,$values);
 
+//problem with project somedays vs actions...want an OR, but across subqueries;
 if ($filter['someday']=="true") {
     $values['isSomeday']="y";
     $values['filterquery'] .= " WHERE " .sqlparts("issomeday-parent",$config,$values);

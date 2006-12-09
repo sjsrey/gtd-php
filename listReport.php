@@ -17,7 +17,7 @@ if ($result!="-1") {
 
     echo '<h2><a href = "newListItem.php?listId='.$row['listId'].'" style="text-decoration:none">List Items</a></h2>'."\n";
 
-    $values['filterquery']= sqlparts("activelistitems",$config,$values);
+    $values['filterquery']= " AND ".sqlparts("activelistitems",$config,$values);
     $result=query("getlistitems",$config,$values,$options,$sort);
     if ($result!="-1") {
         $counter=0;
@@ -45,7 +45,7 @@ if ($result!="-1") {
         }
     else echo "None";
 
-    $values['filterquery']= sqlparts("completedlistitems",$config,$sort);
+    $values['filterquery']= " AND ".sqlparts("completedlistitems",$config,$sort);
     $result = query("getlistitems",$config,$values,$options,$sort);
 
     echo "<h2>Completed List Items</h2>\n";

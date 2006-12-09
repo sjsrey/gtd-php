@@ -62,12 +62,12 @@ $config['theme']=$_SESSION['theme'];
 			<ul>
                                 <li><a href="item.php?type=i" title="Drop an item into the inbox">Inbox item</a></li>
                                 <li><a href="note.php" title="Create a reminder note">Note</a></li>
-                                <li><a href="item.php?type=n" title="Create a new next action">Next Action</a></li>
+                                <li><a href="item.php?type=a&nextonly=true" title="Create a new next action">Next Action</a></li>
 				<li><a href="item.php?type=a" title="Create a new action">Action</a></li>
                                 <li><a href="item.php?type=w" title="Create a new waiting on item">Waiting On</a></li>
                                 <li><a href="item.php?type=r" title="Create a reference">Reference</a></li>
 				<li><a href="item.php?type=p" title="Create a new project">Project</a></li>
-                                <li><a href="item.php?type=s" title="Create a future project">Someday/Maybe</a></li>
+                                <li><a href="item.php?type=p&someday=true" title="Create a future project">Someday/Maybe</a></li>
                                 <li><a href="item.php?type=o" title="Define a new role">Role</a></li>
                                 <li><a href="item.php?type=g" title="Define a new goal">Goal</a></li>
                                 <li><a href="item.php?type=v" title="Define a new vision">Vision</a></li>
@@ -86,11 +86,11 @@ $config['theme']=$_SESSION['theme'];
               			<li><a href="reportContext.php" title="Active items sorted by space context">Space Contexts</a></li>
                                 <li><a href="reportTimeContext.php" title="Active items sorted by time context">Time Contexts</a></li>
 				<li><a href="listItems.php?type=p" title="Projects">Projects</a></li>
-				<li><a href="listItems.php?type=n" title="Next actions">Next Actions</a></li>
+				<li><a href="listItems.php?type=a&nextonly=true" title="Next actions">Next Actions</a></li>
 				<li><a href="listItems.php?type=a" title="Actions">Actions</a></li>
 				<li><a href="listItems.php?type=w" title="Waiting On">Waiting On</a></li>
 				<li><a href="listItems.php?type=r" title="References">References</a></li>
-				<li><a href="listItems.php?type=s" title="Someday projects">Someday/Maybes</a></li>
+				<li><a href="listItems.php?type=p&someday=true" title="Someday projects">Someday/Maybes</a></li>
 				<li><a href="listList.php" title="General-purpose lists">Lists</a></li>
 				<li><a href="listChecklist.php" title="Reusable checklists">Checklists</a></li>
                                 <li><a href="summaryAlone.php" title="Summary view">Summary</a></li>
@@ -107,14 +107,14 @@ $config['theme']=$_SESSION['theme'];
                                 <li><a href="listItems.php?type=g" title="Goals">Goals</a></li>
                                 <li><a href="listItems.php?type=o" title="Roles / Areas of Responsibility">Roles</a></li>
                                 <li><a href="achivements.php" title="Notable Achivements">Achievements</a></li>
-                                <li><a href="listItems.php?type=t" title="Hidden items and reminders">Tickler File</a></li>
+                                <li><a href="listItems.php?type=a&tickler=true" title="Hidden items and reminders">Tickler File</a></li>
 
 			</ul>
 
                 <li>Lists
 			<ul>
 				<li><a href="listList.php" title="General-purpose lists">Lists</a></li>
-				<li><a href="listChecklist.php" title="Reuseable checklists lists">Checklists</a></li>
+				<li><a href="listChecklist.php" title="Reusable checklists">Checklists</a></li>
 			</ul>
 
                 <li>Configure

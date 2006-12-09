@@ -23,9 +23,9 @@ if ($result!="-1") {
 //Find previous and next projects
 $values['isSomeday']="n";
 $values['type']=$item['type'];
-$values['filterquery']  = sqlparts("typefilter-w",$config,$values);
-$values['filterquery'] .= sqlparts("activeitems",$config,$values);
-$values['filterquery'] .= sqlparts("issomeday",$config,$values);
+$values['filterquery']  = " WHERE ".sqlparts("typefilter",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
+$values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
 $result = query("getitems",$config,$values,$options,$sort);
 
 $c=0;
@@ -127,12 +127,12 @@ foreach ($completed as $comp) {
     //Select items by type
     $values['type']=$value;
     $values['parentId']=$values['itemId'];
-    $values['filterquery'] = sqlparts("typefilter",$config,$values);
+    $values['filterquery'] = " AND ".sqlparts("typefilter",$config,$values);
     if ($comp=="y") {
-		$values['filterquery'] .= sqlparts("completeditems",$config,$values);
+		$values['filterquery'] .= " AND ".sqlparts("completeditems",$config,$values);
 		$result = query("getchildren",$config,$values,$options,$sort);
 	} else {
-		$values['filterquery'] .= sqlparts("incompleteitems",$config,$values);  //suppressed items will be shown on report page
+		$values['filterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);  //suppressed items will be shown on report page
 		$result = query("getchildren",$config,$values,$options,$sort);
 	}
 
