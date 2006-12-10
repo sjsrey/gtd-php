@@ -12,7 +12,7 @@ $sqlparts = array(
     "contextfilter"             =>  " `itemattributes`.`contextId` = '{$values['contextId']}' ",
     "due"                       =>  " (CURDATE()>=`itemattributes`.`deadline` AND `itemattributes`.`deadline` IS NOT NULL AND `itemattributes`.`deadline`!='0000-00-00') ",
     "issomeday"                 =>  " `itemattributes`.`isSomeday` = '{$values['isSomeday']}' ",
-    "issomeday-parent"          =>  " y.`pisSomeday` = '{$values['isSomeday']}' ",
+    "issomeday-parent"          =>  " y.`pisSomeday` = '{$values['isSomeday']}' OR y.`pisSomeday` IS NULL",
     "listcategoryfilter"        =>  " `list`.`categoryId`='{$values['categoryId']}' ",
     "pendingitems"              =>  " (`itemstatus`.`dateCompleted` IS NULL OR `itemstatus`.`dateCompleted` = '0000-00-00') ",
     "notcategoryfilter"         =>  " `itemattributes`.`categoryId` != '{$values['categoryId']}' ",

@@ -163,9 +163,9 @@ if($numbercontexts[0]['ncontexts']==1) {
 	echo "<h3>Project</h3>\n";
 
     if($numberprojects[0]['nitems']==1){
-        echo '<p>There is ' .$numberprojects[0]['nitems']. ' <a href="listItems.php?type=p">active Project</a>.<p>'."\n";
+        echo '<p>There is ' .$numberprojects[0]['nitems']. ' active <a href="listItems.php?type=p">Project</a>.<p>'."\n";
     }else{
-        echo '<p>There are ' .$numberprojects[0]['nitems']. ' <a href="listItems.php?type=p">active Projects</a>.<p>'."\n";
+        echo '<p>There are ' .$numberprojects[0]['nitems']. ' active <a href="listItems.php?type=p">Projects</a>.<p>'."\n";
     }
 
 	$s='<table>'."\n";
