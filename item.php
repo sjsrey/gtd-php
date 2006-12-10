@@ -52,8 +52,8 @@ if ($values['itemId']>0) {
         case "a" : $typename="Action"; $parentname="Project"; $values['ptype']="p"; break;
         case "w" : $typename="Waiting On"; $parentname="Project"; $values['ptype']="p"; break;
         case "r" : $typename="Reference"; $parentname="Project"; $values['ptype']="p"; break;
-        case "i" : $typename="Inbox Item"; $parentname=""; $values['ptype']=""; break;
-        default  : $typename="Item"; $parentname=""; $values['ptype']="";
+        case "i" : $typename="Inbox Item"; $parentname="Project"; $values['ptype']="p"; break; //default to project as parent
+        default  : $typename="Item"; $parentname="Project"; $values['ptype']="p"; //default to project as parent
         }
 
 $parents = query("lookupparent",$config,$values);
