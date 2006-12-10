@@ -3,6 +3,8 @@
 include_once('header.php');
 
 //FORM DATA COLLECTION AND PARSING
+$referrer=$_POST['referrer']{0};
+
 $values=array();
 $values['itemId'] = (int) $_GET['itemId'];
 $values['type']=$_POST['type']{0};
@@ -74,7 +76,7 @@ if (($values['dateCompleted'] != '0000-00-00' && $values['dateCompleted']!=NULL)
         }
 
 
-echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$values['type'].'" />';
+echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$referrer.'" />';
 
 include_once('footer.php');
 ?>

@@ -195,6 +195,7 @@ else {
         </div> <!-- form div -->
         <div class='formbuttons'>
 <?php
+        echo "                  <input type='hidden' name='referrer' value='".$values['type']."'>\n";
 if ($values['itemId']>0) {
         echo "			<input type='submit' value='Update ".$typename."' name='submit'>\n";
         echo "                  <input type='reset' value='Reset'>\n";
