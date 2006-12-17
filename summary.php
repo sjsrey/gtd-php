@@ -93,9 +93,9 @@ echo '<p>Reminder notes can be added <a href="note.php?referrer=s" Title="Add ne
 echo "<div class='reportsection'>\n";
     echo "<h3>Next Actions</h3>\n";
 if($numbernextactions[0]['nnextactions']==1) {
-            echo '<p>There is ' .$numbernextactions[0]['nnextactions']. ' <a href="listItems.php?type=n">Next Action</a> pending';
+            echo '<p>There is ' .$numbernextactions[0]['nnextactions']. ' <a href="listItems.php?type=a&nextonly=true">Next Action</a> pending';
         } else {
-            echo '<p>There are ' .$numbernextactions[0]['nnextactions']. ' <a href="listItems.php?type=n">Next Actions</a> pending';
+            echo '<p>There are ' .$numbernextactions[0]['nnextactions']. ' <a href="listItems.php?type=a&nextonly=true">Next Actions</a> pending';
         }
 echo ' out of a total of ' .$numberitems[0]['nitems']. ' <a href="listItems.php?type=a">Actions</a>.';
     echo "</p>\n";
@@ -189,9 +189,9 @@ if($numbercontexts[0]['ncontexts']==1) {
 
     if($numbersomeday!='-1')
     if($numbersomeday[0]['nitems']==1){
-        echo '<p>There is ' .$numbersomeday[0]['nitems']. ' <a href="listItems.php?type=s">Someday/Maybe</a>.</p>'."\n";
+        echo '<p>There is ' .$numbersomeday[0]['nitems']. ' <a href="listItems.php?type=p&someday=true">Someday/Maybe</a>.</p>'."\n";
     }else{
-        echo '<p>There are ' .$numbersomeday[0]['nitems']. ' <a href="listItems.php?type=s">Someday/Maybes</a>.</p>'."\n";
+        echo '<p>There are ' .$numbersomeday[0]['nitems']. ' <a href="listItems.php?type=p&someday=true">Someday/Maybes</a>.</p>'."\n";
     }
 
 

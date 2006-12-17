@@ -15,15 +15,21 @@ else $values['type']="a";
 
 if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
     else $values['categoryId']=(int) $_POST['categoryId'];
-$filter['notcategory']=$_POST['notcategory'];
+
+if (isset($_GET['notcategory'])) $filter['notcategory']= $_GET['notcategory'];
+    else $filter['notcategory']=$_POST['notcategory'];
 
 if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
     else $values['contextId']=(int) $_POST['contextId'];
-$filter['notspacecontext']=$_POST['notspacecontext'];
+
+if (isset($_GET['notspacecontext'])) $filter['notspacecontext']= $_GET['notspacecontext'];
+    else $filter['notspacecontext']=$_POST['notspacecontext'];
 
 if ($_GET['timeId']>0) $values['timeframeId']=(int) $_GET['timeId'];
     else $values['timeframeId']=(int) $_POST['timeId'];
-$filter['nottimecontext']=$_POST['nottimecontext'];
+
+if (isset($_GET['nottimecontext'])) $filter['nottimecontext']= $_GET['nottimecontext'];
+    else $filter['nottimecontext']=$_POST['nottimecontext'];
 
 //suppressed (tickler file): true/false
 if (isset($_GET['tickler'])) $filter['tickler']=$_GET['tickler'];
@@ -403,12 +409,23 @@ if ($filter['tickler']=="true") {
 			echo "	</thead>\n";
 			echo $tablehtml;
 			echo "</table>\n";
+                        //referrer 
+                        echo '<input type="hidden" name="referrer" value="i" />'."\n";
+                        //filters 
 			echo '<input type="hidden" name="type" value="'.$values['type'].'" />'."\n";
 			echo '<input type="hidden" name="timeId" value="'.$values['timeframeId'].'" />'."\n";
                         echo '<input type="hidden" name="contextId" value="'.$values['contextId'].'" />'."\n";
                         echo '<input type="hidden" name="categoryId" value="'.$values['categoryId'].'" />'."\n";
-			echo '<input type="hidden" name="referrer" value="i" />'."\n";
-			echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit">'."\n";
+                        echo '<input type="hidden" name="notcategory" value="'.$filter['notcategory'].'" />'."\n";
+                        echo '<input type="hidden" name="nottimecontext" value="'.$filter['nottimecontext'].'" />'."\n";
+                        echo '<input type="hidden" name="notspacecontext" value="'.$filter['notspacecontext'].'" />'."\n";
+                        echo '<input type="hidden" name="tickler" value="'.$filter['tickler'].'" />'."\n";
+                        echo '<input type="hidden" name="someday" value="'.$filter['someday'].'" />'."\n";
+                        echo '<input type="hidden" name="completed" value="'.$filter['completed'].'" />'."\n";
+                        echo '<input type="hidden" name="nextonly" value="'.$filter['nextonly'].'" />'."\n";
+                        echo '<input type="hidden" name="repeatingonly" value="'.$filter['repeatingonly'].'" />'."\n";
+                        echo '<input type="hidden" name="dueonly" value="'.$filter['dueonly'].'" />'."\n";
+                        echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit">'."\n";
 			echo "</form>\n";
 		}
 

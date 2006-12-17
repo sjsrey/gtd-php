@@ -16,6 +16,21 @@ $values['timeId']=(int) $_POST['timeId'];
 $values['completedNas'] = $_POST['completedNas'];
 $values['isNext'] = (int) $_POST['isNext'];
 
+//filter data
+$filter['type']=$_POST['type']{0};
+$filter['categoryId'] = (int) $_POST['categoryId'];
+$filter['contextId']=(int) $_POST['contextId'];
+$filter['timeId']=(int) $_POST['timeId'];
+$filter['nottimecontext'] = $_POST['nottimecontext'];
+$filter['notspacecontext'] = $_POST['notspacecontext'];
+$filter['notcategory'] = $_POST['notcategory'];
+$filter['tickler'] = $_POST['tickler'];
+$filter['someday'] = $_POST['someday'];
+$filter['completed'] = $_POST['completed'];
+$filter['nextonly'] = $_POST['nextonly'];
+$filter['repeatingonly'] = $_POST['repeatingonly'];
+$filter['dueonly'] = $_POST['dueonly'];
+
 //Check if Session Variables Should be Updated
 if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
 else $values['contextId']=(int) $_POST['contextId'];
@@ -96,7 +111,23 @@ if (($values['isNext']>0)){
     }
 
 if ($values['referrer']=="i") {
-	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$values['type'].'&contextId='.$values['contextId'].'&timeId='.$values['timeId'].'&categoryId='.$values['categoryId'].'">';
+
+//very kludgy-- needs to be in session variables!!!
+
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$filter['type'].
+        '&contextId='.$filter['contextId'].
+        '&timeId='.$filter['timeId'].
+        '&categoryId='.$filter['categoryId'].
+        '&tickler='.$filter['tickler'].
+        '&someday='.$filter['someday'].
+        '&completed='.$filter['completed'].
+        '&nextonly='.$filter['nextonly'].
+        '&repeatingonly='.$filter['repeatingonly'].
+        '&dueonly='.$filter['dueonly'].
+        '&notcategory='.$filter['notcategory'].
+        '&notspacecontext='.$filter['notspacecontext'].
+        '&nottimecontext='.$filter['nottimecontext'].
+        '">';
 	}
 
 elseif ($values['referrer']=="p") {
