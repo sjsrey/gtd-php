@@ -1,0 +1,18 @@
+/*=====================================================*/
+/* print.css - mostly used to hide items when printing */
+/*=====================================================*/
+
+/* First, hide the appropriate elements */
+#header, #menudiv, #footer, #filter {
+	display: none;
+}
+
+p.buttons, p.checkboxes, span.editbar, .button {
+	display: none;
+}
+
+/* Now, resize larger text to make them fit better on the page */
+#main h1, #main h2 {
+	font-size: 1em;
+	border: none;
+}

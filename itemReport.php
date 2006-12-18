@@ -93,10 +93,10 @@ echo "<h1>".str_replace("s","",$typename[$item['type']])."&nbsp;Report:&nbsp;".h
 //FIXME
 
 //Edit, next, and previous buttons
-echo '[ <a href="item.php?itemId='.$values['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($item['title'])).'">Edit</a> ]'."\n";
+echo '<span class="editbar">[ <a href="item.php?itemId='.$values['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($item['title'])).'">Edit</a> ]'."\n";
 if(isset($previousId)) echo '[ <a href="itemReport.php?itemId='.$previousId.'" title="'.$previoustitle.'">Previous</a> ]'."\n";
 if(isset($nextId))  echo '[ <a href="itemReport.php?itemId='.$nextId.'" title="'.$nexttitle.'">Next</a> ]'."\n";
-
+echo "</span>\n";
 //Item details
 echo '<p>Created: '.$item['dateCreated']."<br />\n";
 if ($item['description']!="") echo 'Description: '.htmlspecialchars(stripslashes($item['description']))."<br />\n";

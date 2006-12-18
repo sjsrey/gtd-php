@@ -12,8 +12,8 @@ if ($result!="-1") {
     echo "<h1>List Report: ".$row['title']."</h1>\n";
     echo '<form action="processListUpdate.php?listId='.$row['listId'].'" method="POST">'."\n";
 
-    echo '[ <a href="editList.php?listId='.$row['listId'].'">Edit List</a> ]'."\n";
-    echo "<br />\n";
+    echo '<span class="editbar">[ <a href="editList.php?listId='.$row['listId'].'">Edit List</a> ]'."\n";
+    echo "<br /></span>\n";
 
     echo '<h2><a href = "newListItem.php?listId='.$row['listId'].'" style="text-decoration:none">List Items</a></h2>'."\n";
 

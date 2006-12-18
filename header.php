@@ -32,6 +32,9 @@ $config['theme']=$_SESSION['theme'];
 
 	<!-- theme script (should check to see if this actually exists) -->
 	<script type="text/javascript" src="themes/<?php echo $config['theme']; ?>/theme.js"></script>
+	
+	<!-- printing stylesheet -->
+	<link rel="stylesheet" href="print.css" type="text/css" media="print" />
 
 	<link rel="shortcut icon" href="./favicon.ico" />
 	

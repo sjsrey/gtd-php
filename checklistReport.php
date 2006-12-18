@@ -15,8 +15,8 @@ $result= query("getchecklistitems",$config,$values,$options,$sort);
 //PAGE DISPLAY CODE
 echo '<form action="processChecklistUpdate.php?checklistId='.$row['checklistId'].'" method="POST">'."\n";
 echo "<h1>Checklist Report: {$row['title']}</h1>\n";
-echo '[ <a href="editChecklist.php?checklistId='.$row['checklistId'].'&checklistTitle='.$row['checklistTitle'].'">Edit Checklist</a> ]'."\n";
-echo "<br />\n";
+echo '<span class="editbar">[ <a href="editChecklist.php?checklistId='.$row['checklistId'].'&checklistTitle='.$row['checklistTitle'].'">Edit Checklist</a> ]'."\n";
+echo "<br /></span>\n";
 echo '<h2><a href = "newChecklistItem.php?checklistId='.$row['checklistId'].'" style="text-decoration:none">Checklist Items</a></h2>'."\n";
 
 if ($result!="-1") {
@@ -38,8 +38,8 @@ if ($result!="-1") {
         }
 
     echo "</table>\n";
-        echo '<p>&nbsp;&nbsp;Clear Checklist&nbsp;<input type="checkbox" name="clear" value="y"></p>'."\n";
-        echo '<p><input type="submit" align="right" class="button" value="Update Checklist Items" name="submit">'."\n";
+        echo '<p class="checkboxes">&nbsp;&nbsp;Clear Checklist&nbsp;<input type="checkbox" name="clear" value="y"></p>'."\n";
+        echo '<p class="buttons"><input type="submit" align="right" class="button" value="Update Checklist Items" name="submit">'."\n";
         echo '<input type="reset" class="button" value="Reset to Saved State"></p>'."\n";
     }
 
