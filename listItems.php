@@ -318,12 +318,13 @@ if ($filter['tickler']=="true") {
                                 }
 
                         //item title
-                        if ($show['title']!=FALSE && ($row['type']=="a" || $row['type']=="r" || $row['type']=="w" || $row['type']=="i")) $tablehtml .= '         <td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">';
+                        if ($show['title']!=FALSE && ($row['type']=="a" || $row['type']=="r" || $row['type']=="w" || $row['type']=="i")) $tablehtml .= '         <td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title']));
 
-                        elseif ($show['title']!=FALSE) $tablehtml .= '         <td><a href = "itemReport.php?itemId='.$row['itemId'].'" title="Go to '.htmlspecialchars(stripslashes($row['title'])).' report">';
+                        elseif ($show['title']!=FALSE) $tablehtml .= '         <td><a href = "itemReport.php?itemId='.$row['itemId'].'" title="Go to '.htmlspecialchars(stripslashes($row['title'])).' report"';
 
-                        //if nextaction, add icon in front of action (* for now)
-                        if ($key = array_search($row['itemId'],$nextactions) && ($show['title']!=FALSE)) $tablehtml .= '*&nbsp;';
+                        //if nextaction, add link class and icon in front of action (* for now)
+                        if ($key = array_search($row['itemId'],$nextactions) && ($show['title']!=FALSE)) $tablehtml .= '" class="nextactionlink">*&nbsp;';
+                        else $tablehtml .= '">';
 
                         if ($show['title']!=FALSE) $tablehtml .=htmlspecialchars(stripslashes($row['title']))."</td>\n";
 
