@@ -164,53 +164,51 @@ if ($filter['completed']=="completed") {
 //$values['childfilterquery'] = "";
 //$values['parentfilterquery'] = "";
 $values['filterquery'] = "";
+$filters = "";
 
-//type filter
-//$values['childfilterquery'] = " WHERE ".sqlparts("typefilter",$config,$values);
-$values['filterquery'] = " WHERE ".sqlparts("typefilter",$config,$values);
 
-/*
 //filter box filters
-if ($values['categoryId'] != NULL && $filter['notcategory']!="true") $values['filterquery'] .= " AND ".sqlparts("categoryfilter",$config,$values);
-if ($values['categoryId'] != NULL && $filter['notcategory']=="true") $values['filterquery'] .= " AND ".sqlparts("notcategoryfilter",$config,$values);
+if ($values['categoryId'] != NULL && $filter['notcategory']!="true") $filters .= " AND ".sqlparts("categoryfilter",$config,$values);
+if ($values['categoryId'] != NULL && $filter['notcategory']=="true") $filters .= " AND ".sqlparts("notcategoryfilter",$config,$values);
 
-if ($values['contextId'] != NULL && $filter['notspacecontext']!="true") $values['childfilterquery'] .= " AND ".sqlparts("contextfilter",$config,$values);
-if ($values['contextId'] != NULL && $filter['notspacecontext']=="true") $values['childfilterquery'] .= " AND ".sqlparts("notcontextfilter",$config,$values);
+if ($values['contextId'] != NULL && $filter['notspacecontext']!="true") $filters .= " AND ".sqlparts("contextfilter",$config,$values);
+if ($values['contextId'] != NULL && $filter['notspacecontext']=="true") $filters .= " AND ".sqlparts("notcontextfilter",$config,$values);
 
-if ($values['timeframeId'] != NULL && $filter['nottimecontext']!="true") $values['childfilterquery'] .= " AND ".sqlparts("timeframefilter",$config,$values);
-if ($values['timeframeId'] != NULL && $filter['nottimecontext']=="true") $values['childfilterquery'] .= " AND ".sqlparts("nottimeframefilter",$config,$values);
+if ($values['timeframeId'] != NULL && $filter['nottimecontext']!="true") $filters .= " AND ".sqlparts("timeframefilter",$config,$values);
+if ($values['timeframeId'] != NULL && $filter['nottimecontext']=="true") $filters .= " AND ".sqlparts("nottimeframefilter",$config,$values);
 
-if ($filter['completed']=="completed") $values['childfilterquery'] .= " AND ".sqlparts("completeditems",$config,$values);
-else $values['childfilterquery'] .= " AND " .sqlparts("pendingitems",$config,$values);
+if ($filter['completed']=="completed") $filters .= " AND ".sqlparts("completeditems",$config,$values);
+else $filters .= " AND " .sqlparts("pendingitems",$config,$values);
 
 //problem with project somedays vs actions...want an OR, but across subqueries;
 if ($filter['someday']=="true") {
     $values['isSomeday']="y";
-    $values['filterquery'] .= " WHERE " .sqlparts("issomeday-parent",$config,$values);
+    $filters .= " AND " .sqlparts("issomeday",$config,$values);
     }
 
 else {
     $values['isSomeday']="n";
-    $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
-    $values['filterquery'] .= " WHERE " .sqlparts("issomeday-parent",$config,$values);
+    $filters .= " AND " .sqlparts("issomeday",$config,$values);
     }
 
 //problem: need to get all items with suppressed parents(even if child is not marked suppressed), as well as all suppressed items
-if ($filter['tickler']=="true") $values['childfilterquery'] .= " AND ".sqlparts("suppresseditems",$config,$values);
+if ($filter['tickler']=="true") $filters .= " AND ".sqlparts("suppresseditems",$config,$values);
 
 else {
-    $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
-    $values['filterquery'] .= " AND ".sqlparts("activeparents",$config,$values);
+    $filters .= " AND ".sqlparts("activeitems",$config,$values);
     }
 
-if ($filter['repeatingonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("repeating",$config,$values);
+if ($filter['repeatingonly']=="true") $filters .= " AND " .sqlparts("repeating",$config,$values);
 
-if ($filter['dueonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("due",$config,$values);
+if ($filter['dueonly']=="true") $filters .= " AND " .sqlparts("due",$config,$values);
 
 /*
 $filter['nextonly']
 */
 
+//create filter query string, and add type filter
+$values['filterquery'] = " WHERE ".sqlparts("typefilter",$config,$values);
+if ($filters!="") $values['filterquery'] .= $filters;
 
 //Get items for display
 $result = query("getitems",$config,$values,$options,$sort);
@@ -303,36 +301,65 @@ if ($filter['tickler']=="true") {
             echo "</h2>\n";
 
 
+
         if ($result!="-1") {
-
             foreach ($result as $item) {
-                echo '<h3>'.$item['title'].'</h3>'."\n";
-                $values['filterquery'] = "";
+                $html .= '<h3>'.$item['title'].'</h3>'."\n";
+                $values['filterquery'] = $filters;
                 $values['parentId']=$item['itemId'];
-                $children = query("getchildren",$config,$values,$options,$sort);
-                if ($children!="-1") {
-                    echo '<ul>'."\n";
-                        foreach ($children as $child) {
-                            echo '<li attribute.level=child>'.$child['title']."\n";
-                            //MUST BE CALLABLE FUNCTION
-                            for ($i=$recurse-1; $i>0; $i--) {
-                                $values['filterquery'] = "";
-                                $values['parentId']=$child['itemId'];
-                                $children = query("getchildren",$config,$values,$options,$sort);
-                                if ($children!="-1") {
-                                    echo '<ul level='.$i.'>'."\n";
-                                        foreach ($children as $child) {
-                                            echo '<li level='.$i.'>'.$child['title']."\n";
-            //                                RECURSE();
+                $level2 = query("getchildren",$config,$values,$options,$sort);
+                if ($level2!="-1") {
+                    $html .= '<ul>'."\n";
+                    foreach ($level2 as $child2) {
+                        $html .= '<li>'.$child2['title']."\n";
+                        $values['filterquery'] = $filters;
+                        $values['parentId']=$child2['itemId'];
+                        $level3 = query("getchildren",$config,$values,$options,$sort);
+                        if ($level3!="-1") {
+                            $html .= '<ul>'."\n";
+                            foreach ($level3 as $child3) {
+                                $html .= '<li>'.$child3['title']."\n";
+                                $values['filterquery'] = $filters;
+                                $values['parentId']=$child3['itemId'];
+                                $level4 = query("getchildren",$config,$values,$options,$sort);
+                                if ($level4!="-1") {
+                                    $html .= '<ul>'."\n";
+                                    foreach ($level4 as $child4) {
+                                        $html .= '<li>'.$child4['title']."\n";
+                                        $values['filterquery'] = $filters;
+                                        $values['parentId']=$child4['itemId'];
+                                        $level5 = query("getchildren",$config,$values,$options,$sort);
+                                        if ($level5!="-1") {
+                                            $html .= '<ul>'."\n";
+                                            foreach ($level5 as $child5) {
+                                                $html .= '<li>'.$child5['title']."\n";
+                                                $values['filterquery'] = $filters;
+                                                $values['parentId']=$child5['itemId'];
+                                                $level6 = query("getchildren",$config,$values,$options,$sort);
+                                                if ($level6!="-1") {
+                                                    $html .= '<ul>'."\n";
+                                                    foreach ($level6 as $child6) {
+                                                        echo '<li>'.$child6['title']."\n";
+                                                        }
+                                                    $html .= '</ul>'."\n";
+                                                    }
+                                                }
+                                            $html .= '</ul>'."\n";
+                                            }
                                         }
-                                    echo '</ul>'."\n";
+                                    $html .= '</ul>'."\n";
+                                    }
                                 }
-
+                            $html .= '</ul>'."\n";
                             }
                         }
+                    $html .= '</ul>'."\n";
+                    }
                 }
-//                echo '</ul>'."\n";
             }
+
+
+echo $html;
 
 
 /*
@@ -478,9 +505,6 @@ if ($filter['tickler']=="true") {
                 nothingFound($message);
         }
 
-*/
-
-}
 
         elseif($filter['completed']!="completed" && $values['type']!="t") {
                 $message="You have no ".$typename." remaining.";
@@ -494,6 +518,8 @@ if ($filter['tickler']=="true") {
                 $message="None";
                 nothingFound($message);
         }
+
+*/
 
         include_once('footer.php');
 ?>
