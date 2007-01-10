@@ -40,7 +40,7 @@
 	z-index: 100;
 }
 #menudiv li>ul { /* to override top and left in browsers other than IE, which will position to the top right of the containing li, rather than bottom left */
-	top: 1.75em;
+	top: 1.7em;
 	left: -1px;
 }
 #menudiv li li { /* second-level list items */

@@ -270,7 +270,7 @@ if ($filter['tickler']=="true") {
             foreach ($reminderresult as $row) {
                     $tablehtml .= " <tr>\n";
                     $tablehtml .= "         <td>".$row['date']."</td>\n";
-                    $tablehtml .= '         <td><a href = "note.php?noteId='.$row['ticklerId'].'&type='.$values['type'].'&referrer=t" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.htmlspecialchars(stripslashes($row['title']))."</td>\n";
+                    $tablehtml .= '         <td><a href = "note.php?noteId='.$row['ticklerId'].'&type='.$values['type'].'&referrer=t" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
                     $tablehtml .= '         <td>'.nl2br(htmlspecialchars(stripslashes($row['note'])))."</td>\n";
                     $tablehtml .= " </tr>\n";
             }
@@ -326,7 +326,7 @@ if ($filter['tickler']=="true") {
                         if ($key = array_search($row['itemId'],$nextactions) && ($show['title']!=FALSE)) $tablehtml .= '" class="nextactionlink">*&nbsp;';
                         else $tablehtml .= '">';
 
-                        if ($show['title']!=FALSE) $tablehtml .=htmlspecialchars(stripslashes($row['title']))."</td>\n";
+                        if ($show['title']!=FALSE) $tablehtml .=htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
 
                         //item description
                         if ($show['description']!=FALSE) $tablehtml .= '		<td>'.nl2br(substr(htmlspecialchars(stripslashes($row['description'])),0,72))."</td>\n";
@@ -341,7 +341,7 @@ if ($filter['tickler']=="true") {
                         if ($show['context']!=FALSE) $tablehtml .= '		<td><a href = "reportContext.php#'.$row['cname'].'" title="Go to the  '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.htmlspecialchars(stripslashes($row['cname']))."</td>\n";
                         
                         //item timeframe name
-                        if ($show['timeframe']!=FALSE) $tablehtml .= '         <td><a href = "reportTimeContext.php#'.$row['timeframe'].'" title="Go to '.htmlspecialchars(stripslashes($row['timeframe'])).' time context report">'.htmlspecialchars(stripslashes($row['timeframe']))."</td>\n";
+                        if ($show['timeframe']!=FALSE) $tablehtml .= '         <td><a href = "reportTimeContext.php#'.$row['timeframe'].'" title="Go to '.htmlspecialchars(stripslashes($row['timeframe'])).' time context report">'.htmlspecialchars(stripslashes($row['timeframe']))."</a></td>\n";
                         
                         //item deadline
                         if ($show['deadline']!=FALSE) {
@@ -426,7 +426,7 @@ if ($filter['tickler']=="true") {
                         echo '<input type="hidden" name="nextonly" value="'.$filter['nextonly'].'" />'."\n";
                         echo '<input type="hidden" name="repeatingonly" value="'.$filter['repeatingonly'].'" />'."\n";
                         echo '<input type="hidden" name="dueonly" value="'.$filter['dueonly'].'" />'."\n";
-                        echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit">'."\n";
+                        echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit" />'."\n";
 			echo "</form>\n";
 		}
 

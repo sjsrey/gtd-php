@@ -2,52 +2,52 @@
 
 CREATE DATABASE `newgtd`;
 
-CREATE TABLE `newgtd`.`categories` ( `categoryId` int( 10 ) unsigned NOT NULL auto_increment , `category` text NOT NULL , `description` text, PRIMARY KEY ( `categoryId` ) );
+CREATE TABLE `newgtd`.`categories` ( `categoryId` int( 10 ) unsigned NOT NULL auto_increment , `category` text NOT NULL , `description` text, PRIMARY KEY ( `categoryId` )) ENGINE=myISAM;
 INSERT INTO `newgtd`.`categories` SELECT * FROM `gtd`.`categories`;
 
-CREATE TABLE `newgtd`.`checklist` ( `checklistId` int( 10 ) unsigned NOT NULL auto_increment , `title` text NOT NULL , `categoryId` int( 10 ) unsigned NOT NULL default '0', `description` text, PRIMARY KEY ( `checklistId` ) ) COMMENT = 'Reusable Checklists';
+CREATE TABLE `newgtd`.`checklist` ( `checklistId` int( 10 ) unsigned NOT NULL auto_increment , `title` text NOT NULL , `categoryId` int( 10 ) unsigned NOT NULL default '0', `description` text, PRIMARY KEY ( `checklistId` ) ) COMMENT = 'Reusable Checklists' ENGINE=myISAM;
 INSERT INTO `newgtd`.`checklist` SELECT * FROM `gtd`.`checklist`;
 
-CREATE TABLE `newgtd`.`checklistItems` ( `checklistItemId` int( 10 ) unsigned NOT NULL auto_increment , `item` text NOT NULL , `notes` text, `checklistId` int( 10 ) unsigned NOT NULL default '0', `checked` enum( 'y', 'n' ) NOT NULL default 'n', PRIMARY KEY ( `checklistItemId` ) , KEY `checklistId` ( `checklistId` ) , FULLTEXT KEY `notes` ( `notes` ) , FULLTEXT KEY `item` ( `item` ) ) COMMENT = 'Individual Checklist items';
+CREATE TABLE `newgtd`.`checklistItems` ( `checklistItemId` int( 10 ) unsigned NOT NULL auto_increment , `item` text NOT NULL , `notes` text, `checklistId` int( 10 ) unsigned NOT NULL default '0', `checked` enum( 'y', 'n' ) NOT NULL default 'n', PRIMARY KEY ( `checklistItemId` ) , KEY `checklistId` ( `checklistId` ) , FULLTEXT KEY `notes` ( `notes` ) , FULLTEXT KEY `item` ( `item` ) ) COMMENT = 'Individual Checklist items' ENGINE=myISAM;
 INSERT INTO `newgtd`.`checklistItems` SELECT * FROM `gtd`.`checklistItems`;
 
-CREATE TABLE `newgtd`.`context` ( `contextId` int( 10 ) unsigned NOT NULL auto_increment , `name` text NOT NULL , `description` text, PRIMARY KEY ( `contextId` ) ) COMMENT = 'Item Contexts' ;
+CREATE TABLE `newgtd`.`context` ( `contextId` int( 10 ) unsigned NOT NULL auto_increment , `name` text NOT NULL , `description` text, PRIMARY KEY ( `contextId` ) ) COMMENT = 'Item Contexts'  ENGINE=myISAM;
 INSERT INTO `newgtd`.`context` SELECT * FROM `gtd`.`context`;
 
-CREATE TABLE `newgtd`.`goals` ( `id` int( 11 ) NOT NULL auto_increment , `goal` longtext, `description` longtext, `created` date default NULL , `deadline` date default NULL , `completed` date default NULL , `type` enum( 'weekly', 'quarterly' ) default NULL , `projectId` int( 11 ) default NULL , PRIMARY KEY ( `id` ) ) ;
+CREATE TABLE `newgtd`.`goals` ( `id` int( 11 ) NOT NULL auto_increment , `goal` longtext, `description` longtext, `created` date default NULL , `deadline` date default NULL , `completed` date default NULL , `type` enum( 'weekly', 'quarterly' ) default NULL , `projectId` int( 11 ) default NULL , PRIMARY KEY ( `id` ) )  ENGINE=myISAM;
 INSERT INTO `newgtd`.`goals` SELECT * FROM `gtd`.`goals`;
 
-CREATE TABLE `newgtd`.`itemattributes` ( `itemId` int( 10 ) unsigned NOT NULL auto_increment , `type` enum( 'a', 'r', 'w' ) NOT NULL default 'a', `projectId` int( 10 ) unsigned NOT NULL default '0', `contextId` int( 10 ) unsigned NOT NULL default '0', `timeframeId` int( 10 ) unsigned NOT NULL default '0', `deadline` date default NULL , `repeat` int( 10 ) unsigned NOT NULL default '0', `suppress` enum( 'y', 'n' ) NOT NULL default 'n', `suppressUntil` int( 10 ) unsigned default NULL , PRIMARY KEY ( `itemId` ) , KEY `projectId` ( `projectId` ) , KEY `contextId` ( `contextId` ) , KEY `suppress` ( `suppress` ) , KEY `type` ( `type` ) , KEY `timeframeId` ( `timeframeId` ) ) COMMENT = 'Characteristics of items (action, waiting, reference, etc)' ;
+CREATE TABLE `newgtd`.`itemattributes` ( `itemId` int( 10 ) unsigned NOT NULL auto_increment , `type` enum( 'a', 'r', 'w' ) NOT NULL default 'a', `projectId` int( 10 ) unsigned NOT NULL default '0', `contextId` int( 10 ) unsigned NOT NULL default '0', `timeframeId` int( 10 ) unsigned NOT NULL default '0', `deadline` date default NULL , `repeat` int( 10 ) unsigned NOT NULL default '0', `suppress` enum( 'y', 'n' ) NOT NULL default 'n', `suppressUntil` int( 10 ) unsigned default NULL , PRIMARY KEY ( `itemId` ) , KEY `projectId` ( `projectId` ) , KEY `contextId` ( `contextId` ) , KEY `suppress` ( `suppress` ) , KEY `type` ( `type` ) , KEY `timeframeId` ( `timeframeId` ) ) COMMENT = 'Characteristics of items'  ENGINE=myISAM;
 INSERT INTO `newgtd`.`itemattributes` SELECT * FROM `gtd`.`itemattributes`;
 
-CREATE TABLE `newgtd`.`items` ( `itemId` int( 10 ) unsigned NOT NULL auto_increment , `title` text NOT NULL , `description` longtext, PRIMARY KEY ( `itemId` ) , FULLTEXT KEY `title` ( `title` ) , FULLTEXT KEY `description` ( `description` ) ) COMMENT = 'All individual items (runway) --  actions, references, waiting' ;
+CREATE TABLE `newgtd`.`items` ( `itemId` int( 10 ) unsigned NOT NULL auto_increment , `title` text NOT NULL , `description` longtext, PRIMARY KEY ( `itemId` ) , FULLTEXT KEY `title` ( `title` ) , FULLTEXT KEY `description` ( `description` ) ) COMMENT = 'All individual items'  ENGINE=myISAM ;
 INSERT INTO `newgtd`.`items` SELECT * FROM `gtd`.`items`;
 
-CREATE TABLE `newgtd`.`itemstatus` ( `itemId` int( 10 ) unsigned NOT NULL auto_increment , `dateCreated` date NOT NULL default '0000-00-00', `lastModified` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP , `dateCompleted` date default NULL , `completed` int( 10 ) unsigned default NULL , PRIMARY KEY ( `itemId` ) ) COMMENT = 'Status of items';
+CREATE TABLE `newgtd`.`itemstatus` ( `itemId` int( 10 ) unsigned NOT NULL auto_increment , `dateCreated` date NOT NULL default '0000-00-00', `lastModified` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP , `dateCompleted` date default NULL , `completed` int( 10 ) unsigned default NULL , PRIMARY KEY ( `itemId` ) ) COMMENT = 'Status of items' ENGINE=myISAM;
 INSERT INTO `newgtd`.`itemstatus` SELECT * FROM `gtd`.`itemstatus`;
 
-CREATE TABLE `newgtd`.`list` ( `listId` int( 10 ) unsigned NOT NULL auto_increment , `title` text NOT NULL , `categoryId` int( 10 ) unsigned NOT NULL default '0', `description` text, PRIMARY KEY ( `listId` ) , KEY `categoryId` ( `categoryId` ) , FULLTEXT KEY `description` ( `description` ) , FULLTEXT KEY `title` ( `title` ) ) COMMENT = 'Unordered lists' ;
+CREATE TABLE `newgtd`.`list` ( `listId` int( 10 ) unsigned NOT NULL auto_increment , `title` text NOT NULL , `categoryId` int( 10 ) unsigned NOT NULL default '0', `description` text, PRIMARY KEY ( `listId` ) , KEY `categoryId` ( `categoryId` ) , FULLTEXT KEY `description` ( `description` ) , FULLTEXT KEY `title` ( `title` ) ) COMMENT = 'Unordered lists'  ENGINE=myISAM;
 INSERT INTO `newgtd`.`list` SELECT * FROM `gtd`.`list`;
 
-CREATE TABLE `newgtd`.`listItems` ( `listItemId` int( 10 ) unsigned NOT NULL auto_increment , `item` text NOT NULL , `notes` text, `listId` int( 10 ) unsigned NOT NULL default '0', `dateCompleted` date default '0000-00-00', PRIMARY KEY ( `listItemId` ) , KEY `listId` ( `listId` ) , FULLTEXT KEY `notes` ( `notes` ) , FULLTEXT KEY `item` ( `item` ) ) COMMENT = 'Individual list items';
+CREATE TABLE `newgtd`.`listItems` ( `listItemId` int( 10 ) unsigned NOT NULL auto_increment , `item` text NOT NULL , `notes` text, `listId` int( 10 ) unsigned NOT NULL default '0', `dateCompleted` date default '0000-00-00', PRIMARY KEY ( `listItemId` ) , KEY `listId` ( `listId` ) , FULLTEXT KEY `notes` ( `notes` ) , FULLTEXT KEY `item` ( `item` ) ) COMMENT = 'Individual list items' ENGINE=myISAM;
 INSERT INTO `newgtd`.`listItems` SELECT * FROM `gtd`.`listItems`;
 
-CREATE TABLE `newgtd`.`nextactions` ( `projectId` int( 10 ) unsigned NOT NULL default '0', `nextaction` int( 10 ) unsigned NOT NULL default '0', PRIMARY KEY ( `projectId` , `nextaction` ) ) COMMENT = 'Identifies an item as a next action for a project';
+CREATE TABLE `newgtd`.`nextactions` ( `projectId` int( 10 ) unsigned NOT NULL default '0', `nextaction` int( 10 ) unsigned NOT NULL default '0', PRIMARY KEY ( `projectId` , `nextaction` ) ) COMMENT = 'Identifies an item as a next action for a project' ENGINE=myISAM;
 INSERT INTO `newgtd`.`nextactions` SELECT * FROM `gtd`.`nextactions`;
 
-CREATE TABLE `newgtd`.`projectattributes` ( `projectId` int( 10 ) unsigned NOT NULL auto_increment , `categoryId` int( 10 ) unsigned NOT NULL default '1', `isSomeday` enum( 'y', 'n' ) NOT NULL default 'n', `deadline` date default NULL , `repeat` int( 11 ) unsigned NOT NULL default '0', `suppress` enum( 'y', 'n' ) NOT NULL default 'n', `suppressUntil` int( 10 ) unsigned default NULL , PRIMARY KEY ( `projectId` ) , KEY `categoryId` ( `categoryId` ) , KEY `isSomeday` ( `isSomeday` ) , KEY `suppress` ( `suppress` ) ) COMMENT = 'Characteristics of projects' ;
+CREATE TABLE `newgtd`.`projectattributes` ( `projectId` int( 10 ) unsigned NOT NULL auto_increment , `categoryId` int( 10 ) unsigned NOT NULL default '1', `isSomeday` enum( 'y', 'n' ) NOT NULL default 'n', `deadline` date default NULL , `repeat` int( 11 ) unsigned NOT NULL default '0', `suppress` enum( 'y', 'n' ) NOT NULL default 'n', `suppressUntil` int( 10 ) unsigned default NULL , PRIMARY KEY ( `projectId` ) , KEY `categoryId` ( `categoryId` ) , KEY `isSomeday` ( `isSomeday` ) , KEY `suppress` ( `suppress` ) ) COMMENT = 'Characteristics of projects'  ENGINE=myISAM;
 INSERT INTO `newgtd`.`projectattributes` SELECT * FROM `gtd`.`projectattributes`;
 
-CREATE TABLE `newgtd`.`projects` ( `projectId` int( 10 ) unsigned NOT NULL auto_increment , `name` text NOT NULL , `description` text, `desiredOutcome` text, PRIMARY KEY ( `projectId` ) , FULLTEXT KEY `desiredOutcome` ( `desiredOutcome` ) , FULLTEXT KEY `name` ( `name` ) , FULLTEXT KEY `description` ( `description` ) ) COMMENT = 'Projects (10,000ft view)';
+CREATE TABLE `newgtd`.`projects` ( `projectId` int( 10 ) unsigned NOT NULL auto_increment , `name` text NOT NULL , `description` text, `desiredOutcome` text, PRIMARY KEY ( `projectId` ) , FULLTEXT KEY `desiredOutcome` ( `desiredOutcome` ) , FULLTEXT KEY `name` ( `name` ) , FULLTEXT KEY `description` ( `description` ) ) COMMENT = 'Projects (10,000ft view)' ENGINE=myISAM;
 INSERT INTO `newgtd`.`projects` SELECT * FROM `gtd`.`projects`;
 
-CREATE TABLE `newgtd`.`projectstatus` ( `projectId` int( 10 ) unsigned NOT NULL auto_increment , `dateCreated` date NOT NULL default '0000-00-00', `lastModified` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP , `dateCompleted` date default NULL , PRIMARY KEY ( `projectId` ) ) COMMENT = 'Status of projects' ;
+CREATE TABLE `newgtd`.`projectstatus` ( `projectId` int( 10 ) unsigned NOT NULL auto_increment , `dateCreated` date NOT NULL default '0000-00-00', `lastModified` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP , `dateCompleted` date default NULL , PRIMARY KEY ( `projectId` ) ) COMMENT = 'Status of projects'  ENGINE=myISAM;
 INSERT INTO `newgtd`.`projectstatus` SELECT * FROM `gtd`.`projectstatus`;
 
-CREATE TABLE `newgtd`.`tickler` ( `ticklerId` int( 10 ) unsigned NOT NULL auto_increment , `date` date NOT NULL default '0000-00-00', `title` text NOT NULL , `note` longtext, PRIMARY KEY ( `ticklerId` ) , KEY `date` ( `date` ) , FULLTEXT KEY `notes` ( `note` ) ) COMMENT = 'Tickler file' ;
+CREATE TABLE `newgtd`.`tickler` ( `ticklerId` int( 10 ) unsigned NOT NULL auto_increment , `date` date NOT NULL default '0000-00-00', `title` text NOT NULL , `note` longtext, PRIMARY KEY ( `ticklerId` ) , KEY `date` ( `date` ) , FULLTEXT KEY `notes` ( `note` ) ) COMMENT = 'Tickler file'  ENGINE=myISAM;
 INSERT INTO `newgtd`.`tickler` SELECT * FROM `gtd`.`tickler`;
 
-CREATE TABLE `newgtd`.`timeitems` ( `timeframeId` int( 10 ) unsigned NOT NULL auto_increment , `timeframe` text NOT NULL , `description` text, PRIMARY KEY ( `timeframeId` ) ) COMMENT = 'Item timeframes';
+CREATE TABLE `newgtd`.`timeitems` ( `timeframeId` int( 10 ) unsigned NOT NULL auto_increment , `timeframe` text NOT NULL , `description` text, PRIMARY KEY ( `timeframeId` ) ) COMMENT = 'Item timeframes' ENGINE=myISAM;
 INSERT INTO `newgtd`.`timeitems` SELECT * FROM `gtd`.`timeitems`;
 
  -- SWITCH TO NEW DATABASE -- 
@@ -233,7 +233,8 @@ ALTER TABLE `categories` ADD FULLTEXT (`category`);
 ALTER TABLE `categories` ADD FULLTEXT (`description`);
 
  -- create version table -- 
- CREATE TABLE `version` (`version` FLOAT UNSIGNED NOT NULL,`updated` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE `version` (`version` TEXT UNSIGNED NOT NULL,`updated` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)  ENGINE=myISAM;
+INSERT INTO `version` (`version`) VALUES ('0.8rc-1');
 
  -- rename old database to name-old --
  -- rename new database to preferred name -- 
