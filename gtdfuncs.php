@@ -111,10 +111,5 @@ function listselectbox($config,$values,$options,$sort) {
     return $lshtml;
     }
 
-function recursivechildren () {
-
-
-    return $childhtml; 
-}
 
 ?>
