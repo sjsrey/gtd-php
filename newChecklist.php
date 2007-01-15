@@ -47,7 +47,7 @@ $cashtml=categoryselectbox($config,$values,$options,$sort);
     else echo "Checklist NOT inserted.";
     if (($config['debug']=="true" || $config['debug']=="developer") && $GLOBALS['ecode']!="0") echo "<p>Error Code: ".$GLOBALS['ecode']."=> ".$GLOBALS['etext']."</p>";
 
-    echo '<META HTTP-EQUIV="Refresh" CONTENT="2; url=checklistReport.php?checklistId='.mysql_insert_id()'">';
+    echo '<META HTTP-EQUIV="Refresh" CONTENT="2; url=checklistReport.php?checklistId='.mysql_insert_id() . '">';
     }
 
 include_once('footer.php');

@@ -10,10 +10,11 @@ $show=array();
 $values = array();
 $filter = array();
 
+
 if (isset($_GET['type'])) $values['type']=$_GET["type"]{0};
 else $values['type']="a";
 
-if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
+if ($_GET['categoryId']>0)  $values['categoryId']=(int) $_GET['categoryId'];
     else $values['categoryId']=(int) $_POST['categoryId'];
 
 if (isset($_GET['notcategory'])) $filter['notcategory']= $_GET['notcategory'];
@@ -66,7 +67,6 @@ else $values['contextId']=$_SESSION['contextId'];
 $categoryId=$values['categoryId'];
 if ($categoryId>=0) $_SESSION['categoryId']=$categoryId;
 else $values['categoryId']=$_SESSION['categoryId'];
-
 
 //SQL CODE
 
