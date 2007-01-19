@@ -107,8 +107,8 @@ $config['theme']=$_SESSION['theme'];
                                 <li><a href="management.php" title="Management view">Management</a></li>
                                 <li><a href="listItems.php?type=m" title="Values / Mission">Values</a></li>
                                 <li><a href="listItems.php?type=v" title="Visions">Visions</a></li>
-                                <li><a href="listItems.php?type=g" title="Goals">Goals</a></li>
                                 <li><a href="listItems.php?type=o" title="Roles / Areas of Responsibility">Roles</a></li>
+                                <li><a href="listItems.php?type=g" title="Goals">Goals</a></li>
                                 <li><a href="achivements.php" title="Notable Achivements">Achievements</a></li>
                                 <li><a href="listItems.php?type=a&tickler=true" title="Hidden items and reminders">Tickler File</a></li>
 
