@@ -11,7 +11,7 @@ $values = array();
 $filter = array();
 
 if (isset($_GET['type'])) $values['type']=$_GET["type"]{0};
-else $values['type']="a";
+else $values['type']="p";
 
 if ($_GET['categoryId']>0) $values['categoryId']=(int) $_GET['categoryId'];
     else $values['categoryId']=(int) $_POST['categoryId'];
@@ -304,42 +304,42 @@ if ($filter['tickler']=="true") {
 
         if ($result!="-1") {
             foreach ($result as $item) {
-                $html .= '<h3>'.$item['title'].'</h3>'."\n";
+                $html .= '<h3><a href = "itemReport.php?itemId='.$item['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($item['title'])).' report" /></a><a href = "item.php?itemId='.$item['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($item['title'])).'" /></a>'.$item['title']."</h3>\n";
                 $values['filterquery'] = $filters;
                 $values['parentId']=$item['itemId'];
                 $level2 = query("getchildren",$config,$values,$options,$sort);
                 if ($level2!="-1") {
                     $html .= '<ul>'."\n";
                     foreach ($level2 as $child2) {
-                        $html .= '<li>'.$child2['title']."\n";
+                        $html .= '<li><a href = "itemReport.php?itemId='.$child2['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child2['title'])).' report" /></a><a href = "item.php?itemId='.$child2['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child2['title'])).'" /></a>'.$child2['title']."\n";
                         $values['filterquery'] = $filters;
                         $values['parentId']=$child2['itemId'];
                         $level3 = query("getchildren",$config,$values,$options,$sort);
                         if ($level3!="-1") {
                             $html .= '<ul>'."\n";
                             foreach ($level3 as $child3) {
-                                $html .= '<li>'.$child3['title']."\n";
+                                $html .= '<li><a href = "itemReport.php?itemId='.$child3['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child3['title'])).' report" /></a><a href = "item.php?itemId='.$child3['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child3['title'])).'" /></a>'.$child3['title']."\n";
                                 $values['filterquery'] = $filters;
                                 $values['parentId']=$child3['itemId'];
                                 $level4 = query("getchildren",$config,$values,$options,$sort);
                                 if ($level4!="-1") {
                                     $html .= '<ul>'."\n";
                                     foreach ($level4 as $child4) {
-                                        $html .= '<li>'.$child4['title']."\n";
+                                        $html .= '<li><a href = "itemReport.php?itemId='.$child4['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child4['title'])).' report" /></a><a href = "item.php?itemId='.$child4['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child4['title'])).'" /></a>'.$child4['title']."\n";
                                         $values['filterquery'] = $filters;
                                         $values['parentId']=$child4['itemId'];
                                         $level5 = query("getchildren",$config,$values,$options,$sort);
                                         if ($level5!="-1") {
                                             $html .= '<ul>'."\n";
                                             foreach ($level5 as $child5) {
-                                                $html .= '<li>'.$child5['title']."\n";
+                                                $html .= '<li><a href = "itemReport.php?itemId='.$child5['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child5['title'])).' report" /></a><a href = "item.php?itemId='.$child5['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child5['title'])).'" /></a>'.$child5['title']."\n";
                                                 $values['filterquery'] = $filters;
                                                 $values['parentId']=$child5['itemId'];
                                                 $level6 = query("getchildren",$config,$values,$options,$sort);
                                                 if ($level6!="-1") {
                                                     $html .= '<ul>'."\n";
                                                     foreach ($level6 as $child6) {
-                                                        echo '<li>'.$child6['title']."\n";
+                                                        $html .= '<li><a href = "itemReport.php?itemId='.$child6['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child6['title'])).' report" /></a><a href = "item.php?itemId='.$child6['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child6['title'])).'" /></a>'.$child6['title']."\n";
                                                         }
                                                     $html .= '</ul>'."\n";
                                                     }

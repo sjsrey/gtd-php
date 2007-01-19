@@ -321,8 +321,6 @@ a.subheading:hover {
 	text-decoration: underline;
 }
 
-
-
 /* the ! preceding each project without a next action defined (in listProjects.php) */
 .noNextAction {
 	font-weight: bold;
