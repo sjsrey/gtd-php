@@ -169,8 +169,8 @@ $values['filterquery'] = "";
 $values['childfilterquery'] = " WHERE ".sqlparts("typefilter",$config,$values);
 
 //filter box filters
-if ($values['categoryId'] != NULL && $filter['notcategory']!="true") $values['filterquery'] .= " AND ".sqlparts("categoryfilter-parent",$config,$values);
-if ($values['categoryId'] != NULL && $filter['notcategory']=="true") $values['filterquery'] .= " AND ".sqlparts("notcategoryfilter-parent",$config,$values);
+if ($values['categoryId'] != NULL && $filter['notcategory']!="true") $values['childfilterquery'] .= " AND ".sqlparts("categoryfilter",$config,$values);
+if ($values['categoryId'] != NULL && $filter['notcategory']=="true") $values['childfilterquery'] .= " AND ".sqlparts("notcategoryfilter",$config,$values);
 
 if ($values['contextId'] != NULL && $filter['notspacecontext']!="true") $values['childfilterquery'] .= " AND ".sqlparts("contextfilter",$config,$values);
 if ($values['contextId'] != NULL && $filter['notspacecontext']=="true") $values['childfilterquery'] .= " AND ".sqlparts("notcontextfilter",$config,$values);
