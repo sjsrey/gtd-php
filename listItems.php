@@ -184,13 +184,13 @@ else $values['childfilterquery'] .= " AND " .sqlparts("pendingitems",$config,$va
 //problem with project somedays vs actions...want an OR, but across subqueries;
 if ($filter['someday']=="true") {
     $values['isSomeday']="y";
-    $values['filterquery'] .= " WHERE " .sqlparts("issomeday-parent",$config,$values);
+    $values['childfilterquery'] .= " AND " .sqlparts("issomeday",$config,$values);
     }
 
 else {
     $values['isSomeday']="n";
     $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
-    $values['filterquery'] .= " WHERE " .sqlparts("issomeday-parent",$config,$values);
+//    $values['filterquery'] .= " WHERE " .sqlparts("issomeday-parent",$config,$values);
     }
 
 //problem: need to get all items with suppressed parents(even if child is not marked suppressed), as well as all suppressed items
