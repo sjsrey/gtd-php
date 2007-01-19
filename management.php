@@ -164,43 +164,49 @@ if ($filter['completed']=="completed") {
 //$values['childfilterquery'] = "";
 //$values['parentfilterquery'] = "";
 $values['filterquery'] = "";
-$filters = "";
-
+$categoryfilter = "";
+$contextfilter = "";
+$timefilter = "";
+$completedfilter = "";
+$somedayfilter = "";
+$ticklerfilter = "";
+$repeatfilter = "";
+$duefilter = "";
 
 //filter box filters
-if ($values['categoryId'] != NULL && $filter['notcategory']!="true") $filters .= " AND ".sqlparts("categoryfilter",$config,$values);
-if ($values['categoryId'] != NULL && $filter['notcategory']=="true") $filters .= " AND ".sqlparts("notcategoryfilter",$config,$values);
+if ($values['categoryId'] != NULL && $filter['notcategory']!="true") $categoryfilter = " AND ".sqlparts("categoryfilter",$config,$values);
+if ($values['categoryId'] != NULL && $filter['notcategory']=="true") $categoryfilter = " AND ".sqlparts("notcategoryfilter",$config,$values);
 
-if ($values['contextId'] != NULL && $filter['notspacecontext']!="true") $filters .= " AND ".sqlparts("contextfilter",$config,$values);
-if ($values['contextId'] != NULL && $filter['notspacecontext']=="true") $filters .= " AND ".sqlparts("notcontextfilter",$config,$values);
+if ($values['contextId'] != NULL && $filter['notspacecontext']!="true") $contextfilter = " AND ".sqlparts("contextfilter",$config,$values);
+if ($values['contextId'] != NULL && $filter['notspacecontext']=="true") $contextfilter = " AND ".sqlparts("notcontextfilter",$config,$values);
 
-if ($values['timeframeId'] != NULL && $filter['nottimecontext']!="true") $filters .= " AND ".sqlparts("timeframefilter",$config,$values);
-if ($values['timeframeId'] != NULL && $filter['nottimecontext']=="true") $filters .= " AND ".sqlparts("nottimeframefilter",$config,$values);
+if ($values['timeframeId'] != NULL && $filter['nottimecontext']!="true") $timefilter = " AND ".sqlparts("timeframefilter",$config,$values);
+if ($values['timeframeId'] != NULL && $filter['nottimecontext']=="true") $timefilter = " AND ".sqlparts("nottimeframefilter",$config,$values);
 
-if ($filter['completed']=="completed") $filters .= " AND ".sqlparts("completeditems",$config,$values);
-else $filters .= " AND " .sqlparts("pendingitems",$config,$values);
+if ($filter['completed']=="completed") $completedfilters = " AND ".sqlparts("completeditems",$config,$values);
+else $completedfilter = " AND " .sqlparts("pendingitems",$config,$values);
 
 //problem with project somedays vs actions...want an OR, but across subqueries;
 if ($filter['someday']=="true") {
     $values['isSomeday']="y";
-    $filters .= " AND " .sqlparts("issomeday",$config,$values);
+    $somedayfilter = " AND " .sqlparts("issomeday",$config,$values);
     }
 
 else {
     $values['isSomeday']="n";
-    $filters .= " AND " .sqlparts("issomeday",$config,$values);
+    $somedayfilter = " AND " .sqlparts("issomeday",$config,$values);
     }
 
 //problem: need to get all items with suppressed parents(even if child is not marked suppressed), as well as all suppressed items
-if ($filter['tickler']=="true") $filters .= " AND ".sqlparts("suppresseditems",$config,$values);
+if ($filter['tickler']=="true") $ticklerfilter = " AND ".sqlparts("suppresseditems",$config,$values);
 
 else {
-    $filters .= " AND ".sqlparts("activeitems",$config,$values);
+    $ticklerfilter = " AND ".sqlparts("activeitems",$config,$values);
     }
 
-if ($filter['repeatingonly']=="true") $filters .= " AND " .sqlparts("repeating",$config,$values);
+if ($filter['repeatingonly']=="true") $repeatfilter = " AND " .sqlparts("repeating",$config,$values);
 
-if ($filter['dueonly']=="true") $filters .= " AND " .sqlparts("due",$config,$values);
+if ($filter['dueonly']=="true") $duefilter = " AND " .sqlparts("due",$config,$values);
 
 /*
 $filter['nextonly']
@@ -208,7 +214,8 @@ $filter['nextonly']
 
 //create filter query string, and add type filter
 $values['filterquery'] = " WHERE ".sqlparts("typefilter",$config,$values);
-if ($filters!="") $values['filterquery'] .= $filters;
+$values['filterquery'] .= $categoryfilter.$contextfilter.$timefilter.$completedfilter.$somedayfilter.$ticklerfilter.$repeatfilter.$duefilter;
+$childfilter = $completedfilter.$somedayfilter.$ticklerfilter.$repeatfilter.$duefilter;
 
 //Get items for display
 $result = query("getitems",$config,$values,$options,$sort);
@@ -305,35 +312,35 @@ if ($filter['tickler']=="true") {
         if ($result!="-1") {
             foreach ($result as $item) {
                 $html .= '<h3><a href = "itemReport.php?itemId='.$item['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($item['title'])).' report" /></a><a href = "item.php?itemId='.$item['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($item['title'])).'" /></a>'.$item['title']."</h3>\n";
-                $values['filterquery'] = $filters;
+                $values['filterquery'] = $childfilter;
                 $values['parentId']=$item['itemId'];
                 $level2 = query("getchildren",$config,$values,$options,$sort);
                 if ($level2!="-1") {
                     $html .= '<ul>'."\n";
                     foreach ($level2 as $child2) {
                         $html .= '<li><a href = "itemReport.php?itemId='.$child2['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child2['title'])).' report" /></a><a href = "item.php?itemId='.$child2['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child2['title'])).'" /></a>'.$child2['title']."\n";
-                        $values['filterquery'] = $filters;
+                        $values['filterquery'] = $childfilter;
                         $values['parentId']=$child2['itemId'];
                         $level3 = query("getchildren",$config,$values,$options,$sort);
                         if ($level3!="-1") {
                             $html .= '<ul>'."\n";
                             foreach ($level3 as $child3) {
                                 $html .= '<li><a href = "itemReport.php?itemId='.$child3['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child3['title'])).' report" /></a><a href = "item.php?itemId='.$child3['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child3['title'])).'" /></a>'.$child3['title']."\n";
-                                $values['filterquery'] = $filters;
+                                $values['filterquery'] = $childfilter;
                                 $values['parentId']=$child3['itemId'];
                                 $level4 = query("getchildren",$config,$values,$options,$sort);
                                 if ($level4!="-1") {
                                     $html .= '<ul>'."\n";
                                     foreach ($level4 as $child4) {
                                         $html .= '<li><a href = "itemReport.php?itemId='.$child4['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child4['title'])).' report" /></a><a href = "item.php?itemId='.$child4['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child4['title'])).'" /></a>'.$child4['title']."\n";
-                                        $values['filterquery'] = $filters;
+                                        $values['filterquery'] = $childfilter;
                                         $values['parentId']=$child4['itemId'];
                                         $level5 = query("getchildren",$config,$values,$options,$sort);
                                         if ($level5!="-1") {
                                             $html .= '<ul>'."\n";
                                             foreach ($level5 as $child5) {
                                                 $html .= '<li><a href = "itemReport.php?itemId='.$child5['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child5['title'])).' report" /></a><a href = "item.php?itemId='.$child5['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child5['title'])).'" /></a>'.$child5['title']."\n";
-                                                $values['filterquery'] = $filters;
+                                                $values['filterquery'] = $childfilter;
                                                 $values['parentId']=$child5['itemId'];
                                                 $level6 = query("getchildren",$config,$values,$options,$sort);
                                                 if ($level6!="-1") {
