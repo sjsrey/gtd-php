@@ -206,6 +206,13 @@ a:hover{
 }
 
 
+
+img {
+        border: 0;
+        float: left;
+        margin-right: 2px;
+};
+
 select, input, textarea {
 	color: #665;
 	font-family:"Lucida Grande", "Lucida Sans", Verdana, Helvetica, sans-serif;

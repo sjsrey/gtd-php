@@ -160,8 +160,8 @@ else {
                         <label class='left first'>Type:</label>
                         <input type='radio' name='type' id='value' value='m' class="first" <?php if ($values['type']=='m') echo "CHECKED "; ?>/><label for='value' class='right'>Value</label>
                         <input type='radio' name='type' id='vision' value='v' class="notfirst" <?php if ($values['type']=='v') echo "CHECKED "; ?>/><label for='vision' class='right'>Vision</label>
-                        <input type='radio' name='type' id='goal' value='g' class="notfirst" <?php if ($values['type']=='g') echo "CHECKED "; ?>/><label for='goal' class='right'>Goal</label>
                         <input type='radio' name='type' id='role' value='o' class="notfirst" <?php if ($values['type']=='o') echo "CHECKED "; ?>/><label for='role' class='right'>Role</label>
+                        <input type='radio' name='type' id='goal' value='g' class="notfirst" <?php if ($values['type']=='g') echo "CHECKED "; ?>/><label for='goal' class='right'>Goal</label>
                         <input type='radio' name='type' id='project' value='p' class="notfirst" <?php if ($values['type']=='p') echo "CHECKED "; ?>/><label for='project' class='right'>Project</label>
                 </div>
                 <div class='formrow'>
