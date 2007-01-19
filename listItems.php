@@ -122,9 +122,9 @@ $show['checkbox']=TRUE;
     switch ($values['type']) {
         case "m" : $typename="Values"; $parentname=""; $values['ptype']=""; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
         case "v" : $typename="Visions"; $parentname="Value"; $values['ptype']="m"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "g" : $typename="Goals"; $parentname="Vision"; $values['ptype']="v"; $show['desiredOutcome']=TRUE; $show['context']=FALSE; break;
-        case "o" : $typename="Roles"; $parentname="Goal"; $values['ptype']="g"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "p" : $typename="Projects"; $parentname="Role"; $values['ptype']="o"; $show['context']=FALSE; $show['timeframe']=FALSE; break;
+        case "o" : $typename="Roles"; $parentname="Vision"; $values['ptype']="v"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
+        case "g" : $typename="Goals"; $parentname="Role"; $values['ptype']="o"; $show['desiredOutcome']=TRUE; $show['context']=FALSE; break;
+        case "p" : $typename="Projects"; $parentname="Goal"; $values['ptype']="g"; $show['context']=FALSE; $show['timeframe']=FALSE; break;
         case "a" : $typename="Actions"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $show['category']=FALSE; break;
         case "w" : $typename="Waiting On"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; break;
         case "r" : $typename="References"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; break;

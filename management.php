@@ -100,7 +100,7 @@ if ($filter['tickler']=="true") {
 //Select items
 
 //set default table column display options (kludge-- needs to be divided into multidimensional array for each table type and added to preferences table
-$show['parent']=TRUE;
+$show['parent']=FALSE;
 $show['title']=TRUE;
 $show['description']=TRUE;
 $show['desiredOutcome']=FALSE;
@@ -120,15 +120,15 @@ $show['checkbox']=TRUE;
 
 //determine item and parent labels, set a few defaults
     switch ($values['type']) {
-        case "m" : $typename="Values"; $parentname=""; $values['ptype']=""; $values['ctype']="v"; $recurse=5; $show['parent']=FALSE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
+        case "m" : $typename="Values"; $parentname=""; $values['ptype']=""; $values['ctype']="v"; $recurse=5; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
         case "v" : $typename="Visions"; $parentname="Value"; $values['ptype']="m"; $values['ctype']="g"; $recurse=4; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "g" : $typename="Goals"; $parentname="Vision"; $values['ptype']="v"; $values['ctype']="o"; $recurse=3; $show['desiredOutcome']=TRUE; $show['context']=FALSE; break;
-        case "o" : $typename="Roles"; $parentname="Goal"; $values['ptype']="g"; $values['ctype']="p"; $recurse=2; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "p" : $typename="Projects"; $parentname="Role"; $values['ptype']="o"; $values['ctype']="a"; $recurse=1; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "a" : $typename="Actions"; $parentname="Project"; $values['ptype']="p"; $values['ctype']=""; $recurse=0; $show['category']=FALSE; break;
-        case "w" : $typename="Waiting On"; $parentname="Project"; $values['ptype']="p"; $values['ctype']=""; $recurse=0; break;
-        case "r" : $typename="References"; $parentname="Project"; $values['ptype']="p"; $values['ctype']=""; $recurse=0; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; break;
-        case "i" : $typename="Inbox Items"; $parentname=""; $values['ptype']=""; $values['ctype']=""; $recurse=0; $show['parent']=FALSE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['repeat']=FALSE; break;
+        case "g" : $typename="Goals"; $parentname="Role"; $values['ptype']="o"; $values['ctype']="o"; $recurse=3; $show['desiredOutcome']=TRUE; $show['context']=FALSE; break;
+        case "o" : $typename="Roles"; $parentname="Vision"; $values['ptype']="v"; $values['ctype']="p"; $recurse=2; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
+        case "p" : $typename="Projects"; $parentname="Goal"; $values['ptype']="g"; $values['ctype']="a"; $recurse=1; $show['context']=FALSE; $show['timeframe']=FALSE; break;
+        case "a" : $typename="Actions"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $values['ctype']=""; $recurse=0; $show['category']=FALSE; break;
+        case "w" : $typename="Waiting On"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $values['ctype']=""; $recurse=0; break;
+        case "r" : $typename="References"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $values['ctype']=""; $recurse=0; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; break;
+        case "i" : $typename="Inbox Items"; $parentname=""; $values['ptype']=""; $values['ctype']=""; $recurse=0; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['repeat']=FALSE; break;
         default  : $typename="Items"; $parentname=""; $values['ptype']=""; $values['ctype']=""; $recurse=0;
         }
 

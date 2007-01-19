@@ -64,8 +64,8 @@ if(isset($id)){
 $typename=array();
 $typename=array("m" => "Values",
                 "v" => "Visions",
-                "g" => "Goals",
                 "o" => "Roles",
+                "g" => "Goals",
                 "p" => "Projects",
                 "s" => "Someday/Maybes",
                 "a" => "Actions",
@@ -77,9 +77,9 @@ $childtype=array();  //I don't like this... but it's the best solution at the mo
 
 switch ($item['type']) {
     case "m" : $childtype=array("v"); break;
-    case "v" : $childtype=array("g"); break;
-    case "g" : $childtype=array("o"); break;
-    case "o" : $childtype=array("p"); break;
+    case "v" : $childtype=array("o"); break;
+    case "o" : $childtype=array("g"); break;
+    case "g" : $childtype=array("p"); break;
     case "p" : $childtype=array("a","w","r"); break;
     case "s" : $childtype=array("a","w","r"); break;
     case "a" : $childtype=NULL; break;

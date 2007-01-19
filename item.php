@@ -46,9 +46,9 @@ if ($values['itemId']>0) {
     switch ($values['type']) {
         case "m" : $typename="Value"; $parentname=""; $values['ptype']=""; break;
         case "v" : $typename="Vision"; $parentname="Value"; $values['ptype']="m"; break;
-        case "g" : $typename="Goal"; $parentname="Vision"; $values['ptype']="v"; break;
-        case "o" : $typename="Role"; $parentname="Goals"; $values['ptype']="g"; break;
-        case "p" : $typename="Project"; $parentname="Role"; $values['ptype']="o"; break;
+        case "o" : $typename="Role"; $parentname="Vision"; $values['ptype']="v"; break;
+        case "g" : $typename="Goal"; $parentname="Role"; $values['ptype']="o"; break;
+        case "p" : $typename="Project"; $parentname="Goal"; $values['ptype']="g"; break;
         case "a" : $typename="Action"; $parentname="Project"; $values['ptype']="p"; break;
         case "w" : $typename="Waiting On"; $parentname="Project"; $values['ptype']="p"; break;
         case "r" : $typename="Reference"; $parentname="Project"; $values['ptype']="p"; break;
