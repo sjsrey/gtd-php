@@ -45,4 +45,51 @@ $sort = array(
     "getitems"              =>  " `categories`.`category`, `items`.`title` ASC ",
     "getnotes"              => " `tickler`.`date` DESC ",
     );
-?>
+
+// Access keys defined.  Note IE only allows 26 access keys (a-z).
+$acckey = array(
+	"about.php"								=> "", // License
+	"achivements.php"						=> "", // Achievements
+	"credits.php"							=> "", // Credits
+	"donate.php"							=> "", // Donate
+	"item.php?type=a"						=> "", // add Action
+	"item.php?type=a&nextonly=true"			=> "", // add Next Action
+	"item.php?type=g"						=> "", // add Goal
+	"item.php?type=i"						=> "i", // add Inbox item
+	"item.php?type=m"						=> "", // add Value
+	"item.php?type=o"						=> "", // add Role
+	"item.php?type=p"						=> "p", // add Project
+	"item.php?type=p&someday=true"			=> "", // add Someday/Maybe
+	"item.php?type=r"						=> "", // add Reference
+	"item.php?type=v"						=> "", // add Vision
+	"item.php?type=w"						=> "", // add Waiting On
+	"leadership.php"						=> "", // Leadership
+	"listChecklist.php"						=> "c", // Checklists
+	"listItems.php?type=a"					=> "a", // Actions
+	"listItems.php?type=a&nextonly=true"	=> "n", // Next Actions
+	"listItems.php?type=a&tickler=true"		=> "", // Tickler File
+	"listItems.php?type=g"					=> "", // Goals
+	"listItems.php?type=i"					=> "", // Inbox
+	"listItems.php?type=m"					=> "", // Values
+	"listItems.php?type=o"					=> "", // Roles
+	"listItems.php?type=p"					=> "v", // Projects
+	"listItems.php?type=p&someday=true"		=> "m", // Someday/Maybes
+	"listItems.php?type=r"					=> "", // References
+	"listItems.php?type=v"					=> "", // Visions
+	"listItems.php?type=w"					=> "w", // Waiting On
+	"listList.php"							=> "l", // Lists
+	"management.php"						=> "", // Management
+	"newCategory.php"						=> "", // new Categories
+	"newChecklist.php"						=> "", // new Checklist
+	"newContext.php"						=> "", // new Space Contexts
+	"newList.php"							=> "", // new List
+	"newTimeContext.php"					=> "", // new Time Contexts
+	"note.php"								=> "o", // Note
+	"orphans.php"							=> "", // Orphaned Items
+	"preferences.php"						=> "", // User Preferences
+	"reportCategory.php"					=> "g", // Categories
+	"reportContext.php"						=> "x", // Space Contexts
+	"reportTimeContext.php"					=> "t", // Time Contexts
+	"summaryAlone.php"						=> "s", // Summary
+	"weekly.php"							=> "r" // Weekly Review
+);

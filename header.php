@@ -58,86 +58,132 @@ $config['theme']=$_SESSION['theme'];
 	<h1 id='sitename'><a href='index.php'><?php echo $config['title'];?></a></h1>
 </div>
 
+<?
+function makemenu($list) {
+	global $acckey;
+	foreach ($list as $info) {
+		$thislink = $info['link'];
+		$output = "<li><a href='".$info['link']."' title='".$info['title']."'";
+		if ((isset($acckey[$thislink])) && ($acckey[$thislink] !== '')) $output .= " accesskey='".$acckey[$thislink]."'";
+		$output .= ">".$info['label']."";
+		if ((isset($acckey[$thislink])) && ($acckey[$thislink] !== ''))  $output .= " (<u>".$acckey[$thislink]."</u>)";
+		$output .= "</a></li>\r\n";
+		echo $output;
+	}
+}
+?>
+
 <div id="menudiv">
 	<ul id="menulist">
 
 	 	<li>Capture
 			<ul>
-                                <li><a href="item.php?type=i" title="Drop an item into the inbox">Inbox item</a></li>
-                                <li><a href="note.php" title="Create a reminder note">Note</a></li>
-                                <li><a href="item.php?type=a&nextonly=true" title="Create a new next action">Next Action</a></li>
-				<li><a href="item.php?type=a" title="Create a new action">Action</a></li>
-                                <li><a href="item.php?type=w" title="Create a new waiting on item">Waiting On</a></li>
-                                <li><a href="item.php?type=r" title="Create a reference">Reference</a></li>
-				<li><a href="item.php?type=p" title="Create a new project">Project</a></li>
-                                <li><a href="item.php?type=p&someday=true" title="Create a future project">Someday/Maybe</a></li>
-                                <li><a href="item.php?type=o" title="Define a new role">Role</a></li>
-                                <li><a href="item.php?type=g" title="Define a new goal">Goal</a></li>
-                                <li><a href="item.php?type=v" title="Define a new vision">Vision</a></li>
-                                <li><a href="item.php?type=m" title="Define a new value">Value</a></li>
-				<li><a href="newList.php" title="Create a general purpose list">List</a></li>
-				<li><a href="newChecklist.php" title="Create a reusable list">Checklist</a></li>
-				<li><a href="newContext.php" title="Define a geographical context">Space Context</a></li>
-				<li><a href="newTimeContext.php" title="Define a time window for items">Time Context</a></li>
-				<li><a href="newCategory.php" title="Define an new meta-category">Category</a></li>
+				<? 
+				$thismenu[] = array("link"=>"item.php?type=i", 'title'=>"Drop an item into the inbox", 'label' => "Inbox item");
+				$thismenu[] = array('link'=>"note.php", 'title'=>"Create a reminder note", 'label'=>'Note'); 
+				$thismenu[] = array("link"=>"item.php?type=i", 'title'=>"Drop an item into the inbox", 'label' => "Inbox item");
+				$thismenu[] = array("link"=>"note.php", 'title'=>"Create a reminder note", 'label' => "Note");
+				$thismenu[] = array("link"=>"item.php?type=a&nextonly=true", 'title'=>"Create a new next action", 'label' => "Next Action");
+				$thismenu[] = array("link"=>"item.php?type=a", 'title'=>"Create a new action", 'label' => "Action");
+				$thismenu[] = array("link"=>"item.php?type=w", 'title'=>"Create a new waiting on item", 'label' => "Waiting On");
+				$thismenu[] = array("link"=>"item.php?type=r", 'title'=>"Create a reference", 'label' => "Reference");
+				$thismenu[] = array("link"=>"item.php?type=p", 'title'=>"Create a new project", 'label' => "Project");
+				$thismenu[] = array("link"=>"item.php?type=p&someday=true", 'title'=>"Create a future project", 'label' => "Someday/Maybe");
+				$thismenu[] = array("link"=>"item.php?type=o", 'title'=>"Define a new role", 'label' => "Role");
+				$thismenu[] = array("link"=>"item.php?type=g", 'title'=>"Define a new goal", 'label' => "Goal");
+				$thismenu[] = array("link"=>"item.php?type=v", 'title'=>"Define a new vision", 'label' => "Vision");
+				$thismenu[] = array("link"=>"item.php?type=m", 'title'=>"Define a new value", 'label' => "Value");
+				$thismenu[] = array("link"=>"newList.php", 'title'=>"Create a general purpose list", 'label' => "List");
+				$thismenu[] = array("link"=>"newChecklist.php", 'title'=>"Create a reusable list", 'label' => "Checklist");
+				$thismenu[] = array("link"=>"newContext.php", 'title'=>"Define a geographical context", 'label' => "Space Context");
+				$thismenu[] = array("link"=>"newTimeContext.php", 'title'=>"Define a time window for items", 'label' => "Time Context");
+				$thismenu[] = array("link"=>"newCategory.php", 'title'=>"Define an new meta-category", 'label' => "Category");
+				makemenu($thismenu);
+				unset($thismenu);
+				?>
 			</ul>
 
 		<li>Process
 			<ul>
-                                <li><a href="listItems.php?type=i" title="Inbox">Inbox</a></li> 
-                                <li><a href="reportCategory.php" title="Active items sorted by category">Categories</a></li>
-              			<li><a href="reportContext.php" title="Active items sorted by space context">Space Contexts</a></li>
-                                <li><a href="reportTimeContext.php" title="Active items sorted by time context">Time Contexts</a></li>
-				<li><a href="listItems.php?type=p" title="Projects">Projects</a></li>
-				<li><a href="listItems.php?type=a&nextonly=true" title="Next actions">Next Actions</a></li>
-				<li><a href="listItems.php?type=a" title="Actions">Actions</a></li>
-				<li><a href="listItems.php?type=w" title="Waiting On">Waiting On</a></li>
-				<li><a href="listItems.php?type=r" title="References">References</a></li>
-				<li><a href="listItems.php?type=p&someday=true" title="Someday projects">Someday/Maybes</a></li>
-				<li><a href="listList.php" title="General-purpose lists">Lists</a></li>
-				<li><a href="listChecklist.php" title="Reusable checklists">Checklists</a></li>
-                                <li><a href="summaryAlone.php" title="Summary view">Summary</a></li>
+				<? 
+				$thismenu[] = array("link"=>"listItems.php?type=i", 'title'=>"Inbox", 'label' => "Inbox");
+				$thismenu[] = array("link"=>"reportCategory.php", 'title'=>"Active items sorted by category", 'label' => "Categories");
+				$thismenu[] = array("link"=>"reportContext.php", 'title'=>"Active items sorted by space context", 'label' => "Space Contexts");
+				$thismenu[] = array("link"=>"reportTimeContext.php", 'title'=>"Active items sorted by time context", 'label' => "Time Contexts");
+				$thismenu[] = array("link"=>"listItems.php?type=p", 'title'=>"Projects", 'label' => "Projects");
+				$thismenu[] = array("link"=>"listItems.php?type=a&nextonly=true", 'title'=>"Next actions", 'label' => "Next Actions");
+				$thismenu[] = array("link"=>"listItems.php?type=a", 'title'=>"Actions", 'label' => "Actions");
+				$thismenu[] = array("link"=>"listItems.php?type=w", 'title'=>"Waiting On", 'label' => "Waiting On");
+				$thismenu[] = array("link"=>"listItems.php?type=r", 'title'=>"References", 'label' => "References");
+				$thismenu[] = array("link"=>"listItems.php?type=p&someday=true", 'title'=>"Someday projects", 'label' => "Someday/Maybes");
+				$thismenu[] = array("link"=>"listList.php", 'title'=>"General-purpose lists", 'label' => "Lists");
+				$thismenu[] = array("link"=>"listChecklist.php", 'title'=>"Reusable checklists", 'label' => "Checklists");
+				$thismenu[] = array("link"=>"summaryAlone.php", 'title'=>"Summary view", 'label' => "Summary");
+				makemenu($thismenu);
+				unset($thismenu);
+				?>
+
 			</ul>
 
 		<li>Review
 			<ul>
-				<li><a href="weekly.php" title="Steps in the Weekly Review">Weekly Review</a></li>
-                                <li><a href="orphans.php" title="List items without a parent item">Orphaned Items</a></li>
-                                <li><a href="leadership.php" title="Leadership view">Leadership</a></li>
-                                <li><a href="management.php" title="Management view">Management</a></li>
-                                <li><a href="listItems.php?type=m" title="Values / Mission">Values</a></li>
-                                <li><a href="listItems.php?type=v" title="Visions">Visions</a></li>
-                                <li><a href="listItems.php?type=o" title="Roles / Areas of Responsibility">Roles</a></li>
-                                <li><a href="listItems.php?type=g" title="Goals">Goals</a></li>
-                                <li><a href="achivements.php" title="Notable Achivements">Achievements</a></li>
-                                <li><a href="listItems.php?type=a&tickler=true" title="Hidden items and reminders">Tickler File</a></li>
+				<?
+				$thismenu[] = array("link"=>"weekly.php", 'title'=>"Steps in the Weekly Review", 'label' => "Weekly Review");
+				$thismenu[] = array("link"=>"orphans.php", 'title'=>"List items without a parent item", 'label' => "Orphaned Items");
+				$thismenu[] = array("link"=>"leadership.php", 'title'=>"Leadership view", 'label' => "Leadership");
+				$thismenu[] = array("link"=>"management.php", 'title'=>"Management view", 'label' => "Management");
+				$thismenu[] = array("link"=>"listItems.php?type=m", 'title'=>"Values / Mission", 'label' => "Values");
+				$thismenu[] = array("link"=>"listItems.php?type=v", 'title'=>"Visions", 'label' => "Visions");
+				$thismenu[] = array("link"=>"listItems.php?type=o", 'title'=>"Roles / Areas of Responsibility", 'label' => "Roles");
+				$thismenu[] = array("link"=>"listItems.php?type=g", 'title'=>"Goals", 'label' => "Goals");
+				$thismenu[] = array("link"=>"achivements.php", 'title'=>"Notable Achivements", 'label' => "Achievements");
+				$thismenu[] = array("link"=>"listItems.php?type=a&tickler=true", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
+
+				makemenu($thismenu);
+				unset($thismenu);
+				?>
 
 			</ul>
 
                 <li>Lists
 			<ul>
-				<li><a href="listList.php" title="General-purpose lists">Lists</a></li>
-				<li><a href="listChecklist.php" title="Reusable checklists">Checklists</a></li>
+				<?
+				$thismenu[] = array("link"=>"listList.php", 'title'=>"General-purpose lists", 'label' => "Lists");
+				$thismenu[] = array("link"=>"listChecklist.php", 'title'=>"Reusable checklists", 'label' => "Checklists");
+
+				makemenu($thismenu);
+				unset($thismenu);
+				?>
 			</ul>
 
                 <li>Configure
 
 			<ul><!-- need to change from capture to management view  //-->
-				<li><a href="newCategory.php" title="Meta-categories">Categories</a></li>
-				<li><a href="newContext.php" title="Spatial contexts">Space Contexts</a></li>  
-				<li><a href="newTimeContext.php" title="Time contexts">Time Contexts</a></li>
-				<li><a href="preferences.php" title="User preferences">User Preferences</a></li>
+				<?
+				$thismenu[] = array("link"=>"newCategory.php", 'title'=>"Meta-categories", 'label' => "Categories");
+				$thismenu[] = array("link"=>"newContext.php", 'title'=>"Spatial contexts", 'label' => "Space Contexts");
+				$thismenu[] = array("link"=>"newTimeContext.php", 'title'=>"Time contexts", 'label' => "Time Contexts");
+				$thismenu[] = array("link"=>"preferences.php", 'title'=>"User preferences", 'label' => "User Preferences");
+
+				makemenu($thismenu);
+				unset($thismenu);
+				?>
 			</ul>
 
 		<li>About
 			<ul>
-				<li><a href="about.php">License</a></li>
-				<li><a href="credits.php">Credits</a></li>
-				<li><a href="http://toae.org/boards" title="Help and development discussions">Forum</a></li>
-				<li><a href="http://www.gtd-php.com" title="Documentation">Wiki</a></li>
-                                <li><a href="https://www.hosted-projects.com/trac/toae/gtdphp" title="Bug tracking and project development">Trac Page</a></li>
-				<li><a href="http://www.frappr.com/gtdphp" title="Tell us where you are">Frappr Map</a></li>
-				<li><a href="donate.php" title="Help us defray our costs">Donate</a></li>
+				<?
+				$thismenu[] = array("link"=>"about.php", 'title'=>"About the GTD-PHP license", 'label' => "License");
+				$thismenu[] = array("link"=>"credits.php", 'title'=>"The GTD-PHP development team", 'label' => "Credits");
+				$thismenu[] = array("link"=>"http://toae.org/boards", 'title'=>"Help and development discussions", 'label' => "Forum");
+				$thismenu[] = array("link"=>"http://www.gtd-php.com", 'title'=>"Documentation", 'label' => "Wiki");
+				$thismenu[] = array("link"=>"https://www.hosted-projects.com/trac/toae/gtdphp", 'title'=>"Bug tracking and project development", 'label' => "Trac Page");
+				$thismenu[] = array("link"=>"http://www.frappr.com/gtdphp", 'title'=>"Tell us where you are", 'label' => "Frappr Map");
+				$thismenu[] = array("link"=>"donate.php", 'title'=>"Help us defray our costs", 'label' => "Donate");
+
+				makemenu($thismenu);
+				unset($thismenu);
+				?>
 			</ul>
 	</ul>
 </div>
