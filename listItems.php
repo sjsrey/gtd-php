@@ -275,12 +275,12 @@ if ($filter['tickler']=="true") {
                     $tablehtml .= " </tr>\n";
             }
 
-            echo "<table class='datatable'>\n";
-            echo "  <thead>\n";
+            echo '<table class="datatable sortable" summary="table of reminders" id="remindertable">'."\n";
+            echo "  <thead><tr>\n";
             echo "          <td>Reminder</td>\n";
             echo "          <td>Title</td>\n";
             echo "          <td>Note</td>\n";
-            echo "  </thead>\n";
+            echo "  </tr></thead>\n";
             echo $tablehtml;
             echo "</table>\n";
             echo "</div>\n";
@@ -392,8 +392,8 @@ if ($filter['tickler']=="true") {
 		if ($tablehtml!="") {
 //                         if ($show['parent']!=FALSE) echo "<p>Click on ".$parentname." for individual report.</p>\n";
 			echo '<form action="processItemUpdate.php" method="post">'."\n";
-			echo "<table class='datatable'>\n";
-			echo "	<thead>\n";
+			echo '<table class="datatable sortable" summary="Table of actions" id="actiontable">'."\n";
+			echo "	<thead><tr>\n";
 		        if ($show['parent']!=FALSE) echo "		<td>".$parentname."</td>\n";
 			if ($show['title']!=FALSE) echo "		<td>".$typename."</td>\n";
 			if ($show['description']!=FALSE) echo "		<td>Description</td>\n";
@@ -408,7 +408,7 @@ if ($filter['tickler']=="true") {
                         if ($show['lastModified']!=FALSE)echo "               <td>Last Modified</td>\n";
                         if ($show['dateCompleted']!=FALSE)echo "               <td>Date Completed</td>\n";
                         if ($show['checkbox']!=FALSE) echo "           <td>Completed</td>\n";
-			echo "	</thead>\n";
+			echo "	</tr></thead>\n";
 			echo $tablehtml;
 			echo "</table>\n";
                         //referrer 

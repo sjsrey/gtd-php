@@ -138,8 +138,8 @@ foreach ($completed as $comp) {
 
         if ($result != "-1") {
 		$counter=0;
-		echo "<table class='datatable'>\n";
-		echo "	<thead>\n";
+		echo '<table class="datatable sortable" id="itemtable">'."\n";
+		echo "	<thead><tr>\n";
             if ($comp!="y") echo "          <td>Next</td>\n";
 		echo "		<td>".$typename[$value]."</td>\n";
 		echo "		<td>Description</td>\n";
@@ -153,7 +153,7 @@ foreach ($completed as $comp) {
 		} else {
 			echo "		<td>Date Completed</td>\n";
 		}
-		echo "	</thead>\n";
+		echo "	</tr></thead>\n";
 
 		foreach ($result as $row) {
 			if ($key = in_array($row['itemId'],$nextactions) && $comp!="y") {

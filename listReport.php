@@ -22,12 +22,12 @@ if ($result!="-1") {
     if ($result!="-1") {
         $counter=0;
 
-        echo "<table class='datatable'>\n";
-        echo "	<thead>\n";
+        echo '<table class="datatable sortable" id="itemtable">'."\n";
+        echo "	<thead><tr>\n";
         echo "		<td>Item</td>\n";
         echo "		<td>Description</td>\n";
         echo "		<td>Completed</td>\n";
-        echo "	</thead>\n";
+        echo "	</tr></thead>\n";
 
         foreach($result as $row) {
             echo '	<tr>'."\n";
@@ -50,12 +50,12 @@ if ($result!="-1") {
 
     echo "<h2>Completed List Items</h2>\n";
     if ($result!="-1"){
-            echo "<table class='datatable'>\n";
-            echo "	<thead>\n";
+            echo '<table class="datatable sortable" id="donetable">'."\n";
+            echo "	<tr><thead>\n";
             echo "		<td>Item</td>\n";
             echo "		<td>Notes</td>\n";
             // echo '<td>Completed</td>';
-            echo "	</thead>\n";
+            echo "	</tr></thead>\n";
             foreach($result as $row) {
                     echo "	<tr>\n";
             echo '               <td><a href = "editListItem.php?listItemId='.$row['listItemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['item'])).'">'.htmlspecialchars(stripslashes($row['item'])).'</td>'."\n";

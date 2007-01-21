@@ -29,12 +29,12 @@ echo "</div>\n";
 
 if ($result!="-1") {
         echo "<p>Select list for report.</p>\n";
-        echo "<table class='datatable'>\n";
-        echo "	<thead>\n";
+        echo '<table class="datatable sortable" id="categorytable">'."\n";
+        echo "	<thead><tr>\n";
         echo "		<td>Category</td>\n";
         echo "		<td>Title</td>\n";
         echo "		<td>Description</td>\n";
-        echo "	</thead>\n";
+        echo "	</tr></thead>\n";
         foreach ($result as $row) {
                 echo "	<tr>\n";
                 echo "		<td>".htmlspecialchars(stripslashes($row['category']))."</td>\n";

@@ -44,14 +44,14 @@ echo "<h2>Contexts Summary</h2>\n";
 echo "<h3>Spatial Context (row), Temporal Context (column)</h3>\n";
 
 //context table
-echo "<table class='datatable'>\n";
-echo "	<thead>\n";
+echo '<table class="datatable sortable" summary="table of contexts" id="contexttable">'."\n";
+echo "	<thead><tr>\n";
 echo "		<td>Context</td>\n";
 foreach ($timeframeNames as $tcId => $tname) {
 	echo '		<td><a href="editTimeContext.php?tcId='.$tcId.'" title="Edit the '.htmlspecialchars(stripslashes($tname)).' time context">'.stripslashes($tname)."</a></td>\n";
 	}
 echo "		<td>Total</td>\n";
-echo "	</thead>\n";
+echo "	</tr></thead>\n";
 $contextTotal=0;
 $timeframeTotal=0;
 foreach ($contextNames as $contextId => $cname) {
@@ -131,15 +131,15 @@ foreach ($contextArray as $values['contextId'] => $timeframe) {
 
     if ($tablehtml!="") {
         echo '<form action="processItemUpdate.php?type='.$type.'&contextId='.$contextId.'&referrer=c" method="post">';
-        echo "<table class='datatable'>\n";
-        echo "	<thead>\n";
+        echo '<table class="datatable sortable" summary="table of actions" id="actiontable'.$values['contextId'].$values['timeframeId'].'">'."\n";
+        echo "	<thead><tr>\n";
         echo "		<td>Project</td>\n";
         echo "		<td>Action</td>\n";
         echo "		<td>Description</td>\n";
         echo "		<td>Deadline</td>\n";
         echo "		<td>Repeat</td>\n";
         echo "		<td>Completed</td>\n";
-        echo "	</thead>\n";
+        echo "	</tr></thead>\n";
         echo $tablehtml;
         echo "</table>\n";
         echo '<input type="submit" class="button" value="Update Actions" name="submit"></form>'."\n";

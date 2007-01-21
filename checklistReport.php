@@ -20,12 +20,12 @@ echo "<br /></span>\n";
 echo '<h2><a href = "newChecklistItem.php?checklistId='.$row['checklistId'].'" style="text-decoration:none">Checklist Items</a></h2>'."\n";
 
 if ($result!="-1") {
-        echo "<table class='datatable'>\n";
-        echo "	<thead>\n";
+        echo '<table class="datatable sortable" id="checklisttable">'."\n";
+        echo "	<thead><tr>\n";
         echo "		<td>Item</td>\n";
         echo "		<td>Notes</td>\n";
         echo "		<td>Checked</td>\n";
-        echo "	</thead>\n";
+        echo "	</tr></thead>\n";
 
     foreach ($result as $currentrow) {
         echo "	<tr>\n";

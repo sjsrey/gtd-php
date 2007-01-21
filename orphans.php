@@ -32,12 +32,12 @@ foreach ($result as $row) {
 
 
 if ($tablehtml!="") {
-        echo "<table class='datatable'>\n";
-        echo "  <thead>\n";
+        echo '<table class="datatable sortable" id="typetable">'."\n";
+        echo "  <thead><tr>\n";
         echo "          <td>Type</td>\n";
         echo "          <td>Title</td>\n";
         echo "          <td>Description</td>\n";
-        echo "  </thead>\n";
+        echo "  </tr></thead>\n";
         echo $tablehtml;
         echo "</table>\n";
 } else {
