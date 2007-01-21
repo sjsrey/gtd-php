@@ -12,6 +12,7 @@ $config = array(
 
     //user preferences : MOVE TO DATABASE
         "title"                     => 'GTD-PHP', // site name (appears at the top of each page)
+		"datemask"                  => 'Y-m-d D', // date format
         "debug"                     => 'false',  // false | true
         "theme"                     => 'default', //default | menu_sidebar
         "contextsummary"            => 'all',  //all | nextaction (Show all actions on context report, or nextactions only?)

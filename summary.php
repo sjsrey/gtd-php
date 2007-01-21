@@ -71,14 +71,14 @@ $sm = query("getitems",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
 echo "<h2>GTD Summary</h2>\n";
-echo '<h4>Today is '.date("l, F jS, Y").'. (Week '.date("W").'/52 & Day '.date("z").'/'.(365+date("L")).')</h4>'."\n";
+echo '<h4>Today is '.date($config['datemask']).'. (Week '.date("W").'/52 & Day '.date("z").'/'.(365+date("L")).')</h4>'."\n";
 
 echo "<div class='reportsection'>\n";
 if ($reminderresult!="-1") {
         echo "<br /><h3>Reminder Notes</h3>";
         $tablehtml="";
         foreach ($reminderresult as $row) {
-                $notehtml .= "<p>".date("l, M jS Y",strtotime($row['date'])).": ";
+                $notehtml .= "<p>".date($config['datemask'],strtotime($row['date'])).": ";
                 $notehtml .= '<a href = "note.php?noteId='.$row['ticklerId'].'&referrer=s" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.stripslashes($row['title'])."</a>";
                 if ($row['note']!="") $notehtml .= " - ".nl2br(stripslashes($row['note']));
                 $notehtml .= "</p>\n";

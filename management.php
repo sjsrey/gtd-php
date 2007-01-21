@@ -415,9 +415,9 @@ echo $html;
                         if ($show['deadline']!=FALSE) {
                             $tablehtml .= "             <td>";
                             if(($row['deadline']) == "0000-00-00" || $row['deadline'] ==NULL) $tablehtml .= "&nbsp;";
-                            elseif(($row['deadline']) < date("Y-m-d")) $tablehtml .= '<font color="red"><strong title="Item overdue">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';  //highlight overdue actions
-                            elseif(($row['deadline']) == date("Y-m-d")) $tablehtml .= '<font color="green"><strong title="Item due today">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>'; //highlight actions due today
-                            else $tablehtml .= date("D M j, Y",strtotime($row['deadline']));
+                            elseif(($row['deadline']) < date("Y-m-d")) $tablehtml .= '<font color="red"><strong title="Item overdue">'.date($config['datemask'],strtotime($row['deadline'])).'</strong></font>';  //highlight overdue actions
+                            elseif(($row['deadline']) == date("Y-m-d")) $tablehtml .= '<font color="green"><strong title="Item due today">'.date($config['datemask'],strtotime($row['deadline'])).'</strong></font>'; //highlight actions due today
+                            else $tablehtml .= date($config['datemask'],strtotime($row['deadline']));
                             $tablehtml .= "</td>\n";
                             }
 
@@ -438,7 +438,7 @@ echo $html;
                                     $reminddate=gmdate("Y-m-d", $remind);
                                     }
                                     else $reminddate="--";
-                                    $tablehtml .= "         <td>".date("D M j, Y",strtotime($reminddate))."</td>\n";
+                                    $tablehtml .= "         <td>".date($config['datemask'],strtotime($reminddate))."</td>\n";
                                     }
                                     
                         //item date Created

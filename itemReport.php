@@ -179,7 +179,7 @@ foreach ($completed as $comp) {
 			echo '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
 			echo '		<td><a href = "reportContext.php?contextId='.$row['contextId'].'" title="Go to '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.htmlspecialchars(stripslashes($row['cname']))."</a></td>\n";
 
-                                echo "          <td>".date("D M j, Y",strtotime($row['dateCreated']))."</td>\n";
+                                echo "          <td>".date($config['datemask'],strtotime($row['dateCreated']))."</td>\n";
 
                         if ($comp=="n") {                                
                                     //Calculate reminder date as # suppress days prior to deadline
@@ -189,7 +189,7 @@ foreach ($completed as $comp) {
                                     $dy=(int)substr($row['deadline'],0,4);
                                     $remind=mktime(0,0,0,$dm,($dd-(int)$row['suppressUntil']),$dy);
                                     $reminddate=gmdate("Y-m-d", $remind);
-                                    echo "         <td>".date("D M j, Y",strtotime($reminddate))."</td>\n";
+                                    echo "         <td>".date($config['datemask'],strtotime($reminddate))."</td>\n";
                                     }
                                     else echo "<td></td>";
                                     
@@ -197,10 +197,10 @@ foreach ($completed as $comp) {
 				//Blank out empty deadlines
 				if(($row['deadline']) == "0000-00-00") echo "&nbsp;";
 				//highlight overdue actions
-				elseif(($row['deadline']) < date("Y-m-d")) echo '<font color="red"><strong title="Overdue">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';
+				elseif(($row['deadline']) < date("Y-m-d")) echo '<font color="red"><strong title="Overdue">'.date($config['datemask'],strtotime($row['deadline'])).'</strong></font>';
 				//highlight actions due
-				elseif(($row['deadline']) == date("Y-m-d")) echo '<font color="green"><strong title="Due today">'.date("D M j, Y",strtotime($row['deadline'])).'</strong></font>';
-				else echo date("D M j, Y",strtotime($row['deadline']));
+				elseif(($row['deadline']) == date("Y-m-d")) echo '<font color="green"><strong title="Due today">'.date($config['datemask'],strtotime($row['deadline'])).'</strong></font>';
+				else echo date($config['datemask'],strtotime($row['deadline']));
 				echo "</td>\n";
 
 				if ($row['repeat']=="0") echo "		<td></td>\n";
@@ -211,7 +211,7 @@ foreach ($completed as $comp) {
 				echo $row['itemId'];
 				echo '"></td>'."\n";
 			} else {
-				echo "		<td>".date("D M j, Y",strtotime($row['dateCompleted']))."</td>\n";
+				echo "		<td>".date($config['datemask'],strtotime($row['dateCompleted']))."</td>\n";
 			}
 
 			echo "	</tr>\n";
