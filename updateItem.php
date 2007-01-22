@@ -25,9 +25,25 @@ $values['delete'] = $_POST['delete']{0};
 if ($_POST['isSomeday']{0}=='y') $values['isSomeday']='y';
 else $values['isSomeday']='n';
 
+/*
+The validity checks below, are shared between updateItem and processItem,
+   as is much of the rest of the file.
+ So much duplication suggests we either incorporate one into the other,
+   or share a new .inc between them
+*/   
 if ($values['suppress']!="y") $values['suppress']="n";
 if ($values['nextaction']!="y") $values['nextaction']="n";
 if (!isset($values['title'])) die ("No title. Item NOT updated.");
+if (isset($values['deadline']) && $values['deadline']) {
+	$values['deadline']="'".$values['deadline']."'";
+} else {
+	$values['deadline']="NULL";
+}	
+if (isset($values['dateCompleted']) && $values['dateCompleted']) {
+	$values['dateCompleted']="'".$values['dateCompleted']."'";
+} else {
+	$values['dateCompleted']="NULL";
+}
 
 //SQL CODE AREA
 if($values['delete']=="y"){
@@ -67,7 +83,7 @@ if (($values['dateCompleted'] != '0000-00-00' && $values['dateCompleted']!=NULL)
         $values['newitemId'] = $GLOBALS['lastinsertid'];
         $values['deadline']=$values['nextduedate'];
         $result=query("newitemattributes",$config,$values);
-        $values['dateCompleted']=NULL;
+        $values['dateCompleted']="NULL";
         $result=query("newitemstatus",$config,$values);
         //copy parent information with new id
         if ($values['parentId']>0) $result=query("newparent",$config,$values);

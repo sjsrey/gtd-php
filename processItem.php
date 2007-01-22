@@ -27,6 +27,16 @@ else $values['isSomeday']='n';
 if ($values['suppress']!="y") $values['suppress']="n";
 if ($values['nextaction']!="y") $values['nextaction']="n";
 if (!isset($values['title'])) die ("No title. Item NOT added.");
+if (isset($values['deadline']) && $values['deadline']) {
+	$values['deadline']="'".$values['deadline']."'";
+} else {
+	$values['deadline']="NULL";
+}	
+if (isset($values['dateCompleted']) && $values['dateCompleted']) {
+	$values['dateCompleted']="'".$values['dateCompleted']."'";
+} else {
+	$values['dateCompleted']="NULL";
+}	
 
 //Insert new records
 $result = query("newitem",$config,$values);
