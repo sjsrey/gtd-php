@@ -94,3 +94,15 @@ $acckey = array(
 	"summaryAlone.php"						=> "s", // Summary
 	"weekly.php"							=> "r" // Weekly Review
 );
+
+// Entirely optional: add custom items to the weekly review.  
+// Uncomment to use, add more fields to the array for more lines.
+
+/*
+$custom_review = array(
+	"Play the Lottery" => "Before Saturday's drawing!",
+	"Pay Allowances" => "I want the kids to let me move in after I retire.",
+	"Check my Oil" => "Check the oil in the car.",
+	"Send Update" => "Send Weekly Update to Tom"
+);
+*/

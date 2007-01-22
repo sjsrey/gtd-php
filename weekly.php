@@ -55,6 +55,11 @@ $values=array();
 	echo '	<tr><td>Review <a href="listItems.php?type=g">Goals</a></td><td>Check off goals from this week. Define goals for upcoming week</td></tr>'."\n";
 	echo '	<tr><td>Brainstorm</td><td>Get creative with any new <a href="item.php?type=p" title="Add project">projects</a> or
 		<a href="item.php?type=s" title="Add Someday/Maybe">someday/maybes</a> that may further your values, visions, goals, or areas of responsibility.</td></tr>'."\n";
+	if(isset($custom_review)) {
+		foreach ($custom_review as $review_title=>$review_text) {
+			echo "	<tr><td>{$review_title}</td><td>{$review_text}</td></tr>\n";
+		}
+	}
 	echo "</table>\n";
 
 if ($config['show7']==TRUE) {
