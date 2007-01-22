@@ -67,7 +67,7 @@ $sql = array(
         "newnextaction"             => "INSERT INTO `nextactions` (`parentId`,`nextaction`) VALUES ('{$values['parentId']}','{$values['newitemId']}') ON DUPLICATE KEY UPDATE `nextaction`='{$values['newitemId']}'",
         "newnote"                   => "INSERT INTO `tickler` (`date`,`title`,`note`,`repeat`,`suppressUntil`) VALUES ('{$values['date']}','{$values['title']}','{$values['note']}','{$values['repeat']}','{$values['suppressUntil']}')",
         "newparent"                 => "INSERT INTO `lookup` (`parentId`,`itemId`) VALUES ('{$values['parentId']}','{$values['newitemId']}')",
-        "newspacecontext"           => "INSERT INTO `context`  (`name`,`description`) VALUES (NULL, '{$values['name']}', '{$values['description']}')",
+        "newspacecontext"           => "INSERT INTO `context`  (`name`,`description`) VALUES ('{$values['name']}', '{$values['description']}')",
         "newtimecontext"            => "INSERT INTO `timeitems` (`timeframe`,`description`,`type`) VALUES ('{$values['name']}', '{$values['description']}', '{$values['type']}')",
         "parentselectbox"           => "SELECT `items`.`itemId`, `items`.`title`, `items`.`description`, `itemattributes`.`isSomeday` FROM `items`, `itemattributes`, `itemstatus` WHERE `itemattributes`.`itemId`=`items`.`itemId` AND `itemstatus`.`itemId`=`items`.`itemId` AND `itemattributes`.`type`='{$values['ptype']}' AND (`itemstatus`.`dateCompleted` IS NULL OR `itemstatus`.`dateCompleted` = '0000-00-00') ORDER BY {$sort['parentselectbox']}",
         "reassigncategory"          => "UPDATE `itemattributes` SET `categoryId`='{$values['newCategoryId']}' WHERE `categoryId`='{$values['categoryId']}'",
