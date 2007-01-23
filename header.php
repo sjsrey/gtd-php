@@ -19,7 +19,13 @@ mysql_select_db($config['db']) or die ("Unable to select database!");
 require_once("gtdfuncs.php");
 require_once("query.inc.php");
 
-echo'	<title>'.$config['title']."</title>\n";
+$thisurl=parse_url($_SERVER[PHP_SELF]);
+
+$title = '	<title>'.$config['title'];
+if ($config['title_suffix']) { $title .= '-'.basename($thisurl['path'],".php");}
+$title .= "</title>\n";
+
+echo $title;
 
 $config['theme']=$_SESSION['theme'];
 ?>

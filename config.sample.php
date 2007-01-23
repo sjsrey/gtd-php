@@ -17,6 +17,7 @@ $config = array(
         "theme"                     => 'default', //default | menu_sidebar
         "contextsummary"            => 'all',  //all | nextaction (Show all actions on context report, or nextactions only?)
         "nextaction"                => 'multiple', //single | multiple (Allow single or multiple nextactions per project)
+        "title_suffix"				=> false // add filename to title tag
         );
 
 
