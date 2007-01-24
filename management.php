@@ -230,19 +230,19 @@ $result = query("getitems",$config,$values,$options,$sort);
             <select name="categoryId" title="Filter items by parent category">
             <?php echo $cashtml ?>
             </select>
-            <input type="checkbox" name="notcategory" title="Exclude category from list" value="true" <?php if ($filter['notcategory']=="true") echo 'CHECKED'?>>
+            <input type="checkbox" name="notcategory" title="Exclude category from list" value="true" <?php if ($filter['notcategory']=="true") echo 'CHECKED'?> />
             <label for='notcategory' class='notfirst'>NOT</label>
             <label for='contextId' class='left'>Context:</label>
             <select name="contextId" title="Filter items by context">
             <?php echo $cshtml ?>
             </select>
-            <input type="checkbox" name="notspacecontext" title="Exclude spatial context from list" value="true" <?php if ($filter['notspacecontext']=="true") echo 'CHECKED'?>>
+            <input type="checkbox" name="notspacecontext" title="Exclude spatial context from list" value="true" <?php if ($filter['notspacecontext']=="true") echo 'CHECKED'?> />
             <label for='notspacecontext' class='notfirst'>NOT</label>
             <label for='timeId' class='left'>Time:</label>
             <select name="timeId" title="Filter items by time context">
             <?php echo $tshtml ?>
             </select>
-            <input type="checkbox" name="nottimecontext" title="Exclude time context from list" value="true" <?php if ($filter['nottimecontext']=="true") echo 'CHECKED'?>>
+            <input type="checkbox" name="nottimecontext" title="Exclude time context from list" value="true" <?php if ($filter['nottimecontext']=="true") echo 'CHECKED'?> />
             <label for='nottimecontext' class='notfirst'>NOT</label>
         </div>
         <div class="formrow">
@@ -257,12 +257,12 @@ $result = query("getitems",$config,$values,$options,$sort);
             <input type='radio' name='someday' id='someday' value='true' class="notfirst" <?php if ($filter['someday']=="true") echo 'CHECKED'?> title="Show someday/maybe <?php echo $typename ?>" /><label for='suppressed' class='right'>Someday</label>
         </div>
         <div class="formrow">
-            <input type="checkbox" name="nextonly" id="nextonly" class="first" value="true" <?php if ($filter['nextonly']=="true") echo 'CHECKED'?> title="Show only Next Actions"><label for='nextonly' class='right'>Next Actions</label>
-            <input type="checkbox" name="dueonly" id="dueonly" class="notfirst" value="true" <?php if ($filter['dueonly']=="true") echo 'CHECKED'?> title="Show only <?php echo $typename ?> with a due date" value="true"><label for='dueonly' class='right'>Due</label>
-            <input type="checkbox" name="repeatingonly" id="repeatingonly" class="notfirst" value="true" <?php if ($filter['repeatingonly']=="true") echo 'CHECKED'?> title="Show only repeating <?php echo $typename ?>"><label for='repeatingonly' class='right'>Repeating</label>
+            <input type="checkbox" name="nextonly" id="nextonly" class="first" value="true" <?php if ($filter['nextonly']=="true") echo 'CHECKED'?> title="Show only Next Actions" /><label for='nextonly' class='right'>Next Actions</label>
+            <input type="checkbox" name="dueonly" id="dueonly" class="notfirst" value="true" <?php if ($filter['dueonly']=="true") echo 'CHECKED'?> title="Show only <?php echo $typename ?> with a due date" /><label for='dueonly' class='right'>Due</label>
+            <input type="checkbox" name="repeatingonly" id="repeatingonly" class="notfirst" value="true" <?php if ($filter['repeatingonly']=="true") echo 'CHECKED'?> title="Show only repeating <?php echo $typename ?>" /><label for='repeatingonly' class='right'>Repeating</label>
             </div>
             <div class="formbuttons">
-            <input type="submit" class="button" value="Filter" name="submit" title="Filter <?php echo $typename ?> by selected criteria">
+            <input type="submit" class="button" value="Filter" name="submit" title="Filter <?php echo $typename ?> by selected criteria" />
         </div>
     </form>
 </div>
@@ -311,54 +311,58 @@ if ($filter['tickler']=="true") {
 
         if ($result!="-1") {
             foreach ($result as $item) {
-                $html .= '<h3><a href = "itemReport.php?itemId='.$item['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($item['title'])).' report" /></a><a href = "item.php?itemId='.$item['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($item['title'])).'" /></a>'.$item['title']."</h3>\n";
+                $html .= '<h3><a href = "itemReport.php?itemId='.$item['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($item['title'])).' report" /></a><a href = "item.php?itemId='.$item['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($item['title'])).'" /></a>'.$item['title']."</h3>\n";
                 $values['filterquery'] = $childfilter;
                 $values['parentId']=$item['itemId'];
                 $level2 = query("getchildren",$config,$values,$options,$sort);
                 if ($level2!="-1") {
                     $html .= '<ul>'."\n";
                     foreach ($level2 as $child2) {
-                        $html .= '<li><a href = "itemReport.php?itemId='.$child2['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child2['title'])).' report" /></a><a href = "item.php?itemId='.$child2['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child2['title'])).'" /></a>'.$child2['title']."\n";
+                        $html .= '<li><a href = "itemReport.php?itemId='.$child2['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child2['title'])).' report" /></a><a href = "item.php?itemId='.$child2['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child2['title'])).'" /></a>'.$child2['title']."\n";
                         $values['filterquery'] = $childfilter;
                         $values['parentId']=$child2['itemId'];
                         $level3 = query("getchildren",$config,$values,$options,$sort);
                         if ($level3!="-1") {
                             $html .= '<ul>'."\n";
                             foreach ($level3 as $child3) {
-                                $html .= '<li><a href = "itemReport.php?itemId='.$child3['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child3['title'])).' report" /></a><a href = "item.php?itemId='.$child3['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child3['title'])).'" /></a>'.$child3['title']."\n";
+                                $html .= '<li><a href = "itemReport.php?itemId='.$child3['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child3['title'])).' report" /></a><a href = "item.php?itemId='.$child3['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child3['title'])).'" /></a>'.$child3['title']."\n";
                                 $values['filterquery'] = $childfilter;
                                 $values['parentId']=$child3['itemId'];
                                 $level4 = query("getchildren",$config,$values,$options,$sort);
                                 if ($level4!="-1") {
                                     $html .= '<ul>'."\n";
                                     foreach ($level4 as $child4) {
-                                        $html .= '<li><a href = "itemReport.php?itemId='.$child4['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child4['title'])).' report" /></a><a href = "item.php?itemId='.$child4['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child4['title'])).'" /></a>'.$child4['title']."\n";
+                                        $html .= '<li><a href = "itemReport.php?itemId='.$child4['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child4['title'])).' report" /></a><a href = "item.php?itemId='.$child4['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child4['title'])).'" /></a>'.$child4['title']."\n";
                                         $values['filterquery'] = $childfilter;
                                         $values['parentId']=$child4['itemId'];
                                         $level5 = query("getchildren",$config,$values,$options,$sort);
                                         if ($level5!="-1") {
                                             $html .= '<ul>'."\n";
                                             foreach ($level5 as $child5) {
-                                                $html .= '<li><a href = "itemReport.php?itemId='.$child5['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child5['title'])).' report" /></a><a href = "item.php?itemId='.$child5['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child5['title'])).'" /></a>'.$child5['title']."\n";
+                                                $html .= '<li><a href = "itemReport.php?itemId='.$child5['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child5['title'])).' report" /></a><a href = "item.php?itemId='.$child5['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child5['title'])).'" /></a>'.$child5['title']."\n";
                                                 $values['filterquery'] = $childfilter;
                                                 $values['parentId']=$child5['itemId'];
                                                 $level6 = query("getchildren",$config,$values,$options,$sort);
                                                 if ($level6!="-1") {
                                                     $html .= '<ul>'."\n";
                                                     foreach ($level6 as $child6) {
-                                                        $html .= '<li><a href = "itemReport.php?itemId='.$child6['itemId'].'"><image src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child6['title'])).' report" /></a><a href = "item.php?itemId='.$child6['itemId'].'"><image src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child6['title'])).'" /></a>'.$child6['title']."\n";
+                                                        $html .= '<li><a href = "itemReport.php?itemId='.$child6['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child6['title'])).' report" /></a><a href = "item.php?itemId='.$child6['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child6['title'])).'" /></a>'.$child6['title']."</li>\n";
                                                         }
                                                     $html .= '</ul>'."\n";
                                                     }
+												$html .= '</li>'."\n";
                                                 }
                                             $html .= '</ul>'."\n";
                                             }
+										$html .= '</li>'."\n";
                                         }
                                     $html .= '</ul>'."\n";
                                     }
+								$html .= '</li>'."\n";
                                 }
                             $html .= '</ul>'."\n";
                             }
+						$html .= '</li>'."\n";
                         }
                     $html .= '</ul>'."\n";
                     }
