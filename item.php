@@ -201,7 +201,6 @@ else {
     }
 else {
 	if ($_SESSION['afterCreate' . $values['type']]=='' && isset($config['afterCreate'][$values['type']])) $_SESSION['afterCreate' . $values['type']]=$config['afterCreate'][$values['type']];
-	print_r($_SESSION);
 	echo "<div class='formrow'>\n<label class='left first'>After creating: </label>\n",
 		'<input type="radio" name="afterCreate' . $values['type'] . '" id="parentNext" value="parent" class="first"',
 		 	($_SESSION['afterCreate' . $values['type']]=='parent')?"CHECKED ":"",
