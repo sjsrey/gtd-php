@@ -1,7 +1,6 @@
 <?php
 //INCLUDES
 include_once('header.php');
-
 //RETRIVE FORM VARIABLES
 $values=array();
 $values['type']=$_POST['type']{0};
@@ -21,7 +20,7 @@ $values['dateCompleted']=mysql_real_escape_string($_POST['dateCompleted']);
 if ($_POST['isSomeday']{0}=='y') $values['isSomeday']='y';
 else $values['isSomeday']='n';
 
-
+if (isset($_POST['afterCreate' . $_POST['type']])) $_SESSION['afterCreate' . $_POST['type']]=$_POST['afterCreate' . $_POST['type']];
 
 //CRUDE error checking
 if ($values['suppress']!="y") $values['suppress']="n";
@@ -36,7 +35,7 @@ if (isset($values['dateCompleted']) && $values['dateCompleted']) {
 	$values['dateCompleted']="'".$values['dateCompleted']."'";
 } else {
 	$values['dateCompleted']="NULL";
-}	
+}
 
 //Insert new records
 $result = query("newitem",$config,$values);
@@ -48,7 +47,15 @@ if($values['nextAction']=='y') $result = query("newnextaction",$config,$values);
     if ($parents>0) foreach ($parents as $values['parentId']) $result = query("newparent",$config,$values);
 
 if($values['isSomeday']=='y') $values['type']='s';
-echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listItems.php?type='.$values['type'].'">';
+
+echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=';
+    switch ($_SESSION['afterCreate' . $_POST['type']]) {
+		case "parent"  : echo ($parents>0)?('itemReport.php?itemId='.$parents[0]):('orphans.php'); break;
+		case "item"    : echo 'itemReport.php?itemId='.$values['newitemId']; break;
+		case "another" : echo 'item.php?type='        .$values['type']; break;
+        default        : echo 'listItems.php?type='   .$values['type']."&amp;dbg=".$_SESSION['afterCreate' . $_POST['type']]; break;   // list or unrecognised
+		}
+echo '">';
 
 include_once('footer.php');
 ?>

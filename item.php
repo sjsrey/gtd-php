@@ -91,7 +91,7 @@ else {
 
                 <div class='formrow'>
                         <label for='title' class='left first'>Title:</label>
-                        <input type="text" name="title" id="title" value="<?php echo htmlspecialchars(stripslashes($currentrow['title'])); ?>">
+                        <input type="text" name="title" id="title" value="<?php echo htmlspecialchars(stripslashes($currentrow['title'])); ?>" />
                 </div>
 
                 <?php if ($values['ptype']!="") { ?>
@@ -176,42 +176,55 @@ else {
                 </div>
 
                 <div class='formrow'>
-                        <label for='repeat' class='left first'>Repeat every&nbsp;</label><input type='text' name='repeat' id='repeat' size='3' value='<?php echo $currentrow['repeat']; ?>'><label for='repeat'>&nbsp;days</label>
+                        <label for='repeat' class='left first'>Repeat every&nbsp;</label><input type='text' name='repeat' id='repeat' size='3' value='<?php echo $currentrow['repeat']; ?>' /><label for='repeat'>&nbsp;days</label>
                 </div>
 
                 <div class='formrow'>
                         <label for='suppress' class='left first'>Tickler:</label>
                         <input type='checkbox' name='suppress' id='suppress' value='y' title='Temporarily puts this into the tickler file, hiding it from the active view' <?php if ($currentrow['suppress']=="y") echo " CHECKED"; ?>/>
                         <label for='suppress'>Tickle&nbsp;</label>
-                        <input type='text' size='3' name='suppressUntil' id='suppressUntil' value='<?php echo $currentrow['suppressUntil'];?>'><label for='suppressUntil'>&nbsp;days before deadline</label>
+                        <input type='text' size='3' name='suppressUntil' id='suppressUntil' value='<?php echo $currentrow['suppressUntil'];?>' /><label for='suppressUntil'>&nbsp;days before deadline</label>
                 </div>
 
                 <div class='formrow'>
                         <label for='nextAction' class='left first'>Next Action:</label><input type="checkbox" name="nextAction" value="y" <?php if ($nextactioncheck=='true') echo 'CHECKED '; ?>/>
 
-                        <label for='someday' class='left first'>Someday:</label><input type='checkbox' name='isSomeday' id='someday' value='y' title='Places item in Someday file'<?php if ($values['isSomeday']=='y' || $values['type']=='s') echo ' CHECKED';?>>
+                        <label for='someday' class='left first'>Someday:</label><input type='checkbox' name='isSomeday' id='someday' value='y' title='Places item in Someday file'<?php if ($values['isSomeday']=='y' || $values['type']=='s') echo ' CHECKED';?> />
                 </div>
 
-        </div> <!-- form div -->
-        <div class='formbuttons'>
-<?php
-        echo "                  <input type='hidden' name='referrer' value='".$values['type']."'>\n";
-if ($values['itemId']>0) {
-        echo "			<input type='submit' value='Update ".$typename."' name='submit'>\n";
-        echo "                  <input type='reset' value='Reset'>\n";
+<?php if ($values['itemId']>0) {
+        echo "</div> <!-- form div -->\n<div class='formbuttons'>\n";
+        echo "                  <input type='hidden' name='referrer' value='".$values['type']."' />\n";
+        echo "			<input type='submit' value='Update ".$typename."' name='submit' />\n";
+        echo "                  <input type='reset' value='Reset' />\n";
         echo "                  <input type='checkbox' name='delete' id='delete' value='y' title='Deletes item. Child items are orphaned, NOT deleted.'/><label for='delete'>Delete&nbsp;".$typename."</label>\n";
     }
-else echo "			<input type='submit' value='Add ".$typename."' name='submit'>\n";
-?>
-        </div>
-</form>
-<?php
+else {
+	if ($_SESSION['afterCreate' . $values['type']]=='' && isset($config['afterCreate'][$values['type']])) $_SESSION['afterCreate' . $values['type']]=$config['afterCreate'][$values['type']];
+	print_r($_SESSION);
+	echo "<div class='formrow'>\n<label class='left first'>After creating: </label>\n",
+		'<input type="radio" name="afterCreate' . $values['type'] . '" id="parentNext" value="parent" class="first"',
+		 	($_SESSION['afterCreate' . $values['type']]=='parent')?"CHECKED ":"",
+			" /><label for='parentNext' class='right'>View parent</label>\n",
+		'<input type="radio" name="afterCreate' . $values['type'] . '" id="itemNext" value="item" class="notfirst"',
+		 	($_SESSION['afterCreate' . $values['type']]=='item')?"CHECKED ":"",
+			" /><label for='itemNext' class='right'>View item</label>\n",
+		'<input type="radio" name="afterCreate' . $values['type'] . '" id="listNext" value="list" class="notfirst"',
+		 	($_SESSION['afterCreate' . $values['type']]=='list')?"CHECKED ":"",
+			" /><label for='listNext' class='right'>List items</label>\n",
+		'<input type="radio" name="afterCreate' . $values['type'] . '" id="anotherNext" value="another" class="notfirst"',
+		 	($_SESSION['afterCreate' . $values['type']]=='another')?"CHECKED ":"",
+			" /><label for='anotherNext' class='right'>Create another $typename</label>\n",
+        "</div>\n</div> <!-- form div -->\n<div class='formbuttons'>\n",
+		"<input type='submit' value='Create'  name='submit' />\n";
+	}
+echo "</div>\n</form>\n";
+
 if ($values['itemId']>0) {
         echo "	<div class='details'>\n";
         echo "		<span class='detail'>Date Added: ".$currentrow['dateCreated']."</span>\n";
         echo "		<span class='detail'>Last Modified: ".$currentrow['lastModified']."</span>\n";
         echo "	</div>\n";
 }
-echo "</div><!-- main -->\n";
 include_once('footer.php');
 ?>

@@ -12,12 +12,23 @@ $config = array(
 
     //user preferences : MOVE TO DATABASE
         "title"                     => 'GTD-PHP', // site name (appears at the top of each page)
-		"datemask"                  => 'Y-m-d D', // date format
+		"datemask"                  => 'Y-m-d D', // date format - required
         "debug"                     => 'false',  // false | true
         "theme"                     => 'default', //default | menu_sidebar
         "contextsummary"            => 'all',  //all | nextaction (Show all actions on context report, or nextactions only?)
         "nextaction"                => 'multiple', //single | multiple (Allow single or multiple nextactions per project)
-        "title_suffix"				=> false // add filename to title tag
+        		"afterCreate"				=> array (  // parent | item | list | another - default view after creating an item
+        			'i'		=>	'another', // inbox preference
+        			'a'		=>	'parent', // action preference
+        			'w'		=>	'parent', // waiting-on preference
+        			'r'		=>	'parent', // reference preference
+        			'p'		=>	'list', // project preference
+        			'm'		=>	'item', // value preference
+        			'v'		=>	'item', // vision preference
+        			'o'		=>	'item', // role preference
+        			'g'		=>	'list' // goal preference
+        		), 
+        "title_suffix"				=> false // true | false - add filename to title tag
         );
 
 
