@@ -67,7 +67,7 @@ $config['theme']=$_SESSION['theme'];
 	<h1 id='sitename'><a href='index.php'><?php echo $config['title'];?></a></h1>
 </div>
 
-<?
+<?php
 function makemenu($list) {
 	global $acckey;
 	foreach ($list as $info) {
@@ -87,17 +87,17 @@ function makemenu($list) {
 
 	 	<li>Capture
 			<ul>
-				<? 
+				<?php 
 				$thismenu[] = array("link"=>"item.php?type=i", 'title'=>"Drop an item into the inbox", 'label' => "Inbox item");
 				$thismenu[] = array('link'=>"note.php", 'title'=>"Create a reminder note", 'label'=>'Note'); 
 				$thismenu[] = array("link"=>"item.php?type=i", 'title'=>"Drop an item into the inbox", 'label' => "Inbox item");
 				$thismenu[] = array("link"=>"note.php", 'title'=>"Create a reminder note", 'label' => "Note");
-				$thismenu[] = array("link"=>"item.php?type=a&nextonly=true", 'title'=>"Create a new next action", 'label' => "Next Action");
+				$thismenu[] = array("link"=>"item.php?type=a&amp;nextonly=true", 'title'=>"Create a new next action", 'label' => "Next Action");
 				$thismenu[] = array("link"=>"item.php?type=a", 'title'=>"Create a new action", 'label' => "Action");
 				$thismenu[] = array("link"=>"item.php?type=w", 'title'=>"Create a new waiting on item", 'label' => "Waiting On");
 				$thismenu[] = array("link"=>"item.php?type=r", 'title'=>"Create a reference", 'label' => "Reference");
 				$thismenu[] = array("link"=>"item.php?type=p", 'title'=>"Create a new project", 'label' => "Project");
-				$thismenu[] = array("link"=>"item.php?type=p&someday=true", 'title'=>"Create a future project", 'label' => "Someday/Maybe");
+				$thismenu[] = array("link"=>"item.php?type=p&amp;someday=true", 'title'=>"Create a future project", 'label' => "Someday/Maybe");
 				$thismenu[] = array("link"=>"item.php?type=o", 'title'=>"Define a new role", 'label' => "Role");
 				$thismenu[] = array("link"=>"item.php?type=g", 'title'=>"Define a new goal", 'label' => "Goal");
 				$thismenu[] = array("link"=>"item.php?type=v", 'title'=>"Define a new vision", 'label' => "Vision");
@@ -114,17 +114,17 @@ function makemenu($list) {
 
 		<li>Process
 			<ul>
-				<? 
+				<?php 
 				$thismenu[] = array("link"=>"listItems.php?type=i", 'title'=>"Inbox", 'label' => "Inbox");
 				$thismenu[] = array("link"=>"reportCategory.php", 'title'=>"Active items sorted by category", 'label' => "Categories");
 				$thismenu[] = array("link"=>"reportContext.php", 'title'=>"Active items sorted by space context", 'label' => "Space Contexts");
 				$thismenu[] = array("link"=>"reportTimeContext.php", 'title'=>"Active items sorted by time context", 'label' => "Time Contexts");
 				$thismenu[] = array("link"=>"listItems.php?type=p", 'title'=>"Projects", 'label' => "Projects");
-				$thismenu[] = array("link"=>"listItems.php?type=a&nextonly=true", 'title'=>"Next actions", 'label' => "Next Actions");
+				$thismenu[] = array("link"=>"listItems.php?type=a&amp;nextonly=true", 'title'=>"Next actions", 'label' => "Next Actions");
 				$thismenu[] = array("link"=>"listItems.php?type=a", 'title'=>"Actions", 'label' => "Actions");
 				$thismenu[] = array("link"=>"listItems.php?type=w", 'title'=>"Waiting On", 'label' => "Waiting On");
 				$thismenu[] = array("link"=>"listItems.php?type=r", 'title'=>"References", 'label' => "References");
-				$thismenu[] = array("link"=>"listItems.php?type=p&someday=true", 'title'=>"Someday projects", 'label' => "Someday/Maybes");
+				$thismenu[] = array("link"=>"listItems.php?type=p&amp;someday=true", 'title'=>"Someday projects", 'label' => "Someday/Maybes");
 				$thismenu[] = array("link"=>"listList.php", 'title'=>"General-purpose lists", 'label' => "Lists");
 				$thismenu[] = array("link"=>"listChecklist.php", 'title'=>"Reusable checklists", 'label' => "Checklists");
 				$thismenu[] = array("link"=>"summaryAlone.php", 'title'=>"Summary view", 'label' => "Summary");
@@ -136,7 +136,7 @@ function makemenu($list) {
 
 		<li>Review
 			<ul>
-				<?
+				<?php
 				$thismenu[] = array("link"=>"weekly.php", 'title'=>"Steps in the Weekly Review", 'label' => "Weekly Review");
 				$thismenu[] = array("link"=>"orphans.php", 'title'=>"List items without a parent item", 'label' => "Orphaned Items");
 				$thismenu[] = array("link"=>"leadership.php", 'title'=>"Leadership view", 'label' => "Leadership");
@@ -146,7 +146,7 @@ function makemenu($list) {
 				$thismenu[] = array("link"=>"listItems.php?type=o", 'title'=>"Roles / Areas of Responsibility", 'label' => "Roles");
 				$thismenu[] = array("link"=>"listItems.php?type=g", 'title'=>"Goals", 'label' => "Goals");
 				$thismenu[] = array("link"=>"achivements.php", 'title'=>"Notable Achivements", 'label' => "Achievements");
-				$thismenu[] = array("link"=>"listItems.php?type=a&tickler=true", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
+				$thismenu[] = array("link"=>"listItems.php?type=a&amp;tickler=true", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
 
 				makemenu($thismenu);
 				unset($thismenu);
@@ -156,7 +156,7 @@ function makemenu($list) {
 
                 <li>Lists
 			<ul>
-				<?
+				<?php
 				$thismenu[] = array("link"=>"listList.php", 'title'=>"General-purpose lists", 'label' => "Lists");
 				$thismenu[] = array("link"=>"listChecklist.php", 'title'=>"Reusable checklists", 'label' => "Checklists");
 
@@ -168,7 +168,7 @@ function makemenu($list) {
                 <li>Configure
 
 			<ul><!-- need to change from capture to management view  //-->
-				<?
+				<?php
 				$thismenu[] = array("link"=>"newCategory.php", 'title'=>"Meta-categories", 'label' => "Categories");
 				$thismenu[] = array("link"=>"newContext.php", 'title'=>"Spatial contexts", 'label' => "Space Contexts");
 				$thismenu[] = array("link"=>"newTimeContext.php", 'title'=>"Time contexts", 'label' => "Time Contexts");
@@ -181,7 +181,7 @@ function makemenu($list) {
 
 		<li>About
 			<ul>
-				<?
+				<?php
 				$thismenu[] = array("link"=>"about.php", 'title'=>"About the GTD-PHP license", 'label' => "License");
 				$thismenu[] = array("link"=>"credits.php", 'title'=>"The GTD-PHP development team", 'label' => "Credits");
 				$thismenu[] = array("link"=>"http://toae.org/boards", 'title'=>"Help and development discussions", 'label' => "Forum");
