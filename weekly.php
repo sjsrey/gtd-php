@@ -11,7 +11,7 @@ $values=array();
         $values['filterquery']  = " WHERE " .sqlparts("typefilter",$config,$values);
         $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
         $values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
-        $values['filterquery'] .= " AND ".sqlparts("completeditems",$config,$values);
+        $values['filterquery'] .= " AND ".sqlparts("isnotcompleteditem",$config,$values);
 
         $result = query("getitems",$config,$values,$options,$sort);
 
