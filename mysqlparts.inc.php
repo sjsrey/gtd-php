@@ -7,6 +7,7 @@ $sqlparts = array(
     "categoryfilter"            =>  " `itemattributes`.`categoryId` = '{$values['categoryId']}' ",
     "categoryfilter-parent"     =>  " y.`pcategoryId` = '{$values['categoryId']}' ",
     "checklistcategoryfilter"   =>  " `checklist`.`categoryId`='{$values['categoryId']}' ",
+    "completeditems"            =>  " (`itemstatus`.`dateCompleted` IS NOT NULL AND `itemstatus`.`dateCompleted` != '0000-00-00') ",
     "completedlistitems"        =>  " (`listItems`.`dateCompleted`!='0000-00-00' AND `listItems`.`dateCompleted` IS NOT NULL) ",
     "contextfilter"             =>  " `itemattributes`.`contextId` = '{$values['contextId']}' ",
     "due"                       =>  " (CURDATE()>=`itemattributes`.`deadline` AND `itemattributes`.`deadline` IS NOT NULL AND `itemattributes`.`deadline`!='0000-00-00') ",
