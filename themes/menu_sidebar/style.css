@@ -40,16 +40,16 @@ body {
 }
 
 #menudiv {
-	float: left;
+	float: right;
 }
 
 #main {
-	margin-left: 11em;
+	margin-right: 11em;
 }
 
 #footer {
 	float: left;
-	clear: left;
+	clear: both;
 	width: 100%;
 	margin: 20px 0 10px 0;
 	text-align: right;
@@ -221,6 +221,9 @@ select, input[type='text'], input[type='submit'], input[type='reset'], button, t
 	border: 2px solid #ccb;
 }
 
+a img {
+	border:0;
+}
 
 table {
 	border-spacing: 0;
@@ -252,7 +255,6 @@ tbody td {
 }
 
 .datatable tbody a {
-	display: block;
 }
 
 /* table rows with next actions (in projectReport.php) */
