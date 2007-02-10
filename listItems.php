@@ -222,19 +222,19 @@ $result = query("getitemsandparent",$config,$values,$options,$sort);
             <select name="categoryId" title="Filter items by parent category">
             <?php echo $cashtml ?>
             </select>
-            <input type="checkbox" name="notcategory" title="Exclude category from list" value="true" <?php if ($filter['notcategory']=="true") echo 'CHECKED'?>>
+            <input type="checkbox" name="notcategory" title="Exclude category from list" value="true" <?php if ($filter['notcategory']=="true") echo 'CHECKED'?> />
             <label for='notcategory' class='notfirst'>NOT</label>
             <label for='contextId' class='left'>Context:</label>
             <select name="contextId" title="Filter items by context">
             <?php echo $cshtml ?>
             </select>
-            <input type="checkbox" name="notspacecontext" title="Exclude spatial context from list" value="true" <?php if ($filter['notspacecontext']=="true") echo 'CHECKED'?>>
+            <input type="checkbox" name="notspacecontext" title="Exclude spatial context from list" value="true" <?php if ($filter['notspacecontext']=="true") echo 'CHECKED'?> />
             <label for='notspacecontext' class='notfirst'>NOT</label>
             <label for='timeId' class='left'>Time:</label>
             <select name="timeId" title="Filter items by time context">
             <?php echo $tshtml ?>
             </select>
-            <input type="checkbox" name="nottimecontext" title="Exclude time context from list" value="true" <?php if ($filter['nottimecontext']=="true") echo 'CHECKED'?>>
+            <input type="checkbox" name="nottimecontext" title="Exclude time context from list" value="true" <?php if ($filter['nottimecontext']=="true") echo 'CHECKED'?> />
             <label for='nottimecontext' class='notfirst'>NOT</label>
         </div>
         <div class="formrow">
@@ -249,12 +249,12 @@ $result = query("getitemsandparent",$config,$values,$options,$sort);
             <input type='radio' name='someday' id='someday' value='true' class="notfirst" <?php if ($filter['someday']=="true") echo 'CHECKED'?> title="Show someday/maybe <?php echo $typename ?>" /><label for='suppressed' class='right'>Someday</label>
         </div>
         <div class="formrow">
-            <input type="checkbox" name="nextonly" id="nextonly" class="first" value="true" <?php if ($filter['nextonly']=="true") echo 'CHECKED'?> title="Show only Next Actions"><label for='nextonly' class='right'>Next Actions</label>
-            <input type="checkbox" name="dueonly" id="dueonly" class="notfirst" value="true" <?php if ($filter['dueonly']=="true") echo 'CHECKED'?> title="Show only <?php echo $typename ?> with a due date" value="true"><label for='dueonly' class='right'>Due</label>
-            <input type="checkbox" name="repeatingonly" id="repeatingonly" class="notfirst" value="true" <?php if ($filter['repeatingonly']=="true") echo 'CHECKED'?> title="Show only repeating <?php echo $typename ?>"><label for='repeatingonly' class='right'>Repeating</label>
+            <input type="checkbox" name="nextonly" id="nextonly" class="first" value="true" <?php if ($filter['nextonly']=="true") echo 'CHECKED'?> title="Show only Next Actions" /><label for='nextonly' class='right'>Next Actions</label>
+            <input type="checkbox" name="dueonly" id="dueonly" class="notfirst" value="true" <?php if ($filter['dueonly']=="true") echo 'CHECKED'?> title="Show only <?php echo $typename ?> with a due date" /><label for='dueonly' class='right'>Due</label>
+            <input type="checkbox" name="repeatingonly" id="repeatingonly" class="notfirst" value="true" <?php if ($filter['repeatingonly']=="true") echo 'CHECKED'?> title="Show only repeating <?php echo $typename ?>" /><label for='repeatingonly' class='right'>Repeating</label>
             </div>
             <div class="formbuttons">
-            <input type="submit" class="button" value="Filter" name="submit" title="Filter <?php echo $typename ?> by selected criteria">
+            <input type="submit" class="button" value="Filter" name="submit" title="Filter <?php echo $typename ?> by selected criteria" />
         </div>
     </form>
 </div>
@@ -339,26 +339,16 @@ if ($filter['tickler']=="true") {
                         if ($show['category']!=FALSE) $tablehtml .= '          <td><a href="reportCategory.php#'.$row['category'].'" title="Go to the  '.htmlspecialchars(stripslashes($row['category'])).' category">'.htmlspecialchars(stripslashes($row['category']))."</a></td>\n";
 
                         //item context name
-                        if ($show['context']!=FALSE) $tablehtml .= '		<td><a href = "reportContext.php#'.$row['cname'].'" title="Go to the  '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.htmlspecialchars(stripslashes($row['cname']))."</td>\n";
+                        if ($show['context']!=FALSE) $tablehtml .= '		<td><a href = "reportContext.php#'.$row['cname'].'" title="Go to the  '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.htmlspecialchars(stripslashes($row['cname']))."</a></td>\n";
                         
                         //item timeframe name
                         if ($show['timeframe']!=FALSE) $tablehtml .= '         <td><a href = "reportTimeContext.php#'.$row['timeframe'].'" title="Go to '.htmlspecialchars(stripslashes($row['timeframe'])).' time context report">'.htmlspecialchars(stripslashes($row['timeframe']))."</a></td>\n";
                         
                         //item deadline
-                        if ($show['deadline']!=FALSE) {
-                            $tablehtml .= "		<td>";
-                            if(($row['deadline']) == "0000-00-00" || $row['deadline'] ==NULL) $tablehtml .= "&nbsp;";
-                            elseif(($row['deadline']) < date("Y-m-d")) $tablehtml .= '<font color="red"><strong title="Item overdue">'.date($config['datemask'],strtotime($row['deadline'])).'</strong></font>';  //highlight overdue actions
-                            elseif(($row['deadline']) == date("Y-m-d")) $tablehtml .= '<font color="green"><strong title="Item due today">'.date($config['datemask'],strtotime($row['deadline'])).'</strong></font>'; //highlight actions due today
-                            else $tablehtml .= date($config['datemask'],strtotime($row['deadline']));
-                            $tablehtml .= "</td>\n";
-                            }
+                        if ($show['deadline']!=FALSE) $tablehtml .= prettyDueDate('td',$row['deadline'],$config['datemask'])."\n";
 
                         //item repeat
-                        if ($show['repeat']!=FALSE) {
-                            if ($row['repeat']=="0") $tablehtml .= "		<td></td>\n";
-                            else $tablehtml .= "		<td>".$row['repeat']."</td>\n";
-                            }
+                        if ($show['repeat']!=FALSE) $tablehtml .= "<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
 
                         //tickler date
                         if ($show['suppressUntil']!=FALSE) {
@@ -384,7 +374,7 @@ if ($filter['tickler']=="true") {
                         if ($show['dateCompleted']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['dateCompleted'])))."</td>\n";
 
                         //completion checkbox
-                        if ($show['checkbox']!=FALSE) $tablehtml .= '		<td align="center"><input type="checkbox" align="center" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" name="completedNas[]" value="'.$row['itemId'].'" /></td>'."\n";
+                        if ($show['checkbox']!=FALSE) $tablehtml .= '		<td align="center"><input type="checkbox" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" name="completedNas[]" value="'.$row['itemId'].'" /></td>'."\n";
                         $tablehtml .= "	</tr>\n";
                         }
                     }

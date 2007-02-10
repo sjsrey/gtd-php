@@ -100,37 +100,33 @@ foreach ($contextArray as $values['contextId'] => $timeframe) {
 
         $values['type'] = "a";
         $values['isSomeday'] = "n";
-        $values['filterquery']  = " WHERE ".sqlparts("typefilter",$config,$values);
-        $values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
-        $values['filterquery'] .= " AND ".sqlparts("timeframefilter",$config,$values);
-        $values['filterquery'] .= " AND ".sqlparts("contextfilter",$config,$values);
-        $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
-        $result = query("getitems",$config,$values,$options,$sort);
+        $values['childfilterquery']  = " WHERE ".sqlparts("typefilter",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("timeframefilter",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("contextfilter",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+		$values['childfilterquery'] .= " AND ".sqlparts("isnotcompleteditem",$config,$values);
+        $result = query("getitemsandparent",$config,$values,$options,$sort);
 
         $tablehtml="";
         foreach ($result as $row) {
             $tablehtml .= "	<tr>\n";
-            $tablehtml .= '		<td><a href = "projectReport.php?projectId='.$row['projectId'].'" title="Go to '.htmlspecialchars(stripslashes($row['pname'])).' project report">'.stripslashes($row['pname'])."</a></td>\n";
+            $tablehtml .= '		<td><a href = "item.php?itemId='.$row['parentId'].'" title="Go to '.htmlspecialchars(stripslashes($row['ptitle'])).' project report">'.stripslashes($row['ptitle'])."</a></td>\n";
+
             //if nextaction, add icon in front of action (* for now)
-            if ($key = array_search($row['itemId'],$nextactions)) $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars($row['title']).'">*&nbsp;'.htmlspecialchars(stripslashes($row['title']))."</td>\n";
-            else $tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.htmlspecialchars(stripslashes($row['title']))."</td>\n";
+			$tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars($row['title']).'">';
+			if ($key == array_search($row['itemId'],$nextactions)) $tablehtml .= '*&nbsp;';
+			$tablehtml .= htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
+
             $tablehtml .= '		<td>'.nl2br(substr(stripslashes($row['description']),0,72))."</td>\n";
-            $tablehtml .= "		<td>";
-            if(($row['deadline']) == "0000-00-00") $tablehtml .= "&nbsp;";
-            elseif(($row['deadline']) < date("Y-m-d")) $tablehtml .= '<font color="red"><strong title ="Overdue">'.$row['deadline'].'</strong></font>';  //highlight overdue actions
-            elseif(($row['deadline']) == date("Y-m-d")) $tablehtml .= '<font color="green"><strong title="Due today">'.$row['deadline'].'</strong></font>'; //highlight actions due today
-            else $tablehtml .= $row['deadline'];
-            $tablehtml .= "</td>\n";
-            if ($row['repeat']=="0") $tablehtml .= "		<td>--</td>\n";
-            else $tablehtml .= "		<td>".$row['repeat']."</td>\n";
-                                    $tablehtml .= '		<td align="center"><input type="checkbox" align="center" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="'; // where is the </td> tag?
-                                    $tablehtml .= $row['itemId'];
-                                    $tablehtml .= '"></td>'."\n";
-            $tablehtml .= "	</tr>\n";
-                    }
+            $tablehtml .= prettyDueDate('td',$row['deadline'],$config['datemask'])."\n";
+            $tablehtml .= "<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
+            $tablehtml .= '		<td align="center"><input type="checkbox" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="'; // where is the </td> tag?
+            $tablehtml .= $row['itemId'].'" /></td>'."\n	</tr>\n";
+        }
 
     if ($tablehtml!="") {
-        echo '<form action="processItemUpdate.php?type='.$type.'&contextId='.$contextId.'&referrer=c" method="post">';
+        echo '<form action="processItemUpdate.php?type='.$type.'&amp;contextId='.$contextId.'&amp;referrer=c" method="post">';
         echo '<table class="datatable sortable" summary="table of actions" id="actiontable'.$values['contextId'].$values['timeframeId'].'">'."\n";
         echo "	<thead><tr>\n";
         echo "		<td>Project</td>\n";
@@ -142,7 +138,7 @@ foreach ($contextArray as $values['contextId'] => $timeframe) {
         echo "	</tr></thead>\n";
         echo $tablehtml;
         echo "</table>\n";
-        echo '<input type="submit" class="button" value="Update Actions" name="submit"></form>'."\n";
+        echo '<input type="submit" class="button" value="Update Actions" name="submit" /></form>'."\n";
         }
 
         else echo "<h4>Nothing was found</h4>\n";

@@ -111,5 +111,18 @@ function listselectbox($config,$values,$options,$sort) {
     return $lshtml;
     }
 
+function prettyDueDate($tag,$dateToShow,$thismask) {
+	$returnText='<'.$tag;
+	if(($dateToShow == "0000-00-00") || $dateToShow==NULL)
+		$returnText.=">&nbsp;";
+	else {
+		//highlight due and overdue actions
+		if($dateToShow < date("Y-m-d")) $returnText .= ' class="overdue" title="Overdue"'; 
+			elseif($dateToShow == date("Y-m-d")) $returnText .= ' class="due" title="Due today"';
+		$returnText .= '>'.date($thismask,strtotime($dateToShow));
+	}
+	$returnText .= '</'.$tag.'>';
+	return $returnText;
+}
 
 ?>

@@ -122,7 +122,7 @@ foreach ($completed as $comp) {
     foreach ($childtype as $value) {
 	echo "<div class='reportsection'>\n";
 	if ($comp=="y") echo '<h2>Completed&nbsp;'.$typename[$value]."</h2>\n";
-	else echo '<h2><a href = "item.php?parentId='.$values['itemId'].'&type='.$value.'" title="Add new '.str_replace("s","",$typename[$value]).'">'.$typename[$value]."</a></h2>\n";
+	else echo '<h2><a href = "item.php?parentId='.$values['itemId'].'&amp;type='.$value.'" title="Add new '.str_replace("s","",$typename[$value]).'">'.$typename[$value]."</a></h2>\n";
 
     //Select items by type
     $values['type']=$value;
@@ -138,7 +138,7 @@ foreach ($completed as $comp) {
 
         if ($result != "-1") {
 		$counter=0;
-		echo '<table class="datatable sortable" id="itemtable">'."\n";
+		echo '<table class="datatable sortable" id="itemtable'.$completed.'" summary="table of children of this item">'."\n";
 		echo "	<thead><tr>\n";
             if ($comp!="y") echo "          <td>Next</td>\n";
 		echo "		<td>".$typename[$value]."</td>\n";
@@ -160,7 +160,7 @@ foreach ($completed as $comp) {
                                 echo "	<tr class = 'nextactionrow'>\n";
                                 $naText='<td align=center><input type="radio"';
                                 $naText.=' name="isNext" value="';
-                                $naText.=$row['itemId'].'" checked><br></td>'."\n";
+                                $naText.=$row['itemId'].'" checked /></td>'."\n";
                                 echo $naText;
 
                                 //if nextaction, add icon in front of action (* for now)
@@ -170,7 +170,7 @@ foreach ($completed as $comp) {
 
                                 $naText='<td align=center><input type="radio"';
                                 $naText.=' name="isNext" value="';
-                                $naText.=$row['itemId'].'"><br></td>'."\n";
+                                $naText.=$row['itemId'].'" /></td>'."\n";
                                 if ($comp!="y") echo $naText;
 
 				echo '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
@@ -193,23 +193,13 @@ foreach ($completed as $comp) {
                                     }
                                     else echo "<td></td>";
                                     
-				echo "		<td>";
-				//Blank out empty deadlines
-				if(($row['deadline']) == "0000-00-00") echo "&nbsp;";
-				//highlight overdue actions
-				elseif(($row['deadline']) < date("Y-m-d")) echo '<font color="red"><strong title="Overdue">'.date($config['datemask'],strtotime($row['deadline'])).'</strong></font>';
-				//highlight actions due
-				elseif(($row['deadline']) == date("Y-m-d")) echo '<font color="green"><strong title="Due today">'.date($config['datemask'],strtotime($row['deadline'])).'</strong></font>';
-				else echo date($config['datemask'],strtotime($row['deadline']));
-				echo "</td>\n";
+				echo prettyDueDate('td',$row['deadline'],$config['datemask']),"\n";
 
-				if ($row['repeat']=="0") echo "		<td></td>\n";
-				else echo "		<td>".$row['repeat']."</td>\n";
+				echo "		<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
 
-
-				echo '		<td align=center><input type="checkbox" align="center" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="';
+				echo '		<td align=center><input type="checkbox" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="';
 				echo $row['itemId'];
-				echo '"></td>'."\n";
+				echo '" /></td>'."\n";
 			} else {
 				echo "		<td>".date($config['datemask'],strtotime($row['dateCompleted']))."</td>\n";
 			}
@@ -218,8 +208,8 @@ foreach ($completed as $comp) {
 			$counter = $counter+1;
 		}
 		echo "</table>\n";
-		echo '<input type="hidden" name="referrer" value="p">'."\n";
-		if ($comp=="n") echo '<input type="submit" align="right" class="button" value="Complete '.$typelabel[$value].'" name="submit">'."\n";
+		echo '<input type="hidden" name="referrer" value="p" />'."\n";
+		if ($comp=="n") echo '<input type="submit" align="right" class="button" value="Complete '.$typelabel[$value].'" name="submit" />'."\n";
 
 			if($counter==0){
 				echo 'No&nbsp;'.$typelabel[$value]."&nbsp;items\n";

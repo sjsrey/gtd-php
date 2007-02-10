@@ -416,20 +416,10 @@ echo $html;
                         if ($show['timeframe']!=FALSE) $tablehtml .= '         <td><a href = "reportTimeContext.php#'.$row['timeframe'].'" title="Go to '.htmlspecialchars(stripslashes($row['timeframe'])).' time context report">'.htmlspecialchars(stripslashes($row['timeframe']))."</td>\n";
                         
                         //item deadline
-                        if ($show['deadline']!=FALSE) {
-                            $tablehtml .= "             <td>";
-                            if(($row['deadline']) == "0000-00-00" || $row['deadline'] ==NULL) $tablehtml .= "&nbsp;";
-                            elseif(($row['deadline']) < date("Y-m-d")) $tablehtml .= '<font color="red"><strong title="Item overdue">'.date($config['datemask'],strtotime($row['deadline'])).'</strong></font>';  //highlight overdue actions
-                            elseif(($row['deadline']) == date("Y-m-d")) $tablehtml .= '<font color="green"><strong title="Item due today">'.date($config['datemask'],strtotime($row['deadline'])).'</strong></font>'; //highlight actions due today
-                            else $tablehtml .= date($config['datemask'],strtotime($row['deadline']));
-                            $tablehtml .= "</td>\n";
-                            }
+                        if ($show['deadline']!=FALSE)  $tablehtml .=prettyDueDate('td',$row['deadline'],$config['datemask'])."\n";
 
                         //item repeat
-                        if ($show['repeat']!=FALSE) {
-                            if ($row['repeat']=="0") $tablehtml .= "            <td></td>\n";
-                            else $tablehtml .= "                <td>".$row['repeat']."</td>\n";
-                            }
+                        if ($show['repeat']!=FALSE) $tablehtml .= "<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
 
                         //tickler date
                         if ($show['suppressUntil']!=FALSE) {
