@@ -1,5 +1,7 @@
 /*
-From: http://kryogenix.org/code/browser/sorttable/
+sortTable amended for GTD-PHP
+
+Based on code from: http://kryogenix.org/code/browser/sorttable/
 Copyright (c) 1997-date Stuart Langridge
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -140,15 +142,16 @@ function ts_sort_date(a,b) {
         if (parseInt(yr) < 50) { yr = '20'+yr; } else { yr = '19'+yr; }
         dt2 = yr+bb.substr(3,2)+bb.substr(0,2);
     }
-    if (dt1==dt2) return 0;
-    if (dt1<dt2) return -1;
-    return 1;
+    if (dt1==dt2) return (a.rowIndex-b.rowIndex);
+    if (dt1<dt2) return -100;
+    return 100;
 }
 
 function ts_sort_currency(a,b) { 
     aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]).replace(/[^0-9.]/g,'');
     bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]).replace(/[^0-9.]/g,'');
-    return parseFloat(aa) - parseFloat(bb);
+    var retval = parseFloat(aa) - parseFloat(bb);
+	if (retval==0) return (a.rowIndex-b.rowIndex); else return retval;
 }
 
 function ts_sort_numeric(a,b) { 
@@ -156,23 +159,23 @@ function ts_sort_numeric(a,b) {
     if (isNaN(aa)) aa = 0;
     bb = parseFloat(ts_getInnerText(b.cells[SORT_COLUMN_INDEX])); 
     if (isNaN(bb)) bb = 0;
-    return aa-bb;
+    if (aa==bb) return (a.rowIndex-b.rowIndex); else return aa-bb;
 }
 
 function ts_sort_caseinsensitive(a,b) {
     aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]).toLowerCase();
     bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]).toLowerCase();
-    if (aa==bb) return 0;
-    if (aa<bb) return -1;
-    return 1;
+    if (aa==bb) return (a.rowIndex-b.rowIndex);
+    if (aa<bb) return -100;
+    return 100;
 }
 
 function ts_sort_default(a,b) {
     aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]);
     bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]);
-    if (aa==bb) return 0;
-    if (aa<bb) return -1;
-    return 1;
+    if (aa==bb) return (a.rowIndex-b.rowIndex);
+    if (aa<bb) return -100;
+    return 100;
 }
 
 
