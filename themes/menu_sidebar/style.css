@@ -270,16 +270,10 @@ a.nextactionlink {
 	color: #F80;
 }
 
-/* table rows with next actions (in projectReport.php) */
-tr.overdue { /* class not implemented yet in projectReport.php */
+tr.overdue { /* class not implemented yet */
 }
 
-/* table cells with next actions (in projectReport.php) */
-td.overdue { /* class not implemented yet in projectReport.php */
-}
-
-/* table cells with next actions (in projectReport.php) */
-span.overdue { /* class not implemented yet in projectReport.php */
+td.overdue, span.overdue {
 	font-weight: bold;
 	color: #F00;
 }
@@ -331,7 +325,10 @@ a.subheading:hover {
 	color: #F80;
 }
 
-
+.due {
+	color:green;
+	font-weight:bold;
+}
 
 
 /* forms */
