@@ -109,22 +109,23 @@ foreach ($contextArray as $values['contextId'] => $timeframe) {
         $result = query("getitemsandparent",$config,$values,$options,$sort);
 
         $tablehtml="";
-        foreach ($result as $row) {
-            $tablehtml .= "	<tr>\n";
-            $tablehtml .= '		<td><a href = "item.php?itemId='.$row['parentId'].'" title="Go to '.htmlspecialchars(stripslashes($row['ptitle'])).' project report">'.stripslashes($row['ptitle'])."</a></td>\n";
-
-            //if nextaction, add icon in front of action (* for now)
-			$tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars($row['title']).'">';
-			if ($key == array_search($row['itemId'],$nextactions)) $tablehtml .= '*&nbsp;';
-			$tablehtml .= htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
-
-            $tablehtml .= '		<td>'.nl2br(substr(stripslashes($row['description']),0,72))."</td>\n";
-            $tablehtml .= prettyDueDate('td',$row['deadline'],$config['datemask'])."\n";
-            $tablehtml .= "<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
-            $tablehtml .= '		<td align="center"><input type="checkbox" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="'; // where is the </td> tag?
-            $tablehtml .= $row['itemId'].'" /></td>'."\n	</tr>\n";
-        }
-
+		if (is_array($result)) {
+			foreach ($result as $row) {
+				$tablehtml .= "	<tr>\n";
+				$tablehtml .= '		<td><a href = "item.php?itemId='.$row['parentId'].'" title="Go to '.htmlspecialchars(stripslashes($row['ptitle'])).' project report">'.stripslashes($row['ptitle'])."</a></td>\n";
+	
+				//if nextaction, add icon in front of action (* for now)
+				$tablehtml .= '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars($row['title']).'">';
+				if ($key == array_search($row['itemId'],$nextactions)) $tablehtml .= '*&nbsp;';
+				$tablehtml .= htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
+	
+				$tablehtml .= '		<td>'.nl2br(substr(stripslashes($row['description']),0,72))."</td>\n";
+				$tablehtml .= prettyDueDate('td',$row['deadline'],$config['datemask'])."\n";
+				$tablehtml .= "<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
+				$tablehtml .= '		<td align="center"><input type="checkbox" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="'; // where is the </td> tag?
+				$tablehtml .= $row['itemId'].'" /></td>'."\n	</tr>\n";
+			}
+		}
     if ($tablehtml!="") {
         echo '<form action="processItemUpdate.php?type='.$type.'&amp;contextId='.$contextId.'&amp;referrer=c" method="post">';
         echo '<table class="datatable sortable" summary="table of actions" id="actiontable'.$values['contextId'].$values['timeframeId'].'">'."\n";
