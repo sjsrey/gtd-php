@@ -62,16 +62,16 @@ if(isset($id)){
 
 //set item labels
 $typename=array();
-$typename=array("m" => "Values",
-                "v" => "Visions",
-                "o" => "Roles",
-                "g" => "Goals",
-                "p" => "Projects",
-                "s" => "Someday/Maybes",
-                "a" => "Actions",
-                "w" => "Waiting Ons",
-                "r" => "References",
-                "i" => "Inbox Items");
+$typename=array("m" => "Value",
+                "v" => "Vision",
+                "o" => "Role",
+                "g" => "Goal",
+                "p" => "Project",
+                "s" => "Someday/Maybe",
+                "a" => "Action",
+                "w" => "Waiting On",
+                "r" => "Reference",
+                "i" => "Inbox Item");
 
 $childtype=array();  //I don't like this... but it's the best solution at the moment...
 
@@ -89,7 +89,7 @@ switch ($item['type']) {
     default  : $childtype=NULL;
     }
 
-echo "<h1>".str_replace("s","",$typename[$item['type']])."&nbsp;Report:&nbsp;".htmlspecialchars(stripslashes($item['title']))."</h1>\n";
+echo "<h1>".$typename[$item['type']]."&nbsp;Report:&nbsp;".htmlspecialchars(stripslashes($item['title']))."</h1>\n";
 //FIXME
 
 //Edit, next, and previous buttons
@@ -121,8 +121,8 @@ $completed = array("n","y");
 foreach ($completed as $comp) {
     foreach ($childtype as $value) {
 	echo "<div class='reportsection'>\n";
-	if ($comp=="y") echo '<h2>Completed&nbsp;'.$typename[$value]."</h2>\n";
-	else echo '<h2><a href = "item.php?parentId='.$values['itemId'].'&amp;type='.$value.'" title="Add new '.str_replace("s","",$typename[$value]).'">'.$typename[$value]."</a></h2>\n";
+	if ($comp=="y") echo '<h2>Completed&nbsp;'.$typename[$value]."s</h2>\n";
+	else echo '<h2><a href = "item.php?parentId='.$values['itemId'].'&amp;type='.$value.'" title="Add new '.$typename[$value].'">'.$typename[$value]."s</a></h2>\n";
 
     //Select items by type
     $values['type']=$value;
@@ -141,7 +141,7 @@ foreach ($completed as $comp) {
 		echo '<table class="datatable sortable" id="itemtable'.$completed.'" summary="table of children of this item">'."\n";
 		echo "	<thead><tr>\n";
             if ($comp!="y") echo "          <td>Next</td>\n";
-		echo "		<td>".$typename[$value]."</td>\n";
+		echo "		<td>".$typename[$value]."s</td>\n";
 		echo "		<td>Description</td>\n";
 		echo "		<td>Context</td>\n";
                 echo "          <td>Date Created</td>\n";
@@ -209,10 +209,10 @@ foreach ($completed as $comp) {
 		}
 		echo "</table>\n";
 		echo '<input type="hidden" name="referrer" value="p" />'."\n";
-		if ($comp=="n") echo '<input type="submit" align="right" class="button" value="Complete '.$typelabel[$value].'" name="submit" />'."\n";
+		if ($comp=="n") echo '<input type="submit" align="right" class="button" value="Update '.$typename[$value].'s" name="submit" />'."\n";
 
 			if($counter==0){
-				echo 'No&nbsp;'.$typelabel[$value]."&nbsp;items\n";
+				echo 'No&nbsp;'.$typename[$value]."&nbsp;items\n";
 				}
 			}
 		else echo "<p>None</p>\n";
