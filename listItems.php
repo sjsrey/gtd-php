@@ -117,21 +117,21 @@ $show['repeat']=TRUE;
 $show['dateCompleted']=FALSE;
 $show['checkbox']=TRUE;
 
-
 //determine item and parent labels, set a few defaults
     switch ($values['type']) {
-        case "m" : $typename="Values"; $parentname=""; $values['ptype']=""; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "v" : $typename="Visions"; $parentname="Value"; $values['ptype']="m"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "o" : $typename="Roles"; $parentname="Vision"; $values['ptype']="v"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "g" : $typename="Goals"; $parentname="Role"; $values['ptype']="o"; $show['desiredOutcome']=TRUE; $show['context']=FALSE; break;
-        case "p" : $typename="Projects"; $parentname="Goal"; $values['ptype']="g"; $show['context']=FALSE; $show['timeframe']=FALSE; break;
-        case "a" : $typename="Actions"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $show['category']=FALSE; break;
-        case "w" : $typename="Waiting On"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; break;
-        case "r" : $typename="References"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; break;
-        case "i" : $typename="Inbox Items"; $parentname=""; $values['ptype']=""; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['repeat']=FALSE; break;
-        default  : $typename="Items"; $parentname=""; $values['ptype']="";
+        case "m" : $typename="Values"; $parentname=""; $values['ptype']=""; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+        case "v" : $typename="Visions"; $parentname="Value"; $values['ptype']="m"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+        case "o" : $typename="Roles"; $parentname="Vision"; $values['ptype']="v"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+        case "g" : $typename="Goals"; $parentname="Role"; $values['ptype']="o"; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $checkchildren=TRUE; break;
+        case "p" : $typename="Projects"; $parentname="Goal"; $values['ptype']="g"; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+        case "a" : $typename="Actions"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $show['category']=FALSE; $checkchildren=FALSE; break;
+        case "w" : $typename="Waiting On"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $checkchildren=FALSE; break;
+        case "r" : $typename="References"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $checkchildren=FALSE; break;
+        case "i" : $typename="Inbox Items"; $parentname=""; $values['ptype']=""; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['repeat']=FALSE; $checkchildren=FALSE; break;
+        default  : $typename="Items"; $parentname=""; $values['ptype']=""; $checkchildren=FALSE; 
         }
 
+$show['flags']=($checkchildren || (($values['type'])=="a")); // temporary measure; to be made user-configurable later
 
 if ($filter['someday']=="true") {
     $show['dateCreated']=TRUE;
@@ -139,6 +139,7 @@ if ($filter['someday']=="true") {
     $show['repeat']=FALSE;
     $show['deadline']=FALSE;
     $show['timeframe']=FALSE;
+	$checkchildren=FALSE; 
     }
 
 if ($filter['tickler']=="true") $show['suppressUntil']=TRUE;
@@ -158,6 +159,7 @@ if ($filter['completed']=="completed") {
     $show['repeat']=FALSE;
     $show['dateCompleted']=TRUE;
     $show['checkbox']=FALSE;
+	$checkchildren=FALSE; 
 }
 
 //set query fragments based on filters
@@ -302,89 +304,126 @@ if ($filter['tickler']=="true") {
 
 
 	if ($result!="-1") {
-                $tablehtml="";
-                foreach ($result as $row) {
-                    $showme="y";
-                    //filter out all but nextactions if $filter['nextonly']==true
-                    if (($filter['nextonly']=="true")  && !($key = array_search($row['itemId'],$nextactions))) $showme="n";
-                    if($showme=="y") {
-                        $tablehtml .= "	<tr>\n";
+		$tablehtml="";
+		$nonext=FALSE;
+		$nochildren=FALSE;
+		foreach ($result as $row) if (($filter['nextonly']!="true")  || ($key = array_search($row['itemId'],$nextactions))) {
+			//filter out all but nextactions if $filter['nextonly']==true
+		
+			if ($checkchildren) { 
+				$values['parentId']=$row['itemId'];
+				$nochildren=(query("countchildren",$config,$values)=="-1");
+				if ($values['type']=="p") $nonext=(query("selectnextaction",$config,$values)=="-1");
+			}
+			
+			$isNextAction = ($key=array_search($row['itemId'],$nextactions));
+			
+			$tablehtml .= "	<tr".(($nonext || $nochildren)?' class="noNextAction"':'').">\n";
 
-                        //parent title
-                            if ($show['parent']!=FALSE) {
-                                $tablehtml .= '		<td><a href = "itemReport.php?itemId='.$row['parentId'].'" title="Go to '.htmlspecialchars(stripslashes($row['ptitle'])).' '.$parentname.' report">';
-                                if ($nonext=="true" && $filter['completed']!="completed") echo '<span class="noNextAction" title="No next action defined!">!</span>';
-                                $tablehtml .= htmlspecialchars(stripslashes($row['ptitle']))."</a></td>\n";
-                                }
+			//parent title
+			if ($show['parent']!=FALSE) 
+				$tablehtml .= '		<td><a href = "itemReport.php?itemId='.$row['parentId']
+					.'" title="Go to '.htmlspecialchars(stripslashes($row['ptitle']))
+					.' '.$parentname.' report">'
+					.htmlspecialchars(stripslashes($row['ptitle']))."</a></td>\n";
 
-                        //item title
-                        if ($show['title']!=FALSE && ($row['type']=="a" || $row['type']=="r" || $row['type']=="w" || $row['type']=="i")) $tablehtml .= '         <td><a href = "itemReport.php?itemId='.$row['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($row['title'])).' report" /></a><a href = "item.php?itemId='.$row['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($row['title'])).'" /></a><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title']));
+			if ($show['flags']!=FALSE) {
+				// add markers to indicate if this is a next action, or a project with no next actions, or an item with no childern
+				$tablehtml .= '<td';
+				if ($nonext || $nochildren) {
+					$tablehtml .= '><a class="noNextAction" title='
+								 .(($nochildren)?'"No children - click to create one"':'"No next action - click to assign one"')
+								 .(($nochildren && ($values['type']=="p"))?(' href="item.php?type=a&amp;parentId='):('href="itemReport.php?itemId='))
+								 .($values['parentId'].'">!')
+								 .(($nochildren)?'!':'')
+								 .'</a>';
+				} else if ($isNextAction) {
+					//if nextaction, add link class and icon in front of action (* for now)
+					$tablehtml .= ' class="nextactionlink" title="Next Action">*';
+				} else $tablehtml .= '>&nbsp;';
+				$tablehtml .= "</td>\n";
+			} // end of showing flags
 
-                        elseif ($show['title']!=FALSE)$tablehtml .= '         <td><a href = "itemReport.php?itemId='.$row['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($row['title'])).' report" /></a><a href = "item.php?itemId='.$row['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($row['title'])).'" /></a><a href = "itemReport.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title']));
+			//item title
+			if ($show['title']!=FALSE) {
+				$cleaned=htmlspecialchars(stripslashes($row['title']));
+				$tablehtml .= '         <td><a href = "itemReport.php?itemId='
+								.$row['itemId'].'"><img src="themes/'.$config['theme']
+								.'/report.gif" alt="Go to '.$cleaned
+								.' report" /></a><a href = "item.php?itemId='.$row['itemId']
+								.'"><img src="themes/'.$config['theme']
+								.'/edit.gif" alt="Edit '.$cleaned.'" /></a>'
+								.'<a '.(($isNextAction)?' class="nextactionlink" ':'').' href = "item'
+								.(($row['type']=="a" || $row['type']=="r" || $row['type']=="w" || $row['type']=="i")?'.php':'Report.php')
+								.'?itemId='.$row['itemId']
+								.'" title="Edit '.$cleaned.'">'.$cleaned."</a></td>\n";
+			} // end of showing title
 
+			//item description
+			if ($show['description']!=FALSE) $tablehtml .= '		<td>'.nl2br(substr(makeClean($row['description']),0,72))."</td>\n";
 
-                        //if nextaction, add link class and icon in front of action (* for now)
-                        if ($key = array_search($row['itemId'],$nextactions) && ($show['title']!=FALSE)) $tablehtml .= '" class="nextactionlink">*&nbsp;';
-                        else $tablehtml .= '">';
+			//item desiredOutcome
+			if ($show['desiredOutcome']!=FALSE) $tablehtml .= '                <td>'.nl2br(substr(makeClean($row['desiredOutcome']),0,72))."</td>\n";
 
-                        if ($show['title']!=FALSE) $tablehtml .=htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
+			//item category
+			if ($show['category']!=FALSE) {
+				$cleaned = makeClean($row['category']);
+				$tablehtml .= '          <td><a href="reportCategory.php#'.urlencode($row['category']).'" title="Go to the  '.$cleaned.' category">'.$cleaned."</a></td>\n";
+			}
 
-                        //item description
-                        if ($show['description']!=FALSE) $tablehtml .= '		<td>'.nl2br(substr(htmlspecialchars(stripslashes($row['description'])),0,72))."</td>\n";
+			//item context name
+			if ($show['context']!=FALSE) {
+				$cleaned = makeClean($row['cname']);
+				$tablehtml .= '		<td><a href = "reportContext.php#'.urlencode($row['cname']).'" title="Go to the  '.$cleaned.' context report">'.$cleaned."</a></td>\n";
+			}
+			
+			//item timeframe name
+			if ($show['timeframe']!=FALSE) {
+				$cleaned = makeClean($row['timeframe']);
+				$tablehtml .= '         <td><a href = "reportTimeContext.php#'.urlencode($row['timeframe']).'" title="Go to '.$cleaned.' time context report">'.$cleaned."</a></td>\n";
+			}
+			
+			//item deadline
+			if ($show['deadline']!=FALSE) $tablehtml .= prettyDueDate('td',$row['deadline'],$config['datemask'])."\n";
 
-                        //item desiredOutcome
-                        if ($show['desiredOutcome']!=FALSE) $tablehtml .= '                <td>'.nl2br(substr(htmlspecialchars(stripslashes($row['desiredOutcome'])),0,72))."</td>\n";
+			//item repeat
+			if ($show['repeat']!=FALSE) $tablehtml .= "<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
 
-                        //item category
-                        if ($show['category']!=FALSE) $tablehtml .= '          <td><a href="reportCategory.php#'.$row['category'].'" title="Go to the  '.htmlspecialchars(stripslashes($row['category'])).' category">'.htmlspecialchars(stripslashes($row['category']))."</a></td>\n";
+			//tickler date
+			if ($show['suppressUntil']!=FALSE) {
+				//Calculate reminder date as # suppress days prior to deadline
+				if ($row['suppress']=="y") {
+					$dm=(int)substr($row['deadline'],5,2);
+					$dd=(int)substr($row['deadline'],8,2);
+					$dy=(int)substr($row['deadline'],0,4);
+					$remind=mktime(0,0,0,$dm,($dd-(int)$row['suppressUntil']),$dy);
+					$reminddate=gmdate("Y-m-d", $remind);
+				} else $reminddate="--";
+				$tablehtml .= "         <td>".date($config['datemask'],strtotime($reminddate))."</td>\n";
+			} // end of showsuppress
+						
+			//item date Created
+			if ($show['dateCreated']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['dateCreated'])))."</td>\n";
 
-                        //item context name
-                        if ($show['context']!=FALSE) $tablehtml .= '		<td><a href = "reportContext.php#'.$row['cname'].'" title="Go to the  '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.htmlspecialchars(stripslashes($row['cname']))."</a></td>\n";
-                        
-                        //item timeframe name
-                        if ($show['timeframe']!=FALSE) $tablehtml .= '         <td><a href = "reportTimeContext.php#'.$row['timeframe'].'" title="Go to '.htmlspecialchars(stripslashes($row['timeframe'])).' time context report">'.htmlspecialchars(stripslashes($row['timeframe']))."</a></td>\n";
-                        
-                        //item deadline
-                        if ($show['deadline']!=FALSE) $tablehtml .= prettyDueDate('td',$row['deadline'],$config['datemask'])."\n";
+			//item last modified
+			if ($show['lastModified']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['lastModified'])))."</td>\n";
 
-                        //item repeat
-                        if ($show['repeat']!=FALSE) $tablehtml .= "<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
+			//item last modified
+			if ($show['dateCompleted']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['dateCompleted'])))."</td>\n";
 
-                        //tickler date
-                        if ($show['suppressUntil']!=FALSE) {
-                                    //Calculate reminder date as # suppress days prior to deadline
-                                    if ($row['suppress']=="y") {
-                                    $dm=(int)substr($row['deadline'],5,2);
-                                    $dd=(int)substr($row['deadline'],8,2);
-                                    $dy=(int)substr($row['deadline'],0,4);
-                                    $remind=mktime(0,0,0,$dm,($dd-(int)$row['suppressUntil']),$dy);
-                                    $reminddate=gmdate("Y-m-d", $remind);
-                                    }
-                                    else $reminddate="--";
-                                    $tablehtml .= "         <td>".date($config['datemask'],strtotime($reminddate))."</td>\n";
-                                    }
-                                    
-                        //item date Created
-                        if ($show['dateCreated']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['dateCreated'])))."</td>\n";
+			//completion checkbox
+			if ($show['checkbox']!=FALSE) $tablehtml .= '		<td align="center"><input type="checkbox" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" name="completedNas[]" value="'.$row['itemId'].'" /></td>'."\n";
+			$tablehtml .= "	</tr>\n";
 
-                        //item last modified
-                        if ($show['lastModified']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['lastModified'])))."</td>\n";
-
-                        //item last modified
-                        if ($show['dateCompleted']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['dateCompleted'])))."</td>\n";
-
-                        //completion checkbox
-                        if ($show['checkbox']!=FALSE) $tablehtml .= '		<td align="center"><input type="checkbox" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" name="completedNas[]" value="'.$row['itemId'].'" /></td>'."\n";
-                        $tablehtml .= "	</tr>\n";
-                        }
-                    }
-
+		} // end of: foreach ($result as $row) if (($filter['nextonly']!="true") ...
+		
 		if ($tablehtml!="") {
 //                         if ($show['parent']!=FALSE) echo "<p>Click on ".$parentname." for individual report.</p>\n";
 			echo '<form action="processItemUpdate.php" method="post">'."\n";
 			echo '<table class="datatable sortable" summary="Table of actions" id="actiontable">'."\n";
 			echo "	<thead><tr>\n";
-		        if ($show['parent']!=FALSE) echo "		<td>".$parentname."</td>\n";
+		    if ($show['parent']!=FALSE) echo "		<td>".$parentname."</td>\n";
+			if ($show['flags']!=FALSE)echo "          <td>!</td>\n";
 			if ($show['title']!=FALSE) echo "		<td>".$typename."</td>\n";
 			if ($show['description']!=FALSE) echo "		<td>Description</td>\n";
                         if ($show['desiredOutcome']!=FALSE) echo "         <td>Desired Outcome</td>\n";
@@ -434,7 +473,7 @@ if ($filter['tickler']=="true") {
                 nothingFound($message);
         }
 
-}
+} // end of: if($result!="-1")
 
         elseif($filter['completed']!="completed" && $values['type']!="t") {
 		$message="You have no ".$typename." remaining.";

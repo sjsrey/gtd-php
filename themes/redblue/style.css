@@ -313,7 +313,7 @@ a.subheading:hover {
 
 
 /* the ! preceding each project without a next action defined (in listProjects.php) */
-.noNextAction {
+.noNextAction,a.noNextAction {
 	font-weight: bold;
 	color: #F00;
 }
