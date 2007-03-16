@@ -156,7 +156,9 @@ foreach ($completed as $comp) {
 		echo "	</tr></thead>\n";
 
 		foreach ($result as $row) {
+				unset($isNextAction);
 			if ($key = in_array($row['itemId'],$nextactions) && $comp!="y") {
+				$isNextAction="y";
                                 echo "	<tr class = 'nextactionrow'>\n";
                                 $naText='<td align=center><input type="radio"';
                                 $naText.=' name="isNext" value="';
@@ -164,7 +166,23 @@ foreach ($completed as $comp) {
                                 echo $naText;
 
                                 //if nextaction, add icon in front of action (* for now)
-				echo '		<td class="nextactioncell"><a href="item.php?itemId='.$row['itemId'].'" class="nextactionlink" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'"><span class="nextActionMarker" title="Next Action">*</span>'.htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
+//                        if ($show['title']!=FALSE) {
+                                $cleaned=htmlspecialchars(stripslashes($row['title']));
+                                echo '         <td class="nextactioncell"><a href = "itemReport.php?itemId='
+                                                                .$row['itemId'].'"><img src="themes/'.$config['theme']
+                                                                .'/report.gif" alt="Go to '.$cleaned
+                                                                .' report" /></a><a href = "item.php?itemId='.$row['itemId']
+                                                                .'"><img src="themes/'.$config['theme']
+                                                                .'/edit.gif" alt="Edit '.$cleaned.'" /></a>'
+								.'<span class="nextActionMarker" title="Next Action">*</span>'
+                                                                .'<a '.(($isNextAction)?' class="nextactionlink" ':'').' href = "item'
+                                                                .(($row['type']=="a" || $row['type']=="r" || $row['type']=="w" || $row['type']=="i")?'.php':'Report.php')
+                                                                .'?itemId='.$row['itemId']
+                                                                .'" title="Edit '.$cleaned.'">'.$cleaned."</a></td>\n";
+//								}
+								// end of showing title
+
+
 			} else {
 				echo "	<tr>\n";
 
@@ -173,7 +191,24 @@ foreach ($completed as $comp) {
                                 $naText.=$row['itemId'].'" /></td>'."\n";
                                 if ($comp!="y") echo $naText;
 
-				echo '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
+
+                        //item title
+//                        if ($show['title']!=FALSE) {
+                                $cleaned=htmlspecialchars(stripslashes($row['title']));
+                                echo '         <td><a href = "itemReport.php?itemId='
+                                                                .$row['itemId'].'"><img src="themes/'.$config['theme']
+                                                                .'/report.gif" alt="Go to '.$cleaned
+                                                                .' report" /></a><a href = "item.php?itemId='.$row['itemId']
+                                                                .'"><img src="themes/'.$config['theme']
+                                                                .'/edit.gif" alt="Edit '.$cleaned.'" /></a>'
+                                                                .'<a '.(($isNextAction)?' class="nextactionlink" ':'').' href = "item'
+                                                                .(($row['type']=="a" || $row['type']=="r" || $row['type']=="w" || $row['type']=="i")?'.php':'Report.php')
+                                                                .'?itemId='.$row['itemId']
+                                                                .'" title="Edit '.$cleaned.'">'.$cleaned."</a></td>\n";
+//								}
+								// end of showing title
+
+//				echo '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
 			}
 
 			echo '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
