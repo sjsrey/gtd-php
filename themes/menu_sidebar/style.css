@@ -1,346 +1,45 @@
-/* CSS global reset - ensures consistency across all browsers*/
-/* http://leftjustified.net/journal/2004/10/19/global-ws-reset */
-* {
-/*	padding: 0; */    /* messes up select boxes in Firefox, for some reason */
-	margin: 0;
-}
-h1, h2, h3, h4, h5, h6, p, pre, blockquote, form, label, ul, ol, dl, address {
-	padding: 0;
-	margin: .5em 0;
-}
-select {
-	min-width: 1.5em;
-}
-li, dd, blockquote {
-	padding: 0;
-	margin-left: 1.5em;
-}
-fieldset {
-	padding: 10px;
-	margin: .5em 0;
-}
-/* end of global CSS reset */
-
-
-
-/*===================================================================================*/
-/* Layout code - float/position, display, margin, padding, width, height, text-align */
-/*===================================================================================*/
-body {
-	text-align: left;
-}
-
-#container {
-	width: auto;
-	margin: 10px;	
-}
+@import url(../default/style.css);
 
 #header {
 	margin: 10px auto;
-}
-
-#menudiv {
-	float: right;
-}
-
-#main {
-	margin-right: 11em;
-}
-
-#footer {
-	float: left;
-	clear: both;
-	width: 100%;
-	margin: 20px 0 10px 0;
-	text-align: right;
-}
-
-
-
-#filter {
-	margin: 4px 0;
-}
-
-
-select, input, textarea {
-	padding: 2px;
-	margin: auto 0.25em;
-}
-
-input[type="submit"], input[type="reset"] {
-	margin: 0px 10px;
-}
-
-
-table {
-	margin: 0 4px 10px 4px;
-}
-
-thead td {
-	padding: 2px 3px;
-}
-
-tbody td {
-	padding: 4px;
-}
-
-
-div.reportsection {
-	margin-bottom:20px;
-}
-
-
-/* the ! preceding each project without a next action defined (in listProjects.php) */
-span.noNextAction { 
-	margin-right: .5em;
-}
-
-/* the * marking each next action (in projectReport.php) */
-span.nextActionMarker {
-	margin-right: .5em;
-}
-
-
-/* form styling */
-.form {
-	float: left;
-	padding: 1em;
-	margin-bottom: 1em;
-}
-.formrow {
-	float: left;
-	clear: left;
-	margin-bottom: .25em;
-}
-/* grrr... IE6 requires this, or things get ugly */		
-* html .formrow {
-	width: 60.5em;
-	height: 2.1em;
-}
-
-.formbuttons {
-	clear: left;
-	margin-bottom: 2em;
-}
-.formrow label, .formrow input, .formrow select, .formrow button, .formrow textarea {
-	float: left;
-}
-.formrow label.left {
-	margin-left: 2em;
-	text-align: right;
-}
-.formrow label.right {
-	text-align: left;
-}
-.formrow label.first {
-	width: 9em;
-	margin-left: 0;
-}
-.formrow input[type="checkbox"], .formrow input[type="radio"], .formbuttons input[type="checkbox"] {
-	margin-top: .6em;
-	margin-right: .5em;
-}
-.formrow input[type="radio"].notfirst, .formrow input[type="checkbox"].notfirst, .formbuttons input[type="checkbox"].notfirst {
-	margin-left: 1.5em;
-}
-.formrow textarea, .formrow #name {
-	width: 50em;
-}
-.formrow #title {
-	width: 30em;
-}
-
-
-/*===================================================================================================*/
-/* non-layout code - font family, font size, font-weight, color, border, background, text decoration */
-/*===================================================================================================*/
-body {
-	font-family:"Lucida Grande", "Lucida Sans", Verdana, Helvetica, arial, sans-serif;
-	font-size: 11px;
-}
-
-#header {
 	background: none;
 	border-bottom: 4px solid #eed;
 }
 
 #menudiv {
-	border-right: 1px solid #eed;
+	float: right;
+	border-left: 1px solid #eed;
 }
 
-h1 {
-	font-size: 16px;
-	font-weight: bold;
-	color: #39c;
-}
-
-h2 {
-	color: #39c;
-	font-size: 16px;
-	font-weight: bold;
-	background: none;
-	border-bottom: 2px solid #ccb;
-}
-
-h3 {
-	color: #998;
-	font-size: 12px;
-	font-weight: bold;
-	background: none;
-}
-
-h4 {
-	font-size: 11px;
-	font-weight: bold;
-	background: none;
-}
-
-
-
-a, a:link {
-	color:#39c; 
-	text-decoration: none;
-	font-weight: bold;
-}
-a:visited {
-	color:#39c; 
-	text-decoration: none;
-}
-a:hover{
-	text-decoration: underline;
-	color:#039; 
-}
-
-
-select, input, textarea {
-	color: #665;
-	font-family:"Lucida Grande", "Lucida Sans", Verdana, Helvetica, sans-serif;
-	font-size: 11px;
-}
-select, input[type='text'], input[type='submit'], input[type='reset'], button, textarea {
-	border: 2px solid #ccb;
-}
-
-a img {
-	border:0;
-}
-
-table {
-	border-spacing: 0;
-	border-collapse: collapse;
-}
-
-thead td {
-	border: 1px solid #777;
-	border-bottom: 1px solid #777;
-	background: #bba;
-	color: #eed;
-	font-weight: bold;
-	font-size: 10px;
-}
-
-tbody tr {
-	background: #fcfcf0;
-}
-
-.datatable tbody tr:hover {
-	background: #EEE;
-}
-
-tbody td {
-	color: #666;
-	border: 1px dotted #ddd;
-	font-weight: normal;
-	font-size: 10px;
-}
-
-.datatable tbody a {
-}
-
-/* table rows with next actions (in projectReport.php) */
-tr.nextactionrow {
-}
-
-/* table cells with next actions (in projectReport.php) */
-td.nextactioncell {
-}
-
-a.nextactionlink {
-	font-weight: bold;
-	color: #F80;
-}
-
-tr.overdue { /* class not implemented yet */
-}
-
-td.overdue, span.overdue {
-	font-weight: bold;
-	color: #F00;
-}
-
-#container {
-	background: none;
-}
-
-#header {
-	background: none;
-	/*border-bottom: 4px solid #eed;*/
-}
-
-#sidebar {
-	border-right: 1px solid #eed;
-	font: 10px "Lucida Grande", "Lucida Sans", Verdana, Helvetica, sans-serif;
+#main {
+	margin-right: 11em;
+	clear:none;
 }
 
 #footer {
-	color:#666;
-	border-top: 2px solid #eed;
+	clear: both;
 }
 
-
-
-
-
-a.pageheading:hover {
-	color:#003300; 
-	text-decoration: underline;
+#menulist a,#menulist a:link,#menulist a:visited {
+	text-decoration: inherit;
 }
 
-a.subheading:hover {
-	color:#003300; 
-	text-decoration: underline;
+#menulist a:hover {
+	background: inherit;
+	text-decoration: inherit;
 }
 
-
-
-/* the ! preceding each project without a next action defined (in listProjects.php) */
-.noNextAction,a.noNextAction {
-	font-weight: bold;
-	color: #F00;
+#menudiv li li { /* second-level list items */
+	border-top: inherit;
 }
 
-/* the * marking each next action (in projectReport.php) */
-.nextActionMarker {
-	font-weight: bold;
-	color: #F80;
+.weeklytable {
+	width: auto;
 }
 
-.due {
-	color:green;
-	font-weight:bold;
-}
-
-
-/* forms */
-div.form {
-	background: #FCFCF0;
-	border: 1px dotted #DDD;
-}
-.formrow label {
-	color: #665;
-}
-span.detail {
-	color: #888;
-	float: left;
-	clear: left;
+select, input, textarea {
+	font-size:11px;
+	margin:auto 0.25em;
+	padding:2px;
+	color:#666655;
 }
