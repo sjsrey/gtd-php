@@ -21,15 +21,7 @@ foreach($timeframeResults as $row) {
 	}
 
 //select all nextactions for test
-$result = query("getnextactions",$config,$values,$options,$sort);
-$nextactions = array();
-if ($result!="-1") {
-    $i=0;
-    foreach ($result as $row) {
-        $nextactions[$i] = $row['nextaction'];
-        $i++;
-        }
-    }
+$nextactions=(getNextActionsArray($config,$values,$options,$sort));
 
 //obtain all active item timeframes and count instances of each
 if ($config['contextsummary'] == "all") $itemresults = query("countcontextreport_all",$config,$values,$options,$sort);
@@ -119,16 +111,19 @@ foreach ($contextArray as $values['contextId'] => $timeframe) {
 				if ($key == array_search($row['itemId'],$nextactions)) $tablehtml .= '*&nbsp;';
 				$tablehtml .= htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
 	
-				$tablehtml .= '		<td>'.nl2br(substr(stripslashes($row['description']),0,72))."</td>\n";
+				$tablehtml .= '		<td>'.nl2br(trimTaggedString($row['description'],$config['trimLength']))."</td>\n";
 				$tablehtml .= prettyDueDate('td',$row['deadline'],$config['datemask'])."\n";
 				$tablehtml .= "<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
-				$tablehtml .= '		<td align="center"><input type="checkbox" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="'; // where is the </td> tag?
+				$tablehtml .= '		<td align="center"><input type="checkbox" name="isMarked[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="'; // where is the </td> tag?
 				$tablehtml .= $row['itemId'].'" /></td>'."\n	</tr>\n";
 			}
 		}
     if ($tablehtml!="") {
-        echo '<form action="processItemUpdate.php?type='.$type.'&amp;contextId='.$contextId.'&amp;referrer=c" method="post">';
-        echo '<table class="datatable sortable" summary="table of actions" id="actiontable'.$values['contextId'].$values['timeframeId'].'">'."\n";
+		$thisurl=parse_url($_SERVER[PHP_SELF]);
+		$thisAnchor='c'.$values['contextId'].'t'.$values['timeframeId'];
+		echo "<a id=\"{$thisAnchor}\"></a>";
+        echo '<form action="processItems.php" method="post">';
+        echo '<table class="datatable sortable" summary="table of actions" id="actiontable'.$values['contextId'].'t'.$values['timeframeId'].'">'."\n";
         echo "	<thead><tr>\n";
         echo "		<td>Project</td>\n";
         echo "		<td>Action</td>\n";
@@ -139,6 +134,9 @@ foreach ($contextArray as $values['contextId'] => $timeframe) {
         echo "	</tr></thead>\n";
         echo $tablehtml;
         echo "</table>\n";
+		echo '<input type="hidden" name="referrer" value="',basename($thisurl['path']),"#{$thisAnchor}\" />";
+		echo '<input type="hidden" name="multi" value="y" />'."\n";
+		echo '<input type="hidden" name="action" value="complete" />'."\n";
         echo '<input type="submit" class="button" value="Update Actions" name="submit" /></form>'."\n";
         }
 

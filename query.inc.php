@@ -8,7 +8,7 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
     //for developer testing only--- testing data handling
     //testing passed variables
     if ($config['debug']=="developer") {
-        echo "<p><b>Query label: ".$querylabel."</b><br />";
+        echo "<p class='debug'><b>Query label: ".$querylabel."</b></p>";
         echo "<pre>Config: ";
         print_r($config);
         echo "<br />Values: ";
@@ -17,7 +17,7 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
         print_r($options);
         echo "<br />Sort: ";
         print_r($sort);
-        echo "</pre></p>";
+        echo "</pre>";
     }
 /*
     //sanitize input variables
@@ -46,7 +46,7 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
         break;
         case "msql":require("msql.inc.php");
         break;
-        case "mysql":require("mysql.inc.php");
+        case "mysql":require("mysql.inc.php");require_once("mysql.funcs.inc.php");
         break;
         case "mssql":require("mssql.inc.php");
         break;
@@ -56,15 +56,22 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
         break;
         }
 
+	$values=safeIntoDB($values); // make values safe - function must be in the SQL query library, as loaded above
+    if ($config['debug']=="developer") {
+        echo "<pre>Sanitised values: ";
+        print_r($values);
+        echo "</pre>";
+    }
+
     //grab correct query string from query library array
     //values automatically inserted into array
     $query = $sql[$querylabel];
 
     // for testing only: display fully-formed query
-    if ($config['debug']=="developer") echo "<p>Query: ".$query."</p>";
+    if ($config['debug']=="developer") echo "<p class='debug'>Query: ".$query."</p>";
 
     //perform query
-   //parse result into multitdimensional array $result[row#][field name] = field value
+	//parse result into multitdimensional array $result[row#][field name] = field value
     if($config['dbtype']=="mysql") {
         $reply = mysql_query($query) or die (($config['debug']=="true" || $config['debug']=="developer") ? "Error in query: ". $querylabel."<br />".mysql_error():"Error in query");
 
@@ -127,7 +134,6 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
         print_r($result);
         echo "</pre>";
         }
-
     return $result;
     }
 

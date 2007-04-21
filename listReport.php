@@ -10,7 +10,7 @@ if ($result!="-1") {
     $row=$result[0];
 
     echo "<h1>List Report: ".$row['title']."</h1>\n";
-    echo '<form action="processListUpdate.php?listId='.$row['listId'].'" method="POST">'."\n";
+    echo '<form action="processListUpdate.php?listId='.$row['listId'].'" method="post">'."\n";
 
     echo '<span class="editbar">[ <a href="editList.php?listId='.$row['listId'].'">Edit List</a> ]'."\n";
     echo "<br /></span>\n";

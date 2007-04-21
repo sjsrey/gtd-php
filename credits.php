@@ -11,7 +11,7 @@ Development Team
 	<tr><td><a href="mailto:sjrey@users.sf.net?subject=gtd-php">Serge Rey</a></td><td>Project Founder</td></tr>
 	<tr><td><a href="mailto:skorvek@gtd-php.com?subject=gtd-php">Scott Jason Korvek</a></td><td>Database and Enhancements</td></tr>
 	 <tr><td><a href="http://burnettsonline.org/">Josh Burnett</a></td><td>CSS</td></tr> 	  
-     <tr><td><a href="http://www.eclectictech.net/">Criss Ittermann</a></td><td></td></tr>
+     <tr><td><a href="http://eclectictech.net/">Criss Ittermann</a></td><td>Debugging & Documentation</td></tr>
      <tr><td><a href="http://     ">Andrew</a></td><td></td></tr>
 </table>
 

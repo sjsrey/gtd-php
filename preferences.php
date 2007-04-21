@@ -6,7 +6,7 @@ include_once('header.php');
 $themedir = "./themes";
 if ($handle = opendir($themedir)) {
 	while (false !== ($file = readdir($handle))) {
-		if ($file != "." && $file != ".." && is_dir($themedir. "/" . $file)) {
+		if ($file[0] !== "." && is_dir($themedir. "/" . $file)) {
 			$themes[] = $file;
 		}
 	}

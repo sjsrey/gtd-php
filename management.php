@@ -25,8 +25,8 @@ if ($_GET['contextId']>0) $values['contextId']=(int) $_GET['contextId'];
 if (isset($_GET['notspacecontext'])) $filter['notspacecontext']= $_GET['notspacecontext'];
     else $filter['notspacecontext']=$_POST['notspacecontext'];
 
-if ($_GET['timeId']>0) $values['timeframeId']=(int) $_GET['timeId'];
-    else $values['timeframeId']=(int) $_POST['timeId'];
+if ($_GET['timeframeId']>0) $values['timeframeId']=(int) $_GET['timeframeId'];
+    else $values['timeframeId']=(int) $_POST['timeframeId'];
 
 if (isset($_GET['nottimecontext'])) $filter['nottimecontext']= $_GET['nottimecontext'];
     else $filter['nottimecontext']=$_POST['nottimecontext'];
@@ -80,16 +80,7 @@ $cshtml=contextselectbox($config,$values,$options,$sort);
 $tshtml=timecontextselectbox($config,$values,$options,$sort);
 
 //select all nextactions for test
-$result = query("getnextactions",$config,$values,$options,$sort);
-
-$nextactions = array();
-if ($result!="-1") {
-    $i=0;
-    foreach ($result as $row) {
-        $nextactions[$i] = $row['nextaction'];
-        $i++;
-        }
-    }
+$nextactions=(getNextActionsArray($config,$values,$options,$sort));
 
 //Select notes
 if ($filter['tickler']=="true") {
@@ -238,8 +229,8 @@ $result = query("getitems",$config,$values,$options,$sort);
             </select>
             <input type="checkbox" name="notspacecontext" title="Exclude spatial context from list" value="true" <?php if ($filter['notspacecontext']=="true") echo 'CHECKED'?> />
             <label for='notspacecontext' class='notfirst'>NOT</label>
-            <label for='timeId' class='left'>Time:</label>
-            <select name="timeId" title="Filter items by time context">
+            <label for='timeframeId' class='left'>Time:</label>
+            <select name="timeframeId" title="Filter items by time context">
             <?php echo $tshtml ?>
             </select>
             <input type="checkbox" name="nottimecontext" title="Exclude time context from list" value="true" <?php if ($filter['nottimecontext']=="true") echo 'CHECKED'?> />
@@ -248,7 +239,7 @@ $result = query("getitems",$config,$values,$options,$sort);
         <div class="formrow">
             <label class='left'>Status:</label>
             <input type='radio' name='completed' id='pending' value='pending' class="first" <?php if ($filter['completed']=="pending") echo 'CHECKED'?> title="Show incomplete <?php echo $typename ?>" /><label for='pending' class='right' >Pending</label>
-            <input type='radio' name='completed' id='completed' value='completed' class="notfirst" <?php if ($filter['completed']=="completed") echo 'CHECKED'?> title="Show achivements" /><label for='completed' class='right'>Completed</label>
+            <input type='radio' name='completed' id='completed' value='completed' class="notfirst" <?php if ($filter['completed']=="completed") echo 'CHECKED'?> title="Show achievements" /><label for='completed' class='right'>Completed</label>
             <label class='left'>Tickler:</label>
             <input type='radio' name='tickler' id='notsuppressed' value='false' class="notfirst" <?php if ($filter['tickler']=="false") echo 'CHECKED'?> title="Show active <?php echo $typename ?>" /><label for='notsuppressed' class='right'>Active</label>
             <input type='radio' name='tickler' id='suppressed' value='true' class="notfirst" <?php if ($filter['tickler']=="true") echo 'CHECKED'?> title="Show tickler <?php echo $typename ?>" /><label for='suppressed' class='right'>Tickler</label>
@@ -424,15 +415,11 @@ echo $html;
                         //tickler date
                         if ($show['suppressUntil']!=FALSE) {
                                     //Calculate reminder date as # suppress days prior to deadline
-                                    if ($row['suppress']=="y") {
-                                    $dm=(int)substr($row['deadline'],5,2);
-                                    $dd=(int)substr($row['deadline'],8,2);
-                                    $dy=(int)substr($row['deadline'],0,4);
-                                    $remind=mktime(0,0,0,$dm,($dd-(int)$row['suppressUntil']),$dy);
-                                    $reminddate=gmdate("Y-m-d", $remind);
-                                    }
-                                    else $reminddate="--";
-                                    $tablehtml .= "         <td>".date($config['datemask'],strtotime($reminddate))."</td>\n";
+									if ($row['suppress']=="y") {
+										$reminddate=getTickleDate($row['deadline'],$row['suppressUntil']);
+										$tablehtml .= date($config['datemask'],$reminddate);
+									} else $tablehtml .= '&nbsp';
+									$tablehtml .= "</td>\n";
                                     }
                                     
                         //item date Created
@@ -445,7 +432,7 @@ echo $html;
                         if ($show['dateCompleted']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['dateCompleted'])))."</td>\n";
 
                         //completion checkbox
-                        if ($show['checkbox']!=FALSE) $tablehtml .= '           <td align="center"><input type="checkbox" align="center" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" name="completedNas[]" value="'.$row['itemId'].'" /></td>'."\n";
+                        if ($show['checkbox']!=FALSE) $tablehtml .= '           <td align="center"><input type="checkbox" align="center" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" name="isMarked[]" value="'.$row['itemId'].'" /></td>'."\n";
                         $tablehtml .= " </tr>\n";
                         }
                     }
@@ -453,7 +440,7 @@ echo $html;
 
                 if ($tablehtml!="") {
 //                         if ($show['parent']!=FALSE) echo "<p>Click on ".$parentname." for individual report.</p>\n";
-                        echo '<form action="processItemUpdate.php" method="post">'."\n";
+                        echo '<form action="processItems.php" method="post">'."\n";
                         echo "<table class='datatable'>\n";
                         echo "  <thead>\n";
                         if ($show['parent']!=FALSE) echo "              <td>".$parentname."</td>\n";
@@ -477,7 +464,7 @@ echo $html;
                         echo '<input type="hidden" name="referrer" value="i" />'."\n";
                         //filters 
                         echo '<input type="hidden" name="type" value="'.$values['type'].'" />'."\n";
-                        echo '<input type="hidden" name="timeId" value="'.$values['timeframeId'].'" />'."\n";
+                        echo '<input type="hidden" name="timeframeId" value="'.$values['timeframeId'].'" />'."\n";
                         echo '<input type="hidden" name="contextId" value="'.$values['contextId'].'" />'."\n";
                         echo '<input type="hidden" name="categoryId" value="'.$values['categoryId'].'" />'."\n";
                         echo '<input type="hidden" name="notcategory" value="'.$filter['notcategory'].'" />'."\n";

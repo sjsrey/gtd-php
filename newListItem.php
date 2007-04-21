@@ -12,20 +12,21 @@ $lshtml = listselectbox($config,$values,$options,$sort);
 //PAGE DISPLAY AREA
 ?>
 <h2>New List Item</h2>
-<form action="processListItem.php" method="POST">
+<form action="processListItem.php" method="post">
 <table>
 <tr>
     <td>List</td>
     <td><select name="listId">
         <?php echo $lshtml; ?>
-        </td>
-    </tr>
+		</select>
+    </td>
+</tr>
 </table>
 
 <table>
     <tr>
         <td>Item</td>
-        <td><input type="text" name="item" value="<?php echo htmlspecialchars(stripslashes($values['item'])); ?>"></td>
+        <td><input type="text" name="item" value="<?php echo htmlspecialchars(stripslashes($values['item'])); ?>"/></td>
     </tr>
     <tr>
         <td>Notes</td>
@@ -36,9 +37,9 @@ $lshtml = listselectbox($config,$values,$options,$sort);
 </table>
 
 <br />
-<input type="submit" class="button" value="Add List Item" name="submit">
-<input type="reset" class="button" value="Reset">
-
+<input type="submit" class="button" value="Add List Item" name="submit" />
+<input type="reset" class="button" value="Reset" />
+</form>
 <?php
 include_once('footer.php');
 ?>

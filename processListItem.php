@@ -8,7 +8,12 @@ $values['listId']=(int) $_POST['listId'];
 $values['item']=mysql_real_escape_string($_POST['item']);
 $values['notes']=mysql_real_escape_string($_POST['notes']);
 
-echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=listReport.php?listId='.$values['listId'].'"';
+$nextURL='listReport.php?listId='.$values['listId'];
+if ($config['debug']==='false') {
+	echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=',$nextURL,'" />';
+} else {
+	echo '<p>Next page is <a href="',$nextURL,'">&lt;',htmlspecialchars($nextURL),'&gt;</a> (would be auto-refresh in non-debug mode)</p>';
+}
 
 $result = query("newlistitem",$config,$values);
 

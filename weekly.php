@@ -39,7 +39,7 @@ $values=array();
                 $values['parentId']=$row['itemId'];
                 $nonext=query("selectnextaction",$config,$values);
 	        if ($nonext=="-1") {
-                    echo '			<li><a href="itemReport.php?itemId='.$row['itemId'].'" title="Go to '.htmlspecialchars(stripslashes($row['title'])).'  project report">'.htmlspecialchars(stripslashes($row['title']))."</a></li>\n";
+                    echo '			<li><a href="itemReport.php?referrer=weekly.php&amp;itemId='.$row['itemId'].'" title="Go to '.htmlspecialchars(stripslashes($row['title'])).'  project report">'.htmlspecialchars(stripslashes($row['title']))."</a></li>\n";
 	           $counter++;
                    } 
                 }

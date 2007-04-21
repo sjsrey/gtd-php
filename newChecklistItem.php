@@ -12,7 +12,7 @@ $cshtml = checklistselectbox($config,$values,$options,$sort);
 ?>
 
 <h2>New Checklist Item</h2>
-<form action="processChecklistItem.php" method="POST">
+<form action="processChecklistItem.php" method="post">
     <div class='form'>
 	<div class='formrow'>
 	    <label for='checklist' class='left first'>Checklist:</label>

@@ -1,3 +1,47 @@
+function completeToday(datefield) {
+	var now=new Date();
+	var m  = now.getMonth()+1;
+	var d  = now.getDate();
+	var y  = now.getFullYear();
+	m=(m < 10) ? ("0" + m) : m;
+	d=(d < 10) ? ("0" + d) : d;
+	var newdate=""+y+"-"+m+"-"+d;
+	document.getElementById(datefield).value=newdate;
+//	return true;
+}
+function aps_toggleVis (thisRule) {
+	thisRule.style.display=(thisRule.style.display=="none")?"block":"none";
+}
+var aps_grabKey;
+function aps_keyUpHandler(e) {
+	if (!e) var e = window.event;
+	if (e.target && e.target.nodeName) {
+		var targetNodeName = e.target.nodeName.toLowerCase();
+		if (targetNodeName == "textarea" || (targetNodeName == "input" && event.target.type && event.target.type.toLowerCase() == "text"))
+			return false;
+	}
+	if (e.keyCode) code = e.keyCode;
+	else if (e.which) code = e.which;
+	var character = String.fromCharCode(code);
+	if (character==aps_grabKey) {
+		var thisRule;
+		if (document.styleSheets[0].cssRules) {
+			aps_toggleVis(document.styleSheets[0].cssRules[0]);
+		} else {
+			aps_toggleVis(document.styleSheets[0].rules[0]);
+			aps_toggleVis(document.styleSheets[0].rules[1]);
+		}
+		
+	}
+	return false;
+}
+function aps_debugInit(keyToCatch) {
+	aps_grabKey=keyToCatch;
+	if (document.addEventListener)
+		document.addEventListener("keyup", aps_keyUpHandler,false);
+	else
+		document.attachEvent("onkeyup", aps_keyUpHandler);
+}
 /*
 sortTable amended for GTD-PHP
 

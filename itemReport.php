@@ -11,15 +11,9 @@ $result = query("selectitem",$config,$values,$options,$sort);
 $item = $result[0];
 
 //select all nextactions for test
-$result = query("getnextactions",$config,$values,$options,$sort);
-$nextactions = array();
-if ($result!="-1") {
-    $i=0;
-    foreach ($result as $row) {
-        $nextactions[$i] = $row['nextaction'];
-        $i++;
-        }
-    }
+$nextactions=(getNextActionsArray($config,$values,$options,$sort));
+$wasNAonEntry = array(); // stash this in case we introduce marking actions as next actions onto this screen
+
 //Find previous and next projects
 $values['isSomeday']="n";
 $values['type']=$item['type'];
@@ -79,9 +73,9 @@ switch ($item['type']) {
     case "m" : $childtype=array("v"); break;
     case "v" : $childtype=array("o"); break;
     case "o" : $childtype=array("g"); break;
-    case "g" : $childtype=array("p"); break;
-    case "p" : $childtype=array("a","w","r"); break;
-    case "s" : $childtype=array("a","w","r"); break;
+    case "g" : $childtype=array("p","s"); break;
+    case "p" : $childtype=array("a","w","r","p","s",); break;
+    case "s" : $childtype=array("a","w","r","s",); break;
     case "a" : $childtype=NULL; break;
     case "w" : $childtype=NULL; break;
     case "r" : $childtype=NULL; break;
@@ -90,7 +84,6 @@ switch ($item['type']) {
     }
 
 echo "<h1>".$typename[$item['type']]."&nbsp;Report:&nbsp;".htmlspecialchars(stripslashes($item['title']))."</h1>\n";
-//FIXME
 
 //Edit, next, and previous buttons
 echo '<span class="editbar">[ <a href="item.php?itemId='.$values['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($item['title'])).'">Edit</a> ]'."\n";
@@ -99,34 +92,34 @@ if(isset($nextId))  echo '[ <a href="itemReport.php?itemId='.$nextId.'" title="'
 echo "</span>\n";
 //Item details
 echo '<p>Created: '.$item['dateCreated']."<br />\n";
-if ($item['description']!="") echo 'Description: '.htmlspecialchars(stripslashes($item['description']))."<br />\n";
-if ($item['desiredOutcome']!="") echo 'Desired Outcome:&nbsp;'.htmlspecialchars(stripslashes($item['desiredOutcome']))."<br />\n";
-if ($item['categoryId']>0) echo 'Category:&nbsp;'.htmlspecialchars(stripslashes($item['category']))."<br />\n";
-if ($item['contextId']>0) echo 'Space Context:&nbsp;'.htmlspecialchars(stripslashes($item['cname']))."<br />\n";
-if ($item['timeframeId']>0) echo 'Time Context:&nbsp;'.htmlspecialchars(stripslashes($item['timeframe']))."<br />\n";
-if ($item['deadline']!=NULL && $item['deadline']!="0000-00-00") echo 'Deadline:&nbsp;'.$item['deadline']."<br />\n";
-if ($item['repeat']>0) echo 'Repeat every&nbsp;'.$item['repeat'].'&nbsp;days'."<br />\n";
-if ($item['suppress']=='y') echo 'Suppressed Until:&nbsp;'.$item['suppressUntil']."<br />\n";
+if ($item['description']) echo 'Description: '.htmlspecialchars(stripslashes($item['description']))."<br />\n";
+if ($item['desiredOutcome']) echo 'Desired Outcome:&nbsp;'.htmlspecialchars(stripslashes($item['desiredOutcome']))."<br />\n";
+if ($item['categoryId']) echo 'Category:&nbsp;'.htmlspecialchars(stripslashes($item['category']))."<br />\n";
+if ($item['contextId']) echo 'Space Context:&nbsp;'.htmlspecialchars(stripslashes($item['cname']))."<br />\n";
+if ($item['timeframeId']) echo 'Time Context:&nbsp;'.htmlspecialchars(stripslashes($item['timeframe']))."<br />\n";
+if ($item['deadline']) echo 'Deadline:&nbsp;'.$item['deadline']."<br />\n";
+if ($item['repeat']) echo 'Repeat every&nbsp;'.$item['repeat'].'&nbsp;days'."<br />\n";
+if ($item['suppress']==='y') {
+	$reminddate=getTickleDate($item['deadline'],$item['suppressUntil']);
+	echo 'Suppressed Until:&nbsp;'.date($config['datemask'],$reminddate)."<br />\n";
+}
 if ($item['dateCompleted']>0) echo 'Completed On:&nbsp;'.$item['dateCompleted']."\n";
 echo "</p>\n";
 
 
 if ($childtype!=NULL) {
-echo '<form action="processItemUpdate.php?itemId='.$values['itemId'].'" method="post">'."\n";
+echo '<form action="processItems.php" method="post">'."\n";
+$values['parentId']=$values['itemId'];
 
 //Create iteration arrays
 $completed = array("n","y");
 
 //table display loop
-foreach ($completed as $comp) {
-    foreach ($childtype as $value) {
+foreach ($completed as $comp) foreach ($childtype as $value) {
 	echo "<div class='reportsection'>\n";
-	if ($comp=="y") echo '<h2>Completed&nbsp;'.$typename[$value]."s</h2>\n";
-	else echo '<h2><a href = "item.php?parentId='.$values['itemId'].'&amp;type='.$value.'" title="Add new '.$typename[$value].'">'.$typename[$value]."s</a></h2>\n";
 
     //Select items by type
     $values['type']=$value;
-    $values['parentId']=$values['itemId'];
     $values['filterquery'] = " AND ".sqlparts("typefilter",$config,$values);
     if ($comp=="y") {
 		$values['filterquery'] .= " AND ".sqlparts("completeditems",$config,$values);
@@ -136,11 +129,19 @@ foreach ($completed as $comp) {
 		$result = query("getchildren",$config,$values,$options,$sort);
 	}
 
-        if ($result != "-1") {
+	echo ($result != "-1")?'<h2>':'<h3>No '
+		,($comp=="y")?('Completed&nbsp;'):('<a href="item.php?parentId='.$values['itemId'].'&amp;action=create&amp;type='.$value.'" title="Add new '.$typename[$value].'">')
+		,$typename[$value],'s'
+		,($comp=="y")?'':'</a>'
+		,($result != "-1")?'</h2>':'</h3>'
+		,"\n";
+
+    if ($result != "-1") {
+		$shownext=( ($comp=="n") && ($values['type']=="a") );
 		$counter=0;
 		echo '<table class="datatable sortable" id="itemtable'.$completed.'" summary="table of children of this item">'."\n";
 		echo "	<thead><tr>\n";
-            if ($comp!="y") echo "          <td>Next</td>\n";
+        if ($shownext) echo "          <td>Next</td>\n";
 		echo "		<td>".$typename[$value]."s</td>\n";
 		echo "		<td>Description</td>\n";
 		echo "		<td>Context</td>\n";
@@ -156,60 +157,29 @@ foreach ($completed as $comp) {
 		echo "	</tr></thead>\n";
 
 		foreach ($result as $row) {
-				unset($isNextAction);
-			if ($key = in_array($row['itemId'],$nextactions) && $comp!="y") {
-				$isNextAction="y";
-                                echo "	<tr class = 'nextactionrow'>\n";
-                                $naText='<td align=center><input type="radio"';
-                                $naText.=' name="isNext" value="';
-                                $naText.=$row['itemId'].'" checked /></td>'."\n";
-                                echo $naText;
-
-                                //if nextaction, add icon in front of action (* for now)
-//                        if ($show['title']!=FALSE) {
-                                $cleaned=htmlspecialchars(stripslashes($row['title']));
-                                echo '         <td class="nextactioncell"><a href = "itemReport.php?itemId='
-                                                                .$row['itemId'].'"><img src="themes/'.$config['theme']
-                                                                .'/report.gif" alt="Go to '.$cleaned
-                                                                .' report" /></a><a href = "item.php?itemId='.$row['itemId']
-                                                                .'"><img src="themes/'.$config['theme']
-                                                                .'/edit.gif" alt="Edit '.$cleaned.'" /></a>'
-								.'<span class="nextActionMarker" title="Next Action">*</span>'
-                                                                .'<a '.(($isNextAction)?' class="nextactionlink" ':'').' href = "item'
-                                                                .(($row['type']=="a" || $row['type']=="r" || $row['type']=="w" || $row['type']=="i")?'.php':'Report.php')
-                                                                .'?itemId='.$row['itemId']
-                                                                .'" title="Edit '.$cleaned.'">'.$cleaned."</a></td>\n";
-//								}
-								// end of showing title
-
-
+			$cleaned=makeClean($row['title']);
+			echo '<tr';
+			if ($shownext) {
+				$isna = (($key = in_array($row['itemId'],$nextactions)) && ($comp!="y"));
+				echo ($isna)?' class = "nextactionrow"':''
+					,">\n<td align=center><input type="
+					,($config['nextaction']=='multiple')?'"checkbox"':'"radio"'
+					,'name="isNAs[]"'
+					,($isna)?' checked':''
+					,' value="'.$row['itemId'].'" title="Mark as a Next Action" /></td>'."\n";
 			} else {
-				echo "	<tr>\n";
-
-                                $naText='<td align=center><input type="radio"';
-                                $naText.=' name="isNext" value="';
-                                $naText.=$row['itemId'].'" /></td>'."\n";
-                                if ($comp!="y") echo $naText;
-
-
-                        //item title
-//                        if ($show['title']!=FALSE) {
-                                $cleaned=htmlspecialchars(stripslashes($row['title']));
-                                echo '         <td><a href = "itemReport.php?itemId='
-                                                                .$row['itemId'].'"><img src="themes/'.$config['theme']
-                                                                .'/report.gif" alt="Go to '.$cleaned
-                                                                .' report" /></a><a href = "item.php?itemId='.$row['itemId']
-                                                                .'"><img src="themes/'.$config['theme']
-                                                                .'/edit.gif" alt="Edit '.$cleaned.'" /></a>'
-                                                                .'<a '.(($isNextAction)?' class="nextactionlink" ':'').' href = "item'
-                                                                .(($row['type']=="a" || $row['type']=="r" || $row['type']=="w" || $row['type']=="i")?'.php':'Report.php')
-                                                                .'?itemId='.$row['itemId']
-                                                                .'" title="Edit '.$cleaned.'">'.$cleaned."</a></td>\n";
-//								}
-								// end of showing title
-
-//				echo '		<td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title'])).'">'.htmlspecialchars(stripslashes($row['title']))."</a></td>\n";
+				// can't be a next action if completed
+				$isna=FALSE;
+				echo '>';
 			}
+			if ($isna) array_push($wasNAonEntry,$row['itemId']);
+			echo '<td'
+				,($isna)?' class="nextactioncell"':''
+				,'><a href = "itemReport.php?itemId=',$row['itemId'],'"><img src="themes/',$config['theme'],'/report.gif" alt="Go to ',$cleaned,' report" /></a>'
+				,'<a href = "item.php?itemId=',$row['itemId'],'"><img src="themes/',$config['theme'],'/edit.gif" alt="Edit '.$cleaned.'" /></a>'
+				,'<a title="Edit '.$cleaned.'" href="item.php?itemId='.$row['itemId'].'"'
+				,($isna)?' class="nextactionlink"><span class="nextActionMarker" title="Next Action">*</span>':'>'
+				,$cleaned."</a></td>\n";
 
 			echo '		<td>'.nl2br(stripslashes($row['description']))."</td>\n";
 			echo '		<td><a href = "reportContext.php?contextId='.$row['contextId'].'" title="Go to '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.htmlspecialchars(stripslashes($row['cname']))."</a></td>\n";
@@ -219,12 +189,8 @@ foreach ($completed as $comp) {
                         if ($comp=="n") {                                
                                     //Calculate reminder date as # suppress days prior to deadline
                                     if ($row['suppress']=="y") {
-                                    $dm=(int)substr($row['deadline'],5,2);
-                                    $dd=(int)substr($row['deadline'],8,2);
-                                    $dy=(int)substr($row['deadline'],0,4);
-                                    $remind=mktime(0,0,0,$dm,($dd-(int)$row['suppressUntil']),$dy);
-                                    $reminddate=gmdate("Y-m-d", $remind);
-                                    echo "         <td>".date($config['datemask'],strtotime($reminddate))."</td>\n";
+										$reminddate=getTickleDate($row['deadline'],$row['suppressUntil']);
+                                    echo "         <td>".date($config['datemask'],$reminddate)."</td>\n";
                                     }
                                     else echo "<td></td>";
                                     
@@ -232,7 +198,7 @@ foreach ($completed as $comp) {
 
 				echo "		<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
 
-				echo '		<td align=center><input type="checkbox" name="completedNas[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="';
+				echo '		<td align=center><input type="checkbox" name="isMarked[]" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" value="';
 				echo $row['itemId'];
 				echo '" /></td>'."\n";
 			} else {
@@ -243,17 +209,19 @@ foreach ($completed as $comp) {
 			$counter = $counter+1;
 		}
 		echo "</table>\n";
-		echo '<input type="hidden" name="referrer" value="p" />'."\n";
+		$thisurl=parse_url($_SERVER[PHP_SELF]);
+		echo '<input type="hidden" name="referrer" value="',basename($thisurl['path']),'?itemId=',$values['itemId'],"\"\n";
+		echo '<input type="hidden" name="multi" value="y" />'."\n";
+		echo '<input type="hidden" name="action" value="complete" />'."\n";
+		echo '<input type="hidden" name="wasNAonEntry" value="'.implode(',',$wasNAonEntry).'" />'."\n"; 
 		if ($comp=="n") echo '<input type="submit" align="right" class="button" value="Update '.$typename[$value].'s" name="submit" />'."\n";
 
 			if($counter==0){
 				echo 'No&nbsp;'.$typename[$value]."&nbsp;items\n";
 				}
 			}
-		else echo "<p>None</p>\n";
 
 		echo "</div>\n";
-            	}
 }
 echo "</form>\n";
 }

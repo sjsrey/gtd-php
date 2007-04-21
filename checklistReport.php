@@ -13,7 +13,7 @@ if ($result!="-1") $row=$result[0];
 $result= query("getchecklistitems",$config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
-echo '<form action="processChecklistUpdate.php?checklistId='.$row['checklistId'].'" method="POST">'."\n";
+echo '<form action="processChecklistUpdate.php?checklistId='.$row['checklistId'].'" method="post">'."\n";
 echo "<h1>Checklist Report: {$row['title']}</h1>\n";
 echo '<span class="editbar">[ <a href="editChecklist.php?checklistId='.$row['checklistId'].'&checklistTitle='.$row['checklistTitle'].'">Edit Checklist</a> ]'."\n";
 echo "<br /></span>\n";

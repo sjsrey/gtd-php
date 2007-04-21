@@ -1,68 +1,52 @@
 <?php
-//Configuration settings
+
+
+/******************************************/
+/**********   REQUIRED SETTINGS    ********/
+/******************************************/
+
+
+/*********  Database Settings ************/
+
+// Database settings are NOT optional.
+
 $config = array(
 
     //connection information
         "host"                      => 'localhost', //the hostname of your database server
         "db"                        => '', //the name of your database
+        "prefix"					=> 'gtd_', // the GTD table prefix for your installation (optional)
         "user"                      => '', //username for database access
         "pass"                      => '', //database password
     //database information
         "dbtype"                    => 'mysql',  //database type: currently only mysql is valid.  DO NOT CHANGE!
-
-    //user preferences : MOVE TO DATABASE
-        "title"                     => 'GTD-PHP', // site name (appears at the top of each page)
-		"datemask"                  => 'Y-m-d D', // date format - required
-        "debug"                     => 'false',  // false | true
-        "theme"                     => 'default', //default | menu_sidebar
-        "contextsummary"            => 'all',  //all | nextaction (Show all actions on context report, or nextactions only?)
-        "nextaction"                => 'multiple', //single | multiple (Allow single or multiple nextactions per project)
-        		"afterCreate"				=> array (  // parent | item | list | another - default view after creating an item
-        			'i'		=>	'another', // inbox preference
-        			'a'		=>	'parent', // action preference
-        			'w'		=>	'parent', // waiting-on preference
-        			'r'		=>	'parent', // reference preference
-        			'p'		=>	'list', // project preference
-        			'm'		=>	'item', // value preference
-        			'v'		=>	'item', // vision preference
-        			'o'		=>	'item', // role preference
-        			'g'		=>	'list' // goal preference
-        		), 
-        "title_suffix"				=> false // true | false - add filename to title tag
-        );
+);
 
 
-//Default sort order for each query (can be easily overridden within each page...)
-//Once all built, can be either (a) simplified for user-editing, (b) create an options page that alters the config file, or (c) placed in the database and options page employed [best option?]
-//need to alter once sqlabstraction is done to turn $sort into a simple variable string in mysql.inc.php, and pass the correct sort via the php code-- default is in config file/database/admin page (defined by report --or sort order--, not query), and can be modified on the page as needed.
-//simplify all options down to a few...
 
-$sort = array(
-    "projectssummary"       => "`projects`.`name` ASC",
-    "spacecontextselectbox" => "`context`.`name` ASC",
-    "categoryselectbox"     => "`categories`.`category` ASC",
-    "checklistselectbox"    => "`checklist`.`title` ASC",
-    "listselectbox"         => "`list`.`title` ASC",
-    "parentselectbox"       => "`items`.`title` ASC",
-    "timecontextselectbox"  => "`timeitems`.`timeframe` DESC",
-    "getprojects"           => "`categories`.`category`, `projectattributes`.`deadline`, `projects`.`name` ASC",
-    "getlistitems"          => "`listItems`.`item` ASC",
-    "getcompleteditems"     => "`itemstatus`.`dateCompleted` DESC, `projects`.`name`, `items`.`title` ASC",
-    "getitemsandparent"     => "ptitle ASC, pcatname ASC, type ASC, deadline ASC, title ASC, dateCreated DESC",
-    "getorphaneditems"      => "`itemattributes`.`type` ASC, `items`.`title` ASC",
-    "selectchecklist"       => "`checklist`.`title` ASC",
-    "getchecklists"         => "`categories`.`category` ASC",
-    "getlists"              => "`categories`.`category` ASC",
-    "getchecklistitems"     => "`checklistItems`.`checked` DESC, `checklistItems`.`item` ASC",
-    "getchildren"           => "`itemattributes`.`type` ASC",
-    "getitems"              =>  " `categories`.`category`, `items`.`title` ASC ",
-    "getnotes"              => " `tickler`.`date` DESC ",
-    );
+/******************************************/
+/**********   OPTIONAL SETTINGS    ********/
+/******************************************/
 
-// Access keys defined.  Note IE only allows 26 access keys (a-z).
+
+/*********  Interface Settings ************/
+
+// The following settings change settings for the user interface.  
+// These can be left at their default values, or changed if you have a different preference.
+
+$config["title"]= 'GTD-PHP'; // site name (appears at the top of each page)
+$config["datemask"] = 'Y-m-d D'; // date format - required
+$config["theme"] = 'default'; //default | menu_sidebar
+$config["title_suffix"]	= false; // true | false - add filename to title tag
+$config["trimLength"] = 72;     // max visible length of descriptions when listing items
+        
+
+// These are the shortcut settings for menu options.  Add a key for any page or page view in the main menus.
+// Note IE only allows 26 access keys (a-z).
+
 $acckey = array(
 	"about.php"								=> "", // License
-	"achivements.php"						=> "", // Achievements
+	"achievements.php"						=> "", // Achievements
 	"credits.php"							=> "", // Credits
 	"donate.php"							=> "", // Donate
 	"item.php?type=a"						=> "", // add Action
@@ -107,6 +91,31 @@ $acckey = array(
 	"weekly.php"							=> "r" // Weekly Review
 );
 
+
+/*********  Behavior Settings ************/
+
+// The following settings change how the interface behaves.  
+// These can be left at their default values, or changed if you have a different preference.
+
+$config["contextsummary"] = 'all';  //all | nextaction (Show all actions on context report, or nextactions only?)
+$config["nextaction"] = 'multiple'; //single | multiple (Allow single or multiple nextactions per project)
+$config["afterCreate"]	= array (  // parent | item | list | another - default view after creating an item
+			'i'		=>	'another', // inbox preference
+			'a'		=>	'parent', // action preference
+			'w'		=>	'parent', // waiting-on preference
+			'r'		=>	'parent', // reference preference
+			'p'		=>	'list', // project preference
+			'm'		=>	'item', // value preference
+			'v'		=>	'item', // vision preference
+			'o'		=>	'item', // role preference
+			'g'		=>	'list' // goal preference
+	    );
+
+
+
+
+/*********  Customize Weekly Review  ************/
+
 // Entirely optional: add custom items to the weekly review.  
 // Uncomment to use, add more fields to the array for more lines.
 
@@ -118,3 +127,39 @@ $custom_review = array(
 	"Send Update" => "Send Weekly Update to Tom"
 );
 */
+
+
+/*********  Advanced Settings  ************/
+
+//A bit too complicated for the average admin.  Will be simplified in a later release.
+
+//Default sort order for each query.  The sort order can be overridden within each page.
+
+$sort = array(
+    "spacecontextselectbox" => "cn.`name` ASC",
+    "categoryselectbox"     => "c.`category` ASC",
+    "checklistselectbox"    => "cl.`title` ASC",
+    "listselectbox"         => "l.`title` ASC",
+    "parentselectbox"       => "i.`title` ASC",
+    "timecontextselectbox"  => "ti.`timeframe` DESC",
+    "getlistitems"          => "li.`item` ASC",
+    "getitemsandparent"     => "ptitle ASC, pcatname ASC, type ASC, deadline ASC, title ASC, dateCreated DESC",
+    "getorphaneditems"      => "ia.`type` ASC, i.`title` ASC",
+    "selectchecklist"       => "cl.`title` ASC",
+    "getchecklists"         => "c.`category` ASC",
+    "getlists"              => "c.`category` ASC",
+    "getchecklistitems"     => "cli.`checked` DESC, cli.`item` ASC",
+    "getchildren"           => "ia.`type` ASC",
+    "getitems"              => "c.`category`, i.`title` ASC ",
+    "getnotes"              => "tk.`date` DESC ",
+);
+
+$config["storeRecurrences"] = true; // false | true - when recurring items are completed, store each occurrence as a completed item
+
+/*********  Developer Settings ************/
+
+// This setting is generally for the developers of the application.  
+//You will probably want this to remain "false"
+
+$config["debug"] = 'false';  // false | true | debug | developer | freezedb
+$config["debugKey"] = 'H'; // the key that will toggle the display of debug text - a letter here must typed in upper case.

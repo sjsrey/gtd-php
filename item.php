@@ -78,15 +78,13 @@ $tshtml = timecontextselectbox($config,$values,$options,$sort);
 
 
 //PAGE DISPLAY CODE
-if ($values['itemId']>0) {
-        echo "<h2>Edit ".$typename."</h2>";
-        echo '	<form action="updateItem.php?itemId='.$values['itemId'].'" method="post">';
-}
-else {
-        echo "<h2>New ".$typename."</h2>\n";
-        echo '	<form action="processItem.php" method="post">'."\n";
-}
-?>
+echo '<h2>',($values['itemId']>0)?'Edit ':'New ',$typename,"</h2>\n";
+echo '	<form action="processItems.php" method="post">';
+
+echo "<input type='hidden' name='action' value='",
+	($values['itemId']>0)?("fullUpdate' />\n<input type=\"hidden\" name=\"itemId\" value=\"{$values['itemId']}\" "):"create'"
+	," /> \n";
+?>	
         <div class='form'>
 
                 <div class='formrow'>
@@ -147,6 +145,7 @@ else {
                                                 step		   :	1				// show all years in drop-down boxes (instead of every other year as default)
                                         });
                                 </script>
+						<button type='button' id='dateCompleted_today' onclick="javascript:completeToday('dateCompleted');">Today</button>
                 </div>
                 <div class='formrow'>
                         <label for='description' class='left first'>Description:</label>
@@ -181,7 +180,7 @@ else {
 
                 <div class='formrow'>
                         <label for='suppress' class='left first'>Tickler:</label>
-                        <input type='checkbox' name='suppress' id='suppress' value='y' title='Temporarily puts this into the tickler file, hiding it from the active view' <?php if ($currentrow['suppress']=="y") echo " CHECKED"; ?>/>
+                        <input type='checkbox' name='suppress' id='suppress' value='y' title='Temporarily puts this into the tickler file, hiding it from the active view' <?php if ($currentrow['suppress']=="y") echo " checked "; ?>/>
                         <label for='suppress'>Tickle&nbsp;</label>
                         <input type='text' size='3' name='suppressUntil' id='suppressUntil' value='<?php echo $currentrow['suppressUntil'];?>' /><label for='suppressUntil'>&nbsp;days before deadline</label>
                 </div>
@@ -189,18 +188,21 @@ else {
                 <div class='formrow'>
                         <label for='nextAction' class='left first'>Next Action:</label><input type="checkbox" name="nextAction" value="y" <?php if ($nextactioncheck=='true') echo 'CHECKED '; ?>/>
 
-                        <label for='someday' class='left first'>Someday:</label><input type='checkbox' name='isSomeday' id='someday' value='y' title='Places item in Someday file'<?php if ($values['isSomeday']=='y' || $values['type']=='s') echo ' CHECKED';?> />
+                        <label for='isSomeday' class='left first'>Someday:</label><input type='checkbox' name='isSomeday' id='isSomeday' value='y' title='Places item in Someday file'<?php if ($values['isSomeday']==='y' || $values['type']=='s') echo ' CHECKED';?> />
                 </div>
 
 <?php if ($values['itemId']>0) {
         echo "</div> <!-- form div -->\n<div class='formbuttons'>\n";
-        echo "                  <input type='hidden' name='referrer' value='".$values['type']."' />\n";
+
+		// TOFIX - need to ensure that wherever this file is called from, if it's an item update, the $_SESSION['referrer'] variable has been set sanely
+		echo "                  <input type='hidden' name='referrer' value='".$_SESSION['referrer']."' />\n";
         echo "			<input type='submit' value='Update ".$typename."' name='submit' />\n";
         echo "                  <input type='reset' value='Reset' />\n";
         echo "                  <input type='checkbox' name='delete' id='delete' value='y' title='Deletes item. Child items are orphaned, NOT deleted.'/><label for='delete'>Delete&nbsp;".$typename."</label>\n";
     }
 else {
-	if ($_SESSION['afterCreate' . $values['type']]=='' && isset($config['afterCreate'][$values['type']])) $_SESSION['afterCreate' . $values['type']]=$config['afterCreate'][$values['type']];
+	if ($_SESSION['afterCreate' . $values['type']]=='' && isset($config['afterCreate'][$values['type']]))
+		$_SESSION['afterCreate' . $values['type']]=$config['afterCreate'][$values['type']];
 	echo "<div class='formrow'>\n<label class='left first'>After creating: </label>\n",
 		'<input type="radio" name="afterCreate' . $values['type'] . '" id="parentNext" value="parent" class="first"',
 		 	($_SESSION['afterCreate' . $values['type']]=='parent')?"CHECKED ":"",

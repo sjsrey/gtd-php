@@ -11,14 +11,18 @@ $config = array();
 $options = array();
 $sort = array();
 require_once("config.php");
-
+if ($config['debug']!=='false') {
+/*	if (version_compare(PHP_VERSION, "5.0.0", ">="))
+		error_reporting( E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE | E_STRICT);
+	else
+*/		error_reporting( E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE);
+}
 //CONNECT TO DATABASE: this will need modification to connect to other dtabases (use SWITCH)
 $connection = mysql_connect($config['host'], $config['user'], $config['pass']) or die ("Unable to connect!");
 mysql_select_db($config['db']) or die ("Unable to select database!");
 
 require_once("gtdfuncs.php");
 require_once("query.inc.php");
-
 $thisurl=parse_url($_SERVER[PHP_SELF]);
 
 $title = '	<title>'.$config['title'];
@@ -26,6 +30,9 @@ if ($config['title_suffix']) { $title .= '-'.basename($thisurl['path'],".php");}
 $title .= "</title>\n";
 
 echo $title;
+
+if ($config['debug']==='developer')
+	echo '<style type="text/css">pre,.debug {}</style>';
 
 $config['theme']=$_SESSION['theme'];
 ?>
@@ -58,7 +65,11 @@ $config['theme']=$_SESSION['theme'];
 	<script type="text/javascript" src="calendar-setup.js"></script>
 
 	<!-- sort tables -->
-	<script type="text/javascript" src="sorttable.js"></script>
+	<script type="text/javascript" src="gtdfuncs.js"></script>
+    
+    <?php if ($config['debug']==='developer')
+		echo '<script type="text/javascript">aps_debugInit("',$config['debugKey'],'");</script>'; ?>
+    
 </head>
 <body>
 
@@ -143,7 +154,7 @@ function makemenu($list) {
 				$thismenu[] = array("link"=>"listItems.php?type=v", 'title'=>"Visions", 'label' => "Visions");
 				$thismenu[] = array("link"=>"listItems.php?type=o", 'title'=>"Roles / Areas of Responsibility", 'label' => "Roles");
 				$thismenu[] = array("link"=>"listItems.php?type=g", 'title'=>"Goals", 'label' => "Goals");
-				$thismenu[] = array("link"=>"achivements.php", 'title'=>"Notable Achivements", 'label' => "Achievements");
+				$thismenu[] = array("link"=>"achievements.php", 'title'=>"Notable Achievements", 'label' => "Achievements");
 				$thismenu[] = array("link"=>"listItems.php?type=a&amp;tickler=true", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
 
 				makemenu($thismenu);

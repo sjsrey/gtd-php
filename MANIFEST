@@ -46,8 +46,7 @@ phpSettings.php
 processChecklistItem.php
 processChecklistUpdate.php
 processGoal.php
-processItem.php
-processItemUpdate.php
+processItems.php
 processListItem.php
 processListUpdate.php
 processNote.php
@@ -70,7 +69,6 @@ updateChecklist.php
 updateChecklistItem.php
 updateContext.php
 updateGoal.php
-updateItem.php
 updateList.php
 updateListItem.php
 updateNote.php

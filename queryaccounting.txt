@@ -49,7 +49,6 @@ newitemattributes
 newitemstatus
 newlist
 newlistitem
-newnextaction
 newnote
 newparent
 newspacecontext
@@ -224,26 +223,27 @@ processChecklistUpdate
     clearchecklist
     checkchecklistitems
 
-processItem
-    newitem
-    newitemattributes
-    newitemstatus
-    newnextaction
-    newparent
-
-processItemUpdate
-    lookupparent
-    testnextaction
-    testitemrepeat
-    selectitem
-    newitem
-    newitemattributes
-    newitemstatus
-    newparent
-    copynextaction
-    deletenextaction
-    updatenextaction
+processItems
     completeitem
+    copynextaction
+    deleteitem
+    deleteitemattributes
+    deleteitemstatus
+    deletelookup
+    deletenextaction
+    lookupparent
+    newitem
+    newitemattributes
+    newitemstatus
+    newparent
+    selectitem
+    testitemrepeat
+    testnextaction
+    updateitemstatus
+    updateitemattributes
+    updateitem
+    updatenextaction
+    updateparent
 
 processListItem
     newlistitem
@@ -291,19 +291,6 @@ updateContext
     reassignspacecontext
     deletespacecontext
     updatespacecontext
-
-updateItem
-    deleteitemstatus
-    deleteitemattributes
-    deleteitem
-    deletelookup
-    deletenextaction
-    updateitemstatus
-    updateitemattributes
-    updateitem
-    updatenextaction
-    updateparent
-    deletenextaction
 
 updateList
     deletelist

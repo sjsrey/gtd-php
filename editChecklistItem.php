@@ -22,7 +22,7 @@ $cshtml = checklistselectbox($config,$values,$options,$sort);
 			<select name='checklistId' id='checklist'>
                         <?php echo $cshtml;?>
 			</select>
-			<input type='checkbox' name='completed' id='completed' class='notfirst' value='y'<?php if ($currentrow['completed']=='y') echo ' CHECKED'; ?>>
+			<input type='checkbox' name='completed' id='completed' class='notfirst' value='y'<?php if ($currentrow['checked']=='y') echo ' CHECKED'; ?> />
 			<label for='completed'>Item Completed</label>
 		</div>
 

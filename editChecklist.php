@@ -12,7 +12,7 @@ $result = query("selectchecklist",$config,$values,$options,$sort);
 $row = $result[0];
 
     //select all categories for dropdown list
-$values['categoryId'] = $result['categoryId'];
+$values['categoryId'] = $row['categoryId'];
 $cshtml=categoryselectbox($config,$values,$options,$sort);
 
 //PAGE DISPLAY CODE
