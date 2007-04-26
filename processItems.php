@@ -301,7 +301,7 @@ function nextPage() { // set up the forwarding to the next page
 		case "list"	   : $nextURL='listItems.php?type='   .$values['type']; break;
         default        : $nextURL='listItems.php?type='   .$values['type']."&amp;dbg=".$_SESSION['afterCreate' . $_POST['type']];
 	}
-	if ($config['debug']==='false') {
+	if ($config['debug']===false) {
 		echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=',$nextURL,'" />';
 	} else {
 		echo '<p>Next page is <a href="',$nextURL,'">&lt;',htmlspecialchars($nextURL),'&gt;</a> (would be auto-refresh in non-debug mode)</p>';
