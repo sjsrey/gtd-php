@@ -48,7 +48,7 @@ $cashtml=categoryselectbox($config,$values,$options,$sort);
     if (($config['debug']=="true" || $config['debug']=="developer") && $GLOBALS['ecode']!="0") echo "<p>Error Code: ".$GLOBALS['ecode']."=> ".$GLOBALS['etext']."</p>";
 
 	$nextURL='checklistReport.php?checklistId='.mysql_insert_id();
-	if ($config['debug']===false) {
+	if ($config['debug']==='false') {
 		echo '<META HTTP-EQUIV="Refresh" CONTENT="2; url=',$nextURL,'">';
 	} else {
 		echo '<p>Next page is <a href="',$nextURL,'">&lt;',htmlspecialchars($nextURL),'&gt;</a> (would be auto-refresh in non-debug mode)</p>';
