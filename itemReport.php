@@ -209,7 +209,7 @@ foreach ($completed as $comp) foreach ($childtype as $value) {
 			$counter = $counter+1;
 		}
 		echo "</table>\n";
-		$thisurl=parse_url($_SERVER[PHP_SELF]);
+		$thisurl=parse_url($_SERVER['PHP_SELF']);
 		echo '<input type="hidden" name="referrer" value="',basename($thisurl['path']),'?itemId=',$values['itemId'],"\"\n";
 		echo '<input type="hidden" name="multi" value="y" />'."\n";
 		echo '<input type="hidden" name="action" value="complete" />'."\n";

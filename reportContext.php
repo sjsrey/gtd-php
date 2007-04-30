@@ -119,7 +119,7 @@ foreach ($contextArray as $values['contextId'] => $timeframe) {
 			}
 		}
     if ($tablehtml!="") {
-		$thisurl=parse_url($_SERVER[PHP_SELF]);
+		$thisurl=parse_url($_SERVER['PHP_SELF']);
 		$thisAnchor='c'.$values['contextId'].'t'.$values['timeframeId'];
 		echo "<a id=\"{$thisAnchor}\"></a>";
         echo '<form action="processItems.php" method="post">';

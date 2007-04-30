@@ -397,7 +397,7 @@ if ($filter['tickler']=="true") {
 			echo $tablehtml;
 			echo "</table>\n";
 			// pass filters in referrer
-			$thisurl=parse_url($_SERVER[PHP_SELF]);
+			$thisurl=parse_url($_SERVER['PHP_SELF']);
 			$_SESSION['referrer'] = basename($thisurl['path']).'?';
 			foreach($filter as $filterkey=>$filtervalue)
 				if ($filtervalue!='') $_SESSION['referrer'] .= "{$filterkey}={$filtervalue}&amp;";
