@@ -125,6 +125,7 @@ echo "<input type='hidden' name='action' value='",
                         <button type='reset' id='deadline_trigger'>...</button>
                                 <script type='text/javascript'>
                                         Calendar.setup({
+    											firstDay       :    <?php echo (int) $config['firstDayOfWeek']; ?>,
                                                 inputField	 :	'deadline',	  // id of the input field
                                                 ifFormat	   :	'%Y-%m-%d',	   // format of the input field
                                                 showsTime	  :	false,			// will display a time selector
@@ -137,6 +138,7 @@ echo "<input type='hidden' name='action' value='",
                         <button type='reset' id='dateCompleted_trigger'>...</button>
                                 <script type='text/javascript'>
                                         Calendar.setup({
+												firstDay       :    <?php echo (int) $config['firstDayOfWeek']; ?>,			
                                                 inputField	 :	'dateCompleted',	  // id of the input field
                                                 ifFormat	   :	'%Y-%m-%d',	   // format of the input field
                                                 showsTime	  :	false,			// will display a time selector

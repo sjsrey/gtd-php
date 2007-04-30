@@ -5,10 +5,10 @@ include_once('header.php');
 //RETRIVE FORM VARIABLES
 $values=array();
 $values['date'] = $_POST['date'];
-$values['title'] = mysql_real_escape_string($_POST['title']);
-$values['note'] = mysql_real_escape_string($_POST['note']);
+$values['title'] = $_POST['title']);
+$values['note'] = $_POST['note'];
 $values['repeat'] = (int) $_POST['repeat'];
-$values['suppressUntil'] = mysql_real_escape_string($_POST['suppressUntil']);
+$values['suppressUntil'] = $_POST['suppressUntil'];
 $referrer = $_POST['referrer']{0};
 $type = $_POST['type']{0};
 

@@ -28,18 +28,19 @@ if (!isset($_POST['submit'])) {
 else {
 
     $values = array();
-    $values['name'] = ($_POST['name']=="") ? die('<META HTTP-EQUIV="Refresh" CONTENT="2; url=newCategory.php" /><p>Error: Enter a context name</p>') : mysql_real_escape_string($_POST['name']);
-    $values['description'] = mysql_real_escape_string($_POST['description']);
+    $values['name'] = ($_POST['name']=="") ? die('<META HTTP-EQUIV="Refresh" CONTENT="2; url=newCategory.php" /><p>Error: Enter a context name</p>') : $_POST['name'];
+    $values['description'] = $_POST['description'];
 
    $result = query("newspacecontext",$config,$values);
 
     if ($GLOBALS['ecode']=="0") echo "Context ".$values['name']." inserted.";
     else echo "Context NOT inserted.";
-    if (($config['debug']=="true" || $config['debug']=="developer") && $GLOBALS['ecode']!="0") echo "<p>Error Code: ".$GLOBALS['ecode']."=> ".$GLOBALS['etext']."</p>";
+    if (($config['debug'] & _GTD_ERRORS) && $GLOBALS['ecode']!="0") echo "<p>Error Code: ".$GLOBALS['ecode']."=> ".$GLOBALS['etext']."</p>";
 
     echo '<META HTTP-EQUIV="Refresh" CONTENT="2; url=newContext.php" />';
     }
 
 include_once('footer.php');
 ?>
+
 

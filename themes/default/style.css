@@ -349,3 +349,8 @@ span.detail {
 	float: left;
 	clear: left;
 }
+
+.error {
+	color:red;
+	font-size:+1;
+}

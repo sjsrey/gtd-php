@@ -4,8 +4,8 @@ include_once('header.php');
 //GET URL AND FORM DATA
 $values=array();
 $values['contextId']        = (int) $_GET['contextId'];
-$values['name']             = mysql_real_escape_string($_POST['name']);
-$values['description']      = mysql_real_escape_string($_POST['description']);
+$values['name']             = $_POST['name'];
+$values['description']      = $_POST['description'];
 $values['delete']           = $_POST['delete']{0};
 $values['newContextId']     = (int) $_POST['newContextId'];
 

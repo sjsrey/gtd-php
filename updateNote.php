@@ -4,11 +4,11 @@ include_once('header.php');
 
 //FORM DATA COLLECTION AND PARSING
 $values=array();
-$values['title'] = mysql_real_escape_string($_POST['title']);
-$values['note'] = mysql_real_escape_string($_POST['note']);
+$values['title'] = $_POST['title'];
+$values['note'] = $_POST['note'];
 $values['date'] = $_POST['date'];
 $values['repeat'] = (int) $_POST['repeat'];
-$values['suppressUntil'] = mysql_real_escape_string($_POST['suppressUntil']);
+$values['suppressUntil'] = $_POST['suppressUntil'];
 $values['delete'] = $_POST['delete']{0};
 $values['noteId'] = (int) $_GET['noteId'];
 $acknowledge = $_POST['acknowledge']{0};

@@ -7,7 +7,7 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
 
     //for developer testing only--- testing data handling
     //testing passed variables
-    if ($config['debug']=="developer") {
+    if ($config['debug'] & _GTD_DEBUG) {
         echo "<p class='debug'><b>Query label: ".$querylabel."</b></p>";
         echo "<pre>Config: ";
         print_r($config);
@@ -19,26 +19,6 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
         print_r($sort);
         echo "</pre>";
     }
-/*
-    //sanitize input variables
-    echo "<p>Sanitizing...</p>\n";
-
-    //testing after sanitization
-    echo "<p>Query label: ".$querylabel."<br />";
-    echo "Config: ";
-    print_r($config);
-    echo "<br />Options: ";
-    print_r($options);
-    echo "<br />Values: ";
-    print_r($values);
-    echo "</p>";
-
-    //parse options array (logic)
-        //sort order
-        //single NA or not?
-        //others
-
-*/
 
     //include correct SQL query library as chosen in config
     switch ($config['dbtype']) {
@@ -46,8 +26,13 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
         break;
         case "msql":require("msql.inc.php");
         break;
-        case "mysql":require("mysql.inc.php");require_once("mysql.funcs.inc.php");
-        break;
+        case "mysql":
+			require_once("mysql.funcs.inc.php");
+			foreach ($values as $key=>$value) $values[$key] = safeIntoDB($value, $key);
+		    if ($config['debug'] & _GTD_DEBUG)
+		        echo '<pre>Sanitised values: ',print_r($values,true),'</pre>';
+			require("mysql.inc.php");
+	        break;
         case "mssql":require("mssql.inc.php");
         break;
         case "postgres":require("postgres.inc.php");
@@ -56,24 +41,17 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
         break;
         }
 
-	$values=safeIntoDB($values); // make values safe - function must be in the SQL query library, as loaded above
-    if ($config['debug']=="developer") {
-        echo "<pre>Sanitised values: ";
-        print_r($values);
-        echo "</pre>";
-    }
-
     //grab correct query string from query library array
     //values automatically inserted into array
     $query = $sql[$querylabel];
 
     // for testing only: display fully-formed query
-    if ($config['debug']=="developer") echo "<p class='debug'>Query: ".$query."</p>";
+    if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>Query: ".$query."</p>";
 
     //perform query
 	//parse result into multitdimensional array $result[row#][field name] = field value
     if($config['dbtype']=="mysql") {
-        $reply = mysql_query($query) or die (($config['debug']=="true" || $config['debug']=="developer") ? "Error in query: ". $querylabel."<br />".mysql_error():"Error in query");
+        $reply = mysql_query($query) or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".mysql_error():"Error in query");
 
         if (@mysql_num_rows($reply)>0) {
             $i = 0;
@@ -102,34 +80,34 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
         }
 
     elseif($config['dbtype']=="postgres") {
-        $reply = pg_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".pg_error():"Error in query");
+        $reply = pg_query($query) or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".pg_error():"Error in query");
         echo ("Database not yet supported.");
          }
 
     elseif($config['dbtype']=="sqlite") {
-        $reply = sqllite_query($query)  or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".sqllite_error():"Error in query");
+        $reply = sqllite_query($query)  or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".sqllite_error():"Error in query");
         echo ("Database not yet supported.");
         }
 
     elseif($config['dbtype']=="msql") {
-        $reply = msql_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".msql_error():"Error in query");
+        $reply = msql_query($query) or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".msql_error():"Error in query");
         echo ("Database not yet supported.");
         }
 
     elseif($config['dbtype']=="mssql") {
-        $reply = mssql_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".mssql_error():"Error in query");
+        $reply = mssql_query($query) or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".mssql_error():"Error in query");
         echo ("Database not yet supported.");
         }
 
     elseif($config['dbtype']=="frontbase") {
-        $reply = fbsql_query($query) or die ($config['debug']=="true" ? "Error in query: ". $querylabel."<br />".fbsql_error():"Error in query");
+        $reply = fbsql_query($query) or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".fbsql_error():"Error in query");
         echo ("Database not yet supported.");
         }
 
     else die("Database type not configured.  Please edit the config.php file.");
 
     //for developer testing only, print result array
-    if ($config['debug']=="developer") {
+    if ($config['debug'] & _GTD_DEBUG) {
         echo "<pre>Result: ";
         print_r($result);
         echo "</pre>";

@@ -11,7 +11,7 @@ $config = array();
 $options = array();
 $sort = array();
 require_once("config.php");
-if ($config['debug']!=='false') {
+if ($config['debug']) {
 /*	if (version_compare(PHP_VERSION, "5.0.0", ">="))
 		error_reporting( E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE | E_STRICT);
 	else
@@ -31,7 +31,7 @@ $title .= "</title>\n";
 
 echo $title;
 
-if ($config['debug']==='developer')
+if ($config['debug'])
 	echo '<style type="text/css">pre,.debug {}</style>';
 
 $config['theme']=$_SESSION['theme'];
@@ -67,7 +67,7 @@ $config['theme']=$_SESSION['theme'];
 	<!-- sort tables -->
 	<script type="text/javascript" src="gtdfuncs.js"></script>
     
-    <?php if ($config['debug']==='developer')
+    <?php if ($config['debug'])
 		echo '<script type="text/javascript">aps_debugInit("',$config['debugKey'],'");</script>'; ?>
     
 </head>

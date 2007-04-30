@@ -4,9 +4,9 @@ include_once('header.php');
 //GET URL AND FORM DATA
 $values=array();
 $values['tcId'] = (int) $_GET['tcId'];
-$values['name']=mysql_real_escape_string($_POST['timeframe']);
-$values['description']=mysql_real_escape_string($_POST['description']);
-$values['type']=mysql_real_escape_string($_POST['type']);
+$values['name']=$_POST['timeframe'];
+$values['description']=$_POST['description'];
+$values['type']=$_POST['type'];
 $values['delete']=$_POST['delete']{0};
 $values['ntcId']=(int) $_POST['ntcId'];
 

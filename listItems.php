@@ -1,7 +1,7 @@
 <?php
 //INCLUDES
 include_once('header.php');
-if ($config['debug']==='developer') {
+if ($config['debug'] & _GTD_DEBUG) {
 	echo '<pre>POST: ',var_dump($_POST),'</pre>';
 }
 //page display options array--- can put defaults in preferences table/config/session and load into $show array as defaults...

@@ -13,9 +13,6 @@ $reminderresult = query("getnotes",$config,$values,$options,$sort);
 //get # space contexts
 $numbercontexts = query("countspacecontexts",$config,$values,$options,$sort);
 
-//get # nextactions
-$numbernextactions = query("countnextactions",$config,$values,$options,$sort);
-
 //count active items
 $values['type'] = "a";
 $values['isSomeday'] = "n";
@@ -23,6 +20,10 @@ $values['filterquery']  = " AND ".sqlparts("typefilter",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
 $values['filterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);
+
+//get # nextactions
+$numbernextactions = query("countnextactions",$config,$values,$options,$sort);
+
 $numberitems = query("countitems",$config,$values,$options,$sort);
 
 //count active projects

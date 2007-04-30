@@ -61,8 +61,13 @@ $sql = array(
 										WHERE ia.`itemId`=its.`itemId` ".$values['filterquery']." 
 										GROUP BY `type`",
         
-        "countnextactions"          => "SELECT COUNT(`nextaction`) AS nnextactions 
-										FROM `". $config['prefix'] ."nextactions`",
+        "countnextactions"          => "SELECT COUNT(DISTINCT `nextaction`) AS nnextactions 
+										FROM `". $config['prefix'] ."nextactions` as na
+											JOIN `". $config['prefix'] . "itemattributes` as ia 
+												ON (ia.`itemId` = na.`nextaction`)
+											JOIN `". $config['prefix'] . "itemstatus` as its
+												ON (ia.`itemId` = its.`itemId`) ".									
+										$values['filterquery'],
 										
         "countcontextreport_naonly" => "SELECT ia.`contextId`, ia.`timeframeId`, 
 										COUNT(*) AS count 

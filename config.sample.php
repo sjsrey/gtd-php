@@ -1,5 +1,5 @@
 <?php
-
+include_once('gtd_constants.inc.php');
 
 /******************************************/
 /**********   REQUIRED SETTINGS    ********/
@@ -39,6 +39,7 @@ $config["datemask"] = 'Y-m-d D'; // date format - required
 $config["theme"] = 'default'; //default | menu_sidebar
 $config["title_suffix"]	= false; // true | false - add filename to title tag
 $config["trimLength"] = 72;     // max visible length of descriptions when listing items
+$config["firstDayOfWeek"] = 0; // 0=Sunday, 1=Monday, ... 6=Saturday
         
 
 // These are the shortcut settings for menu options.  Add a key for any page or page view in the main menus.
@@ -158,8 +159,12 @@ $config["storeRecurrences"] = true; // false | true - when recurring items are c
 
 /*********  Developer Settings ************/
 
-// This setting is generally for the developers of the application.  
-//You will probably want this to remain "false"
-
-$config["debug"] = 'false';  // false | true | debug | developer | freezedb
+/* The debug value is generally for the developers of the application.  You will probably want this to remain 0
+Values: (use "|" to combine, "&" to test)
+            0 - no debugging output
+_GTD_ERRORS   - display errors
+_GTD_DEBUG    - display debugging text (there will be lots of it - use debugKey to toggle its display)
+_GTD_FREEZEDB - do not execute commands which would otherwise update the items table: use in conjunction with _GTD_DEBUG to display sql commands without running them
+*/
+$config["debug"] = 0;  // integer (actually a set of boolean flags)
 $config["debugKey"] = 'H'; // the key that will toggle the display of debug text - a letter here must typed in upper case.

@@ -37,7 +37,8 @@ else {
 
             <script type="text/javascript">
                 Calendar.setup({
-                    inputField     :    "f_date_b",      // id of the input field
+					firstDay       :    <?php echo (int) $config['firstDayOfWeek']; ?>, 
+					inputField     :    "f_date_b",      // id of the input field
                     ifFormat       :    "%Y-%m-%d",       // format of the input field
                     showsTime      :    false,            // will display a time selector
                     button         :    "f_trigger_b",   // trigger for the calendar (button ID)

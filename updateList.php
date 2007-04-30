@@ -5,9 +5,9 @@ include_once('header.php');
 //RETRIEVE FORM URL VARIABLES
 $values=array();
 $values['listId'] = (int) $_GET['listId'];
-$values['newlistTitle']=mysql_real_escape_string($_POST['newlistTitle']);
+$values['newlistTitle']=$_POST['newlistTitle'];
 $values['newcategoryId']=(int) $_POST['newcategoryId'];
-$values['newdescription']=mysql_real_escape_string($_POST['newdescription']);
+$values['newdescription']=$_POST['newdescription'];
 $values['delete']=$_POST['delete']{0};
 
 //SQL CODE AREA

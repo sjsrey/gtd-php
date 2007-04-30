@@ -137,7 +137,7 @@ foreach ($completed as $comp) foreach ($childtype as $value) {
 		,"\n";
 
     if ($result != "-1") {
-		$shownext=( ($comp=="n") && ($values['type']=="a") );
+		$shownext=( ($comp==="n") && ($values['type']==="a" || $values['type']==="w") );
 		$counter=0;
 		echo '<table class="datatable sortable" id="itemtable'.$completed.'" summary="table of children of this item">'."\n";
 		echo "	<thead><tr>\n";

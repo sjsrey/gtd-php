@@ -35,20 +35,21 @@ if (!isset($_POST['submit'])) {
 }
 else {
 $values = array();
-$values['name'] = ($_POST['name']=="") ? die('<META HTTP-EQUIV="Refresh" CONTENT="2; url=newCategory.php" /><p>Error: Enter a context name</p>') : mysql_real_escape_string($_POST['name']);
-$values['description'] = mysql_real_escape_string($_POST['description']);
-$values['type'] = mysql_real_escape_string($_POST['type']);
+if ($_POST['name']=="") {die('<META HTTP-EQUIV="Refresh" CONTENT="2; url=newCategory.php" /><p>Error: Enter a context name</p>');} else {$values['name'] = $_POST['name'];}
+$values['description'] = $_POST['description'];
+$values['type'] = $_POST['type'];
 
 $result = query("newtimecontext",$config,$values);
 
 if ($GLOBALS['ecode']=="0") echo "Time context ".$values['name']." inserted.";
 else echo "Time  context NOT inserted.";
-if (($config['debug']=="true" || $config['debug']=="developer") && $GLOBALS['ecode']!="0") echo "<p>Error Code: ".$GLOBALS['ecode']."=> ".$GLOBALS['etext']."</p>";
+if (($config['debug'] & _GTD_ERRORS) && $GLOBALS['ecode']!="0") echo "<p>Error Code: ".$GLOBALS['ecode']."=> ".$GLOBALS['etext']."</p>";
 
 echo '<META HTTP-EQUIV="Refresh" CONTENT="2; url=newTimeContext.php" />';
     }
 
 include_once('footer.php');
 ?>
+
 
 

@@ -94,8 +94,13 @@ function sqlparts($part,$config,$values)  {
         break;
         case "msql":require("msqlparts.inc.php");
         break;
-        case "mysql":require("mysqlparts.inc.php");
-        break;
+        case "mysql":
+   			require_once("mysql.funcs.inc.php");
+			foreach ($values as $key=>$value) $values[$key] = safeIntoDB($value, $key);
+		    if ($config['debug'] & _GTD_DEBUG)
+		        echo '<pre>Sanitised values in sqlparts: ',print_r($values,true),'</pre>';
+			require("mysqlparts.inc.php");
+        	break;
         case "mssql":require("mssqlparts.inc.php");
         break;
         case "postgres":require("postgresparts.inc.php");
@@ -211,7 +216,7 @@ function getVarFromGetPost($varName,$default='') {
 function getNextActionsArray($config,$values,$options,$sort) {
 	$result= query("getnextactions",$config,$values,$options,$sort);
 	$nextactions=array();
-	foreach ($result as $row) array_push ($nextactions,$row['nextaction']);
+	if(is_array($result))foreach ($result as $row) array_push ($nextactions,$row['nextaction']);
 	return $nextactions;
 }
 

@@ -26,7 +26,7 @@ if (isset($_POST['isMarked'])) { // doing a specific action on several items (cu
 
 // some debugging - if debug is set to halt, dump all the variables we've got
 
-if (($config['debug']==='freezedb') || ($config['debug']=='developer')) {
+if ($config['debug'] & _GTD_DEBUG) {
 	// debugging text - simply dump the variables, and quit, without processing anything
 	literaldump('$_GET');
 	literaldump('$_POST');
@@ -70,10 +70,8 @@ return;
 
 function doAction($localAction) { // do the current action on the current item; returns TRUE if succeeded, else returns FALSE
 	global $config,$values,$updateGlobals;
-	if (($config['debug']==='freezedb') || ($config['debug']==='developer')) {
-		echo "<p><b>Action here is: '$localAction' on item {$values['itemId']}</b></p>";
-		if ($config['debug']==='freezedb') return TRUE;
-	}
+	if ($config['debug'] & _GTD_DEBUG) echo "<p><b>Action here is: '$localAction' on item {$values['itemId']}</b></p>";
+	if ($config['debug'] & _GTD_FREEZEDB) return TRUE;
 	switch ($localAction) {
 		case 'makeNA':
 			makeNextAction();
@@ -136,7 +134,7 @@ function createItem() { // create an item and its parent-child relationships
 	
 	foreach ($updateGlobals['parents'] as $values['parentId']) if (((int) $values['parentId'])>0) {
 		$result = query("newparent",$config,$values);
-		if($values['nextAction']==='y') $result = query("updatenextaction",$config,$values);	
+		if($values['nextAction']==='y') $result = query("newnextaction",$config,$values);	
 	}
 }
 
@@ -205,9 +203,9 @@ function retrieveFormVars() { // extract the item values from the HTTP GET and P
 
 	// key variables
 	if (isset($_POST['type']))           $values['type']           = $_POST['type'];
-	if (isset($_POST['title']))          $values['title']          = mysql_real_escape_string($_POST['title']);
-	if (isset($_POST['description']))    $values['description']    = mysql_real_escape_string($_POST['description']);
-	if (isset($_POST['desiredOutcome'])) $values['desiredOutcome'] = mysql_real_escape_string($_POST['desiredOutcome']);
+	if (isset($_POST['title']))          $values['title']          = $_POST['title'];
+	if (isset($_POST['description']))    $values['description']    = $_POST['description'];
+	if (isset($_POST['desiredOutcome'])) $values['desiredOutcome'] = $_POST['desiredOutcome'];
 
 	// session variables
 	$values['categoryId']  = getVarFromGetPost('categoryId',0);
@@ -232,7 +230,7 @@ function retrieveFormVars() { // extract the item values from the HTTP GET and P
 	if (!isset($values['title'])) die ("No title. Item NOT added."); // TOFIX
 	if($values['isSomeday']==='y') $values['type']='s';
 
-	if (($config['debug']==='freezedb') || ($config['debug']=='developer')) {
+	if ($config['debug'] & _GTD_DEBUG) {
 		echo '<hr /><pre><b>retrieved form vars</b><br />';
 		literaldump('$values');
 		echo '</pre>';
@@ -244,7 +242,7 @@ function getItemCopy() { // retrieve all the values for the current item, and st
 	global $config,$values;
 	$copyresult = query("selectitem",$config,$values,$options,$sort);
 	foreach ($copyresult[0] as $key=>$thisvalue) $values[$key]=$thisvalue;
-	if (($config['debug']==='freezedb') || ($config['debug']=='developer')) {
+	if ($config['debug'] & _GTD_DEBUG) {
 		echo '<pre>Retrieved record for copying: </pre>';
 		literaldump('$values');
 	}
@@ -301,10 +299,10 @@ function nextPage() { // set up the forwarding to the next page
 		case "list"	   : $nextURL='listItems.php?type='   .$values['type']; break;
         default        : $nextURL='listItems.php?type='   .$values['type']."&amp;dbg=".$_SESSION['afterCreate' . $_POST['type']];
 	}
-	if ($config['debug']==='false') {
-		echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=',$nextURL,'" />';
-	} else {
+	if ($config['debug'] & _GTD_DEBUG) {
 		echo '<p>Next page is <a href="',$nextURL,'">&lt;',htmlspecialchars($nextURL),'&gt;</a> (would be auto-refresh in non-debug mode)</p>';
+	} else {
+		echo '<META HTTP-EQUIV="Refresh" CONTENT="0; url=',$nextURL,'" />';
 	}
 	echo "\n";
 }
