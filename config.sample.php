@@ -151,7 +151,7 @@ $sort = array(
     "getlists"              => "c.`category` ASC",
     "getchecklistitems"     => "cli.`checked` DESC, cli.`item` ASC",
     "getchildren"           => "ia.`type` ASC",
-    "getitems"              => "c.`category`, i.`title` ASC ",
+    "getitems"              => "i.`title` ASC ",
     "getnotes"              => "tk.`date` DESC ",
 );
 
