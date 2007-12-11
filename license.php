@@ -1,7 +1,7 @@
 <?php include_once('header.php'); ?>
 
 <h2>gtd-php </h2>
-<table>
+<table summary='licence'>
     <tr><td>Copyright (c) 2005,2006,  <a href="mailto:sjrey@users.sf.net?subject=gtd-php">Sergio J. Rey</a>. All rights reserved.</td></tr>
     <tr><td>Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:</td></tr>
     <tr><td>* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.</td></tr>

@@ -19,3 +19,4 @@ function safeIntoDB(&$value,$key=NULL) {
 		return $value;
 	}
 }
+// php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

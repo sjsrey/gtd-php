@@ -71,21 +71,17 @@ else $values['categoryId']=$_SESSION['categoryId'];
 //SQL CODE
 
 //create filters for selectboxes
-if ($values['type']=="g") $values['timefilterquery'] = " WHERE ".sqlparts("timegoals",$config,$values);
-else $values['timefilterquery'] = " WHERE ".sqlparts("timeitems",$config,$values);
+$values['timefilterquery'] = ($config['useTypesForTimeContexts'])?" WHERE ".sqlparts("timetype",$config,$values):'';
 
 //create filter selectboxes
-$cashtml=categoryselectbox($config,$values,$options,$sort);
-$cshtml=contextselectbox($config,$values,$options,$sort);
-$tshtml=timecontextselectbox($config,$values,$options,$sort);
-
-//select all nextactions for test
-$nextactions=(getNextActionsArray($config,$values,$options,$sort));
+$cashtml=categoryselectbox($config,$values,$sort);
+$cshtml=contextselectbox($config,$values,$sort);
+$tshtml=timecontextselectbox($config,$values,$sort);
 
 //Select notes
 if ($filter['tickler']=="true") {
     $values['filterquery'] = "";
-    $reminderresult = query("getnotes",$config,$values,$options,$sort);
+    $reminderresult = query("getnotes",$config,$values,$sort);
     }
 
 //Select items
@@ -209,7 +205,7 @@ $values['filterquery'] .= $categoryfilter.$contextfilter.$timefilter.$completedf
 $childfilter = $completedfilter.$somedayfilter.$ticklerfilter.$repeatfilter.$duefilter;
 
 //Get items for display
-$result = query("getitems",$config,$values,$options,$sort);
+$result = query("getitems",$config,$values,$sort);
 
 //PAGE DISPLAY CODE
 ?>
@@ -305,35 +301,35 @@ if ($filter['tickler']=="true") {
                 $html .= '<h3><a href = "itemReport.php?itemId='.$item['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($item['title'])).' report" /></a><a href = "item.php?itemId='.$item['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($item['title'])).'" /></a>'.$item['title']."</h3>\n";
                 $values['filterquery'] = $childfilter;
                 $values['parentId']=$item['itemId'];
-                $level2 = query("getchildren",$config,$values,$options,$sort);
+                $level2 = query("getchildren",$config,$values,$sort);
                 if ($level2!="-1") {
                     $html .= '<ul>'."\n";
                     foreach ($level2 as $child2) {
                         $html .= '<li><a href = "itemReport.php?itemId='.$child2['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child2['title'])).' report" /></a><a href = "item.php?itemId='.$child2['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child2['title'])).'" /></a>'.$child2['title']."\n";
                         $values['filterquery'] = $childfilter;
                         $values['parentId']=$child2['itemId'];
-                        $level3 = query("getchildren",$config,$values,$options,$sort);
+                        $level3 = query("getchildren",$config,$values,$sort);
                         if ($level3!="-1") {
                             $html .= '<ul>'."\n";
                             foreach ($level3 as $child3) {
                                 $html .= '<li><a href = "itemReport.php?itemId='.$child3['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child3['title'])).' report" /></a><a href = "item.php?itemId='.$child3['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child3['title'])).'" /></a>'.$child3['title']."\n";
                                 $values['filterquery'] = $childfilter;
                                 $values['parentId']=$child3['itemId'];
-                                $level4 = query("getchildren",$config,$values,$options,$sort);
+                                $level4 = query("getchildren",$config,$values,$sort);
                                 if ($level4!="-1") {
                                     $html .= '<ul>'."\n";
                                     foreach ($level4 as $child4) {
                                         $html .= '<li><a href = "itemReport.php?itemId='.$child4['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child4['title'])).' report" /></a><a href = "item.php?itemId='.$child4['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child4['title'])).'" /></a>'.$child4['title']."\n";
                                         $values['filterquery'] = $childfilter;
                                         $values['parentId']=$child4['itemId'];
-                                        $level5 = query("getchildren",$config,$values,$options,$sort);
+                                        $level5 = query("getchildren",$config,$values,$sort);
                                         if ($level5!="-1") {
                                             $html .= '<ul>'."\n";
                                             foreach ($level5 as $child5) {
                                                 $html .= '<li><a href = "itemReport.php?itemId='.$child5['itemId'].'"><img src="themes/'.$config['theme'].'/report.gif" alt="Go to '.htmlspecialchars(stripslashes($child5['title'])).' report" /></a><a href = "item.php?itemId='.$child5['itemId'].'"><img src="themes/'.$config['theme'].'/edit.gif" alt="Edit '.htmlspecialchars(stripslashes($child5['title'])).'" /></a>'.$child5['title']."\n";
                                                 $values['filterquery'] = $childfilter;
                                                 $values['parentId']=$child5['itemId'];
-                                                $level6 = query("getchildren",$config,$values,$options,$sort);
+                                                $level6 = query("getchildren",$config,$values,$sort);
                                                 if ($level6!="-1") {
                                                     $html .= '<ul>'."\n";
                                                     foreach ($level6 as $child6) {
@@ -362,152 +358,6 @@ if ($filter['tickler']=="true") {
 
 
 echo $html;
-
-
-/*
-                $tablehtml="";
-                foreach ($result as $row) {
-                    $showme="y";
-                    //filter out all but nextactions if $filter['nextonly']==true
-                    if (($filter['nextonly']=="true")  && !($key = array_search($row['itemId'],$nextactions))) $showme="n";
-                    if($showme=="y") {
-                        $tablehtml .= " <tr>\n";
-
-                        //parent title
-                            if ($show['parent']!=FALSE) {
-                                $tablehtml .= '         <td><a href = "itemReport.php?itemId='.$row['parentId'].'" title="Go to '.htmlspecialchars(stripslashes($row['ptitle'])).' '.$parentname.' report">';
-                                if ($nonext=="true" && $filter['completed']!="completed") echo '<span class="noNextAction" title="No next action defined!">!</span>';
-                                $tablehtml .= htmlspecialchars(stripslashes($row['ptitle']))."</a></td>\n";
-                                }
-
-                        //item title
-                        if ($show['title']!=FALSE && ($row['type']=="a" || $row['type']=="r" || $row['type']=="w" || $row['type']=="i")) $tablehtml .= '         <td><a href = "item.php?itemId='.$row['itemId'].'" title="Edit '.htmlspecialchars(stripslashes($row['title']));
-
-                        elseif ($show['title']!=FALSE) $tablehtml .= '         <td><a href = "itemReport.php?itemId='.$row['itemId'].'" title="Go to '.htmlspecialchars(stripslashes($row['title'])).' report"';
-
-                        //if nextaction, add link class and icon in front of action (* for now)
-                        if ($key = array_search($row['itemId'],$nextactions) && ($show['title']!=FALSE)) $tablehtml .= '" class="nextactionlink">*&nbsp;';
-                        else $tablehtml .= '">';
-
-                        if ($show['title']!=FALSE) $tablehtml .=htmlspecialchars(stripslashes($row['title']))."</td>\n";
-
-                        //item description
-                        if ($show['description']!=FALSE) $tablehtml .= '                <td>'.nl2br(substr(htmlspecialchars(stripslashes($row['description'])),0,72))."</td>\n";
-
-                        //item desiredOutcome
-                        if ($show['desiredOutcome']!=FALSE) $tablehtml .= '                <td>'.nl2br(substr(htmlspecialchars(stripslashes($row['desiredOutcome'])),0,72))."</td>\n";
-
-                        //item category
-                        if ($show['category']!=FALSE) $tablehtml .= '          <td><a href="reportCategory.php#'.$row['category'].'" title="Go to the  '.htmlspecialchars(stripslashes($row['category'])).' category">'.htmlspecialchars(stripslashes($row['category']))."</a></td>\n";
-
-                        //item context name
-                        if ($show['context']!=FALSE) $tablehtml .= '            <td><a href = "reportContext.php#'.$row['cname'].'" title="Go to the  '.htmlspecialchars(stripslashes($row['cname'])).' context report">'.htmlspecialchars(stripslashes($row['cname']))."</td>\n";
-                        
-                        //item timeframe name
-                        if ($show['timeframe']!=FALSE) $tablehtml .= '         <td><a href = "reportTimeContext.php#'.$row['timeframe'].'" title="Go to '.htmlspecialchars(stripslashes($row['timeframe'])).' time context report">'.htmlspecialchars(stripslashes($row['timeframe']))."</td>\n";
-                        
-                        //item deadline
-                        if ($show['deadline']!=FALSE)  $tablehtml .=prettyDueDate('td',$row['deadline'],$config['datemask'])."\n";
-
-                        //item repeat
-                        if ($show['repeat']!=FALSE) $tablehtml .= "<td>".((($row['repeat'])=="0")?'&nbsp;':($row['repeat']))."</td>\n";
-
-                        //tickler date
-                        if ($show['suppressUntil']!=FALSE) {
-                                    //Calculate reminder date as # suppress days prior to deadline
-									if ($row['suppress']=="y") {
-										$reminddate=getTickleDate($row['deadline'],$row['suppressUntil']);
-										$tablehtml .= date($config['datemask'],$reminddate);
-									} else $tablehtml .= '&nbsp';
-									$tablehtml .= "</td>\n";
-                                    }
-                                    
-                        //item date Created
-                        if ($show['dateCreated']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['dateCreated'])))."</td>\n";
-
-                        //item last modified
-                        if ($show['lastModified']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['lastModified'])))."</td>\n";
-
-                        //item last modified
-                        if ($show['dateCompleted']!=FALSE) $tablehtml .= '              <td>'.nl2br(htmlspecialchars(stripslashes($row['dateCompleted'])))."</td>\n";
-
-                        //completion checkbox
-                        if ($show['checkbox']!=FALSE) $tablehtml .= '           <td align="center"><input type="checkbox" align="center" title="Complete '.htmlspecialchars(stripslashes($row['title'])).'" name="isMarked[]" value="'.$row['itemId'].'" /></td>'."\n";
-                        $tablehtml .= " </tr>\n";
-                        }
-                    }
-
-
-                if ($tablehtml!="") {
-//                         if ($show['parent']!=FALSE) echo "<p>Click on ".$parentname." for individual report.</p>\n";
-                        echo '<form action="processItems.php" method="post">'."\n";
-                        echo "<table class='datatable'>\n";
-                        echo "  <thead>\n";
-                        if ($show['parent']!=FALSE) echo "              <td>".$parentname."</td>\n";
-                        if ($show['title']!=FALSE) echo "               <td>".$typename."</td>\n";
-                        if ($show['description']!=FALSE) echo "         <td>Description</td>\n";
-                        if ($show['desiredOutcome']!=FALSE) echo "         <td>Desired Outcome</td>\n";
-                        if ($show['category']!=FALSE)echo "          <td>Category</td>\n";
-                        if ($show['context']!=FALSE)echo "          <td>Space Context</td>\n";
-                        if ($show['timeframe']!=FALSE)echo "            <td>Time Context</td>\n";
-                        if ($show['deadline']!=FALSE)echo "             <td>Deadline</td>\n";
-                        if ($show['repeat']!=FALSE)echo "               <td>Repeat</td>\n";
-                        if ($show['suppressUntil']!=FALSE) echo "            <td>Reminder Date</td>\n";
-                        if ($show['dateCreated']!=FALSE)echo "               <td>Date Created</td>\n";
-                        if ($show['lastModified']!=FALSE)echo "               <td>Last Modified</td>\n";
-                        if ($show['dateCompleted']!=FALSE)echo "               <td>Date Completed</td>\n";
-                        if ($show['checkbox']!=FALSE) echo "           <td>Completed</td>\n";
-                        echo "  </thead>\n";
-                        echo $tablehtml;
-                        echo "</table>\n";
-                        //referrer 
-                        echo '<input type="hidden" name="referrer" value="i" />'."\n";
-                        //filters 
-                        echo '<input type="hidden" name="type" value="'.$values['type'].'" />'."\n";
-                        echo '<input type="hidden" name="timeframeId" value="'.$values['timeframeId'].'" />'."\n";
-                        echo '<input type="hidden" name="contextId" value="'.$values['contextId'].'" />'."\n";
-                        echo '<input type="hidden" name="categoryId" value="'.$values['categoryId'].'" />'."\n";
-                        echo '<input type="hidden" name="notcategory" value="'.$filter['notcategory'].'" />'."\n";
-                        echo '<input type="hidden" name="nottimecontext" value="'.$filter['nottimecontext'].'" />'."\n";
-                        echo '<input type="hidden" name="notspacecontext" value="'.$filter['notspacecontext'].'" />'."\n";
-                        echo '<input type="hidden" name="tickler" value="'.$filter['tickler'].'" />'."\n";
-                        echo '<input type="hidden" name="someday" value="'.$filter['someday'].'" />'."\n";
-                        echo '<input type="hidden" name="completed" value="'.$filter['completed'].'" />'."\n";
-                        echo '<input type="hidden" name="nextonly" value="'.$filter['nextonly'].'" />'."\n";
-                        echo '<input type="hidden" name="repeatingonly" value="'.$filter['repeatingonly'].'" />'."\n";
-                        echo '<input type="hidden" name="dueonly" value="'.$filter['dueonly'].'" />'."\n";
-                        echo '<input type="submit" class="button" value="Complete '.$typename.'" name="submit">'."\n";
-                        echo "</form>\n";
-                }
-
-        elseif($filter['completed']!="completed" && $values['type']!="t") {
-                $message="You have no ".$typename." remaining.";
-                $prompt="Would you like to create a new ".str_replace("s","",$typename)."?";
-                $yeslink="item.php?type=".$values['type'];
-                nothingFound($message,$prompt,$yeslink);
-        }
-
-
-        elseif($values['type']=="t") {
-                $message="None";
-                nothingFound($message);
-        }
-
-
-        elseif($filter['completed']!="completed" && $values['type']!="t") {
-                $message="You have no ".$typename." remaining.";
-                $prompt="Would you like to create a new ".str_replace("s","",$typename)."?";
-                $yeslink="item.php?type=".$values['type'];
-                nothingFound($message,$prompt,$yeslink);
-        }
-
-
-        elseif($values['type']=="t") {
-                $message="None";
-                nothingFound($message);
-        }
-
-*/
 
         include_once('footer.php');
 ?>

@@ -1,14 +1,17 @@
 <?php
 
+include_once('gtd_constants.inc.php');
+
 function makeClean($textIn) {
-	$cleaned=htmlspecialchars(stripslashes($textIn),ENT_QUOTES);
-	if ($cleaned=='') return '&nbsp;'; else return $cleaned;
+    global $config;
+	$cleaned=htmlentities(stripslashes($textIn),ENT_QUOTES,$config['charset']);
+	return $cleaned;
 }
 
-function trimTaggedString($inStr,$inLength,$keepTags=TRUE) { // Ensure the visible part of a string, excluding html tags, is no longer than specified) 	// TOFIX -  we don't handle "%XX" strings yet.
+function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the visible part of a string, excluding html tags, is no longer than specified) 	// TOFIX -  we don't handle "%XX" strings yet.
 	// constants - might move permittedTags to config file
 	$permittedTags=array(
-		 array('/^<a href="[~"]*">/i','</a>')
+		 array('/^<a ((href)|(file))=[^>]+>/i','</a>')
 		,array('/^<b>/i','</b>')
 		,array('/^<i>/i','</i>')
 		,array('/^<ul>/i','</ul>')
@@ -23,7 +26,7 @@ function trimTaggedString($inStr,$inLength,$keepTags=TRUE) { // Ensure the visib
 	$outStr='';
 	$visibleLength=0;
 	$thisChar=0;
-	$keepGoing=TRUE;
+	$keepGoing=!empty($inStr);
 	$tagsOpen=array();
 	// main processing here
 	while ($keepGoing) {
@@ -34,7 +37,7 @@ function trimTaggedString($inStr,$inLength,$keepTags=TRUE) { // Ensure the visib
 			$thisChar+=strlen($tagToClose);
 			if ($keepTags) $outStr.=array_pop($tagsOpen);
 		} else foreach ($permittedTags as $thisTag) {
-			if ($stillHere && ($inStr[$thisChar]==='<') && (preg_match($thisTag[0],substr($inStr,$thisChar),$matches)>0)) {
+			if ($stillHere && ($inStr{$thisChar}==='<') && (preg_match($thisTag[0],substr($inStr,$thisChar),$matches)>0)) {
 				$thisChar+=strlen($matches[0]);
 				$stillHere=FALSE;
 				if ($keepTags) {
@@ -44,7 +47,7 @@ function trimTaggedString($inStr,$inLength,$keepTags=TRUE) { // Ensure the visib
 			} // end of if
 		} // end of else foreach
 		// now check for & ... control characters
-		if ($stillHere && ($inStr[$thisChar]==='&') && (preg_match($ampStrings,substr($inStr,$thisChar),$matches)>0)) {
+		if ($stillHere && ($inStr{$thisChar}==='&') && (preg_match($ampStrings,substr($inStr,$thisChar),$matches)>0)) {
 			if (strlen(html_entity_decode($matches[0]))==1) {
 				$visibleLength++;
 				$outStr.=$matches[0];
@@ -55,7 +58,7 @@ function trimTaggedString($inStr,$inLength,$keepTags=TRUE) { // Ensure the visib
 		// just a normal character, so add it to the string
 		if ($stillHere) {
 			$visibleLength++;
-			$outStr.=$inStr[$thisChar];
+			$outStr.=$inStr{$thisChar};
 			$thisChar++;
 		} // end of if
 		$keepGoing= (($thisChar<strlen($inStr)) && ($visibleLength<$inLength));
@@ -65,7 +68,7 @@ function trimTaggedString($inStr,$inLength,$keepTags=TRUE) { // Ensure the visib
 	// got the string - now close any open tags
 	if ($keepTags) while (count($tagsOpen))
 		$outStr.=array_pop($tagsOpen);
-	//
+	$outStr=nl2br(escapeChars($outStr));
 	return($outStr);
 }
 
@@ -81,10 +84,8 @@ function getTickleDate($deadline,$days) { // returns unix timestamp of date when
 function nothingFound($message, $prompt=NULL, $yeslink=NULL, $nolink="index.php"){
         //Give user ability to create a new entry, or go back to the index.
         echo "<h4>$message</h4>";
-        if($prompt){
-                echo $prompt;
-                echo "<a href=$yeslink> Yes </a><a href=$nolink>No</a>\n";
-        }
+        if($prompt)
+            echo "<p>$prompt;<a href='$yeslink'> Yes </a><a href='$nolink'>No</a></p>\n";
 }
 
 function sqlparts($part,$config,$values)  {
@@ -96,10 +97,10 @@ function sqlparts($part,$config,$values)  {
         break;
         case "mysql":
    			require_once("mysql.funcs.inc.php");
-			foreach ($values as $key=>$value) $values[$key] = safeIntoDB($value, $key);
+			if (is_array($values)) foreach ($values as $key=>$value) $values[$key] = safeIntoDB($value, $key);
 		    if ($config['debug'] & _GTD_DEBUG)
 		        echo '<pre>Sanitised values in sqlparts: ',print_r($values,true),'</pre>';
-			require("mysqlparts.inc.php");
+			require_once("mysqlparts.inc.php");
         	break;
         case "mssql":require("mssqlparts.inc.php");
         break;
@@ -108,104 +109,119 @@ function sqlparts($part,$config,$values)  {
         case "sqlite":require("sqliteparts.inc.php");
         break;
         }
-    $queryfragment = $sqlparts[$part];
+    $queryfragment = getsqlparts($part,$config,$values);
     return $queryfragment;
     }
 
-function categoryselectbox($config,$values,$options,$sort) {
-    $result = query("categoryselectbox",$config,$values,$options,$sort);
+function categoryselectbox($config,$values,$sort) {
+    $result = query("categoryselectbox",$config,$values,$sort);
     $cashtml='<option value="0">--</option>'."\n";
-    if ($result!="-1") {
+    if ($result) {
         foreach($result as $row) {
-            $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-            if($row['categoryId']==$values['categoryId']) $cashtml .= ' SELECTED';
-            $cashtml .= '>'.htmlspecialchars(stripslashes($row['category']))."</option>\n";
+            $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.makeclean($row['description']).'"';
+            if($row['categoryId']==$values['categoryId']) $cashtml .= ' selected="selected"';
+            $cashtml .= '>'.makeclean($row['category'])."</option>\n";
             }
         }
     return $cashtml;
     }
 
-function contextselectbox($config,$values,$options,$sort) {
-    $result = query("spacecontextselectbox",$config,$values,$options,$sort);
+function contextselectbox($config,$values,$sort) {
+    $result = query("spacecontextselectbox",$config,$values,$sort);
     $cshtml='<option value="0">--</option>'."\n";
-    if ($result!="-1") {
+    if ($result) {
             foreach($result as $row) {
-            $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-            if($row['contextId']==$values['contextId']) $cshtml .= ' SELECTED';
-            $cshtml .= '>'.htmlspecialchars(stripslashes($row['name']))."</option>\n";
+            $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.makeclean($row['description']).'"';
+            if($row['contextId']==$values['contextId']) $cshtml .= ' selected="selected"';
+            $cshtml .= '>'.makeclean($row['name'])."</option>\n";
             }
         }
     return $cshtml;
     }
 
-function timecontextselectbox($config,$values,$options,$sort) {
-    $result = query("timecontextselectbox",$config,$values,$options,$sort);
+function timecontextselectbox($config,$values,$sort) {
+    $result = query("timecontextselectbox",$config,$values,$sort);
     $tshtml='<option value="0">--</option>'."\n";
-    if ($result!="-1") {
+    if ($result) {
         foreach($result as $row) {
-            $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-            if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' SELECTED';
-            $tshtml .= '>'.htmlspecialchars(stripslashes($row['timeframe']))."</option>\n";
+            $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.makeclean($row['description']).'"';
+            if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' selected="selected"';
+            $tshtml .= '>'.makeclean($row['timeframe'])."</option>\n";
             }
         }
     return $tshtml;
     }
 
-function parentselectbox($config,$values,$options,$sort) {
-    $result = query("parentselectbox",$config,$values,$options,$sort);
-    $pshtml='<option value="0">--</option>'."\n";
-    if ($result!="-1") {
+function makeOption($row,$selected) {
+    $cleandesc=makeclean($row['description']);
+    $cleantitle=makeclean($row['title']);
+    if ($row['isSomeday']==="y") {
+        $cleandesc.=' (Someday)';
+        $cleantitle.=' (S)';
+    }
+    $seltext = ($selected[$row['itemId']])?' selected="selected"':'';
+    $out = "<option value='{$row['itemId']}' title='$cleandesc' $seltext>$cleantitle</option>";
+    return $out;
+}
+
+function parentselectbox($config,$values,$sort) {
+    $result = query("parentselectbox",$config,$values,$sort);
+    $pshtml='';
+    $parents=array();
+    if (is_array($values['parentId']))
+        foreach ($values['parentId'] as $key) $parents[$key]=true;
+    else
+        $parents[$values['parentId']]=true;
+    if ($config['debug'] & _GTD_DEBUG) echo '<pre>parents:',print_r($parents,true),'</pre>';
+    if ($result)
         foreach($result as $row) {
-            $pshtml .= '                    <option value="'.$row['itemId'].'" title="'.htmlspecialchars(stripslashes($row['description']));
-            if ($row['isSomeday']=="y") $pshtml .= ' (Someday)';
-            $pshtml .= '"';
-            if(in_array($row['itemId'],$values['parentId'])) $pshtml .= ' SELECTED';
-            $pshtml .= '>'.htmlspecialchars(stripslashes($row['title']));
-            if ($row['isSomeday']=="y") $pshtml .= ' (s)';
-            $pshtml .="</option>\n";
-            }
+            $thisOpt= makeOption($row,$parents)."\n";
+            if($parents[$row['itemId']]) {
+                $pshtml =$thisOpt.$pshtml;
+                $parents[$row['itemId']]=false;
+            } else
+                $pshtml .=$thisOpt;
         }
+    foreach ($parents as $key=>$val) if ($val) {
+        // $key is a parentId which wasn't found for the drop-down box, so need to add it in
+        $values['itemId']=$key;
+        $row=query('selectitemshort',$config,$values,$sort);
+        if ($row) $pshtml = makeOption($row[0],$parents)."\n".$pshtml;
+    }
+    $pshtml="<option value='0'>--</option>\n".$pshtml;
     return $pshtml;
-    }
+}
 
-function checklistselectbox($config,$values,$options,$sort) {
-    $result = query("checklistselectbox",$config,$values,$options,$sort);
-    $cshtml='<option value="0">--</option>'."\n";
-    if ($result!="-1") {
+function listselectbox($config,&$values,$sort,$check=NULL) { // NB $values is passed by reference
+    $result = query("get{$check}lists",$config,array('filterquery'=>''),$sort);
+    $lshtml='';
+    if ($result) {
         foreach($result as $row) {
-            $cshtml .= '                    <option value="'.$row['checklistId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-            if($row['checklistId']==$values['checklistId']) $cshtml .= ' SELECTED';
-            $cshtml .= '>'.htmlspecialchars(stripslashes($row['title']))."</option>\n";
+            $lshtml .= "<option value='{$row['id']}' title='".makeclean($row['description'])."'";
+            if($row['id']==$values['id']) {
+                $lshtml .= " selected='selected' ";
+                $values['listTitle']=$row['title'];
             }
-        }
-    return $cshtml;
-    }
-
-function listselectbox($config,$values,$options,$sort) {
-    $result = query("listselectbox",$config,$values,$options,$sort);
-    $lshtml='<option value="0">--</option>'."\n";
-    if ($result!="-1") {
-        foreach($result as $row) {
-            $lshtml .= '                    <option value="'.$row['listId'].'" title="'.htmlspecialchars(stripslashes($row['description'])).'"';
-            if($row['listId']==$values['listId']) $lshtml .= ' SELECTED';
-            $lshtml .= '>'.htmlspecialchars(stripslashes($row['title']))."</option>\n";
+            $lshtml .= '>'.makeclean($row['title'])."</option>\n";
             }
         }
     return $lshtml;
     }
 
-function prettyDueDate($tag,$dateToShow,$thismask) {
-	$returnText='<'.$tag;
-	if($dateToShow) {
-		//highlight due and overdue actions
-		if($dateToShow < date("Y-m-d")) $returnText .= ' class="overdue" title="Overdue"'; 
-			elseif($dateToShow == date("Y-m-d")) $returnText .= ' class="due" title="Due today"';
-		$returnText .= '>'.date($thismask,strtotime($dateToShow));
-	} else {
-		$returnText.=">&nbsp;";
-	}
-	$returnText .= '</'.$tag.'>';
-	return $returnText;
+function prettyDueDate($dateToShow,$thismask) {
+	$retval=array('class'=>'','title'=>'');
+    if(trim($dateToShow)!='') {
+        $retval['date'] = date($thismask,strtotime($dateToShow) );
+        if ($dateToShow<date("Y-m-d")) {
+            $retval['class']='overdue';
+            $retval['title']='Overdue';
+        } elseif($dateToShow===date("Y-m-d")) {
+            $retval['class']='due';
+            $retval['title']='Due today';
+        }
+    } else
+        $retval['date'] ='&nbsp;';
+	return $retval;
 }
 
 function getVarFromGetPost($varName,$default='') {
@@ -213,11 +229,149 @@ function getVarFromGetPost($varName,$default='') {
 	return $retval;
 }
 
-function getNextActionsArray($config,$values,$options,$sort) {
-	$result= query("getnextactions",$config,$values,$options,$sort);
-	$nextactions=array();
-	if(is_array($result))foreach ($result as $row) array_push ($nextactions,$row['nextaction']);
-	return $nextactions;
+function nextScreen($url) {
+    global $config;
+    $cleanurl=htmlspecialchars($url);
+    if ($config['debug'] & _GTD_WAIT) {
+        echo "<p>Next screen is <a href='$cleanurl'>$cleanurl</a> - would be auto-refresh in non-debug mode</p>";
+    }elseif (headers_sent()) {
+        echo "<META HTTP-EQUIV='Refresh' CONTENT='0;url=$cleanurl' />\n"
+            ,"<script type='text/javascript'>window.location.replace('$cleanurl');</script>\n"
+            ,"</head><body><a href='$cleanurl'>Click here to continue on to $cleanurl</a>\n";
+    }else{
+        $header="Location: http"
+                .((empty($_SERVER['HTTPS']))?'':'s')
+                ."://"
+                .$_SERVER['HTTP_HOST']
+                .rtrim(dirname($_SERVER['PHP_SELF']), '/\\')
+                .'/'.$url;
+        header($header);
+        exit;
+    }
 }
 
-?>
+function getChildType($parentType) {
+switch ($parentType) {
+    case "m" : $childtype=array("v","o","g"); break;
+    case "v" : $childtype=array("o","g"); break;
+    case "o" : $childtype=array("g","p","s"); break;
+    case "g" : $childtype=array("p","s"); break;
+    case "p" : $childtype=array("a","w","r","p","s"); break;
+    case "s" : $childtype=array("a","w","r","s"); break;
+    default  : $childtype=NULL; break; // all other items have no children
+    }
+return $childtype;
+}
+
+function getParentType($childType) {
+$parentType=array();
+switch ($childType) {
+    case "a" : // deliberately flows through to "r"
+    case "w" : // deliberately flows through to "r"
+    case "r" : $parentType=array('p','s');
+        break;
+    case "i" : $parentType=array();
+        break;
+    case "p" :  // deliberately flows through to "s"
+    case "s" : $parentType=array('g','p','s','o');
+        break;
+    case "g" : $parentType[]='o'; // deliberately flows through to "v"
+    case "o" : $parentType[]='v'; // deliberately flows through to "v"
+    case "v" : $parentType[]='m';
+        break;
+    default  :
+        $parentType=array('p','s');
+        break;
+    }
+return $parentType;
+}
+
+function getTypes($type=false) {
+$types=array("m" => "Value",
+            "v" => "Vision",
+            "o" => "Role",
+            "g" => "Goal",
+            "p" => "Project",
+            "a" => "Action",
+            "i" => "Inbox Item",
+            "s" => "Someday/Maybe",
+            "r" => "Reference",
+            "w" => "Waiting On"
+        );
+if ($type===false)
+    return $types;
+else
+    return $types[$type];
+}
+
+function escapeChars($str) {  // TOFIX consider internationalization issues with charset coding
+    $outStr=str_replace(array('&','…'),array('&amp;','&hellip'),$str);
+    $outStr=str_replace(array('&amp;amp;','&amp;hellip;'),array('&amp;','&hellip;'),$outStr);
+	return $outStr;
+}
+
+function getShow($where,$type) {
+    global $config;
+    $show=array(
+        'title'         => true,
+        'description'   => true,
+
+        // only show if editing, not creating
+        'lastModified'  =>($where==='edit'),
+        'dateCreated'   =>($where==='edit'),
+        'type'          =>($where==='edit' && ($type==='i' || $config['allowChangingTypes'])),
+
+        // fields suppressed on certain types
+        'desiredOutcome'=>($type!=='r'),
+        'category'      =>($type!=='m'),
+        'ptitle'        =>($type!=='m' && $type!=='i'),
+        'dateCompleted' =>($type!=='m'),
+        'complete'      =>($type!=='m' && $type!=='r'),
+        'timeframe'     =>($type!=='m' && $type!=='w' && $type!=='r' && $type!=='i'),
+
+        // fields only shown for certain types
+        'context'       =>($type==='i' || $type==='a' || $type==='w' || $type==='r'),
+        'deadline'      =>($type==='p' || $type==='a' || $type==='w' || $type==='i'),
+        'suppress'      =>($type==='p' || $type==='a' || $type==='w'),
+        'suppressUntil' =>($type==='p' || $type==='a' || $type==='w'),
+        'repeat'        =>($type==='p' || $type==='a' || $type==='g'),
+        'NA'            =>($type==='a' || $type==='w'),
+        'isSomeday'     =>($type==='p' || $type==='g'),
+
+        // fields never shown on item.php
+        'checkbox'      => false,
+        'flags'         => false
+        );
+
+    if ($config['forceAllFields'])
+        foreach ($show as $key=>$value)
+            $show[$key]=true;
+                
+    return $show;
+}
+/*
+   ======================================================================================
+*/
+function columnedTable($cols,$data,$link='itemReport.php') {
+    $nrows=count($data);
+    $displace=round($nrows/$cols+0.499,0);
+    for ($i=0;$i<$nrows;) {
+        echo "<tr>\n";
+        for ($j=0;$j<$cols;$j++) {
+            $ndx=$i/$cols+$j*$displace;
+            if ($ndx<$nrows) {
+                $row=$data[$ndx];
+                echo "<td>"
+                    ,"<a href='$link?itemId={$row['itemId']}' title='"
+                    ,makeclean($row['description']),"'>"
+                    ,makeclean($row['title']),"</a></td>\n";
+            }
+        }
+        echo "</tr>\n";
+        $i+=$cols;
+    }
+}
+/*
+   ======================================================================================
+*/
+// php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

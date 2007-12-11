@@ -1,9 +1,19 @@
 <?php
+/*
+    query function -  SQL abstraction layer
 
-//query function
-//SQL abstraction layer
+Return values:
 
-function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
+    (boolean FALSE): indicates the query failed
+
+    (integer 0):     query affected no rows, and returned no rows - e.g. an empty(SELECT)
+    
+    (integer >0):    indicates the number of rows affected by an INSERT, UPDATE or DELETE
+
+    (array):         SELECT was successful, and has returned a number-indexed array of records,
+                       each record is an associative array of field names=>field values.
+*/
+function query($querylabel,$config,$values=NULL,$sort=NULL) {
 
     //for developer testing only--- testing data handling
     //testing passed variables
@@ -13,8 +23,6 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
         print_r($config);
         echo "<br />Values: ";
         print_r($values);
-        echo "<br />Options: ";
-        print_r($options);
         echo "<br />Sort: ";
         print_r($sort);
         echo "</pre>";
@@ -28,10 +36,10 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
         break;
         case "mysql":
 			require_once("mysql.funcs.inc.php");
-			foreach ($values as $key=>$value) $values[$key] = safeIntoDB($value, $key);
+			if (is_array($values)) foreach ($values as $key=>$value) $values[$key] = safeIntoDB($value, $key);
 		    if ($config['debug'] & _GTD_DEBUG)
 		        echo '<pre>Sanitised values: ',print_r($values,true),'</pre>';
-			require("mysql.inc.php");
+			require_once("mysql.inc.php");
 	        break;
         case "mssql":require("mssql.inc.php");
         break;
@@ -43,7 +51,7 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
 
     //grab correct query string from query library array
     //values automatically inserted into array
-    $query = $sql[$querylabel];
+    $query=getsql($config,$values,$sort,$querylabel);
 
     // for testing only: display fully-formed query
     if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>Query: ".$query."</p>";
@@ -51,9 +59,15 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
     //perform query
 	//parse result into multitdimensional array $result[row#][field name] = field value
     if($config['dbtype']=="mysql") {
-        $reply = mysql_query($query) or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".mysql_error():"Error in query");
-
-        if (@mysql_num_rows($reply)>0) {
+        $reply = mysql_query($query);
+        if ($reply===false) {                       // failed query - return FALSE
+            $result=false;
+        } elseif ($reply===true) {                  // query was not a SELECT OR SHOW, so return number of rows affected
+            $result=@mysql_affected_rows();
+        } else if (@mysql_num_rows($reply)===0) {   // empty SELECT/SHOW - return zero
+            $result=0;
+        } else {                                    // successful SELECT/SHOW - return array of results
+            $result=array();
             $i = 0;
            while ($field = mysql_fetch_field($reply)) {
                 /* Create an array $fields which contains all of the column names */
@@ -68,39 +82,38 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
                     }
                 $ii++;
                 }
-            }
-        else $result="-1";
+        }
 
         //get last autoincrement insert id--only valid for insert statements using autoincrement values; not updated when explicit value given for autoincrement field (MySQL "feature")
         $GLOBALS['lastinsertid'] = mysql_insert_id();
 
-        //always included; text/codes shown in errors on individual pages as warranted...
-        $GLOBALS['ecode'] = mysql_errno();
-        $GLOBALS['etext'] = mysql_error();
-        }
+        $error = mysql_errno();
+        if ($error) $_SESSION['message'][]=
+                    "Error $error in query '$querylabel': '".mysql_error()."'";
+    }
 
     elseif($config['dbtype']=="postgres") {
-        $reply = pg_query($query) or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".pg_error():"Error in query");
+        $reply = pg_query($query) or die (($config['debug']) ? "Error in query: ". $querylabel."<br />".pg_error():"Error in query");
         echo ("Database not yet supported.");
          }
 
     elseif($config['dbtype']=="sqlite") {
-        $reply = sqllite_query($query)  or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".sqllite_error():"Error in query");
+        $reply = sqllite_query($query)  or die (($config['debug']) ? "Error in query: ". $querylabel."<br />".sqllite_error():"Error in query");
         echo ("Database not yet supported.");
         }
 
     elseif($config['dbtype']=="msql") {
-        $reply = msql_query($query) or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".msql_error():"Error in query");
+        $reply = msql_query($query) or die (($config['debug']) ? "Error in query: ". $querylabel."<br />".msql_error():"Error in query");
         echo ("Database not yet supported.");
         }
 
     elseif($config['dbtype']=="mssql") {
-        $reply = mssql_query($query) or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".mssql_error():"Error in query");
+        $reply = mssql_query($query) or die (($config['debug']) ? "Error in query: ". $querylabel."<br />".mssql_error():"Error in query");
         echo ("Database not yet supported.");
         }
 
     elseif($config['dbtype']=="frontbase") {
-        $reply = fbsql_query($query) or die (($config['debug'] & _GTD_ERRORS) ? "Error in query: ". $querylabel."<br />".fbsql_error():"Error in query");
+        $reply = fbsql_query($query) or die (($config['debug']) ? "Error in query: ". $querylabel."<br />".fbsql_error():"Error in query");
         echo ("Database not yet supported.");
         }
 
@@ -115,4 +128,4 @@ function query($querylabel,$config,$values=NULL,$options=NULL,$sort=NULL) {
     return $result;
     }
 
-?>
+// php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

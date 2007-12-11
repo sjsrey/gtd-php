@@ -17,23 +17,34 @@ $html="";
 
 // ran into a strange PHP bug when using "foreach ($themes as $theme)", so just using $t
 foreach ($themes as $t) {
-	$html.= '<option value="'.$t;
-	$html.='"';
-	if($t == $_SESSION['theme']) $html.=" SELECTED ";
-	$html.='>'.$t;
-	$html.="</option>";
-	$html.="\n";
+	$html.= "<option value='$t' ";
+	if($t === $config['theme']) $html.=" selected='selected' ";
+	$html.=">$t</option>\n";
 }
 
-// PAGE DISPLAY CODE
-echo "<h2>Theme</h2>\n";
-echo '<form action="updatePreferences.php" method="post">';
-echo '<select name="theme">';
-echo "\n";
-echo $html;
-echo "</select>\n"; echo '<input type="submit" class="button" value="Apply" name="submit">'."\n";
-echo "</form>\n";
-echo "</div>\n";
+if ($config['useLiveEnhancements']) {
+    $useLiveEnhancements="<div class='formrow'>"
+        ."<label for='useLiveEnhancements'>Use Live Enhancements</label>"
+        ."<input type='checkbox'name='useLiveEnhancements' id='useLiveEnhancements' "
+        .(($_SESSION['useLiveEnhancements'])?" checked='checked' ":'')
+        ." />\n"
+        ."<input type='hidden' name='checkboxes[]' value='useLiveEnhancements' />\n"
+        ."</div>\n";
+} else $useLiveEnhancements='';
 
-include_once('footer.php');
 ?>
+
+<h2>Preference</h2>
+<form action="processPreferences.php" method="post">
+    <div class='formrow'>
+        <label for='theme'>Theme:</label>
+        <select id='theme' name="theme">
+            <?php echo $html; ?>
+        </select>
+    </div><?php
+        echo $useLiveEnhancements;
+    ?><div class='formbuttons'>
+        <input type="submit" class="button" value="Apply" name="submit" id='submit' />
+    </div>
+</form>
+<?php include_once('footer.php'); ?>

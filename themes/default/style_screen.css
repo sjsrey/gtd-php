@@ -22,7 +22,6 @@
 	padding: 0;
 	margin: 0;
 	list-style: none;
-	list-style-type: none;
 }
 #menudiv li { /* all menu list items */
 	float: left;
@@ -37,20 +36,25 @@
 	position: absolute;
 	top: 1.7em;
 	left: 0;
-	z-index: 100;
+	z-index: 500;
 }
 #menudiv li>ul { /* to override top and left in browsers other than IE, which will position to the top right of the containing li, rather than bottom left */
 	top: 1.7em;
 	left: -1px;
 }
+#menudiv .menuseparator {
+    border-top: 3px solid black;
+}
+
 #menudiv li li { /* second-level list items */
 	display: block;
 	padding: 0em;
 	width: 10.6em;
+	z-index: 500;
 }
 #menudiv li:hover ul, #menudiv li.over ul { /* lists nested under hovered list items */
 	display: block;
-	z-index: 100;
+	z-index: 500;
 
 }
 #menudiv li a {
@@ -85,4 +89,7 @@
 }
 #menudiv li li {
 	background: #998;
+}
+.formerror {
+	background:yellow;
 }

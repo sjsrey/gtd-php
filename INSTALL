@@ -1,0 +1,123 @@
+Version 0.8beta (June 2007)
+
+A web-based implementation of the Getting Things Done system for personal organization.
+
+Requirements:
+
+ * MySQL (4.1-4.x; or 5.x)
+ * PHP (4.1-4.x; or 5.x), with a MySQL extension
+ * A web server, such as Apache, with PHP enabled
+
+This version supports installations using table prefixes in the database.
+
+For current users of gtd-php 0.7, or users of beta releases of 0.8, the upgrading process is straightforward.
+
+For new users, there are OS-specific installation instructions for the Mac, Debian/Sarge, PC and memory stick.
+
+
+===================================================
+New installation on a Mac
+===================================================
+
+   1. Set up MySQL and PHP
+   2. cd ~/Sites
+   3. tar -xzvf pathtotarball
+   4. cd ~/Sites/gtd-php
+   5. cp config.sample.php config.php
+   6. set up the database and config file 
+
+
+===================================================
+New installation on Debian/Sarge
+===================================================
+
+   1. Install packages:
+
+           apt-get install mysql-server-4.1
+           apt-get install libapache2-mod-php4
+           apt-get install php4-mysql
+
+   2. Set a root password for mysql, this root account is not the same as the operating system root password/account
+
+      /usr/bin/mysqladmin -u root password 'enter-your-good-new-password-here'
+
+   3. Download and install the gtd-php software
+
+          tar -xvzf gtd-php-0.8.tar.gz
+          mv gtd-php /var/www/
+
+   4. Configure apache. You may wish to use virtual hosts, but you can configure it any way you like.
+   5. Make a config.php
+
+          cp /var/www/gtd-php/config.sample.php /var/www/gtd-php/config.php
+
+   6. set up the database and config file 
+
+
+===================================================
+New installation on a Windows PC
+===================================================
+
+   1. Install a webserver, PHP, and MySQL. If you don't already have these, then get an all-in-one package that will set them up and configure them so that they all work nicely together. For example, WAMP.
+   2. Go to your webserver contents page (e.g. C:/program files/wamp/web/), and create a new subdirectory gtdphp
+   3. In that subdirectory, unzip the gtd-php package.
+   4. make a copy of the config.sample.php file, and name it config.php
+   5. set up the database and config file 
+
+
+===================================================
+Setting up the MySQL database and config file for the first time
+===================================================
+
+   1. In mysql create a database; you can give it any name you like; we suggest calling it gtd; you will be prompted for the mysql root password.
+
+          mysql -u root -p -e "create database gtd"
+
+   2. Create a MySQL user for gtd-php to run under. Note that you should also set proper mysql permissions for the mysql user. This user should not have access to other databases, nor grant privileges; this user should not be the root user. Change <user> and <pasword> in the line below to something else, this is the username and password for the gtd database:
+
+          mysql -u root -p -e "grant all privileges on gtd.* to <user>@localhost identified by '<password>'; flush privileges;"
+
+   3. decide on a prefix for your installation: this will uniquely identify your GTD actions and projects. If in doubt, use the default, gtdphp_
+   4. edit the config.php file, specifying the name of your database, your MySQL user name and password, and, if you wish, change the default prefix. Use the user account created for the gtd database user, do not use the root account!
+   5. Complete the installation 
+
+
+===================================================
+Upgrading
+===================================================
+
+   1. Before upgrading, you should backup your gtd database with:
+
+          mysqldump gtd > gtdbackup.sql
+
+      (use this in case you need to restore)
+   2. Extract the tarball into the same directory you originally installed gtd-php in.
+   3. Rename your config.php file to config.php.old. Copy the config.sample.php file to config.php. Copy over the config values for your database settings from config.php.old to config.php.
+   4. Complete the installation 
+
+NB You do not need to recreate your original database: i.e., step 1 is simply a precaution.
+
+
+===================================================
+To complete the installation
+===================================================
+
+   1. Read the rest of the new config.php file, and check if you wish to change any of the default values.
+   2. Complete the installation by opening your browser, and navigating to the install.php script. This will probably be something like this: http://localhost/gtdphp/install.php
+          * If you encounter a mysql error "Error connecting to database" then connect to mysql from a shell and issue:
+
+            set password for '<user>'@'localhost' = old_password('<password>');'
+
+            being sure to change <user> and <password> to the values in config.php
+          * For advanced users, there are several flags that change the behaviour of the installer:
+                o _ALLOWUNINSTALL gives you the option of removing the gtd-php tables associated with a particular version and prefix.
+                o _ALLOWUPGRADEINPLACE allows you to upgrade from an earlier version to the latest version, without changing the prefix: so that would be an upgrade in place, rather than to a new set of tables.
+                o _DEBUG displays debugging text. As usual, you can use the H key to toggle its visibility
+                o _DRY_RUN is set to false by default. When it's true, no MySQL statements will be executed: the installer will simply list (when _DEBUG is true) all of the commands that would have been executed. 
+          * If you're not upgrading in place - that is, if your $config['prefix'] does not match any existing installation prefix, you'll be offered the options of:
+                o copying any existing installations with the same version number to the new prefix;
+                o copying any earlier installations to the new prefix, upgrading to the latest version in the process
+                o creating a new empty installation
+                o creating a new installation with sample data: if you are new to gtd-php, select this option 
+   3. Explore, enjoy, and send us comments, suggestions, gripes, donations at http://toae.org/boards
+   4. If you have any bugs or requests please open a new ticket for this on our trac site. 

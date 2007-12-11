@@ -7,7 +7,7 @@
 	display: none;
 }
 
-p.buttons, p.checkboxes, span.editbar, .button {
+p.buttons, p.checkboxes, span.editbar, .button, .noprint {
 	display: none;
 }
 

@@ -70,13 +70,29 @@ select, input, textarea {
 input[type="submit"], input[type="reset"] {
 	margin: 0px 10px;
 }
-
-
+.submitbuttons a[href] {
+    display:inline-block;
+    margin:0 5px 0 0;
+    background-color:#f5f5f5;
+    border:1px solid #ccb;
+    text-decoration:none;
+    color:#665;
+    cursor:pointer;
+    padding:5px;
+    font-weight: normal;
+}
+.submitbuttons a[href]:active {
+    border-color:black;
+}
+input.hasdate {
+    margin-right:0;
+    padding-right:0;
+}
 table {
 	margin: 0 4px 10px 4px;
 }
 
-thead td {
+thead td, th{
 	padding: 2px 3px;
 }
 
@@ -103,12 +119,10 @@ span.nextActionMarker {
 
 /* form styling */
 .form {
-	float: left;
 	padding: 1em;
 	margin-bottom: 1em;
 }
 .formrow {
-	float: left;
 	clear: left;
 	margin-bottom: .25em;
 }
@@ -120,10 +134,8 @@ span.nextActionMarker {
 
 .formbuttons {
 	clear: left;
-	margin-bottom: 2em;
-}
-.formrow label, .formrow input, .formrow select, .formrow button, .formrow textarea {
-	float: left;
+	margin-bottom: 1em;
+	padding-top:0.25em;
 }
 .formrow label.left {
 	margin-left: 2em;
@@ -132,11 +144,18 @@ span.nextActionMarker {
 .formrow label.right {
 	text-align: left;
 }
-.formrow label.first {
+.formrow label.first, .formrow label:first-child {
 	width: 9em;
 	margin-left: 0;
+	display:block;
+	float:left;
 }
-.formrow input[type="checkbox"], .formrow input[type="radio"], .formbuttons input[type="checkbox"] {
+.formrow label.nomargin:first-child, .formrow label.nomargin {
+    display:inline;
+    float:none;
+    margin-left:0;
+}
+.formrow input[type="checkbox"], .formrow input[type="radio"], .formbuttons input[type="checkbox"],button {
 	margin-top: .6em;
 	margin-right: .5em;
 }
@@ -152,7 +171,10 @@ span.nextActionMarker {
 .weeklytable {
 	width: 95%;
 }
-
+.formrow .text {
+    position:relative;
+    top:0.5em;
+}
 
 /*===================================================================================================*/
 /* non-layout code - font family, font size, font-weight, color, border, background, text decoration */
@@ -188,7 +210,25 @@ h4 {
 	font-weight: bold;
 	background: none;
 }
+.editbar {
+    padding-bottom:1em;
+}
+.hanging {
+    margin-left:10em;
+}
 
+.hanging p {
+    margin-top:0.25em;
+    margin-bottom:0.25em;
+}
+.hanging span {
+    text-indent:-10em;
+    font-size: 11px;
+	font-weight: bold;
+	display:block;
+    float:left;
+    margin-right:0.5em;
+}
 
 
 a, a:link {
@@ -211,9 +251,9 @@ a img {
 img {
         border: 0;
         margin-right: 2px;
-};
+}
 
-select, input, textarea {
+select, input, textarea,button {
 	color: #665;
 	font-family:"Lucida Grande", "Lucida Sans", Verdana, Helvetica, sans-serif;
 	font-size: 11px;
@@ -222,15 +262,20 @@ select, input[type='text'], input[type='submit'], input[type='reset'], button, t
 	border: 2px solid #ccb;
 }
 
+div.success {
+    border: solid green 2px;
+    font-weight:bold;
+    padding:2px;
+    background-color:#CFC;
+}
 
 table {
 	border-spacing: 0;
 	border-collapse: collapse;
 }
 
-thead td {
+thead td, th {
 	border: 1px solid #777;
-	border-bottom: 1px solid #777;
 	background: #bba;
 	color: #eed;
 	font-weight: bold;
@@ -262,17 +307,56 @@ td.nextactioncell {
 
 a.nextactionlink {
 	font-weight: bold;
-	color: #F80;
+	color: #C80;
+}
+td.overdue, span.overdue,.warnresult {
+	color: red;
+	font-weight: bolder;
+}
+.due,.goodresult {
+	color:green;
+}
+a.add:hover, #searchresults a:hover, a.add:link, a.add:visited,#searchresults a:link, #searchresults a:visited {
+	color:green;
+	font-weight:bolder;
+    font-size:larger;
+    margin:1px;
+}
+a.remove:link,a.remove:visited {
+    color:red;
+    font-weight:bold;
+    font-size:larger;
+    margin:1px;
+}
+a.remove:hover, a.add:hover, #searchresults a:hover {
+    background-color:white;
+    margin:0;
+    border:1px black dotted;
+    text-decoration:none;
+}
+td.maincolumn {
+  background-color:#fFfFf3;
 }
 
-tr.overdue { /* class not implemented yet */
+.noparent {
+    background-color:#ff8;
 }
 
-td.overdue, span.overdue {
-	font-weight: bold;
-	color: #F00;
+p.warning {
+    background-color:white;
+    color:#800;
+    font-size:larger;
+    border: solid 2px #800;
 }
 
+input.warning,th.warning {
+    background-color:#800;
+    color:white;
+}
+
+input.warning {
+    font-size:0.9em;
+}
 #container {
 	background: none;
 }
@@ -330,12 +414,6 @@ a.subheading:hover {
 	color: #F80;
 }
 
-.due {
-	color:green;
-	font-weight:bold;
-}
-
-
 /* forms */
 div.form {
 	background: #FCFCF0;
@@ -352,5 +430,64 @@ span.detail {
 
 .error {
 	color:red;
-	font-size:+1;
+	font-size:1.1em;
+}
+/*------------------------------
+  live javascript effects CSS
+  ----------------------------*/
+#searcher {
+	top:6em;
+	left:30em;
+	right:1em;
+	bottom:1em;
+	position:fixed;
+	z-Index:999;
+	background-Color:white;
+	border: 6px ridge #39c;
+	display:none;
+}
+#parenttable {
+    z-Index:950;
+}
+#searchresults {
+    position:fixed;
+    right:2em;
+    left:32em;
+    bottom:2em;
+    top:12em;
+    overflow:scroll;
+}
+#searchresults p {
+    padding:0.1em;
+    margin:0;
+}
+#searcher #donebox {
+    position:fixed;
+    top:7em;
+    right:2em;
+    background-color:#c00;
+}
+#searcher #donebox a,#searcher #donebox a:link, #searcher #donebox a:visited {
+    color:#ddd;
+    font-size:2em;
+    text-decoration:none;
+}
+#searcher #donebox a:hover {
+    color:white;
+    border:1px solid #c00;
+}
+.togglehidden {
+    display:none;
+}
+div#freezer {
+	top:0;
+	left:0;
+    right:0;
+    bottom:0;
+	position:fixed;
+	z-Index:900;
+	background-color:#000;
+	opacity:0.20;
+	filter:alpha(opacity=20);
+	-Moz-Opacity:0.20;
 }
