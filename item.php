@@ -327,19 +327,19 @@ if ($values['itemId']) {
 }
 if ($_SESSION['useLiveEnhancements'] && !empty($values['ptype'])) {
     include_once ('searcher.inc.php');
-    $partt= $ptitle= $pid ='new Array(';
+    $partt= $ptitle= $pid ='[';
     $sep   ='';
     foreach ($potentialparents as $oneparent) {
         $pid   .=$sep.'"'.$oneparent['itemId'].'"';
-        $ptitle.=$sep.'"'.rawurlencode($oneparent['title']).'"';
+        $ptitle.=$sep.'"'.str_replace(array('\\','"'),array('\\\\','\\"'),$oneparent['title']).'"'; // escape backslashes and double-quotes
         $partt .=$sep.'"'
                 .(($oneparent['isSomeday']==='y')?'s':$oneparent['type'])
                 .'"';
         $sep    =',';
     }
-    $pid   .=')';
-    $ptitle.=')';
-    $partt .=')';
+    $pid   .=']';
+    $ptitle.=']';
+    $partt .=']';
     if (count($allowedSearchTypes)===1) $partt='""';
     // TOFIX - this javascript is very probably inefficient, but I don't have the resources to optimise it
     ?><script type='text/javascript'>

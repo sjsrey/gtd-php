@@ -2,8 +2,7 @@
 function toggleHidden(parent,show,link) {
     var tab=document.getElementById(parent).getElementsByTagName("*");
     for (var i=0;i<tab.length;i++) {
-        if (tab[i].className=='togglehidden')
-            tab[i].style.display=show;
+        if (tab[i].className=='togglehidden') {tab[i].style.display=show;}
     }
     document.getElementById(link).style.display='none';
 }
@@ -18,14 +17,14 @@ function gtd_freezer_init() {
 	if( navigator.userAgent.indexOf('Konqueror')>-1) {
         gtd_freezediv.style.backgroundColor="transparent"; // because Konqueror doesn't do transparency/opacity
     }
-}; // end of freezer.init
+} // end of freezer.init
 // ======================================================================================
 function gtd_freeze (tofreeze) {
 	var freezestatus;
-	if (typeof(gtd_freezediv)=="undefined") gtd_freezer_init();
-	if (tofreeze) freezestatus="block"; else freezestatus="none";
+	if (typeof(gtd_freezediv)=="undefined") {gtd_freezer_init();}
+	freezestatus=(tofreeze)?"block":"none";
 	gtd_freezediv.style.display=freezestatus;
-};
+}
 // ======================================================================================
 var parentIds;
 var ptitles;
@@ -34,31 +33,39 @@ var ptypes;
 var searchtype;
 var qtype;
 function gtd_searchdiv_init(ids,titles,types,onetype) {
+    var myargs;
     parentIds=ids;
     ptypes=types;
-    ptitles=new Array();
-    ptitleslc=new Array();
+    ptitles=[];
+    ptitleslc=[];
 
     var box=document.getElementById('searchresults');
-    if (box.hasChildNodes()) box.removeChild(box.lastChild);
+    if (box.hasChildNodes()) {box.removeChild(box.lastChild);}
     var line; var anchor; var linetext; var thistype;
     var useTypes=(types.length);
-    if (!useTypes) qtype=thistype=mapTypeToName(onetype);
+    if (!useTypes) {qtype=thistype=mapTypeToName(onetype);}
 
     for (var i=0;i<titles.length;i++) {
         ptitles[i]=unescape(titles[i]);
         ptitleslc[i]=ptitles[i].toLowerCase();
-        if (useTypes) thistype=mapTypeToName(types[i]);
+        if (useTypes) {thistype=mapTypeToName(types[i]);}
         
-        line=document.createElement('p');
         anchor=document.createElement('a');
-        anchor.href="javascript:gtd_gotparent("+parentIds[i]+',"'
-                + ptitles[i]+'","' + thistype+'");';
-
+        anchor.href='#';
         anchor.appendChild(document.createTextNode('+'));
+        anchor.id=parentIds[i];
+        anchor.ptitle=ptitles[i];
+        anchor.ptype=thistype;
+        addEvent(anchor,'click',function(e){
+            myargs=(e.srcElement===undefined)?this:e.srcElement;
+            gtd_gotparent(myargs.id,myargs.ptitle,myargs.ptype);
+        });
+
+        line=document.createElement('p');
         line.appendChild(anchor);
+
         linetext = ptitles[i];
-        if (useTypes) linetext += " ("+thistype+")";
+        if (useTypes) {linetext += " ("+thistype+")";}
         line.appendChild(document.createTextNode(linetext));
         line.style.display=(!useTypes || types[i]==onetype)?'block':'none';
         box.appendChild(line);
@@ -66,17 +73,23 @@ function gtd_searchdiv_init(ids,titles,types,onetype) {
 }
 // ======================================================================================
 function gtd_gotparent(id,title,type) {
-    if (document.getElementById('parentrow'+id)) return;
+    var myargs;
+    if (document.getElementById('parentrow'+id)) {return;}
     var newrow=document.createElement('tr');
     newrow.id='parentrow'+id;
     
     var cell=document.createElement('td');
     var anchor=document.createElement('a');
-    anchor.href="javascript:removeParent("+id+");"
+    anchor.href='#';
+    anchor.id=id;
+    addEvent(anchor,'click',function(e){
+            myargs=(e.srcElement===undefined)?this:e.srcElement;
+            removeParent(myargs.id);
+        });
     anchor.title='remove as parent';
     anchor.className='remove';
     anchor.appendChild(document.createTextNode('X'));
-    cell.appendChild(anchor)
+    cell.appendChild(anchor);
     newrow.appendChild(cell);
     
     cell=document.createElement('td');
@@ -84,7 +97,7 @@ function gtd_gotparent(id,title,type) {
     anchor.href="itemReport.php?itemId="+id;
     anchor.title='view parent';
     anchor.appendChild(document.createTextNode(title));
-    cell.appendChild(anchor)
+    cell.appendChild(anchor);
     newrow.appendChild(cell);
 
     cell=document.createElement('td');
@@ -102,17 +115,15 @@ function gtd_gotparent(id,title,type) {
 var inSearch;
 var oldTablePosition;
 function gtd_search() {
-    if (inSearch) return;
+    if (inSearch) {return;}
     inSearch=true;
     gtd_freeze(true);
     document.getElementById('searcher').style.display='block';
     document.getElementById("searcherneedle").focus();
     document.onkeypress=gtd_gotkey;
-    with (document.getElementById('parenttable').style) {
-        oldTablePosition=position;
-        position='fixed';
-        left=0;
-    }
+    oldTablePosition=document.getElementById('parenttable').style.position;
+    document.getElementById('parenttable').style.position='fixed';
+    document.getElementById('parenttable').style.left=0;
 }
 // ======================================================================================
 function gtd_closesearch() {
@@ -125,7 +136,7 @@ function gtd_closesearch() {
 // ======================================================================================
 function gtd_gotkey(key) {
     var pressed;
-    if (window.event) pressed=window.event.keyCode; else pressed=key.keyCode;
+    if (window.event) {pressed=window.event.keyCode;} else {pressed=key.keyCode;}
     if (pressed===27) {
         gtd_closesearch();
         document.onkeypress=null;
@@ -134,6 +145,7 @@ function gtd_gotkey(key) {
 }
 // ======================================================================================
 function gtd_refinesearch(needle) {
+    var searchstring; var i;
     if (typeof(needle)=='string') { // initialising
         qtype=needle;
         document.getElementById('searcherneedle').value='';
@@ -143,7 +155,7 @@ function gtd_refinesearch(needle) {
     }
     searchstring=document.getElementById('searcherneedle').value.toLowerCase();
     var skiptype=(ptypes.length<2 || qtype=='0');
-    var skipsearch=(searchstring.length==0);
+    var skipsearch=(searchstring.length===0);
     var box=document.getElementById('searchresults');
     var ok;
     for (i=0;i<parentIds.length;i++) {
@@ -161,7 +173,7 @@ var typenames; // static variable for mapTypeToName function
 function mapTypeToName(type) {
     if (typeof(type)=='object') {
         typenames=type;
-        return true
-    } else return typenames[type];
+        return true;
+    } else {return typenames[type];}
 }
 // ======================================================================================
