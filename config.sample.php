@@ -72,7 +72,7 @@ $acckey = array(
 	"leadership.php"						=> "", // Leadership
 	"listItems.php?quickfind"				=> "f", // quick find
 	"listItems.php?type=a"					=> "a", // Actions
-	"listIitem.php?type=a&amp;nextonly=true"=> "n", // Next Actions
+	"listItems.php?type=a&amp;nextonly=true"=> "n", // Next Actions
 	"listItems.php?type=a&tickler=true"		=> "", // Tickler File
 	"listItems.php?type=g"					=> "", // Goals
 	"listItems.php?type=i"					=> "", // Inbox
