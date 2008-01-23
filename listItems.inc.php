@@ -32,7 +32,7 @@ $filter['completed']      =getVarFromGetPost('completed');         //status:true
 $filter['dueonly']        =getVarFromGetPost('dueonly');           //has due date:true/empty
 $filter['repeatingonly']  =getVarFromGetPost('repeatingonly');     //is repeating:true/empty
 $filter['parentId']       =getVarFromGetPost('parentId');
-$filter['parentcompleted']=getVarFromGetPost('parentcompleted');
+$filter['liveparents']    =getVarFromGetPost('liveparents');
 
 if ($filter['type']==='s') {
     $filter['someday']=true;
@@ -215,28 +215,26 @@ if ($checkchildren) {
     // get next actions array
     $values['extravarsfilterquery'] =sqlparts("getNA",$config,$values);
     if ($filter['nextonly']=='true' && $filter['everything']!="true")
-        $values['filterquery'] = sqlparts("onlynextactions",$config,$values);
+        $values['filterquery'] = sqlparts("isNAonly",$config,$values);
     else
         $values['filterquery'] = sqlparts("isNA",$config,$values);
 }
-
-/*
-    Only use filter selections if $filter['everything'] is not true;
+/*  Only use filter selections if $filter['everything'] is not true;
     i.e. if we are not forcing the listing of *all* items
 */
 if ($filter['everything']!="true") {
-    switch ($filter['parentcompleted']) {
+    switch ($filter['liveparents']) {
+        case 'false': // show only children of completed / suppressed / someday parents
+            $values['filterquery'] .= " WHERE NOT (" .sqlparts("liveparents",$config,$values) .") ";
+            break;
+
         case '*': // don't filter on completion status of parents
             $values['filterquery'] .= ' WHERE TRUE '; // yes, I know this looks odd, but we may be concatenating an "AND {extra condition}" later
             break;
 
-        case 'true': // only select items with completed parents
-            $values['filterquery'] .= " WHERE " .sqlparts("completedparents",$config,$values);
-            break;
-
-        case 'false': // deliberately flows through to default case
-        default:     //Filter out items with completed parents
-            $values['filterquery'] .= " WHERE " .sqlparts("pendingparents",$config,$values);
+        case 'true': //Filter out items with completed/suppressed/someday parents - deliberately flows through to default case
+        default:     
+            $values['filterquery'] .= " WHERE " .sqlparts("liveparents",$config,$values);
             break;
     }
 
@@ -265,27 +263,19 @@ if ($filter['everything']!="true") {
     if ($filter['completed']=="true") $values['childfilterquery'] .= " AND ".sqlparts("completeditems",$config,$values);
     else $values['childfilterquery'] .= " AND " .sqlparts("pendingitems",$config,$values);
     
-    //problem with project somedays vs actions...want an OR, but across subqueries;
     if ($filter['someday']=="true") {
         $values['isSomeday']="y";
         $values['childfilterquery'] .= " AND " .sqlparts("issomeday",$config,$values);
     } else {
         $values['isSomeday']="n";
         $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
-    //    $values['filterquery'] .= " AND " .sqlparts("issomeday-parent",$config,$values);
     }
     
-    //problem: need to get all items with suppressed parents(even if child is not marked suppressed), as well as all suppressed items
     if ($filter['tickler']=="true") {
         $linkfilter .='&amp;tickler=true';
         $values['childfilterquery'] .= " AND ".sqlparts("suppresseditems",$config,$values);
     } else {
         $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
-        /* TOFIX - suppress untickled parents as well as untickled children
-            - commented out for now, else we don't have an easy way to view tickled
-                children of untickled parents
-        */
-        // $values['filterquery'] .= " AND ".sqlparts("activeparents",$config,$values); 
     }
     
     if ($filter['repeatingonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("repeating",$config,$values);
@@ -293,10 +283,6 @@ if ($filter['everything']!="true") {
     if ($filter['dueonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("due",$config,$values);
 
     if ($values['parentId']!='') $values['filterquery'] .= " AND ".sqlparts("hasparent",$config,$values);
-
-    /*
-    $filter['nextonly']
-    */   
 
 }
 /*

@@ -299,7 +299,7 @@ echo "<input type='radio' name='afterCreate' id='itemNext' value='item' class='n
 if (!$values['itemId'] && $values['type']==='p')
     echo "<input type='radio' name='afterCreate' id='childNext' value='child' class='notfirst'"
 	 	,($tst=='child')?" checked='checked' ":""
-		," /><label for='childNext' class='right'>Create a child action</label>\n";
+		," /><label for='childNext' class='right'>Create a child next action</label>\n";
 
 if (!empty($hiddenvars['referrer']) || !empty($_SESSION[$key])) {
     echo "<input type='radio' name='afterCreate' id='referrer' value='referrer' class='notfirst'"

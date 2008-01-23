@@ -62,7 +62,7 @@ To edit a context select the context name.</p>
 foreach ($contextNames as $cid => $cname) {
     if (!$runningtotals["c$cid"]) continue;
     echo "<a id='c$cid'></a>\n";
-    echo "<h2><a href='editCat.php?field=context&amp;id=c$cid' "
+    echo "<h2><a href='editCat.php?field=context&amp;id=$cid' "
         ,"title='Edit the $cname context'>"
         ,"Context:&nbsp;$cname</a></h2>\n";
    foreach ($timeframeNames as $tid => $tname) {

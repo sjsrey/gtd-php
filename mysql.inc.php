@@ -61,6 +61,27 @@ function getsql($config,$values,$sort,$querylabel) {
 				ON DUPLICATE KEY UPDATE `nextaction`='{$values['newitemId']}'";
 			break;
 
+		case "countactions":
+			$sql="SELECT COUNT(DISTINCT i.`itemId`) AS nactions
+                    FROM `{$config['prefix']}items` as i
+					JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
+                    JOIN `{$config['prefix']}itemattributes` as ia USING (`itemId`)
+                    JOIN (
+                        SELECT DISTINCT `itemId` FROM `{$config['prefix']}lookup` AS lu
+                            JOIN (SELECT pi.`itemId` AS parentId,
+                                     pia.`isSomeday` AS pisSomeday,
+                                     pia.`deadline` AS pdeadline,
+						             pia.`suppress` AS psuppress,
+						             pia.`suppressUntil` AS psuppressUntil,
+						             pits.`dateCompleted` AS pdateCompleted
+            					   FROM `{$config['prefix']}itemattributes` as pia
+            					   JOIN `{$config['prefix']}items` as pi USING (`itemId`)
+            					   JOIN `{$config['prefix']}itemstatus` as pits USING (`itemId`)
+                                ) AS y USING (`parentId`) {$values['parentfilterquery']}
+                    ) AS lut ON (i.`itemId`=lut.`itemId`)
+                    {$values['childfilterquery']}";
+			break;
+
         case 'countactionsbycontext':
             $sql="SELECT cn.`name` AS cname,cn.`contextId`,COUNT(x.`itemId`) AS count
                     FROM `{$config['prefix']}itemattributes` as x
@@ -72,22 +93,28 @@ function getsql($config,$values,$sort,$querylabel) {
                      GROUP BY ia.`contextId` ORDER BY cn.`name`";
             break;
             
-		case "countitems":
-			$sql="SELECT COUNT(*)
-				FROM `{$config['prefix']}itemattributes` AS ia
-				JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`) "
-				.$values['filterquery'];
-			break;
-
-		case "countnextactions":
-			$sql="SELECT COUNT(DISTINCT `nextaction`) AS nnextactions
-				FROM `". $config['prefix'] ."nextactions` as na
-					JOIN `". $config['prefix'] . "itemattributes` as ia
-						ON (ia.`itemId` = na.`nextaction`)
-					JOIN `". $config['prefix'] . "itemstatus` as its
-						ON (ia.`itemId` = its.`itemId`) ".
-				$values['filterquery'];
-			break;
+        case "countnextactions":
+			$sql="SELECT INTERVAL(DATEDIFF(CURDATE(),ia.`deadline`),-6,0,1) AS `duecategory`,
+			           COUNT(DISTINCT i.`itemId`) AS nnextactions
+                    FROM `{$config['prefix']}items` as i
+					JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
+                    JOIN `{$config['prefix']}itemattributes` as ia USING (`itemId`)
+                    JOIN (
+                        SELECT DISTINCT nextAction FROM `{$config['prefix']}nextactions` AS na
+                            JOIN (SELECT pi.`itemId` AS parentId, 
+                                     pia.`isSomeday` AS pisSomeday,
+                                     pia.`deadline` AS pdeadline,
+						             pia.`suppress` AS psuppress,
+						             pia.`suppressUntil` AS psuppressUntil,
+						             pits.`dateCompleted` AS pdateCompleted
+            					   FROM `{$config['prefix']}itemattributes` as pia
+            					   JOIN `{$config['prefix']}items` as pi USING (`itemId`)
+            					   JOIN `{$config['prefix']}itemstatus` as pits USING (`itemId`)
+                                ) AS y USING (`parentId`) {$values['parentfilterquery']}
+                    ) AS nat ON (i.`itemId`=nat.`nextAction`)
+                    {$values['childfilterquery']}
+					GROUP BY `duecategory`";
+            break;
 		case "countselected":
 			$sql="SELECT FOUND_ROWS()";
 			break;
@@ -316,21 +343,22 @@ function getsql($config,$values,$sort,$querylabel) {
 				JOIN `{$config['prefix']}items`		  AS i   USING (itemId)
 				JOIN `{$config['prefix']}itemstatus`	 AS its USING (itemId)
 				WHERE (its.`dateCompleted` IS NULL)
-					AND ia.`type` NOT IN ({$values['notOrphansfilterquery']})
-					AND ia.`itemId` NOT IN
-						(SELECT lu.`itemId` FROM `". $config['prefix'] . "lookup` as lu)
+					AND (ia.`type` NOT IN ({$values['notOrphansfilterquery']})
+					       AND (ia.`itemId` NOT IN
+						      (SELECT lu.`itemId` FROM `". $config['prefix'] . "lookup` as lu)
+                           ) OR ia.`type` IS NULL OR ia.`type`='')
 				ORDER BY {$sort['getorphaneditems']}";
 			break;
 
 		case "getspacecontexts":
 			$sql="SELECT `contextId`, `name`
-				FROM `". $config['prefix'] . "context`";
+				FROM `". $config['prefix'] . "context` ORDER BY `contextId` ASC";
 			break;
 
 		case "gettimecontexts":
 			$sql="SELECT `timeframeId`, `timeframe`, `description`
 				FROM `". $config['prefix'] . "timeitems` AS ti
-				{$values['timefilterquery']}";
+				{$values['timefilterquery']} ORDER BY `timeframeId` ASC";
 			break;
 
 

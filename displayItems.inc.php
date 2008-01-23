@@ -82,14 +82,22 @@ foreach ($maintable as $row) {
                 else
                     echo "<a href='reportContext.php#c",$row[$key.'Id'],"' title='Go to the ",$row[$key]," context report'>{$row[$key]}</a>";
                 break;
+            case 'spatialcontext':
+                if ($row[$key]=='')
+                    echo '&nbsp;';
+                else
+                    echo "<a href='editCat.php?field=context&amp;id=",$row[$key.'Id'],"' title='Go to the ",$row[$key]," context report'>{$row[$key]}</a>";
+                break;
             case 'timeframe':
                 if ($row[$key.'Id'])
                     echo "<a href='editCat.php?field=time-context&amp;id=",$row[$key.'Id'],"' title='Edit the {$row[$key]} time context'>{$row[$key]}</a>";
                 else
                     echo '&nbsp;';
                 break;
-            case 'type':
-                if (isset($row['isSomeday']) && $row['isSomeday']==='y')
+            case 'type': // TOFIX - if type is blank, offer 'assign type' link
+                if (empty($row[$key]))
+                    echo "<a href='assignType.php?itemId={$row['itemId']}'>Set type</a>";
+                elseif (isset($row['isSomeday']) && $row['isSomeday']==='y')
                     echo 'Someday';
                 else
                     echo getTypes($row[$key]);

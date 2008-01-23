@@ -36,12 +36,12 @@ include_once('header.php');
             <input type="checkbox" name="everything" id="everything" class="notfirst" value="true" <?php if ($filter['everything']=="true") echo 'checked="checked"'?> title="Show all <?php echo $typename ?>s, regardless of status or labels" onclick='javascript:filtertoggle("toggle");' /><label for='everything'>Show all</label>
         </div>
         <div class="formbuttons">
-           <label for="parentcompleted" class='left first'>Status of parent:</label>
-           <select name="parentcompleted" id="parentcompleted" title="Completion status of parents">
+           <label for="liveparents" class='left first' title="Not live means either completed, a someday/maybe, or it has not yet reached its tickler date">Status of parent:</label>
+           <select name="liveparents" id="liveparents" title="Not live means either completed, a someday/maybe, or it has not yet reached its tickler date">
            <?php
-                foreach (array('Incomplete'=>'false','Any'=>'*','Complete'=>'true') as $key=>$val)
+                foreach (array('Live'=>'true','Any'=>'*','Not live'=>'false') as $key=>$val)
                     echo "<option value='$val'"
-                        ,(($filter['parentcompleted']==$val)?" selected='selected'":'')
+                        ,(($filter['liveparents']==$val)?" selected='selected'":'')
                         ,">$key</option>\n";
            ?>
            </select>

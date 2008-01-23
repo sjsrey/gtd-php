@@ -7,9 +7,6 @@ switch ($part) {
 	case "activelistitems":
 		$sqlpart = " li.`dateCompleted` IS NULL ";
 		break;
-	case "activeparents":
-		$sqlpart = " ((CURDATE()>=DATE_ADD(y.`pdeadline`, INTERVAL -(y.`psuppressUntil`) DAY)) OR y.`psuppress`!='y' OR y.`psuppress` IS NULL)";
-		break;
 	case "categoryfilter":
 		$sqlpart = " ia.`categoryId` = '{$values['categoryId']}' ";
 		break;
@@ -40,9 +37,6 @@ switch ($part) {
 	case "completedlistitems":
 		$sqlpart = " li.`dateCompleted` IS NOT NULL ";
 		break;
-	case "completedparents":
-		$sqlpart = " y.`pdatecompleted` IS NOT NULL ";
-		break;
 	case "contextfilter":
 		$sqlpart = " ia.`contextId` = '{$values['contextId']}' ";
 		break;
@@ -63,20 +57,21 @@ switch ($part) {
                                ) AS na ON(na.nextaction=x.itemId) ";
 		break;
 	case "isNAonly":
-		$sqlpart = " JOIN ( SELECT nextaction FROM {$config['prefix']}nextactions
-                          ) AS na ON(na.nextaction=x.itemId) ";
+        $sqlpart = " INNER JOIN {$config['prefix']}nextactions AS na ON(na.nextaction=x.itemId) ";
 		break;
 	case "issomeday":
 		$sqlpart = " ia.`isSomeday` = '{$values['isSomeday']}' ";
-		break;
-	case "issomeday-parent":
-		$sqlpart = " y.`pisSomeday` = '{$values['isSomeday']}' OR y.`pisSomeday` IS NULL";
 		break;
 	case "limit":
 		$sqlpart = " LIMIT {$values['maxItemsToSelect']} ";
 		break;
 	case "listcategoryfilter":
 		$sqlpart = " l.`categoryId`='{$values['categoryId']}' ";
+		break;
+    case "liveparents":
+        $sqlpart = "((CURDATE()>=DATE_ADD(y.`pdeadline`, INTERVAL -(y.`psuppressUntil`) DAY)) OR y.`psuppress`!='y' OR y.`psuppress` IS NULL)"
+                    ." AND (y.`pdatecompleted` IS NULL) "
+                    ." AND (y.`pisSomeday`='n' OR y.`pisSomeday` IS NULL)";
 		break;
 	case "matchall":
 		$sqlpart = " (i.`title` LIKE '%{$values['needle']}%'
@@ -98,14 +93,8 @@ switch ($part) {
 	case "nottimeframefilter":
 		$sqlpart = " ia.`timeframeId` !='{$values['timeframeId']}' ";
 		break;
-	case "onlynextactions":
-		$sqlpart = " INNER JOIN {$config['prefix']}nextactions AS na ON(na.nextaction=x.itemId) ";
-		break;
 	case "pendingitems":
 		$sqlpart = " its.`dateCompleted` IS NULL ";
-		break;
-	case "pendingparents":
-		$sqlpart = " y.`pdatecompleted` IS NULL ";
 		break;
 	case "repeating":
 		$sqlpart = " ia.`repeat` >0 ";

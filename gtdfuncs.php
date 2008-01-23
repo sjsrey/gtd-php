@@ -299,10 +299,14 @@ $types=array("m" => "Value",
             "w" => "Waiting On"
         );
 if ($type===false)
-    return $types;
+    $out=$types;
+elseif (empty($type))
+    $out='item without a type assigned';
 else
-    return $types[$type];
+    $out=$types[$type];
+return $out;
 }
+
 
 function escapeChars($str) {  // TOFIX consider internationalization issues with charset coding
     $outStr=str_replace(array('&','…'),array('&amp;','&hellip'),$str);

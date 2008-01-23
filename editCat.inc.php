@@ -47,8 +47,9 @@ switch ($field) {
 $result = query($query,$config,$values,$sort);
 $catlist=array();
 $count=0;
+$thiscat=false;
 
-if (is_array($result)) {
+if ($result) {
  	$firstcat=0;
  	$nextcat=-1;
     foreach ($result as $checkcat) {
@@ -69,6 +70,8 @@ if (is_array($result)) {
     else if ($nextcat===-1)
         $nextcat=0;
 }
+if (!$thiscat && $id)
+    $title=makeClean("Failed to find $field with id=$id");
 if ($config['debug'] & _GTD_DEBUG) echo "<pre>catlist:",print_r($catlist,true),'</pre>';
 
 ?>

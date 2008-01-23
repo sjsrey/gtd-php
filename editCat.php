@@ -3,7 +3,8 @@ require_once('header.php');
 require_once('editCat.inc.php');
 ?>
 <h2><?php echo $title; ?></h2>
-<form action="processCat.php" method="post" onsubmit="return validate(this);">
+<?php if ($thiscat || !$id) {
+?><form action="processCat.php" method="post" onsubmit="return validate(this);">
 <div class='formrow'><span class="error" id='errorMessage'></span></div>
 <div>
 <input type='hidden' name='field' value='<?php echo $field; ?>' />
@@ -90,5 +91,6 @@ require_once('editCat.inc.php');
         </tr>
     </tbody>
 </table>
-</form>
-<?php include_once('footer.php'); ?>
+</form><?php
+}
+include_once('footer.php'); ?>

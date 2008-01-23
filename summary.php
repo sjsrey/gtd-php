@@ -17,18 +17,22 @@ $numbercontexts=(is_array($res[0]))?(int) $res[0]['COUNT(*)']:0;
 //count active items
 $values['type'] = "a";
 $values['isSomeday'] = "n";
-$values['filterquery']  = " WHERE ".sqlparts("typefilter",$config,$values);
-$values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
-$values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
-$values['filterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);
-
+$values['childfilterquery'] = " WHERE ".sqlparts("typefilter",$config,$values)
+                                ." AND ".sqlparts("issomeday",$config,$values)
+                                ." AND ".sqlparts("activeitems",$config,$values)
+                                ." AND ".sqlparts("pendingitems",$config,$values);
+$values['parentfilterquery'] = " WHERE " .sqlparts("liveparents",$config,$values);
 //get # nextactions
 $res = query("countnextactions",$config,$values,$sort);
-$numbernextactions=($res)?(int) $res[0]['nnextactions']:0;
+$nextactionsdue=array('-1'=>0,'0'=>0,'1'=>0,'2'=>0,'3'=>0,'4'=>0);
+if (is_array($res))
+    foreach ($res as $line)
+        $nextactionsdue[$line['duecategory']]=$line['nnextactions'];
+$numbernextactions=array_sum($nextactionsdue);
 
 // get # actions
-$res =query("countitems",$config,$values,$sort);
-$numberitems =($res[0])?(int) $res[0]['COUNT(*)']:0;
+$res =query("countactions",$config,$values,$sort);
+$numberitems =($res)?(int) $res[0]['nactions']:0;
 
 // get and count active projects
 $values['type']= "p";
@@ -77,14 +81,24 @@ if($numbernextactions==1) {
     $verb='are';
     $plural='s';
 }
-
+$space1=" in $numbercontexts <a href='reportContext.php'>Spatial Context"
+        .(($numbercontexts==1)?'':'s') . "</a>";
+if ($config["contextsummary"] === 'nextaction') {
+    $space2='';
+} else {
+    $space2=$space1;
+    $space1='';
+}
 echo "<p>There $verb $numbernextactions"
-    ," <a href='listItems.php?type=a&amp;nextonly=true'>Next Action$plural</a> pending"
-    ," out of a total of $numberitems <a href='listItems.php?type=a'>Action"
+    ," <a href='listItems.php?type=a&amp;nextonly=true'>Next Action$plural</a> pending$space1, of which "
+    ,($nextactionsdue['2']==1)?'1 action is':"{$nextactionsdue['2']} actions are"
+    ," due today, "
+    ,($nextactionsdue['3']==1)?'1 is':"{$nextactionsdue['3']} are"
+    ," now overdue, and "
+    ,($nextactionsdue['1']==1)?"1 has its deadline":"{$nextactionsdue['1']} have deadlines"
+    ,"  in the coming 7 days. Altogether, there are $numberitems <a href='listItems.php?type=a'>Action"
     ,($numberitems==1)?'':'s'
-    ,"</a> in $numbercontexts <a href='reportContext.php'>Spatial Context"
-    ,($numbercontexts==1)?'':'s'
-    ,"</a>.</p>\n</div>\n";
+    ,"</a>$space2.</p>\n</div>\n";
 
     echo "<div class='reportsection'>\n";
 	echo "<h3>Projects</h3>\n";

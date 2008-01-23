@@ -14,9 +14,12 @@ function checkErrors($prefix) {
     $na=@mysql_fetch_row(send_query($q,false));
     
     $q="SELECT COUNT(*) FROM `{$prefix}items` AS `i`
+            JOIN `{$prefix}itemattributes` AS `ia`  USING (`itemId`)
             JOIN `{$prefix}itemstatus`     AS `its` USING (`itemId`)
-            WHERE `i`.`itemId` NOT IN (SELECT `itemId` FROM `{$prefix}lookup`)
-                AND `its`.`dateCompleted` IS NULL";
+            WHERE `its`.`dateCompleted` IS NULL
+                AND (ia.`type` NOT IN ('i','m')
+                    AND `i`.`itemId` NOT IN (SELECT `itemId` FROM `{$prefix}lookup`
+                ) OR ia.`type`='' OR ia.`type` IS NULL)";
     $orphans=@mysql_fetch_row(send_query($q,false));
 
     $totals=array(
@@ -112,7 +115,7 @@ function recreateNextactions($prefix) { // recreate the nextactions table, remov
 
     $q="DROP TABLE IF EXISTS {$prefix}tempNA";
     send_query($q);
-    $q="CREATE TABLE {$prefix}tempNA SELECT * FROM {$prefix}nextactions";
+    $q="CREATE TABLE `{$prefix}tempNA` SELECT * FROM {$prefix}nextactions";
     send_query($q);
     $q="TRUNCATE {$prefix}nextactions";
     send_query($q);
@@ -360,6 +363,7 @@ function checkVersion($prefix) {
 	if (empty($result)) {
 		$retval='0.8rc-2';
     } else {
+        $last=array(0=>null);
         while ($out=mysql_fetch_row($result)) $last=$out;
 		$retval=$last[0];
 		if (_DEBUG) echo "<p class'debug'>Found Version field: $retval</p>";
