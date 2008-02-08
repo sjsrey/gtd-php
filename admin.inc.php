@@ -491,6 +491,7 @@ function createVersion()  {
 function updateVersion() {
     global $config;
     $q="TRUNCATE `{$config['prefix']}version`";
+    send_query($q,false);
     $q="INSERT INTO `{$config['prefix']}version` VALUES('"._GTD_VERSION."',NULL)";
     send_query($q,false);
 }
