@@ -4,7 +4,12 @@ include_once('gtd_constants.inc.php');
 
 function makeClean($textIn) {
     global $config;
-	$cleaned=htmlentities(stripslashes($textIn),ENT_QUOTES,$config['charset']);
+    if (is_array($textIn)) {
+        $cleaned=array();
+        foreach ($textIn as $line) $cleaned[]=makeClean($line);
+	} else {
+        $cleaned=htmlentities(stripslashes($textIn),ENT_QUOTES,$config['charset']);
+    }
 	return $cleaned;
 }
 
@@ -365,8 +370,10 @@ function columnedTable($cols,$data,$link='itemReport.php') {
             $ndx=$i/$cols+$j*$displace;
             if ($ndx<$nrows) {
                 $row=$data[$ndx];
-                echo "<td>"
-                    ,"<a href='$link?itemId={$row['itemId']}' title='"
+                echo "<td"
+                    ,(empty($row['td.class'])) ? '' : " class='{$row['td.class']}' "
+                    ,(empty($row['td.title'])) ? '' : " title='{$row['td.title']}' "
+                    ,"><a href='$link?itemId={$row['itemId']}' title='"
                     ,makeclean($row['description']),"'>"
                     ,makeclean($row['title']),"</a></td>\n";
             }

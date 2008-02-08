@@ -89,11 +89,24 @@ function getsql($config,$values,$sort,$querylabel) {
                     JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
 					LEFT OUTER JOIN `{$config['prefix']}context` AS cn
 						ON (ia.`contextId` = cn.`contextId`)
+                    JOIN (
+                        SELECT DISTINCT nextAction FROM `{$config['prefix']}nextactions` AS na
+                            JOIN (SELECT pi.`itemId` AS parentId,
+                                     pia.`isSomeday` AS pisSomeday,
+                                     pia.`deadline` AS pdeadline,
+						             pia.`suppress` AS psuppress,
+						             pia.`suppressUntil` AS psuppressUntil,
+						             pits.`dateCompleted` AS pdateCompleted
+            					   FROM `{$config['prefix']}itemattributes` as pia
+            					   JOIN `{$config['prefix']}items` as pi USING (`itemId`)
+            					   JOIN `{$config['prefix']}itemstatus` as pits USING (`itemId`)
+                                ) AS y USING (`parentId`) {$values['parentfilterquery']}
+                    ) AS nat ON (x.`itemId`=nat.`nextAction`)
                      {$values['filterquery']}
                      GROUP BY ia.`contextId` ORDER BY cn.`name`";
             break;
             
-        case "countnextactions":
+		case "countnextactions":
 			$sql="SELECT INTERVAL(DATEDIFF(CURDATE(),ia.`deadline`),-6,0,1) AS `duecategory`,
 			           COUNT(DISTINCT i.`itemId`) AS nnextactions
                     FROM `{$config['prefix']}items` as i
@@ -114,7 +127,7 @@ function getsql($config,$values,$sort,$querylabel) {
                     ) AS nat ON (i.`itemId`=nat.`nextAction`)
                     {$values['childfilterquery']}
 					GROUP BY `duecategory`";
-            break;
+			break;
 		case "countselected":
 			$sql="SELECT FOUND_ROWS()";
 			break;
@@ -232,7 +245,7 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "getitems":
-			$sql="SELECT i.`itemId`, i.`title`, i.`description`
+			$sql="SELECT i.`itemId`, i.`title`, i.`description`, ia.`deadline`
 				FROM `". $config['prefix'] . "itemattributes` as ia
 					JOIN `". $config['prefix'] . "items` as i
 						ON (ia.`itemId` = i.`itemId`)
@@ -309,7 +322,7 @@ function getsql($config,$values,$sort,$querylabel) {
 
 
 		case "getitembrief":
-			$sql="SELECT `title`, `description`
+			$sql="SELECT `title`, `description`, `desiredOutcome`
 				FROM  `". $config['prefix'] . "items`
 				WHERE `itemId` = {$values['itemId']}";
 			break;
@@ -345,7 +358,7 @@ function getsql($config,$values,$sort,$querylabel) {
 				WHERE (its.`dateCompleted` IS NULL)
 					AND (ia.`type` NOT IN ({$values['notOrphansfilterquery']})
 					       AND (ia.`itemId` NOT IN
-						      (SELECT lu.`itemId` FROM `". $config['prefix'] . "lookup` as lu)
+						(SELECT lu.`itemId` FROM `". $config['prefix'] . "lookup` as lu)
                            ) OR ia.`type` IS NULL OR ia.`type`='')
 				ORDER BY {$sort['getorphaneditems']}";
 			break;
@@ -740,7 +753,10 @@ function getsql($config,$values,$sort,$querylabel) {
 						`type`='{$values['type']}'
 				WHERE `timeframeId` ='{$values['id']}'";
 			break;
-	}
+        default:
+            $sql="Failed to find sql query $querylabel";
+            break;
+    }
 	return $sql;
 }
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

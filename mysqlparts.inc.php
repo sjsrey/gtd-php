@@ -121,6 +121,7 @@ switch ($part) {
 */
     default:
         if ($config['debug'] & _GTD_DEBUG) echo "<p class='error'>Failed to find sql component '$part'</p>'";
+        $sqlpart=$part;
         break;
     }
     return $sqlpart;

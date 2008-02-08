@@ -140,11 +140,12 @@ if (!empty($childtype)) {
 	    if ($thistype==='s') {
 	       $values['type']='p';
 	       $values['isSomeday']='y';
+	       $values['filterquery'] ='';
         } else {
             $values['isSomeday']='n';
             $values['type']=$thistype;
+    	    $values['filterquery'] = " AND ".sqlparts("typefilter",$config,$values); // only filter on type if not a someday
         }
-	    $values['filterquery'] = " AND ".sqlparts("typefilter",$config,$values);
 	    $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
 
         $q=($comp==='y')?'completeditems':'pendingitems';  //suppressed items will be shown on report page

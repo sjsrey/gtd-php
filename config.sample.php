@@ -168,7 +168,7 @@ $config['separator'] = '^&*#@#%&*%^@$^*$$&%#@#@^^'; // should be an arbitrary st
 $config['forceAllFields'] = false; // false | true - all fields will always be displayed on item.php
 $config['allowChangingTypes'] = false; // false | true - allows the user to change the types of any item (false=change only inbox items)
 $config['showAdmin'] = true; // false | true - adds the Admin option to the menu items
-$config['charset'] = 'ISO8859-15'; // the character-encoding for pages
+$config['charset'] = 'ISO8859-15'; // character-encoding for pages: utf-8 IS NOT YET SUPPORTED, nor is any other multi-byte character set
 $config['withholdVersionInfo']=false; // true | false - if false, will send the version numbers of your installations of gtd-php, PHP and MySQL when you report a bug
 /*********  Developer Settings ************/
 

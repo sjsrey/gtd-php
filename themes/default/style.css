@@ -297,14 +297,6 @@ tbody td {
 	font-size: 10px;
 }
 
-/* table rows with next actions (in projectReport.php) */
-tr.nextactionrow {
-}
-
-/* table cells with next actions (in projectReport.php) */
-td.nextactioncell {
-}
-
 a.nextactionlink {
 	font-weight: bold;
 	color: #C80;
@@ -313,8 +305,21 @@ td.overdue, span.overdue,.warnresult {
 	color: red;
 	font-weight: bolder;
 }
+span.comingdue {
+	color: #AA7200;
+	font-weight: bolder;
+}
+.celloverdue,.celloverdue:hover {
+    background-color: #FFAAAA;
+}
+.celldue,.celldue:hover {
+    background-color: #AAFFAA;
+}
 .due,.goodresult {
 	color:green;
+}
+span.due {
+	font-weight: bolder;
 }
 a.add:hover, #searchresults a:hover, a.add:link, a.add:visited,#searchresults a:link, #searchresults a:visited {
 	color:green;
