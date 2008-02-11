@@ -113,6 +113,7 @@ function doAction($localAction) { // do the current action on the current item; 
 			changeType();
 			$newtype=getTypes($values['type']);
 			$msg="$newtype is now the type for item: '$title'";
+			$updateGlobals['referrer']="item.php?itemId={$values['itemId']}&amp;referrer={$updateGlobals['referrer']}";
 			break;
 
         case 'create':
@@ -243,7 +244,7 @@ function changeType() {
 	global $config,$values;
     $values['isSomeday']=isset($_REQUEST['isSomeday'])?$_REQUEST['isSomeday']:'n';
     query("updateitemtype",$config,$values);
-    if ($_REQUEST['safe']!=='y') {
+    if (!empty($_REQUEST['safe'])) {
     	query("deletelookup",$config,$values);
     	query("deletelookupparents",$config,$values);
     	removeNextAction();
@@ -365,10 +366,10 @@ function nextPage() { // set up the forwarding to the next page
 	$key='afterCreate'.$t;
     $id=(empty($values['newitemId']))?$values['itemId']:$values['newitemId'];
     $nextURL='';
-    if (isset($_POST['afterCreate'])) {
+    if (!empty($_POST['afterCreate'])) {
         $tst=$_POST['afterCreate'];
         $_SESSION[$key]=$_POST['afterCreate'];
-    }elseif (isset($updateGlobals['referrer']) && ($updateGlobals['referrer'] !== ''))
+    }elseif (!empty($updateGlobals['referrer']))
 		$tst=$updateGlobals['referrer'];
     else
         $tst=$_SESSION[$key];
@@ -418,7 +419,9 @@ function nextPage() { // set up the forwarding to the next page
                         :'orphans.php';
             break;
 		case "referrer":
-            $nextURL=$_SESSION["lastfilter$t"];
+            $nextURL=(empty($updateGlobals['referrer']) )
+                        ? $_SESSION["lastfilter$t"]
+                        : $updateGlobals['referrer'];
             break;
         default        :
             $nextURL=$tst;

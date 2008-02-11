@@ -74,12 +74,13 @@ $typename=getTypes();
 $childtype=array();  //I don't like this... but it's the best solution at the moment...
 
 $childtype=getChildType($item['type']);
+$afterTypeChange="itemReport.php?itemId={$values['itemId']}";
 
 echo "<h1>".$typename[$item['type']]."&nbsp;Report:&nbsp;".makeclean($item['title']).(($item['isSomeday']=="y")?" (Someday) ":"")."</h1>\n";
 
 //Edit, next, and previous buttons
 echo "<div class='editbar'>\n";
-if ($item['type']==='i') echo "[<a href='assignType.php?itemId={$values['itemId']}'>Set type</a>] \n";
+if ($item['type']==='i') echo "[<a href='assignType.php?itemId={$values['itemId']}&amp;referrer=$afterTypeChange'>Set type</a>] \n";
 echo " [<a href='item.php?itemId={$values['itemId']}' title='Edit "
     ,makeclean($item['title']),"'>Edit</a>] \n";
 if(isset($previousId)) echo " [<a href='itemReport.php?itemId=$previousId' title='",makeclean($previoustitle),"'>Previous</a>] \n";
@@ -191,7 +192,7 @@ if (!empty($childtype)) {
             $outcomeField='desiredOutcome';
         }
 		$dispArray=array();
-        if ($shownext) $dispArray['NA']='Next';
+        if ($shownext) $dispArray['NA']='NA';
         $dispArray['title']=$typename[$thistype].'s';
         $dispArray[$descriptionField]='Description';
 

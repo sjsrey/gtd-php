@@ -159,6 +159,12 @@ span.nextActionMarker {
 	margin-top: .6em;
 	margin-right: .5em;
 }
+table input[type="checkbox"]{
+	margin:0;
+	padding:0;
+	height:1.7em;
+	width:1.7em;
+}
 .formrow input[type="radio"].notfirst, .formrow input[type="checkbox"].notfirst, .formbuttons input[type="checkbox"].notfirst {
 	margin-left: 1.5em;
 }

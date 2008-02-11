@@ -30,7 +30,7 @@ function checkErrors($prefix) {
 
 
     $q="SELECT COUNT(*) FROM `{$prefix}nextactions` WHERE ROW(`parentId`,`nextaction`) NOT IN
-            (SELECT * FROM `{$prefix}lookup`)";
+            (SELECT * FROM `{$prefix}lookup`) AND `parentId`!='0'";
     $excessNA=@mysql_fetch_row(send_query($q,false));
 
     $q="SELECT COUNT(*) FROM `{$prefix}lookup` WHERE
@@ -113,26 +113,29 @@ function backupData($prefix) {
 */
 function recreateNextactions($prefix) { // recreate the nextactions table, removing all inconsistencies
 
-    $q="DROP TABLE IF EXISTS {$prefix}tempNA";
+    $q="DROP TABLE IF EXISTS `{$prefix}tempNA`";
     send_query($q);
-    $q="CREATE TABLE `{$prefix}tempNA` SELECT * FROM {$prefix}nextactions";
+    $q="CREATE TABLE `{$prefix}tempNA` SELECT * FROM `{$prefix}nextactions`";
     send_query($q);
-    $q="TRUNCATE {$prefix}nextactions";
+    $q="TRUNCATE `{$prefix}nextactions`";
     send_query($q);
-    $q="INSERT INTO {$prefix}nextactions (SELECT DISTINCTROW parentId, itemId AS nextaction
-            FROM {$prefix}lookup WHERE itemId IN (SELECT nextaction FROM {$prefix}tempNA))";
+    $q="INSERT INTO `{$prefix}nextactions` (SELECT DISTINCTROW `parentId`, `itemId` AS `nextaction`
+            FROM `{$prefix}lookup` WHERE `itemId` IN (SELECT `nextaction` FROM {$prefix}tempNA))";
+    send_query($q);
+    $q="INSERT INTO `{$prefix}nextactions` (SELECT * FROM `{$prefix}tempNA`
+            WHERE `parentId`='0' AND `nextaction` NOT IN (SELECT `itemId` FROM `{$prefix}lookup`))";
     send_query($q);
 
-    $q="SELECT COUNT(*) FROM {$prefix}nextactions";
+    $q="SELECT COUNT(*) FROM `{$prefix}nextactions`";
     $tot=send_query($q,false);
-    $q="SELECT COUNT(DISTINCT nextaction) FROM {$prefix}nextactions";
+    $q="SELECT COUNT(DISTINCT `nextaction`) FROM `{$prefix}nextactions`";
     $unique=send_query($q,false);
-    $q="SELECT COUNT(*) FROM {$prefix}nextactions WHERE ROW(parentId,nextaction) NOT IN (SELECT * FROM {$prefix}tempNA)";
+    $q="SELECT COUNT(*) FROM `{$prefix}nextactions` WHERE ROW(`parentId`,`nextaction`) NOT IN (SELECT * FROM `{$prefix}tempNA`)";
     $added=send_query($q,false);
-    $q="SELECT COUNT(*) FROM {$prefix}tempNA WHERE ROW(parentId,nextaction) NOT IN (SELECT * FROM {$prefix}nextactions)";
+    $q="SELECT COUNT(*) FROM `{$prefix}tempNA` WHERE ROW(`parentId`,`nextaction`) NOT IN (SELECT * FROM `{$prefix}nextactions`)";
     $removed=send_query($q,false);
 
-    $q="DROP TABLE {$prefix}tempNA";
+    $q="DROP TABLE `{$prefix}tempNA`";
     send_query($q);
     
     $result=array('total_rows'=>$tot,'Number_of_Next_Actions'=>$unique,'added_rows'=>$added,'removed_rows'=>$removed);

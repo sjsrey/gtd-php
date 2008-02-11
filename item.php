@@ -133,10 +133,10 @@ if (in_array($values['type'],$canchangetypesafely) && $values['itemId'])
     foreach ($canchangetypesafely as $totype)
         if ($totype!==$values['type']) {
             echo "$sep <a href='processItems.php?action=changeType&amp;itemId="
-                ,$values['itemId'],"&amp;referrer=item.php?itemId=",$values['itemId']
-                ,"&amp;safe=y&amp;type=$totype&amp;isSomeday="
-                ,$values['isSomeday']
-                ,"'>Convert to ",getTypes($totype),"</a>\n";
+                ,$values['itemId'],"&amp;safe=1&amp;type=$totype&amp;isSomeday="
+                ,$values['isSomeday'];
+            if (!empty($referrer)) echo "&amp;referrer=$referrer";
+            echo "'>Convert to ",getTypes($totype),"</a>\n";
             $sep=' , ';
         }
 if ($show['type']) {
@@ -270,10 +270,10 @@ if (!$values['itemId']) $hiddenvars['lastcreate']=$_SERVER['QUERY_STRING'];
 foreach ($hiddenvars as $key=>$val) echo hidePostVar($key,$val);
 $key='afterCreate'.$values['type'];
 // always use config value when creating
-if (isset($config['afterCreate'][$values['type']]) && !isset($_SESSION[$key]))
+if (!empty($config['afterCreate'][$values['type']]) && empty($_SESSION[$key]))
 	$_SESSION[$key]=$config['afterCreate'][$values['type']];
 	
-if ($values['itemId'])
+if ($values['itemId'] && !empty($_SESSION[$key]))
     $tst=$_SESSION[$key];
 else
     $tst=$config['afterCreate'][$values['type']];
@@ -296,7 +296,7 @@ echo "<input type='radio' name='afterCreate' id='itemNext' value='item' class='n
 	,"<input type='radio' name='afterCreate' id='anotherNext' value='another' class='notfirst'"
 	 	,($tst=='another')?" checked='checked' ":""
 		," /><label for='anotherNext' class='right'>Create another $typename</label>\n";
-if (!$values['itemId'] && $values['type']==='p')
+if ($values['type']==='p')
     echo "<input type='radio' name='afterCreate' id='childNext' value='child' class='notfirst'"
 	 	,($tst=='child')?" checked='checked' ":""
 		," /><label for='childNext' class='right'>Create a child next action</label>\n";

@@ -14,9 +14,6 @@ function gtd_freezer_init() {
     gtd_freezediv.style.display="none";
 	gtd_freezediv.appendChild(document.createElement('span')); // necessary for problem with addevent betweeen Opera and Safari
 	document.body.appendChild(gtd_freezediv);
-	if( navigator.userAgent.indexOf('Konqueror')>-1) {
-        gtd_freezediv.style.backgroundColor="transparent"; // because Konqueror doesn't do transparency/opacity
-    }
 } // end of freezer.init
 // ======================================================================================
 function gtd_freeze (tofreeze) {

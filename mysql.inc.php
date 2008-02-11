@@ -114,7 +114,7 @@ function getsql($config,$values,$sort,$querylabel) {
                     JOIN `{$config['prefix']}itemattributes` as ia USING (`itemId`)
                     JOIN (
                         SELECT DISTINCT nextAction FROM `{$config['prefix']}nextactions` AS na
-                            JOIN (SELECT pi.`itemId` AS parentId, 
+                            LEFT OUTER JOIN (SELECT pi.`itemId` AS parentId,
                                      pia.`isSomeday` AS pisSomeday,
                                      pia.`deadline` AS pdeadline,
 						             pia.`suppress` AS psuppress,

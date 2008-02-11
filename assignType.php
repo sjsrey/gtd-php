@@ -14,11 +14,11 @@
     <?php foreach ($types as $key=>$val) { ?>
         <a href='processItems.php?itemId=<?php
             echo $values['itemId'];
-            ?>&amp;action=changeType&amp;type=<?php
+        ?>&amp;action=changeType&amp;type=<?php
             echo $key;
-            ?>&amp;referrer=item.php?itemId=<?php
-            echo $values['itemId'];
-            ?>'><?php echo $val; ?></a>
+            if (!empty($_REQUEST['referrer']))
+                echo "&amp;referrer=",$_REQUEST['referrer'];
+        ?>'><?php echo $val; ?></a>
     <?php } ?>
 </div>
 <?php include('footer.php') ?>

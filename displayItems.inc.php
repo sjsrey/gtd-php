@@ -31,7 +31,12 @@ foreach ($maintable as $row) {
                     ,".php?itemId={$row['itemId']}'>$cleaned</a>";
                 break;
             case 'assignType':
-                echo "<a href='assignType.php?itemId={$row['itemId']}'>Set type</a>";
+                echo "<a href='assignType.php?itemId={$row['itemId']}";
+                if (!empty($afterTypeChange))
+                    echo "&amp;referrer=$afterTypeChange";
+                elseif (!empty($referrer))
+                    echo "&amp;referrer=$referrer";
+                echo "'>Set type</a>";
                 break;
             case 'checkbox':
                 echo "<input name='{$row['checkboxname']}' value='{$row['checkboxvalue']}' type='checkbox' />";
