@@ -51,21 +51,21 @@ function makemenu($list) {
 		<li>Process
 			<ul>
 				<?php 
-				$thismenu[] = array("link"=>"listItems.php?type=i", 'title'=>"Inbox", 'label' => "Inbox");
+				$thismenu[] = array("link"=>"listItems.php?type=i", 'title'=>"Process inbox", 'label' => "Inbox");
 				$thismenu[] = array("link"=>"listItems.php?type=a&amp;nextonly=true", 'title'=>"Next actions", 'label' => "Next Actions");
-				$thismenu[] = array("link"=>"listItems.php?type=a", 'title'=>"Actions", 'label' => "Actions");
-				$thismenu[] = array("link"=>"listItems.php?type=w", 'title'=>"Waiting On", 'label' => "Waiting On");
-				$thismenu[] = array("link"=>"listItems.php?type=r", 'title'=>"References", 'label' => "References");
-                $thismenu[] = array("link"=>"listItems.php?type=p", 'title'=>"Projects", 'label' => "Projects");
-				$thismenu[] = array("link"=>"listItems.php?type=p&amp;someday=true", 'title'=>"Someday projects", 'label' => "Someday/Maybes");
+				$thismenu[] = array("link"=>"listItems.php?type=a", 'title'=>"Process actions", 'label' => "Actions");
+				$thismenu[] = array("link"=>"listItems.php?type=w", 'title'=>"Process waiting-ons", 'label' => "Waiting On");
+				$thismenu[] = array("link"=>"listItems.php?type=r", 'title'=>"Process references", 'label' => "References");
+                $thismenu[] = array("link"=>"listItems.php?type=p", 'title'=>"Process projects", 'label' => "Projects");
+				$thismenu[] = array("link"=>"listItems.php?type=p&amp;someday=true", 'title'=>"Process Someday projects", 'label' => "Someday/Maybes");
 				$thismenu[] = 'separator';
-				$thismenu[] = array("link"=>"reportContext.php", 'title'=>"Active items sorted by space context", 'label' => "Actions in context");
+				$thismenu[] = array("link"=>"reportContext.php", 'title'=>"Process actions sorted by space context", 'label' => "Actions in context");
 				if ($config['debug'] & _GTD_DEBUG) {
                     $thismenu[] = array("link"=>"reportTimeContext.php", 'title'=>"Active items sorted by time context", 'label' => "Time Contexts");
     				$thismenu[] = array("link"=>"reportCategory.php", 'title'=>"Active items sorted by category", 'label' => "Categories");
 				}
 				$thismenu[] = array("link"=>"index.php", 'title'=>"Summary view", 'label' => "Summary");
-				$thismenu[] = array("link"=>"listItems.php?quickfind", 'title'=>'find an item based on text in its title, description or outcome', 'label'=>'Quick Find');
+				$thismenu[] = array("link"=>"listItems.php?quickfind", 'title'=>'Find an item based on text in its title, description or outcome', 'label'=>'Quick Find');
 				makemenu($thismenu);
 				unset($thismenu);
 				?>
@@ -78,10 +78,10 @@ function makemenu($list) {
 				$thismenu[] = array("link"=>"orphans.php", 'title'=>"List items without a parent item", 'label' => "Orphaned Items");
 				$thismenu[] = array("link"=>"listItems.php?type=a&amp;tickler=true", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
 				$thismenu[] = 'separator';
-				$thismenu[] = array("link"=>"listItems.php?type=g", 'title'=>"Goals", 'label' => "Goals");
-				$thismenu[] = array("link"=>"listItems.php?type=o", 'title'=>"Roles / Areas of Responsibility", 'label' => "Roles");
-				$thismenu[] = array("link"=>"listItems.php?type=v", 'title'=>"Visions", 'label' => "Visions");
-				$thismenu[] = array("link"=>"listItems.php?type=m", 'title'=>"Values / Mission", 'label' => "Values");
+				$thismenu[] = array("link"=>"listItems.php?type=g", 'title'=>"Review goals", 'label' => "Goals");
+				$thismenu[] = array("link"=>"listItems.php?type=o", 'title'=>"Review roles / Areas of Responsibility", 'label' => "Roles");
+				$thismenu[] = array("link"=>"listItems.php?type=v", 'title'=>"Review visions", 'label' => "Visions");
+				$thismenu[] = array("link"=>"listItems.php?type=m", 'title'=>"Review values / Mission", 'label' => "Values");
 				if ($config['debug'] & _GTD_DEBUG) {
     				$thismenu[] = 'separator';
                     $thismenu[] = array("link"=>"leadership.php", 'title'=>"Leadership view", 'label' => "Leadership");
@@ -98,10 +98,10 @@ function makemenu($list) {
 			<ul>
 				<?php
 				$thismenu[] = array("link"=>"editLists.php?type=L", 'title'=>"Create a general purpose list", 'label' => "New List");
-				$thismenu[] = array("link"=>"listLists.php?type=L", 'title'=>"General-purpose lists", 'label' => "Show Lists");
+				$thismenu[] = array("link"=>"listLists.php?type=L", 'title'=>"Show general-purpose lists", 'label' => "Show Lists");
 				$thismenu[] = 'separator';
 				$thismenu[] = array("link"=>"editLists.php?type=C", 'title'=>"Create a reusable list", 'label' => "New Checklist");
-				$thismenu[] = array("link"=>"listLists.php?type=C", 'title'=>"Reusable checklists", 'label' => "Show Checklists");
+				$thismenu[] = array("link"=>"listLists.php?type=C", 'title'=>"Show reusable checklists", 'label' => "Show Checklists");
 				makemenu($thismenu);
 				unset($thismenu);
 				?>
@@ -110,9 +110,9 @@ function makemenu($list) {
         <li>Configure
     		<ul>
 				<?php
-				$thismenu[] = array("link"=>"editCat.php?field=category", 'title'=>"Meta-categories", 'label' => "Categories");
-				$thismenu[] = array("link"=>"editCat.php?field=context", 'title'=>"Spatial contexts", 'label' => "Space Contexts");
-				$thismenu[] = array("link"=>"editCat.php?field=time-context", 'title'=>"Time contexts", 'label' => "Time Contexts");
+				$thismenu[] = array("link"=>"editCat.php?field=category", 'title'=>"Edit Meta-categories", 'label' => "Categories");
+				$thismenu[] = array("link"=>"editCat.php?field=context", 'title'=>"Edit spatial contexts", 'label' => "Space Contexts");
+				$thismenu[] = array("link"=>"editCat.php?field=time-context", 'title'=>"Edit time contexts", 'label' => "Time Contexts");
 				$thismenu[] = 'separator';
 				$thismenu[] = array("link"=>"preferences.php", 'title'=>"User preferences", 'label' => "User Preferences");
                 if ($config['showAdmin'])
@@ -132,6 +132,7 @@ function makemenu($list) {
                     );
 				$thismenu[] = array("link"=>"http://www.gtd-php.com/Users/Documentation", 'title'=>"Documentation", 'label' => "Helpfile Wiki");
 				$thismenu[] = array("link"=>$newbuglink, 'title'=>"Report a bug on the gtd-php trac system", 'label' => "Report a bug");
+				$thismenu[] = array("link"=>"listkeys.php", 'title'=>"List the shortcut keys", 'label' => "Show shortcut keys");
 				$thismenu[] = array("link"=>"http://toae.org/boards", 'title'=>"Help and development discussions", 'label' => "Support Forum");
 				$thismenu[] = array('link'=>'http://www.gtd-php.com/Developers/Contrib','title'=>'User-contributed enhancements','label'=>'Themes and add-ons');
 				$thismenu[] = array("link"=>"https://www.hosted-projects.com/trac/toae/gtdphp", 'title'=>"Bug tracking and project development", 'label' => "Developers' wiki");

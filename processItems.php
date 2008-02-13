@@ -244,7 +244,7 @@ function changeType() {
 	global $config,$values;
     $values['isSomeday']=isset($_REQUEST['isSomeday'])?$_REQUEST['isSomeday']:'n';
     query("updateitemtype",$config,$values);
-    if (!empty($_REQUEST['safe'])) {
+    if (empty($_REQUEST['safe'])) {
     	query("deletelookup",$config,$values);
     	query("deletelookupparents",$config,$values);
     	removeNextAction();
@@ -398,16 +398,16 @@ function nextPage() { // set up the forwarding to the next page
             $nextURL="item.php?parentId=$id&amp;type={$child[0]}";
             if ($child[0]==='a') $nextURL.='&amp;nextonly=true';
             foreach (array('categoryId','contextId','timeframeId') as $field)
-                if ($values[$field]) $nextURL.="&amp;$field=".$values[$field];
+                if (!empty($values[$field])) $nextURL.="&amp;$field=".$values[$field];
             break;
         case "item"    :
             $nextURL="itemReport.php?itemId=$id";
             break;
 		case "list"	   :
             $nextURL="listItems.php?type=$t";
-            if ($values['isSomeday']==='y') {
+            if (!empty($values['isSomeday']) && $values['isSomeday']==='y') {
                 $nextURL.='&someday=true';
-            } else if ($values['suppress']==='y' and
+            } else if (!empty($values['suppress']) && $values['suppress']==='y' and
                 time() < getTickleDate(str_replace("'",'',$values['deadline']),$values['suppressUntil'])
                 ) {
                 $nextURL.='&tickler=true';

@@ -108,7 +108,7 @@ switch ($action) {
     case 'listdelete':
         query("delete{$check}list",$config,$values);
         $numDeleted=query("remove{$check}listitems",$config,$values);
-        $msg="Deleted {$check}list '".makeclean($_REQUEST['title'])."'";
+        $msg="Deleted {$check}list '{$_REQUEST['title']}'";
         if ($numDeleted) {
             $msg.=" and its $numDeleted item";
             if ($numDeleted>1) $msg.='s';
