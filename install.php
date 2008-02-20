@@ -14,7 +14,7 @@ define("_ALLOWUPGRADEINPLACE",true);
 
     /* _ALLOWUNINSTALL = false | true -
     allow the user to remove tables associated with a particular GTD installation */
-define("_ALLOWUNINSTALL",true);
+define("_ALLOWUNINSTALL",false);
 
 
 /*---------------------------------------
@@ -101,8 +101,7 @@ $areDeleting=false;
 require_once('headerHtml.inc.php');
 echo "</head><body><div id='container'>";
 include('showMessage.inc.php');
-//temporary warning - remove at release - TOFIX
-echo "<h2 class='warning'>This installer is in beta: back up your data before using it!</h2>\n";
+echo "<h2>This is the gtd-php v0.8 installer</h2>\n";
 
 if (_DEBUG) echo '<pre>'
 	,(_DRY_RUN)?'Executing Dry run - no tables will be amended in this run':'This is a <b>live</b> run'

@@ -16,8 +16,9 @@ foreach ($menulines as $line) {
 }
 ?>
 </head><body>
+<p class='noprint'>These keys can be changed in config.php</p>
 <table summary='Shortcut keys'>
-<caption>These keys can be changed in config.php</caption>
+<caption>Shortcut keys for gtd-php</caption>
 <thead><tr><th>key</th><th>title</th><th>description</th></tr></thead>
 <tbody>
 <?php

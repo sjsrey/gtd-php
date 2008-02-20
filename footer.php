@@ -7,7 +7,7 @@
 <div id='footer'>
     page generated in <?php echo $tottime; ?>ms
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	gtd-php version <?php echo _GTD_VERSION,' rev',_GTD_REVISION; ?>
+	gtd-php version <?php echo _GTDPHP_VERSION,' rev',_GTD_REVISION; ?>
 </div>
 </div> <!-- Container-->
 </body>
