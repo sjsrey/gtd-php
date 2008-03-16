@@ -83,7 +83,6 @@ function checkErrors($prefix) {
 */
 function backupData($prefix) {
     global $config;
-    require_once('mysql.funcs.inc.php');
     $sep="-- *******************************\n";
     $tables=array('categories','checklist','checklistitems','context','itemattributes','items','itemstatus','list','listitems','lookup','nextactions','tickler','timeitems','version','preferences');
     $data='';

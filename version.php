@@ -17,8 +17,8 @@
         <tr><th>PHP</th>
             <td><?php echo PHP_VERSION; ?></td>
         </tr>
-        <tr><th>MySQL</th>
-            <td><?php echo mysql_get_server_info(); ?></td>
+        <tr><th>Database</th>
+            <td><?php echo getDBVersion(); ?></td>
         </tr>
     </tbody>
 </table>

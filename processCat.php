@@ -1,5 +1,5 @@
 <?php
-include_once('headerDB.inc.php');
+require_once('headerDB.inc.php');
 $html=false;
 if ($config['debug'] & _GTD_DEBUG) {
     $html=true;

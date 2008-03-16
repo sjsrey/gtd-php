@@ -1,6 +1,6 @@
 <?php
 //INCLUDES
-include_once('headerDB.inc.php');
+require_once('headerDB.inc.php');
 if ($config['debug'] & _GTD_DEBUG) {
     include_once('header.php');
     echo '<pre>POST: ',var_dump($_POST),'</pre>';
@@ -196,7 +196,7 @@ if ($filter['everything']=="true") {
 if (!$checkchildren) $show['flags']=FALSE;
 //set query fragments based on filters
 $values['childfilterquery'] = "WHERE TRUE";
-$values['parentfilterquery'] = "";
+$values['parentfilterquery'] = "WHERE TRUE";
 
 //type filter
 if ($values['type']!=='*')
@@ -228,13 +228,14 @@ if ($filter['everything']!="true") {
             $values['filterquery'] .= " WHERE NOT (" .sqlparts("liveparents",$config,$values) .") ";
             break;
 
-        case '*': // don't filter on completion status of parents
-            $values['filterquery'] .= ' WHERE TRUE '; // yes, I know this looks odd, but we may be concatenating an "AND {extra condition}" later
+        case 'true': //Filter out items with completed/suppressed/someday parents
+            $values['parentfilterquery'] .= ' AND '
+                    .sqlparts("activeitems",$config,$values).' AND '
+                    .sqlparts("pendingitems",$config,$values);
             break;
 
-        case 'true': //Filter out items with completed/suppressed/someday parents - deliberately flows through to default case
-        default:     
-            $values['filterquery'] .= " WHERE " .sqlparts("liveparents",$config,$values);
+        case '*': // don't filter on completion status of parents - deliberately flows through to default case
+        default:
             break;
     }
 
@@ -282,7 +283,7 @@ if ($filter['everything']!="true") {
     
     if ($filter['dueonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("due",$config,$values);
 
-    if ($values['parentId']!='') $values['filterquery'] .= " AND ".sqlparts("hasparent",$config,$values);
+    if ($values['parentId']!='') $values['filterquery'] .= " WHERE ".sqlparts("hasparent",$config,$values);
 
 }
 /*

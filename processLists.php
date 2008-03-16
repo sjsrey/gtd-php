@@ -1,5 +1,5 @@
 <?php
-include_once('headerDB.inc.php');
+require_once('headerDB.inc.php');
 if ($config['debug'] & _GTD_DEBUG)  include_once('header.php');
 include_once('lists.inc.php');
 

@@ -14,7 +14,7 @@ define("_ALLOWUPGRADEINPLACE",true);
 
     /* _ALLOWUNINSTALL = false | true -
     allow the user to remove tables associated with a particular GTD installation */
-define("_ALLOWUNINSTALL",false);
+define("_ALLOWUNINSTALL",true);
 
 
 /*---------------------------------------
@@ -210,10 +210,7 @@ function checkInstall() {
 
 	// got a database; now get a list of its tables
 	$checkState='tables';
-    $tablelist=array();
-	$tables = mysql_list_tables($config['db']);
-	while ($tbl = mysql_fetch_row($tables))
-	   array_push($tablelist,$tbl[0]);
+	$tablelist = getDBTables($config['db']);
 	$nt=count($tablelist);
 	if (_DEBUG) echo "<pre>Number of tables: $nt<br />",print_r($tablelist,true),"</pre>";
 
@@ -262,7 +259,7 @@ function checkInstall() {
 
     echo "<h2>Installation Info</h2>\n"
         ,"<p>php: ",phpversion(),"</p>\n"
-        ,"<p>mysql: ",mysql_get_server_info(),"</p>\n";
+        ,"<p>database: ",getDBVersion(),"</p>\n";
 
 	// check for 0.8rc-1
 	if (!$destInUse && checkTables('0.8rc-1') && checkVersion('')==='0.8rc-1') {
@@ -350,7 +347,7 @@ function checkInstall() {
 		foreach ($gotVersions as $thisKey=>$thisVer) {
 			$tmp=explode('=',$thisKey);
 			$fromVer=$tmp[0];
-			$fromPrefix=$tmp[1];
+			$fromPrefix=(empty($tmp[1]))?'':$tmp[1];
 			$isUpdate= ($fromPrefix==$config['prefix']);
 			$action=($fromVer==_GTD_VERSION)?"Copy":'Update';
 			$msg="$action current $fromVer installation"

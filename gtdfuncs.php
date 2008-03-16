@@ -1,7 +1,44 @@
 <?php
 
 include_once('gtd_constants.inc.php');
+/*
+   ======================================================================================
+*/
+function query($querylabel,$config,$values=NULL,$sort=NULL) {
+    //for developer testing only--- testing data handling
+    //testing passed variables
+    if ($config['debug'] & _GTD_DEBUG) {
+        echo "<p class='debug'><b>Query label: ".$querylabel."</b></p>";
+        echo "<pre>Config: ";
+        print_r($config);
+        echo "<br />Values: ";
+        print_r($values);
+        echo "<br />Sort: ";
+        print_r($sort);
+        echo "</pre>";
+    }
 
+    //grab correct query string from query library array
+    //values automatically inserted into array
+    $query=getsql($config,$values,$sort,$querylabel);
+
+    // for testing only: display fully-formed query
+    if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>Query: ".$query."</p>";
+
+    //perform query
+	$result=doQuery($query,$querylabel);
+
+    //for developer testing only, print result array
+    if ($config['debug'] & _GTD_DEBUG) {
+        echo "<pre>Result: ";
+        print_r($result);
+        echo "</pre>";
+        }
+    return $result;
+}
+/*
+   ======================================================================================
+*/
 function makeClean($textIn) {
     global $config;
     if (is_array($textIn)) {
@@ -92,31 +129,6 @@ function nothingFound($message, $prompt=NULL, $yeslink=NULL, $nolink="index.php"
         if($prompt)
             echo "<p>$prompt;<a href='$yeslink'> Yes </a><a href='$nolink'>No</a></p>\n";
 }
-
-function sqlparts($part,$config,$values)  {
-    //include correct SQL parts query library as chosen in config
-    switch ($config['dbtype']) {
-        case "frontbase":require("frontbaseparts.inc.php");
-        break;
-        case "msql":require("msqlparts.inc.php");
-        break;
-        case "mysql":
-   			require_once("mysql.funcs.inc.php");
-			if (is_array($values)) foreach ($values as $key=>$value) $values[$key] = safeIntoDB($value, $key);
-		    if ($config['debug'] & _GTD_DEBUG)
-		        echo '<pre>Sanitised values in sqlparts: ',print_r($values,true),'</pre>';
-			require_once("mysqlparts.inc.php");
-        	break;
-        case "mssql":require("mssqlparts.inc.php");
-        break;
-        case "postgres":require("postgresparts.inc.php");
-        break;
-        case "sqlite":require("sqliteparts.inc.php");
-        break;
-        }
-    $queryfragment = getsqlparts($part,$config,$values);
-    return $queryfragment;
-    }
 
 function categoryselectbox($config,$values,$sort) {
     $result = query("categoryselectbox",$config,$values,$sort);

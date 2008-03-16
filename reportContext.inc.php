@@ -71,13 +71,12 @@ $wasNAonEntry=array();
 
 $values['type'] = "a";
 $values['isSomeday'] = "n";
-$values['filterquery'] .= " WHERE " .sqlparts("liveparents",$config,$values);
 $values['childfilterquery']  = " WHERE ".sqlparts("typefilter",$config,$values);
 $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
 $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
 $values['childfilterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);
-$values['parentfilterquery'] = '';
-$tstsort=array('getitemsandparent'=>'contextId ASC,timeframeId ASC,'.$sort['getitemsandparent']);
+$values['parentfilterquery'] = " WHERE ".sqlparts("activeitems",$config,$values).' AND '.sqlparts("pendingitems",$config,$values);
+$tstsort=array('getitemsandparent'=>'cname ASC,timeframeId ASC,'.$sort['getitemsandparent']);
 $result = query("getitemsandparent",$config,$values,$tstsort);
 $grandtot=count($result);
 $index=0;

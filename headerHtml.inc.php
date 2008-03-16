@@ -1,8 +1,22 @@
 <?php
     list($usec, $sec) = explode(" ", microtime());
     $starttime=(float)$usec + (float)$sec;
-    require_once("ses.php");
-    include_once("config.php");
+    require_once("headerDB.inc.php");
+
+    if ($_SESSION['version']!==_GTD_VERSION && !isset($areUpdating) ) {
+        $testver=query('getgtdphpversion',$config);
+        if ($testver && _GTD_VERSION === array_pop(array_pop($testver)) ) {
+            $_SESSION['version']=_GTD_VERSION;
+        } else {
+            $msg= ($testver)
+                    ? "<p class='warning'>Your version of the database needs upgrading before we can continue.</p>"
+                    : "<p class='warning'>No gtd-php installation found: please check the database prefix in config.php, and then install.</p>";
+            $_SESSION['message']=array($msg); // remove warning about version not being found
+            nextScreen('install.php');
+            die;
+        }
+    }
+
     if (!headers_sent()) {
         $header="Content-Type: text/html; charset=".$config['charset'];
         header($header);
@@ -14,8 +28,6 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=<?php echo $config['charset'];?>" />
 <?php
-require_once("gtdfuncs.php");
-require_once("query.inc.php");
 $thisurl=parse_url($_SERVER['PHP_SELF']);
 
 $title = '	<title>'.$config['title'];

@@ -1,6 +1,6 @@
 <?php
 //INCLUDES
-include_once('headerDB.inc.php');
+require_once('headerDB.inc.php');
 
 $updateGlobals=array();
 $html=false; // indicates if we are outputting html

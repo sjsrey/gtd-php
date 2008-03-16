@@ -1,10 +1,92 @@
 <?php
+/*
+    MySQL extensions to standard SQL have been avoided where known & where practical
+  ===============================================================
 
-//query listing for MySQL database
-//API Documentation available in __________
-//MySQL extensions to standard SQL have been avoided where known
-//Queries may be rewritten in future as SQL evolves and as other database types are supported
+*/
+function connectdb($config) {
 
+    $connection = mysql_connect($config['host'], $config['user'], $config['pass'])
+        or die ("Unable to connect to MySQL server: check your host, user and pass settings in config.php!");
+        
+    mysql_select_db($config['db'])
+        or die ("Unable to select database '{$config['db']}' - check your db setting in config.php!");
+        
+    return $connection;
+}
+/*
+  ===============================================================
+*/
+function getDBVersion() {
+    return mysql_get_server_info();
+}
+/*
+  ===============================================================
+*/
+function getDBtables($db) {
+    $tablelist=array();
+    $tables=mysql_list_tables($db);
+	while ($tbl = mysql_fetch_row($tables))
+	   array_push($tablelist,$tbl[0]);
+    return $tablelist;
+}
+/*
+  ===============================================================
+*/
+function doQuery($query,$label=NULL) {
+    // parse result into multitdimensional array $result[row#][field name] = field value
+    $reply = mysql_query($query);
+    if ($reply===false) {                       // failed query - return FALSE
+        $result=false;
+    } elseif ($reply===true) {                  // query was not a SELECT OR SHOW, so return number of rows affected
+        $result=@mysql_affected_rows();
+    } else if (@mysql_num_rows($reply)===0) {   // empty SELECT/SHOW - return zero
+        $result=0;
+    } else {                                    // successful SELECT/SHOW - return array of results
+        $result=array();
+        while ($mysql_result = mysql_fetch_assoc($reply))
+            $result[]=$mysql_result;
+    }
+
+    /* get last autoincrement insert id:
+        only valid for insert statements using autoincrement values;
+        not updated when explicit value given for autoincrement field
+        (MySQL "feature")
+    */
+    $GLOBALS['lastinsertid'] = mysql_insert_id();
+
+    $error = mysql_errno();
+    if ($error) $_SESSION['message'][]=
+                "Error $error in query '$label': '".mysql_error()."'";
+                
+    return $result;
+}
+/*
+  ===============================================================
+*/
+function safeIntoDB(&$value,$key=NULL) {
+	// don't clean arrays - clean individual strings/values
+	if (is_array($value)) {
+		foreach ($value as $key=>$string) $value[$key] = safeIntoDB($string,$key);
+		return $value;
+	} else {
+		// don't clean filters - we've cleaned those separately in the sqlparts function
+		if (strpos($key,'filterquery')===false
+			&& !preg_match("/^'\d\d\d\d-\d\d-\d\d'$/",$value) ) // and don't clean dates
+			{
+			if ( get_magic_quotes_gpc() && !empty($value) && is_string($value) )
+				$value = stripslashes($value);
+			if(version_compare(phpversion(),"4.3.0",'<'))
+				$value = mysql_escape_string($value);
+			else
+				$value = mysql_real_escape_string($value);
+		} else { return $value;}
+		return $value;
+	}
+}
+/*
+  ===============================================================
+*/
 //GENERAL RULES:
 //"select" = query for something by its id; a single-row result
 //"get" = query for something of a particular type; a multi-row result
@@ -15,6 +97,11 @@
 //"Count" = # of a particular type in table
 //"selectbox" = get results to create a selectbox- for assignment or filter
 function getsql($config,$values,$sort,$querylabel) {
+
+    if (is_array($values))
+        foreach ($values as $key=>$value)
+            $values[$key] = safeIntoDB($value, $key);
+
 	switch ($querylabel) {
 		case "categoryselectbox":
 			$sql="SELECT c.`categoryId`, c.`category`, c.`description`
@@ -68,16 +155,17 @@ function getsql($config,$values,$sort,$querylabel) {
                     JOIN `{$config['prefix']}itemattributes` as ia USING (`itemId`)
                     JOIN (
                         SELECT DISTINCT `itemId` FROM `{$config['prefix']}lookup` AS lu
-                            JOIN (SELECT pi.`itemId` AS parentId,
-                                     pia.`isSomeday` AS pisSomeday,
-                                     pia.`deadline` AS pdeadline,
-						             pia.`suppress` AS psuppress,
-						             pia.`suppressUntil` AS psuppressUntil,
-						             pits.`dateCompleted` AS pdateCompleted
-            					   FROM `{$config['prefix']}itemattributes` as pia
-            					   JOIN `{$config['prefix']}items` as pi USING (`itemId`)
-            					   JOIN `{$config['prefix']}itemstatus` as pits USING (`itemId`)
-                                ) AS y USING (`parentId`) {$values['parentfilterquery']}
+                            JOIN (SELECT i.`itemId` AS parentId,
+                                     ia.`isSomeday` AS pisSomeday,
+                                     ia.`deadline` AS pdeadline,
+						             ia.`suppress` AS psuppress,
+						             ia.`suppressUntil` AS psuppressUntil,
+						             its.`dateCompleted` AS pdateCompleted
+            					   FROM `{$config['prefix']}itemattributes` as ia
+            					   JOIN `{$config['prefix']}items` as i USING (`itemId`)
+            					   JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
+            					   {$values['parentfilterquery']}
+                                ) AS y USING (`parentId`) 
                     ) AS lut ON (i.`itemId`=lut.`itemId`)
                     {$values['childfilterquery']}";
 			break;
@@ -91,16 +179,17 @@ function getsql($config,$values,$sort,$querylabel) {
 						ON (ia.`contextId` = cn.`contextId`)
                     JOIN (
                         SELECT DISTINCT nextAction FROM `{$config['prefix']}nextactions` AS na
-                            JOIN (SELECT pi.`itemId` AS parentId,
-                                     pia.`isSomeday` AS pisSomeday,
-                                     pia.`deadline` AS pdeadline,
-						             pia.`suppress` AS psuppress,
-						             pia.`suppressUntil` AS psuppressUntil,
-						             pits.`dateCompleted` AS pdateCompleted
-            					   FROM `{$config['prefix']}itemattributes` as pia
-            					   JOIN `{$config['prefix']}items` as pi USING (`itemId`)
-            					   JOIN `{$config['prefix']}itemstatus` as pits USING (`itemId`)
-                                ) AS y USING (`parentId`) {$values['parentfilterquery']}
+                            JOIN (SELECT i.`itemId` AS parentId,
+                                     ia.`isSomeday` AS pisSomeday,
+                                     ia.`deadline` AS pdeadline,
+						             ia.`suppress` AS psuppress,
+						             ia.`suppressUntil` AS psuppressUntil,
+						             its.`dateCompleted` AS pdateCompleted
+            					   FROM `{$config['prefix']}itemattributes` as ia
+            					   JOIN `{$config['prefix']}items` as i USING (`itemId`)
+            					   JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
+            					   {$values['parentfilterquery']}
+                                ) AS y USING (`parentId`) 
                     ) AS nat ON (x.`itemId`=nat.`nextAction`)
                      {$values['filterquery']}
                      GROUP BY ia.`contextId` ORDER BY cn.`name`";
@@ -114,16 +203,17 @@ function getsql($config,$values,$sort,$querylabel) {
                     JOIN `{$config['prefix']}itemattributes` as ia USING (`itemId`)
                     JOIN (
                         SELECT DISTINCT nextAction FROM `{$config['prefix']}nextactions` AS na
-                            LEFT OUTER JOIN (SELECT pi.`itemId` AS parentId,
-                                     pia.`isSomeday` AS pisSomeday,
-                                     pia.`deadline` AS pdeadline,
-						             pia.`suppress` AS psuppress,
-						             pia.`suppressUntil` AS psuppressUntil,
-						             pits.`dateCompleted` AS pdateCompleted
-            					   FROM `{$config['prefix']}itemattributes` as pia
-            					   JOIN `{$config['prefix']}items` as pi USING (`itemId`)
-            					   JOIN `{$config['prefix']}itemstatus` as pits USING (`itemId`)
-                                ) AS y USING (`parentId`) {$values['parentfilterquery']}
+                            LEFT OUTER JOIN (SELECT i.`itemId` AS parentId,
+                                     ia.`isSomeday` AS pisSomeday,
+                                     ia.`deadline` AS pdeadline,
+						             ia.`suppress` AS psuppress,
+						             ia.`suppressUntil` AS psuppressUntil,
+						             its.`dateCompleted` AS pdateCompleted
+            					   FROM `{$config['prefix']}itemattributes` as ia
+            					   JOIN `{$config['prefix']}items` as i USING (`itemId`)
+            					   JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
+            					   {$values['parentfilterquery']}
+                                ) AS y USING (`parentId`)
                     ) AS nat ON (i.`itemId`=nat.`nextAction`)
                     {$values['childfilterquery']}
 					GROUP BY `duecategory`";
@@ -365,7 +455,7 @@ function getsql($config,$values,$sort,$querylabel) {
 
 		case "getspacecontexts":
 			$sql="SELECT `contextId`, `name`
-				FROM `". $config['prefix'] . "context` ORDER BY `contextId` ASC";
+				FROM `". $config['prefix'] . "context` ORDER BY `name` ASC";
 			break;
 
 		case "gettimecontexts":
@@ -753,10 +843,150 @@ function getsql($config,$values,$sort,$querylabel) {
 						`type`='{$values['type']}'
 				WHERE `timeframeId` ='{$values['id']}'";
 			break;
-        default:
-            $sql="Failed to find sql query $querylabel";
+			
+        default: // default to assuming that the label IS the query
+            $sql=$querylabel;
             break;
     }
 	return $sql;
 }
+/*
+  ===============================================================
+*/
+function sqlparts($part,$config,$values) {
+
+  if (is_array($values))
+    foreach ($values as $key=>$value)
+        $values[$key] = safeIntoDB($value, $key);
+        
+  if ($config['debug'] & _GTD_DEBUG)
+      echo '<pre>Sanitised values in sqlparts: ',print_r($values,true),'</pre>';
+
+  switch ($part) {
+	case "activeitems":
+		$sqlpart = " ((CURDATE()>=DATE_ADD(ia.`deadline`, INTERVAL -(ia.`suppressUntil`) DAY)) OR ia.`suppress`!='y') ";
+		break;
+	case "activelistitems":
+		$sqlpart = " li.`dateCompleted` IS NULL ";
+		break;
+	case "categoryfilter":
+		$sqlpart = " ia.`categoryId` = '{$values['categoryId']}' ";
+		break;
+	case "categoryfilter-parent":
+		$sqlpart = " y.`pcategoryId` = '{$values['categoryId']}' ";
+		break;
+	case "checkchildren":
+		$sqlpart = " LEFT JOIN (
+                                        SELECT parentId as itemId,COUNT(DISTINCT nextaction) AS numNA
+                                            FROM {$config['prefix']}nextactions GROUP BY itemId
+                                        ) AS na ON(na.itemId=x.itemId)
+
+                                      LEFT JOIN (
+                                        SELECT cl.parentId AS itemId,count(DISTINCT cl.itemId) as numChildren
+                                            FROM {$config['prefix']}lookup         AS cl
+                                            JOIN {$config['prefix']}itemstatus     AS chis ON (cl.itemId=chis.itemId)
+                                            JOIN {$config['prefix']}itemattributes AS chia ON (cl.itemId=chia.itemId)
+                                            WHERE chis.dateCompleted IS NULL AND chia.type IN ('a','p','g','m','v','o','i','w')
+                                            GROUP BY cl.parentId
+                                        ) AS act ON (act.itemId=x.itemId) ";
+		break;
+	case "checklistcategoryfilter":
+		$sqlpart = " cl.`categoryId`='{$values['categoryId']}' ";
+		break;
+	case "completeditems":
+		$sqlpart = " its.`dateCompleted` IS NOT NULL ";
+		break;
+	case "completedlistitems":
+		$sqlpart = " li.`dateCompleted` IS NOT NULL ";
+		break;
+	case "contextfilter":
+		$sqlpart = " ia.`contextId` = '{$values['contextId']}' ";
+		break;
+	case "countchildren":
+		$sqlpart = " ,na.numNA, act.numChildren";
+		break;
+	case "due":
+		$sqlpart = " (CURDATE()>=ia.`deadline` AND ia.`deadline` IS NOT NULL) ";
+		break;
+	case "getNA":
+		$sqlpart = " , COUNT(DISTINCT na.nextaction) as NA ";
+		break;
+	case "hasparent":
+		$sqlpart = " y.`parentId` = '{$values['parentId']}' ";
+		break;
+	case "isNA":
+		$sqlpart = " LEFT JOIN ( SELECT nextaction FROM {$config['prefix']}nextactions
+                               ) AS na ON(na.nextaction=x.itemId) ";
+		break;
+	case "isNAonly":
+        $sqlpart = " INNER JOIN {$config['prefix']}nextactions AS na ON(na.nextaction=x.itemId) ";
+		break;
+	case "issomeday":
+		$sqlpart = " ia.`isSomeday` = '{$values['isSomeday']}' ";
+		break;
+	case "limit":
+		$sqlpart = " LIMIT {$values['maxItemsToSelect']} ";
+		break;
+	case "listcategoryfilter":
+		$sqlpart = " l.`categoryId`='{$values['categoryId']}' ";
+		break;
+    case "liveparents":
+        $sqlpart = "((CURDATE()>=DATE_ADD(y.`pdeadline`, INTERVAL -(y.`psuppressUntil`) DAY)) OR y.`psuppress`!='y' OR y.`psuppress` IS NULL)"
+                    ." AND (y.`pdatecompleted` IS NULL) "
+                    ." AND (y.`pisSomeday`='n' OR y.`pisSomeday` IS NULL)";
+		break;
+	case "matchall":
+		$sqlpart = " (i.`title` LIKE '%{$values['needle']}%'
+                                      OR i.`description` LIKE '%{$values['needle']}%'
+                                      OR i.`desiredOutcome` LIKE '%{$values['needle']}%' )";
+		break;
+	case "notcategoryfilter":
+		$sqlpart = " ia.`categoryId` != '{$values['categoryId']}' ";
+		break;
+	case "notcategoryfilter-parent":
+		$sqlpart = " y.`pcategoryId` != '{$values['categoryId']}' ";
+		break;
+	case "notcontextfilter":
+		$sqlpart = " ia.`contextId` != '{$values['contextId']}' ";
+		break;
+	case "notefilter":
+		$sqlpart = " (`date` IS NULL) OR (CURDATE()>= `date`) ";
+		break;
+	case "nottimeframefilter":
+		$sqlpart = " ia.`timeframeId` !='{$values['timeframeId']}' ";
+		break;
+	case "pendingitems":
+		$sqlpart = " its.`dateCompleted` IS NULL ";
+		break;
+	case "repeating":
+		$sqlpart = " ia.`repeat` >0 ";
+		break;
+	case "singleitem":
+		$sqlpart = " i.`itemId`='{$values['itemId']}' ";
+		break;
+	case "suppresseditems":
+		$sqlpart = " ia.`suppress`='y' AND (CURDATE()<=DATE_ADD(ia.`deadline`, INTERVAL -(ia.`suppressUntil`) DAY)) ";
+		break;
+	case "timeframefilter":
+		$sqlpart = " ia.`timeframeId` ='{$values['timeframeId']}' ";
+		break;
+	case "timetype":
+		$sqlpart = " ti.`type` = '{$values['type']}' ";
+		break;
+	case "typefilter":
+		$sqlpart = " ia.`type` = '{$values['type']}' ";
+		break;
+/*
+	case "ptypefilter":
+		$sqlpart = " ia.`type` = '{$values['ptype']}' ";
+		break;
+*/
+    default:
+        if ($config['debug'] & _GTD_DEBUG) echo "<p class='error'>Failed to find sql component '$part'</p>'";
+        $sqlpart=$part;
+        break;
+  }
+  return $sqlpart;
+}
+
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

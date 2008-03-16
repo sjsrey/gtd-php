@@ -170,6 +170,15 @@ $config['allowChangingTypes'] = false; // false | true - allows the user to chan
 $config['showAdmin'] = true; // false | true - adds the Admin option to the menu items
 $config['charset'] = 'ISO8859-15'; // character-encoding for pages: utf-8 IS NOT YET SUPPORTED, nor is any other multi-byte character set
 $config['withholdVersionInfo']=false; // true | false - if false, will send the version numbers of your installations of gtd-php, PHP and MySQL when you report a bug
+$config['addons']=array();
+/*
+    addons go below this line.  For example:
+    
+    $config['addons']['completion rates']=array("link"=>"achievements.php",
+        'title'=>"Notable Achievements", 'label' => "Achievements",
+        'where'=>'listItems.php?type=a&amp;tickler=true','when'=>'after');
+*/
+
 /*********  Developer Settings ************/
 
 /* The debug value is generally for the developers of the application.  You will probably want this to remain 0

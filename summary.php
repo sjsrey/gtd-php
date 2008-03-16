@@ -21,7 +21,8 @@ $values['childfilterquery'] = " WHERE ".sqlparts("typefilter",$config,$values)
                                 ." AND ".sqlparts("issomeday",$config,$values)
                                 ." AND ".sqlparts("activeitems",$config,$values)
                                 ." AND ".sqlparts("pendingitems",$config,$values);
-$values['parentfilterquery'] = " WHERE " .sqlparts("liveparents",$config,$values);
+$values['parentfilterquery'] = " WHERE ".sqlparts("activeitems",$config,$values)
+                                .' AND '.sqlparts("pendingitems",$config,$values);
 //get # nextactions
 $res = query("countnextactions",$config,$values,$sort);
 $nextactionsdue=array('-1'=>0,'0'=>0,'1'=>0,'2'=>0,'3'=>0,'4'=>0);

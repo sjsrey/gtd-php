@@ -12,7 +12,8 @@ include_once('header.php');
     $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
     $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
     $values['childfilterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);
-    $values['parentfilterquery'] = '';
+    $values['parentfilterquery'] = ' WHERE '.sqlparts("activeitems",$config,$values)
+                                    .' AND '.sqlparts("pendingitems",$config,$values);
     $values['filterquery'] = sqlparts("checkchildren",$config,$values);
     $values['extravarsfilterquery'] = sqlparts("countchildren",$config,$values);;
     $result = query("getitemsandparent",$config,$values,array('getitemsandparent'=>'title ASC'));
