@@ -174,10 +174,11 @@ $config['addons']=array();
 /*
     addons go below this line.  For example:
     
-    $config['addons']['completion rates']=array("link"=>"achievements.php",
+$config['addons']['achievements']=array(
+        "link"=>"addons/achievements/achievements.php",
         'title'=>"Notable Achievements", 'label' => "Achievements",
-        'where'=>'listItems.php?type=a&amp;tickler=true','when'=>'after');
-*/
+        'where'=>'listItems.php?type=a&amp;tickler=true','when'=>'after',
+        'options'=>array('jpgraphdir'=>'../jpgraph/'));*/
 
 /*********  Developer Settings ************/
 

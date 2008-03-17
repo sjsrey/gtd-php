@@ -102,11 +102,11 @@ $menu[] = array("link"=>"version.php", 'title'=>"Version information", 'label' =
    ----------------------------------------------
         now process addons
 */
-if (!empty($config['addons'])) foreach ($config['addons'] as $addon) {
-    $url=$addon['where'];
+if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddon) {
+    $url=$thisaddon['where'];
     foreach ($menu as $key=>$line) {
         if ($url!==$line['link']) continue;
-        switch ($addon['when']) {
+        switch ($thisaddon['when']) {
             case 'before':
                 $offset=$key;
                 $length=0;
@@ -121,9 +121,10 @@ if (!empty($config['addons'])) foreach ($config['addons'] as $addon) {
                 $length=0;
                 break;
         }
-        unset($addon['where']);
-        unset($addon['when']);
-        array_splice($menu,$offset,$length,array($addon));
+        unset($thisaddon['where']);
+        unset($thisaddon['when']);
+        $thisaddon['link']="addon.php?addonid=$addonid";
+        array_splice($menu,$offset,$length,array($thisaddon));
         break;
     }
 }
