@@ -196,7 +196,6 @@ if ($filter['everything']=="true") {
 if (!$checkchildren) $show['flags']=FALSE;
 //set query fragments based on filters
 $values['childfilterquery'] = "WHERE TRUE";
-$values['parentfilterquery'] = "WHERE TRUE";
 
 //type filter
 if ($values['type']!=='*')
@@ -223,19 +222,19 @@ if ($checkchildren) {
     i.e. if we are not forcing the listing of *all* items
 */
 if ($filter['everything']!="true") {
-    switch ($filter['liveparents']) {
+    if ($values['parentId']!='')
+        $values['filterquery'] .= " WHERE ".sqlparts("hasparent",$config,$values);
+    else switch ($filter['liveparents']) {
         case 'false': // show only children of completed / suppressed / someday parents
             $values['filterquery'] .= " WHERE NOT (" .sqlparts("liveparents",$config,$values) .") ";
             break;
 
-        case 'true': //Filter out items with completed/suppressed/someday parents
-            $values['parentfilterquery'] .= ' AND '
-                    .sqlparts("activeitems",$config,$values).' AND '
-                    .sqlparts("pendingitems",$config,$values);
+        case '*': // don't filter on completion status of parents
             break;
 
-        case '*': // don't filter on completion status of parents - deliberately flows through to default case
+        case 'true': //Filter out items with completed/suppressed/someday parents  - deliberately flows through to default case
         default:
+            $values['filterquery'] .= ' WHERE '.sqlparts("liveparents",$config,$values);
             break;
     }
 
@@ -282,8 +281,6 @@ if ($filter['everything']!="true") {
     if ($filter['repeatingonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("repeating",$config,$values);
     
     if ($filter['dueonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("due",$config,$values);
-
-    if ($values['parentId']!='') $values['filterquery'] .= " WHERE ".sqlparts("hasparent",$config,$values);
 
 }
 /*

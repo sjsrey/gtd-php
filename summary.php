@@ -17,12 +17,11 @@ $numbercontexts=(is_array($res[0]))?(int) $res[0]['COUNT(*)']:0;
 //count active items
 $values['type'] = "a";
 $values['isSomeday'] = "n";
-$values['childfilterquery'] = " WHERE ".sqlparts("typefilter",$config,$values)
+$values['filterquery'] = " WHERE ".sqlparts("typefilter",$config,$values)
                                 ." AND ".sqlparts("issomeday",$config,$values)
                                 ." AND ".sqlparts("activeitems",$config,$values)
                                 ." AND ".sqlparts("pendingitems",$config,$values);
-$values['parentfilterquery'] = " WHERE ".sqlparts("activeitems",$config,$values)
-                                .' AND '.sqlparts("pendingitems",$config,$values);
+                                
 //get # nextactions
 $res = query("countnextactions",$config,$values,$sort);
 $nextactionsdue=array('-1'=>0,'0'=>0,'1'=>0,'2'=>0,'3'=>0,'4'=>0);
@@ -32,6 +31,7 @@ if (is_array($res))
 $numbernextactions=array_sum($nextactionsdue);
 
 // get # actions
+$values['filterquery'].=" AND ".sqlparts("liveparents",$config,$values);
 $res =query("countactions",$config,$values,$sort);
 $numberitems =($res)?(int) $res[0]['nactions']:0;
 

@@ -153,21 +153,16 @@ function getsql($config,$values,$sort,$querylabel) {
                     FROM `{$config['prefix']}items` as i
 					JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
                     JOIN `{$config['prefix']}itemattributes` as ia USING (`itemId`)
-                    JOIN (
-                        SELECT DISTINCT `itemId` FROM `{$config['prefix']}lookup` AS lu
-                            JOIN (SELECT i.`itemId` AS parentId,
-                                     ia.`isSomeday` AS pisSomeday,
-                                     ia.`deadline` AS pdeadline,
-						             ia.`suppress` AS psuppress,
-						             ia.`suppressUntil` AS psuppressUntil,
-						             its.`dateCompleted` AS pdateCompleted
-            					   FROM `{$config['prefix']}itemattributes` as ia
-            					   JOIN `{$config['prefix']}items` as i USING (`itemId`)
-            					   JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
-            					   {$values['parentfilterquery']}
-                                ) AS y USING (`parentId`) 
-                    ) AS lut ON (i.`itemId`=lut.`itemId`)
-                    {$values['childfilterquery']}";
+                    LEFT OUTER JOIN `{$config['prefix']}lookup` AS lu USING (`itemId`)
+                    LEFT OUTER JOIN ( SELECT
+    						i.`itemId` AS parentId, ia.`isSomeday` AS pisSomeday,
+    						ia.`deadline` AS pdeadline, ia.`suppress` AS psuppress,
+    						ia.`suppressUntil` AS psuppressUntil,
+    						its.`dateCompleted` AS pdateCompleted
+					   FROM `{$config['prefix']}itemattributes` AS ia
+							JOIN `{$config['prefix']}items` AS i USING (`itemId`)
+							JOIN `{$config['prefix']}itemstatus` AS its  USING (`itemId`)
+					) as y ON (y.`parentId` = lu.`parentId`) {$values['filterquery']}";
 			break;
 
         case 'countactionsbycontext':
@@ -188,7 +183,6 @@ function getsql($config,$values,$sort,$querylabel) {
             					   FROM `{$config['prefix']}itemattributes` as ia
             					   JOIN `{$config['prefix']}items` as i USING (`itemId`)
             					   JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
-            					   {$values['parentfilterquery']}
                                 ) AS y USING (`parentId`) 
                     ) AS nat ON (x.`itemId`=nat.`nextAction`)
                      {$values['filterquery']}
@@ -212,10 +206,9 @@ function getsql($config,$values,$sort,$querylabel) {
             					   FROM `{$config['prefix']}itemattributes` as ia
             					   JOIN `{$config['prefix']}items` as i USING (`itemId`)
             					   JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
-            					   {$values['parentfilterquery']}
                                 ) AS y USING (`parentId`)
                     ) AS nat ON (i.`itemId`=nat.`nextAction`)
-                    {$values['childfilterquery']}
+                    {$values['filterquery']}
 					GROUP BY `duecategory`";
 			break;
 		case "countselected":
@@ -404,7 +397,6 @@ function getsql($config,$values,$sort,$querylabel) {
 								ON (ia.`itemId` = i.`itemId`)
 							JOIN `". $config['prefix'] . "itemstatus` as its
 								ON (ia.`itemId` = its.`itemId`)
-						{$values['parentfilterquery']}
 					) as y ON (y.parentId = x.parentId)
 				{$values['filterquery']} GROUP BY x.`itemId`
 				ORDER BY {$sort['getitemsandparent']}";
@@ -859,9 +851,6 @@ function sqlparts($part,$config,$values) {
     foreach ($values as $key=>$value)
         $values[$key] = safeIntoDB($value, $key);
         
-  if ($config['debug'] & _GTD_DEBUG)
-      echo '<pre>Sanitised values in sqlparts: ',print_r($values,true),'</pre>';
-
   switch ($part) {
 	case "activeitems":
 		$sqlpart = " ((CURDATE()>=DATE_ADD(ia.`deadline`, INTERVAL -(ia.`suppressUntil`) DAY)) OR ia.`suppress`!='y') ";
@@ -986,6 +975,10 @@ function sqlparts($part,$config,$values) {
         $sqlpart=$part;
         break;
   }
+
+  if ($config['debug'] & _GTD_DEBUG)
+      echo "<pre>Sqlparts '$part': Result $sqlpart<br />Sanitised values in sqlparts: ",print_r($values,true),'</pre>';
+
   return $sqlpart;
 }
 

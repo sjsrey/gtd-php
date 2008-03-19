@@ -10,7 +10,6 @@ $values['itemId'] = (int) $_GET['itemId'];
 $values['childfilterquery']=' WHERE '.sqlparts('singleitem',$config,$values);
 $values['filterquery']=sqlparts('isNA',$config,$values);
 $values['extravarsfilterquery'] =sqlparts("getNA",$config,$values);;
-$values['parentfilterquery'] = '';
 $result = query("getitemsandparent",$config,$values,$sort);
 $item = ($result)?$result[0]:array();
 
