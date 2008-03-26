@@ -27,6 +27,12 @@ include_once('header.php');
     } else
         $numProjects=0;
     $numNoNext=count($maintable);
+    
+    $values=array();
+	$values['notOrphansfilterquery']=(empty($config['suppressAsOrphans']))?"'i','m'":$config['suppressAsOrphans'];
+	$orph_maintable = query("getorphaneditems",$config,$values,$sort);
+	$orphancnt=($orph_maintable)?count($orph_maintable):0;
+
 //PAGE DISPLAY CODE
 ?>
 <h2>The Weekly Review</h2>
@@ -52,6 +58,17 @@ include_once('header.php');
     <tr><td>Empty your <a href='listItems.php?type=i'>gtd-php inbox</a></td>
         <td>Use the 'Set Type' button to convert each one into a project, action, reference or waiting-on</td>
     </tr>
+<?php if ($orphancnt) { ?>
+    <tr><td>Re-parent your <a href='orphans.php'>orphans</a></td>
+        <td>You have <?php echo $orphancnt?> orphan<?php if ($orphancnt > 1) echo "s"; ?> that need<?php if ($orphancnt == 1) echo "s"; ?> to be addressed.
+        
+        <table summary='Orphans'>
+                    <tbody>
+                    <?php columnedTable(3,$orph_maintable); ?>
+                    </tbody>
+                </table></td>
+    </tr>
+<?php } ?>
     <tr>
         <td>Review <a href="listItems.php?type=p">Projects list</a></td>
         <td><?php
