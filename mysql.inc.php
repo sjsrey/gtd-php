@@ -665,6 +665,12 @@ function getsql($config,$values,$sort,$querylabel) {
 				WHERE i.`itemId` = '{$values['itemId']}'";
 			break;
 
+		case "selectitemtitle":
+			$sql="SELECT i.`itemId`, i.`title`, i.`description`
+				    FROM `". $config['prefix'] . "items` as i
+				    WHERE i.`itemId` = '{$values['itemId']}'";
+			break;
+
 		case "selectlist":
 			$sql="SELECT `listId` as id, l.`title`, l.`description`, l.`categoryId`,c.`category`
 				FROM `". $config['prefix'] . "list` AS l

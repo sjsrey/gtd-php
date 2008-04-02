@@ -38,8 +38,8 @@ define("_DRY_RUN",false);
 space, but allow you to use MATCH ... AGAINST NB GTD-php does not currently use this */
 define("_USEFULLTEXT",false); 
 
-require_once('admin.inc.php');
-require_once('gtd_constants.inc.php');
+require_once 'admin.inc.php';
+require_once 'gtd_constants.inc.php';
 define("_DEFAULTDATE","1990-01-01");
 define ("_TEMPPREFIX","_gtdphp_temptable_");
 
@@ -98,9 +98,9 @@ $areUpdating=false;
 $wantToDelete=false;
 $areDeleting=false;
 
-require_once('headerHtml.inc.php');
+require_once 'headerHtml.inc.php';
 echo "</head><body><div id='container'>";
-include('showMessage.inc.php');
+include 'showMessage.inc.php';
 echo "<h2>This is the gtd-php v0.8 installer</h2>\n";
 
 if (_DEBUG) echo '<pre>'
@@ -114,7 +114,7 @@ elseif (isset($_POST['install'])) {
     $toDB=$_POST['db'];
     // check to see whether the prefix in config.php hsa been changed between POST and now
     if ($toPrefix===$config['prefix'] && $toDB===$config['db'])
-        $areUpdating=true; // ok, it's sfe to update.
+        $areUpdating=true; // ok, it's safe to update.
     else {
         echo "<p class='error warning'>config.php has changed during the installation process. "
             ," The upgrade cannot continue. Please select your upgrade option again.";
@@ -158,7 +158,7 @@ else {
     $checkState='in';
 	checkInstall();
 }
-include_once('footer.php');
+include_once 'footer.php';
 return;
 /*
    ======================================================================================
@@ -206,7 +206,7 @@ function checkInstall() {
 
     // try to open the database
     $checkState='db';
-	require_once('headerDB.inc.php');
+	require_once 'headerDB.inc.php';
 
 	// got a database; now get a list of its tables
 	$checkState='tables';
@@ -231,10 +231,10 @@ function checkInstall() {
             $destInUse=true;
             if ($thisVer==_GTD_VERSION) {     // and it's the latest version - so no upgrade needed!
     			// this destination is already in use - let's go!
-                require_once('headerMenu.inc.php');
+                require_once 'headerMenu.inc.php';
     			echo "<div id='main'>\n<h2>Installed Version is up to date</h2>\n"
                     ,"<p>There is already an installation of "
-                    ,_GTD_VERSION," with prefix '{$config['prefix']}'</p>"
+                    ,_GTDPHP_VERSION," with prefix '{$config['prefix']}'</p>"
                     ,"<p>It's ready for you to <a href='index.php'>start using it.</a></p>\n"
                     ,"<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>\n";
                 $goodToGo=false;
@@ -335,7 +335,7 @@ function checkInstall() {
 	if ($goodToGo) {
 		echo '<form action="install.php" method="post">'
 			,"\n<h2>Select an upgrade or installation</h2>\n"
-			,"<h3>Creating "._GTD_VERSION." installation with "
+			,"<h3>Creating "._GTDPHP_VERSION." installation with "
 			,(($config['prefix']=='')?'no prefix':"prefix '{$config['prefix']}'")
 			,"</h3>\n";
 		if (($destInUse || _ALLOWUNINSTALL) && count($gotVersions)) showDeleteWarning();
@@ -389,7 +389,7 @@ function checkInstall() {
 function doInstall($installType,$fromPrefix) {
 	global $config,$temp,$install_success,$versions,$tablesByVersion;
 
-    require_once("headerDB.inc.php");
+    require_once "headerDB.inc.php";
 
 	$temp='';
 	register_shutdown_function('cleanup');
@@ -463,7 +463,7 @@ installation for use and familiarize yourself with the system.</p>\n
 			fixLastModifiedColumn();
 		}
         $install_success = true;
-        $endMsg='<p>GTD-PHP 0.8 upgraded from 0.8rc-3 to '._GTD_VERSION.' - thanks for your beta-testing</p>';
+        $endMsg='<p>GTD-PHP 0.8 upgraded from 0.8rc-3 to '._GTDPHP_VERSION.' - thanks for your beta-testing</p>';
 	    break;
 	 case '0.8rc-1':  // upgrade from 0.8rc-1 =================================================================
         // if there's a prefix, and there wasn't before, copy tables over
@@ -489,7 +489,7 @@ installation for use and familiarize yourself with the system.</p>\n
 	    fixAllDates($config['prefix']);
 		fixLastModifiedColumn();
 		$install_success = true;
-	    $endMsg='<p>GTD-PHP 0.8 upgraded from 0.8rc-1 to '._GTD_VERSION.' - thanks for your beta-testing</p>';
+	    $endMsg='<p>GTD-PHP 0.8 upgraded from 0.8rc-1 to '._GTDPHP_VERSION.' - thanks for your beta-testing</p>';
 	    break;
     /*
 
@@ -941,7 +941,7 @@ $maxnum = "+(
         fixAllDates($config['prefix']);
         fixLastModifiedColumn();
 		$install_success = true;
-		$endMsg='<p>GTD-PHP upgraded from 0.7 to v0.8</p>';
+		$endMsg='<p>GTD-PHP upgraded from 0.7 to '._GTDPHP_VERSION.'</p>';
 	   break;
     /*
         end of upgrade from v0.7
@@ -958,7 +958,7 @@ $maxnum = "+(
     } // end of switch
 
 	if ($install_success) {
-        require_once('headerMenu.inc.php');
+        require_once 'headerMenu.inc.php';
         echo "<div id='main'><p>Installation completed: <a href='index.php'>Let's begin</a></p>\n";
     } else echo "<div id='main'>\n";
 	echo $endMsg;
