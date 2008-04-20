@@ -1,5 +1,4 @@
 <?php
-//INCLUDES
 require_once('headerDB.inc.php');
 if ($config['debug'] & _GTD_DEBUG) {
     include_once('header.php');
@@ -33,6 +32,7 @@ $filter['dueonly']        =getVarFromGetPost('dueonly');           //has due dat
 $filter['repeatingonly']  =getVarFromGetPost('repeatingonly');     //is repeating:true/empty
 $filter['parentId']       =getVarFromGetPost('parentId');
 $filter['liveparents']    =getVarFromGetPost('liveparents');
+$filter['tags']           =strtolower(getVarFromGetPost('tags'));
 
 if ($filter['type']==='s') {
     $filter['someday']=true;
@@ -55,8 +55,14 @@ $values['contextId']      =$filter['contextId'];
 $values['categoryId']     =$filter['categoryId'];
 $values['timeframeId']    =$filter['timeframeId'];
 $values['needle']         =$filter['needle'];
+$values['tags']           =$filter['tags'];
 
 //SQL CODE
+
+$values['filterquery']='';
+$taglisttemp=query('gettags',$config,$values);
+$taglist=array();
+if ($taglisttemp) foreach ($taglisttemp as $tag) $taglist[]=$tag['tagname'];
 
 //create filters for selectboxes
 $values['timefilterquery'] = ($config['useTypesForTimeContexts'] && $values['type']!=='*')?" WHERE ".sqlparts("timetype",$config,$values):'';
@@ -66,34 +72,6 @@ $cashtml=str_replace('--','(any)',categoryselectbox   ($config,$values,$sort));
 $cshtml =str_replace('--','(any)',contextselectbox    ($config,$values,$sort));
 $tshtml =str_replace('--','(any)',timecontextselectbox($config,$values,$sort));
 
-/*
-    ===================================================================
-    build array of notes
-    ===================================================================
-*/
-//Tickler file header and notes section
-$remindertable=array();
-
-if ($filter['tickler']=="true") {
-    $values['filterquery'] = '';
-    $result = query("getnotes",$config,$values,$sort);
-    if ($result) {
-        foreach ($result as $row) {
-            $remindertable[]=array(
-                'id'=>$row['ticklerId']
-                ,'date'=>$row['date']
-                ,'title'=>htmlentities(stripslashes($row['title']),ENT_QUOTES)
-                ,'note'=>nl2br($row['note'])
-            );
-        }
-    }
-}
-
-/*
-    ===================================================================
-    finished building array of notes
-    ===================================================================
-*/
 // pass filters in referrer
 $thisurl=parse_url($_SERVER['PHP_SELF']);
 $referrer = basename($thisurl['path']).'?';
@@ -102,41 +80,60 @@ foreach($filter as $filterkey=>$filtervalue)
 
 
 //Select items
+$trimlength=$config['trimLength'];
+if($trimlength) {
+    $descriptionField='shortdesc';
+    $outcomeField='shortoutcome';
+} else {
+    $descriptionField='description';
+    $outcomeField='desiredOutcome';
+}
 
 //set default table column display options (kludge-- needs to be divided into multidimensional array for each table type and added to preferences table
 $show['parent']=TRUE;
 $show['type']=FALSE;
 $show['NA']=FALSE;
 $show['title']=TRUE;
-$show['description']=TRUE;
-$show['desiredOutcome']=FALSE;
+$show[$descriptionField]=TRUE;
+$show[$outcomeField]=FALSE;
 $show['isSomeday']=FALSE;
-$show['suppress']=FALSE;
-$show['suppressUntil']=FALSE;
+$show['tickledate']=FALSE;
 $show['dateCreated']=FALSE;
 $show['lastModified']=FALSE;
 $show['category']=TRUE;
 $show['context']=TRUE;
 $show['timeframe']=TRUE;
 $show['deadline']=TRUE;
-$show['repeat']=TRUE;
+$show['recurdesc']=TRUE;
 $show['dateCompleted']=FALSE;
 $show['checkbox']=TRUE;
+$show['tags']=FALSE;
 $show['assignType']=FALSE;
 $showalltypes=false;
 //determine item and parent labels, set a few defaults
+$typename=getTypes($values['type']);
+$parenttypes=getParentType($values['type']);
+if (empty($parenttypes)) {
+    $values['ptype']=$parentname='';
+} else {
+    $values['ptype']=$parenttypes[0];
+    $parentname=getTypes($values['ptype']);
+}
 switch ($values['type']) {
-    case "*" : $typename="Item"; $parentname=""; $values['ptype']=""; $show['type']=TRUE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=FALSE; $showalltypes=TRUE; break;
-    case "m" : $typename="Value"; $parentname=""; $values['ptype']=""; $show['parent']=FALSE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
-    case "v" : $typename="Vision"; $parentname="Value"; $values['ptype']="m"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
-    case "o" : $typename="Role"; $parentname="Vision"; $values['ptype']="v"; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
-    case "g" : $typename="Goal"; $parentname="Role"; $values['ptype']="o"; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $checkchildren=TRUE; break;
-    case "p" : $typename="Project"; $parentname="Goal"; $values['ptype']="g"; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
-    case "a" : $typename="Action"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $show['NA']=TRUE; $show['category']=FALSE; $checkchildren=FALSE; break;
-    case "w" : $typename="Waiting On"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $show['NA']=TRUE; $checkchildren=FALSE; break;
-    case "r" : $typename="Reference"; $parentname="Project"; $values['ptype']="p"; $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['repeat']=FALSE; $show['dateCreated']=TRUE; $checkchildren=FALSE; break;
-    case "i" : $typename="Inbox Item"; $parentname=""; $values['ptype']=""; $show['parent']=FALSE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['repeat']=FALSE; $show['assignType']=TRUE; $afterTypeChange='listItems.php?type=i';$checkchildren=FALSE; break;
-    default  : $typename="Item"; $parentname=""; $values['ptype']=""; $checkchildren=FALSE; 
+    case "*" : $show['type']=TRUE; $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=FALSE; $showalltypes=TRUE; break;
+    case "m" : $show['parent']=FALSE; $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+    case "v" : $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+    case "o" : $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+    case "g" : $show['desiredOutcome']=TRUE; $show['context']=FALSE; $checkchildren=TRUE; break;
+    case "p" : $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+    case "a" : $show['parent']=TRUE; $show['NA']=TRUE; $show['category']=FALSE; $checkchildren=FALSE; break;
+    case "w" : $show['parent']=TRUE; $show['NA']=TRUE; $checkchildren=FALSE; break;
+    case "r" : $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $checkchildren=FALSE; break;
+    case "i" : $show['parent']=FALSE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['recurdesc']=FALSE; $show['assignType']=TRUE; $afterTypeChange='listItems.php?type=i';$checkchildren=FALSE; break;
+    case "L" : // as case 'C'
+    case "C" : $show['parent']=TRUE; $show['category']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=FALSE; $show['recurdesc']=FALSE; $show['assignType']=FALSE; $show['checkbox']=FALSE; $checkchildren=TRUE; break;
+    case "T" : $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['recurdesc']=FALSE; $checkchildren=FALSE; break;
+    default  : $typename="Item"; $parentname=$values['ptype']=""; $checkchildren=FALSE;
 }
 $show['flags']=$checkchildren; // temporary measure; to be made user-configurable later
 
@@ -144,52 +141,41 @@ $show['flags']=$checkchildren; // temporary measure; to be made user-configurabl
 if ($filter['someday']=="true") {
     $show['dateCreated']=TRUE;
     $show['context']=FALSE;
-    $show['repeat']=FALSE;
+    $show['recurdesc']=FALSE;
     $show['NA']=FALSE;
     $show['deadline']=FALSE;
     $show['timeframe']=FALSE;
     $checkchildren=FALSE; 
 }
 
-if ($filter['tickler']=="true") $show['suppressUntil']=TRUE;
+if ($filter['tickler']=="true") $show['tickledate']=TRUE;
 
 if ($filter['dueonly']=="true") $show['deadline']=TRUE;
 
 if ($filter['repeatingonly']=="true") {
     $show['deadline']=TRUE;
-    $show['repeat']=TRUE;
+    $show['recurdesc']=TRUE;
 }
 
 if ($filter['completed']=="true") {
-    $show['suppress']=FALSE;
     $show['NA']=FALSE;
     $show['flags']=FALSE;
-    $show['suppressUntil']=FALSE;
+    $show['tickledate']=FALSE;
     $show['dateCreated']=TRUE;
     $show['deadline']=FALSE;
-    $show['repeat']=FALSE;
+    $show['recurdesc']=FALSE;
     $show['dateCompleted']=TRUE;
     $show['checkbox']=FALSE;
     $checkchildren=FALSE; 
 }
 
 if ($filter['everything']=="true") {
-    $show['parent']=!$showalltypes;
-    $show['NA']=FALSE;
-    $show['title']=TRUE;
-    $show['description']=TRUE;
-    $show['desiredOutcome']=$showalltypes;
     $show['type']=$showalltypes;
-    $show['isSomeday']=FALSE;
-    $show['suppress']=FALSE;
-    $show['suppressUntil']=!$showalltypes;
+    $show['isSomeday']=TRUE;
+    $show['tickledate']=TRUE;
     $show['dateCreated']=TRUE;
-    $show['lastModified']=FALSE;
-    $show['category']=!$showalltypes;
-    $show['context']=!$showalltypes;
-    $show['timeframe']=!$showalltypes;
-    $show['deadline']=!$showalltypes;
-    $show['repeat']=!$showalltypes;
+    $show['lastModified']=TRUE;
+    $show['deadline']=TRUE;
     $show['dateCompleted']=TRUE;
     $show['checkbox']=FALSE;
 }
@@ -210,14 +196,14 @@ $linkfilter='';
 if ($checkchildren) {
     $values['filterquery'] = sqlparts("checkchildren",$config,$values);
     $values['extravarsfilterquery'] = sqlparts("countchildren",$config,$values);;
-} else {
-    // get next actions array
-    $values['extravarsfilterquery'] =sqlparts("getNA",$config,$values);
-    if ($filter['nextonly']=='true' && $filter['everything']!="true")
-        $values['filterquery'] = sqlparts("isNAonly",$config,$values);
-    else
-        $values['filterquery'] = sqlparts("isNA",$config,$values);
+} else $values['filterquery']=$values['extravarsfilterquery']='';
+
+if ($filter['tags'] !=NULL) {
+    // now put into array, to count
+    $values['childfilterquery'] .= " AND " .sqlparts("hastags",$config,$values);
+    $show['tags']=true;
 }
+
 /*  Only use filter selections if $filter['everything'] is not true;
     i.e. if we are not forcing the listing of *all* items
 */
@@ -226,7 +212,7 @@ if ($filter['everything']!="true") {
         $values['filterquery'] .= " WHERE ".sqlparts("hasparent",$config,$values);
     else switch ($filter['liveparents']) {
         case 'false': // show only children of completed / suppressed / someday parents
-            $values['filterquery'] .= " WHERE NOT (" .sqlparts("liveparents",$config,$values) .") ";
+            $values['filterquery'] .= ' WHERE NOT ( '.sqlparts("liveparents",$config,$values).' )';
             break;
 
         case '*': // don't filter on completion status of parents
@@ -281,6 +267,9 @@ if ($filter['everything']!="true") {
     if ($filter['repeatingonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("repeating",$config,$values);
     
     if ($filter['dueonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("due",$config,$values);
+
+    if ($filter['nextonly']=='true' && !$checkchildren)
+        $values['childfilterquery'] .= ' AND '.sqlparts("isNAonly",$config,$values);
 
 }
 /*
@@ -337,14 +326,14 @@ if ($result) {
             $nochildren=!$row['numChildren'];
             $nonext=($row['type']=='p' && !$row['numNA']);
         }
-        if (isset($row['NA'])) {
-            if ($row['NA']) array_push($wasNAonEntry,$row['itemId']);
-        } else $row['NA']=false;
+        if (isset($row['nextaction']) && $row['nextaction']==='y') {
+            array_push($wasNAonEntry,$row['itemId']);
+        } else $row['nextaction']=false;
         
         $maintable[$thisrow]=array();
         $maintable[$thisrow]['itemId']=$row['itemId'];
         $maintable[$thisrow]['class'] = ($nonext || $nochildren)?'noNextAction':'';
-        $maintable[$thisrow]['NA'] =$row['NA'];
+        $maintable[$thisrow]['NA'] =$row['nextaction']==='y';
 
         $maintable[$thisrow]['dateCreated'] = $row['dateCreated'];
         $maintable[$thisrow]['lastModified']= $row['lastModified'];
@@ -379,8 +368,8 @@ if ($result) {
         $maintable[$thisrow]['checkboxname']= 'isMarked[]';
         $maintable[$thisrow]['checkboxvalue']=$row['itemId'];
 
-        $maintable[$thisrow]['description'] = $row['description'];
-        $maintable[$thisrow]['desiredOutcome'] = $row['desiredOutcome'];
+        $maintable[$thisrow][$descriptionField] = $row['description'];
+        $maintable[$thisrow][$outcomeField] = $row['desiredOutcome'];
 
         $maintable[$thisrow]['category'] =makeclean($row['category']);
         $maintable[$thisrow]['categoryId'] =$row['categoryId'];
@@ -391,6 +380,7 @@ if ($result) {
         $maintable[$thisrow]['timeframe'] = makeclean($row['timeframe']);
         $maintable[$thisrow]['timeframeId'] = $row['timeframeId'];
 
+        $maintable[$thisrow]['tags'] =$row['tags'];
 
         $childType=array();
         $childType=getChildType($row['type']);
@@ -405,16 +395,8 @@ if ($result) {
             }
         } else $maintable[$thisrow]['deadline']='';
              
-        $maintable[$thisrow]['repeat'] =((($row['repeat'])=="0")?'&nbsp;':($row['repeat']));
-
-        //tickler date - calculate reminder date as # suppress days prior to deadline
-        if ($row['suppress']=="y") {
-            $reminddate=getTickleDate($row['deadline'],$row['suppressUntil']);
-            $maintable[$thisrow]['suppressUntil']=date($config['datemask'],$reminddate);
-        } else
-            $maintable[$thisrow]['suppressUntil']= '&nbsp;';
-                    
-        
+        $maintable[$thisrow]['recurdesc'] =$row['recurdesc'];
+        $maintable[$thisrow]['tickledate']= $row['tickledate'];
         $thisrow++;
     } // end of: foreach ($result as $row)
     
@@ -424,19 +406,20 @@ if ($result) {
         ,'flags'=>'!'
         ,'NA'=>'NA'
         ,'title'=>$typename.'s'
-        ,'description'=>'Description'
-        ,'desiredOutcome'=>'Desired Outcome'
+        ,$descriptionField=>'Description'
+        ,$outcomeField=>'Desired Outcome'
         ,'category'=>'Category'
         ,'context'=>'Space Context'
         ,'timeframe'=>'Time Context'
         ,'deadline'=>'Deadline'
-        ,'repeat'=>'Repeat'
-        ,'suppressUntil'=>'Reminder Date'
+        ,'recurdesc'=>'Repeat'
+        ,'tickledate'=>'Suppress until'
         ,'dateCreated'=>'Date Created'
         ,'lastModified'=>'Last Modified'
         ,'dateCompleted'=>'Date Completed'
         ,'assignType'=>'Assign'
         ,'checkbox'=>'Complete'
+        ,'tags'=>'Tags'
         );
     if ($config['debug'] & _GTD_DEBUG) echo '<pre>values to print:',print_r($maintable,true),'</pre>';
 } // end of: if($result)

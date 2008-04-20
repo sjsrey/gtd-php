@@ -4,6 +4,17 @@ include_once('gtd_constants.inc.php');
 /*
    ======================================================================================
 */
+function gtd_handleEvent($event,$page) {
+    global $config;
+    $eventhandlers=@array_merge((array)$config['events'][$event][$page],(array)$config['events'][$event]['*']);
+    foreach ($eventhandlers as $thishandler) {
+        $addonpath=dirname($thishandler).'/';
+        include $thishandler;
+    }
+}
+/*
+   ======================================================================================
+*/
 function query($querylabel,$config,$values=NULL,$sort=NULL) {
     //for developer testing only--- testing data handling
     //testing passed variables
@@ -52,6 +63,7 @@ function makeClean($textIn) {
 
 function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the visible part of a string, excluding html tags, is no longer than specified) 	// TOFIX -  we don't handle "%XX" strings yet.
 	// constants - might move permittedTags to config file
+	// TOFIX - doesn't handle MBCS!
 	$permittedTags=array(
 		 array('/^<a ((href)|(file))=[^>]+>/i','</a>')
 		,array('/^<b>/i','</b>')
@@ -273,8 +285,10 @@ switch ($parentType) {
     case "v" : $childtype=array("o","g"); break;
     case "o" : $childtype=array("g","p","s"); break;
     case "g" : $childtype=array("p","s"); break;
-    case "p" : $childtype=array("a","w","r","p","s"); break;
-    case "s" : $childtype=array("a","w","r","s"); break;
+    case "s" : // as case 'p'
+    case "p" : $childtype=array("a","w","r","p","s",'L','C'); break;
+    case "C" : // as case 'L'
+    case "L" : $childtype=array("T"); break;
     default  : $childtype=NULL; break; // all other items have no children
     }
 return $childtype;
@@ -283,6 +297,10 @@ return $childtype;
 function getParentType($childType) {
 $parentType=array();
 switch ($childType) {
+    case "T" : $parentType=array('L','C');
+        break;
+    case 'L' : // deliberately flows through to "r"
+    case 'C' : // deliberately flows through to "r"
     case "a" : // deliberately flows through to "r"
     case "w" : // deliberately flows through to "r"
     case "r" : $parentType=array('p','s');
@@ -313,7 +331,10 @@ $types=array("m" => "Value",
             "i" => "Inbox Item",
             "s" => "Someday/Maybe",
             "r" => "Reference",
-            "w" => "Waiting On"
+            "w" => "Waiting On",
+            "C" => "Checklist",
+            "L" => "List",
+            "T" => "(Check)List item"
         );
 if ($type===false)
     $out=$types;
@@ -343,19 +364,18 @@ function getShow($where,$type) {
         'type'          =>($where==='edit' && ($type==='i' || $config['allowChangingTypes'])),
 
         // fields suppressed on certain types
-        'desiredOutcome'=>($type!=='r'),
-        'category'      =>($type!=='m'),
+        'desiredOutcome'=>($type!=='r' && $type!=='L' && $type!=='C' && $type!=='T'),
+        'category'      =>($type!=='m' && $type!=='C' && $type!=='T'),
         'ptitle'        =>($type!=='m' && $type!=='i'),
-        'dateCompleted' =>($type!=='m'),
-        'complete'      =>($type!=='m' && $type!=='r'),
-        'timeframe'     =>($type!=='m' && $type!=='w' && $type!=='r' && $type!=='i'),
+        'dateCompleted' =>($type!=='m' && $type!=='L' && $type!=='C'),
+        'complete'      =>($type!=='m' && $type!=='r'), // TOFIX - what IS this doing?
 
         // fields only shown for certain types
+        'timeframe'     =>($type==='i' || $type==='a' || $type==='p' || $type==='g'  || $type==='o' || $type==='v'),
         'context'       =>($type==='i' || $type==='a' || $type==='w' || $type==='r'),
         'deadline'      =>($type==='p' || $type==='a' || $type==='w' || $type==='i'),
-        'suppress'      =>($type==='p' || $type==='a' || $type==='w'),
-        'suppressUntil' =>($type==='p' || $type==='a' || $type==='w'),
-        'repeat'        =>($type==='p' || $type==='a' || $type==='g'),
+        'tickledate'    =>($type==='p' || $type==='a' || $type==='w'),
+        'recurdesc'     =>($type==='p' || $type==='a' || $type==='g'),
         'NA'            =>($type==='a' || $type==='w'),
         'isSomeday'     =>($type==='p' || $type==='g'),
 
@@ -393,6 +413,68 @@ function columnedTable($cols,$data,$link='itemReport.php') {
         echo "</tr>\n";
         $i+=$cols;
     }
+}
+/*
+   ======================================================================================
+    get the next date of a recurring item
+*/
+function getNextRecurrence() { // returns false if failed, else returns timestamp of next recurrence
+    global $config,$values;
+    require_once 'iCalcreator.class.php';
+
+    if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>creating vcalendar to get recurrence date";
+    $vcal = new vcalendar();
+    $vevent = new vevent();
+    $vevent->parse(array('RRULE:'.$values['recur']));
+    $rrule=$vevent->getProperty('rrule');
+
+    if (preg_match("/^FREQ=(YEARLY|MONTHLY|WEEKLY|DAILY);INTERVAL=[0-9]+$/",$values['recur'])) {
+        // very simple recurrence, so recur from dateCompleted
+        if ($config['debug'] & _GTD_DEBUG) echo "<br />recur from date completed - simple recurrence";
+        $startdate=$values['dateCompleted'];
+    } else if (empty($values['deadline']) || $values['deadline']==='NULL') {
+        //no deadline, so recur from tickler if available, and fall back to date completed
+        $startdate=(empty($values['tickledate']))
+            ? $values['dateCompleted']
+            : $values['tickledate'];
+    } else {
+        // recur from deadline
+        $startdate=$values['deadline'];
+    }
+    
+    if (empty($startdate) || $startdate==='NULL') {
+        // if we still haven't got a start date, use today
+        $startdate=date('Y-m-d');
+    } else
+        $startdate=str_replace("'",'',$startdate);
+        
+    if ($config['debug'] & _GTD_DEBUG)
+        echo "<br />recur='{$values['recur']}'<br />rrule=",print_r($rrule,true)
+            ,"<br />start date (dirty)=",print_r($startdate,true);
+    $startdate=$vcal->validDate($startdate);
+    if ($config['debug'] & _GTD_DEBUG) echo "<br />",print_r($startdate,true);
+    $vevent->setProperty( "dtstart",$startdate);
+
+    if (empty($rrule['UNTIL'])) {
+        $enddate=strtotime('+10 years');
+        $enddate=date('Y-m-d',$enddate);
+    } else
+        $enddate=$rrule['UNTIL'];
+    $enddate=$vcal->validDate($enddate);
+    $rrule['COUNT']=2; // 2 = start date + next recurrence
+    if (isset($rrule['UNTIL'])) unset($rrule['UNTIL']);
+    $vevent->_recur2Date($recurlist,$rrule,
+        $startdate,    // start date of item
+        $startdate,    // start date of interval we're interested in
+        $enddate       // end date
+    );
+    if (empty($recurlist)) {
+        $nextdue=false;
+    } else {
+        $nextdue=date('Y-m-d',array_shift(array_keys($recurlist))); // get first key in returned array - that's the date
+    }
+    if ($config['debug'] & _GTD_DEBUG) echo "<br />next date=$nextdue</p>";
+    return $nextdue;
 }
 /*
    ======================================================================================

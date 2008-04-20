@@ -88,10 +88,12 @@ input.hasdate {
     margin-right:0;
     padding-right:0;
 }
+input[type="text"].firstclick, a.firstclick:hover, #searchresults a.firstclick:hover, a.firstclick:link, a.firstclick:visited,#searchresults a.firstclick:link, #searchresults a.firstclick:visited {
+    color:grey;
+}
 table {
 	margin: 0 4px 10px 4px;
 }
-
 thead td, th{
 	padding: 2px 3px;
 }
@@ -100,6 +102,10 @@ tbody td {
 	padding: 4px;
 }
 
+th.col-title {
+    font-size:1.5em;
+    font-variant:small-caps;
+}
 
 div.reportsection {
 	margin-bottom:20px;
@@ -237,7 +243,7 @@ h4 {
 }
 
 
-a, a:link {
+a, a:link,.fakelink {
 	color:#39c; 
 	text-decoration: none;
 	font-weight: bold;
@@ -246,7 +252,7 @@ a:visited {
 	color:#39c; 
 	text-decoration: none;
 }
-a:hover{
+a:hover,.fakelink:hover{
 	text-decoration: underline;
 	color:#039; 
 }
@@ -267,8 +273,10 @@ select, input, textarea,button {
 select, input[type='text'], input[type='submit'], input[type='reset'], button, textarea {
 	border: 2px solid #ccb;
 }
-
-div.success {
+button:enabled {
+    color: #221;
+}
+.success {
     border: solid green 2px;
     font-weight:bold;
     padding:2px;
@@ -278,6 +286,17 @@ div.success {
 table {
 	border-spacing: 0;
 	border-collapse: collapse;
+}
+
+table.submitbuttons tbody,table.submitbuttons td {
+    border:none;
+    padding:0;
+    margin:0;
+}
+
+table.submitbuttons input {
+    padding:0;
+    margin:2px;
 }
 
 thead td, th {
@@ -333,18 +352,31 @@ a.add:hover, #searchresults a:hover, a.add:link, a.add:visited,#searchresults a:
     font-size:larger;
     margin:1px;
 }
-a.remove:link,a.remove:visited {
+.remove,a.remove:hover,a.remove:link,a.remove:visited {
     color:red;
-    font-weight:bold;
+    font-weight:bolder;
     font-size:larger;
     margin:1px;
 }
-a.remove:hover, a.add:hover, #searchresults a:hover {
-    background-color:white;
+.hoverbox a, a.hoverbox {
+    margin:1px;
+}
+.remove:hover,.add:hover, a.remove:hover, a.add:hover, .hoverbox a:hover, a.hoverbox:hover, #searchresults a:hover {
     margin:0;
     border:1px black dotted;
     text-decoration:none;
+    cursor: pointer;
 }
+#taglist {
+    background-color:#F4F4EB;
+    display: none;
+    /*border:1px black solid;*/
+}
+#taglist a.add,#taglist a.add:hover {
+    font-size: small;
+    font-weight: normal;
+}
+
 td.maincolumn {
   background-color:#fFfFf3;
 }
@@ -487,8 +519,12 @@ span.detail {
     color:white;
     border:1px solid #c00;
 }
-.togglehidden {
+.hidden,.togglehidden {
     display:none;
+}
+div.ontop#freezer {
+    z-Index:1000;
+    cursor: wait;
 }
 div#freezer {
 	top:0;
@@ -501,4 +537,23 @@ div#freezer {
 	opacity:0.20;
 	filter:alpha(opacity=20);
 	-Moz-Opacity:0.20;
+}
+#recur span {
+    border: dotted 1px grey;
+    padding: 3px 0;
+    margin-right: 1em;
+    background-color:#F4F4EB;
+}
+#recur span.selected {
+    background-color:#FEFEF8;
+}
+#recur label.left {
+    margin-left:1em;
+}
+#recur {
+    border: medium double grey;
+    margin-top:0.9em;
+}
+tr.selected {
+    background-color:#DAFADA;    
 }

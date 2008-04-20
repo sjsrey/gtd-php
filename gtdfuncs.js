@@ -1,82 +1,16 @@
-function validate(form) {
-
-    // Ensure validate is being used correctly
-
-    if(form.elements['required'] == null) {
-        document.getElementById("errorMessage").innerHTML="Error: Validate function needs 'required' form field.";
-        return false;
-    }
-    if(form.elements['dateformat'] == null) {
-        document.getElementById("errorMessage").innerHTML="Error: Validate function needs 'dateformat' form field.";
-        return false;
-    }
-    
-    // Parse required list and check each required field
-    var formValid=true;
-    var formErrorMessage="Please correct the following:<br /><br />";
-    var requiredList = form.required.value.split(",");
-    var requiredItem;
-    
-    // remove any previous error flags
-    for(var i = 0;i<requiredList.length;i++){
-        requiredItem = requiredList[i].split(":");
-        form.elements[requiredItem[0]].className='';
-        if (requiredItem[1]=='depends') form.elements[requiredItem[3]].className='';
-    }
-    
-    var thisfield;
-    var checkType;
-    var itemErrorMessage;
-    var itemValue;
-    var passed;
-    var error;
-    for(var i = 0;i<requiredList.length;i++){
-        requiredItem = requiredList[i].split(":");
-        thisfield = form.elements[requiredItem[0]];
-        if (thisfield.type==='hidden') continue; // don't process hidden fields
-
-        checkType = requiredItem[1];
-        itemErrorMessage = requiredItem[2];
-        itemValue = thisfield.value;
-            
-        switch (checkType) {
-            case "date":
-                dateFormat = form.elements['dateformat'].value;
-                passed=checkDate(thisfield,dateFormat);
-                break;
-            case "notnull":
-        		passed=!checkForNull(thisfield);
-                break;
-            case "depends":
-            	fieldRequires = form.elements[requiredItem[3]];
-            	passed=checkForNull(thisfield) || !checkForNull(fieldRequires) || (fieldRequires.type==='hidden');
-;
-            	if (!passed) fieldRequires.className='formerror';
-				break; 
-            default:
-                document.getElementById("errorMessage").innerHTML="Error: Required type not valid.";
-                return false;                
-        }
-        if (!passed) {
-            if (formValid) thisfield.focus();
-            formValid=false;
-            formErrorMessage += itemErrorMessage + "<br />";
-            thisfield.className='formerror';
-        }
-    }
-        
-    if(!formValid) {
-        document.getElementById("errorMessage").innerHTML=formErrorMessage;
-    }
-    return formValid;
-}
-
+/*jslint browser: true, eqeqeq: true, nomen: true, undef: true */
+(function() {
+// ======================================================================================
+var GTD,           // object for holding public functions and public variables
+    gtd_freezediv,
+    focusOn,grabKey,oldTablePosition,SORT_COLUMN_INDEX;
+// ======================================================================================
 function checkForNull(field) {
     switch (field.type) {
     	case "text":
     		var tst=field.value;
 			tst.replace(" ","");
-		    var isblank=(tst == "");
+		    var isblank=(tst === '');
 		    return isblank;
 		case "checkbox":
 			return !field.checked;
@@ -84,9 +18,9 @@ function checkForNull(field) {
 			return false;
 	}
 }
-
+// ======================================================================================
 function checkDate(field,dateFormat) {
-    if (checkForNull(field)) return true;
+    if (checkForNull(field)) {return true;}
     // The validity of the format itself should be checked when set in user preferences.  This function assumes that the format passed in is valid.
 
     // Build the regular expression
@@ -101,51 +35,35 @@ function checkDate(field,dateFormat) {
     var tst=field.value;
     return (tst.match(dateRegEx));
 }
-
-function completeToday(datefield) {
-	var now=new Date();
-	var m  = now.getMonth()+1;
-	var d  = now.getDate();
-	var y  = now.getFullYear();
-	m=(m < 10) ? ("0" + m) : m;
-	d=(d < 10) ? ("0" + d) : d;
-	var newdate=""+y+"-"+m+"-"+d;
-	document.getElementById(datefield).value=newdate;
-//	return true;
+// ======================================================================================
+function toggleVis (thisRule) {
+	thisRule.style.display=(thisRule.style.display==="none")?"block":"none";
 }
-function aps_toggleVis (thisRule) {
-	thisRule.style.display=(thisRule.style.display=="none")?"block":"none";
-}
-var aps_grabKey;
-function aps_keyUpHandler(e) {
-	if (!e) var e = window.event;
+// ======================================================================================
+function keyUpHandler(e) {
+    var character,targetNodeName,code;
+	if (!e) {e = window.event;}
 	if (e.target && e.target.nodeName) {
-		var targetNodeName = e.target.nodeName.toLowerCase();
-		if (targetNodeName == "textarea" || (targetNodeName == "input" && e.target.type && e.target.type.toLowerCase() == "text"))
-			return false;
+		targetNodeName = e.target.nodeName.toLowerCase();
+		if (targetNodeName === "textarea" ||
+              (targetNodeName === "input" && e.target.type && e.target.type.toLowerCase() === "text")) {
+			return false;}
 	}
-	if (e.keyCode) code = e.keyCode;
-	else if (e.which) code = e.which;
-	var character = String.fromCharCode(code);
-	if (character==aps_grabKey) {
-		var thisRule;
+	if (e.keyCode) {
+        code = e.keyCode;
+    } else if (e.which) {code = e.which;}
+	character = String.fromCharCode(code);
+	if (character===grabKey) {
 		if (document.styleSheets[0].cssRules) {
-			aps_toggleVis(document.styleSheets[0].cssRules[0]);
+			toggleVis(document.styleSheets[0].cssRules[0]);
 		} else {
-			aps_toggleVis(document.styleSheets[0].rules[0]);
-			aps_toggleVis(document.styleSheets[0].rules[1]);
+			toggleVis(document.styleSheets[0].rules[0]);
+			toggleVis(document.styleSheets[0].rules[1]);
 		}
-		
 	}
 	return false;
 }
-function aps_debugInit(keyToCatch) {
-	aps_grabKey=keyToCatch;
-	if (document.addEventListener)
-		document.addEventListener("keyup", aps_keyUpHandler,false);
-	else
-		document.attachEvent("onkeyup", aps_keyUpHandler);
-}
+// ======================================================================================
 /*
 sortTable amended for GTD-PHP
 
@@ -156,47 +74,16 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
-var SORT_COLUMN_INDEX;
-
-function sortables_init() {
-    // Find all tables with class sortable and make them sortable
-    if (!document.getElementsByTagName) return;
-    tbls = document.getElementsByTagName("table");
-    for (ti=0;ti<tbls.length;ti++) {
-        thisTbl = tbls[ti];
-        if (((' '+thisTbl.className+' ').indexOf("sortable") != -1) && (thisTbl.id)) {
-            //initTable(thisTbl.id);
-            ts_makeSortable(thisTbl);
-        }
-    }
-}
-
-function ts_makeSortable(table) {
-    if (table.rows && table.rows.length > 0) {
-        var firstRow = table.rows[0];
-    }
-    if (!firstRow) return;
-    
-    // We have a first row: assume it's the header, and make its contents clickable links
-    for (var i=0;i<firstRow.cells.length;i++) {
-        var cell = firstRow.cells[i];
-        var txt = ts_getInnerText(cell);
-        cell.innerHTML = '<a href="#" class="sortheader" '+ 
-        'onclick="ts_resortTable(this, '+i+');return false;">' + 
-        txt+'<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a>';
-    }
-}
-
 function ts_getInnerText(el) {
-	if (typeof el == "string") return el;
-	if (typeof el == "undefined") { return el };
-	if (el.innerText) return el.innerText;	//Not needed but it is faster
-	var str = "";
-	
-	var cs = el.childNodes;
-	var l = cs.length;
-	for (var i = 0; i < l; i++) {
+    var str,cs,l,i;
+	if (typeof el === "string") {return el;}
+	if (typeof el === "undefined") { return el; }
+	if (el.innerText) {return el.innerText;}	//Not needed but it is faster
+	str = "";
+
+	cs = el.childNodes;
+	l = cs.length;
+	for (i = 0; i < l; i++) {
 		switch (cs[i].nodeType) {
 			case 1: //ELEMENT_NODE
 				str += ts_getInnerText(cs[i]);
@@ -209,176 +96,178 @@ function ts_getInnerText(el) {
 	return str;
 }
 
-function ts_resortTable(lnk,clid) {
-    // get the span
-    var span;
-    for (var ci=0;ci<lnk.childNodes.length;ci++) {
-        if (lnk.childNodes[ci].tagName && lnk.childNodes[ci].tagName.toLowerCase() == 'span') span = lnk.childNodes[ci];
+function ts_makeSortable(table) {
+    var firstRow,cell,txt,i,max;
+    if (table.rows && table.rows.length > 0) {
+        firstRow = table.rows[0];
     }
-    var spantext = ts_getInnerText(span);
-    var td = lnk.parentNode;
-    var column = clid || td.cellIndex;
-    var table = getParent(td,'TABLE');
-    
-    // Work out a type for the column
-    if (table.rows.length <= 1) return;
-    var itm = ts_getInnerText(table.tBodies[0].rows[0].cells[column]);
-    var itmh = table.tBodies[0].rows[0].cells[column].innerHTML;
-    sortfn = ts_sort_caseinsensitive;
-    if (itmh.match(/^<input.*(radio|checkbox).*>$/)) sortfn = ts_sort_checkbox;
-    else if (itm.match(/^\d\d[\/-]\d\d[\/-]\d\d\d\d$/)) sortfn = ts_sort_date;
-    else if (itm.match(/^\d\d[\/-]\d\d[\/-]\d\d$/)) sortfn = ts_sort_date;
-    else if (itm.match(/^[£$]/)) sortfn = ts_sort_currency;
-    else if (itm.match(/^[\d\.]+$/)) sortfn = ts_sort_numeric;
-    SORT_COLUMN_INDEX = column;
-    var firstRow = new Array();
-    var newRows = new Array();
-    for (i=0;i<table.rows[0].length;i++) { firstRow[i] = table.rows[0][i]; }
-    for (j=0;j<table.tBodies[0].rows.length;j++) { newRows[j] = table.tBodies[0].rows[j]; }
+    if (!firstRow) {return;}
 
-    newRows.sort(sortfn);
-
-    if (span.getAttribute("sortdir") == 'down') {
-        ARROW = '&nbsp;&nbsp;&uarr;';
-        newRows.reverse();
-        span.setAttribute('sortdir','up');
-    } else {
-        ARROW = '&nbsp;&nbsp;&darr;';
-        span.setAttribute('sortdir','down');
+    // We have a first row: assume it's the header, and make its contents clickable links
+    max=firstRow.cells.length;
+    for (i=0;i<max;i++) {
+        cell = firstRow.cells[i];
+        txt = ts_getInnerText(cell);
+        cell.innerHTML = '<a href="#" class="sortheader" '+
+        'onclick="GTD.resortTable(this, '+i+');return false;">' +
+        txt+'<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a>';
     }
-    
-    // We appendChild rows that already exist to the tbody, so it moves them rather than creating new ones
-    // don't do sortbottom rows
-    for (i=0;i<newRows.length;i++) { if (!newRows[i].className || (newRows[i].className && (newRows[i].className.indexOf('sortbottom') == -1))) table.tBodies[0].appendChild(newRows[i]);}
-    // do sortbottom rows only
-    for (i=0;i<newRows.length;i++) { if (newRows[i].className && (newRows[i].className.indexOf('sortbottom') != -1)) table.tBodies[0].appendChild(newRows[i]);}
-    
-    // Delete any other arrows there may be showing
-    var allspans = document.getElementsByTagName("span");
-    for (var ci=0;ci<allspans.length;ci++) {
-        if (allspans[ci].className == 'sortarrow') {
-            if (getParent(allspans[ci],"table") == getParent(lnk,"table")) { // in the same table as us?
-                allspans[ci].innerHTML = '&nbsp;&nbsp;&nbsp;';
-            }
+}
+
+function sortables_init() {
+    var tbls,ti,thisTbl;
+    // Find all tables with class sortable and make them sortable
+    if (!document.getElementsByTagName) {return;}
+    tbls = document.getElementsByTagName("table");
+    for (ti=0;ti<tbls.length;ti++) {
+        thisTbl = tbls[ti];
+        if (((' '+thisTbl.className+' ').indexOf("sortable") !== -1) && (thisTbl.id)) {
+            //initTable(thisTbl.id);
+            ts_makeSortable(thisTbl);
         }
     }
-        
-    span.innerHTML = ARROW;
+}
+function getParent(el, pTagName) {
+	if (el === null) {return null;}
+	else if (el.nodeType === 1 && el.tagName.toLowerCase() === pTagName.toLowerCase()) {	// Gecko bug, supposed to be uppercase
+		return el;
+	} else {return getParent(el.parentNode, pTagName);}
 }
 
-function getParent(el, pTagName) {
-	if (el == null) return null;
-	else if (el.nodeType == 1 && el.tagName.toLowerCase() == pTagName.toLowerCase())	// Gecko bug, supposed to be uppercase
-		return el;
-	else
-		return getParent(el.parentNode, pTagName);
-}
 function ts_sort_date(a,b) {
     // y2k notes: two digit years less than 50 are treated as 20XX, greater than 50 are treated as 19XX
+    var aa,bb,dt1,yr,dt2;
     aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]);
     bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]);
-    if (aa.length == 10) {
+    if (aa.length === 10) {
         dt1 = aa.substr(6,4)+aa.substr(3,2)+aa.substr(0,2);
     } else {
         yr = aa.substr(6,2);
-        if (parseInt(yr) < 50) { yr = '20'+yr; } else { yr = '19'+yr; }
+        if (parseInt(yr,10) < 50) { yr = '20'+yr; } else { yr = '19'+yr; }
         dt1 = yr+aa.substr(3,2)+aa.substr(0,2);
     }
-    if (bb.length == 10) {
+    if (bb.length === 10) {
         dt2 = bb.substr(6,4)+bb.substr(3,2)+bb.substr(0,2);
     } else {
         yr = bb.substr(6,2);
-        if (parseInt(yr) < 50) { yr = '20'+yr; } else { yr = '19'+yr; }
+        if (parseInt(yr,10) < 50) { yr = '20'+yr; } else { yr = '19'+yr; }
         dt2 = yr+bb.substr(3,2)+bb.substr(0,2);
     }
-    if (dt1==dt2) return (a.rowIndex-b.rowIndex);
-    if (dt1<dt2) return -100;
+    if (dt1===dt2) {return (a.rowIndex-b.rowIndex);}
+    if (dt1<dt2) {return -100;}
     return 100;
 }
 
-function ts_sort_currency(a,b) { 
+function ts_sort_currency(a,b) {
+    var aa,bb,retval;
     aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]).replace(/[^0-9.]/g,'');
     bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]).replace(/[^0-9.]/g,'');
-    var retval = parseFloat(aa) - parseFloat(bb);
-	if (retval==0) return (a.rowIndex-b.rowIndex); else return retval;
+    retval = parseFloat(aa) - parseFloat(bb);
+	if (retval===0) {return (a.rowIndex-b.rowIndex);} else {return retval;}
 }
 
-function ts_sort_numeric(a,b) { 
+function ts_sort_numeric(a,b) {
+    var aa,bb;
     aa = parseFloat(ts_getInnerText(a.cells[SORT_COLUMN_INDEX]));
-    if (isNaN(aa)) aa = 0;
-    bb = parseFloat(ts_getInnerText(b.cells[SORT_COLUMN_INDEX])); 
-    if (isNaN(bb)) bb = 0;
-    if (aa==bb) return (a.rowIndex-b.rowIndex); else return aa-bb;
+    if (isNaN(aa)) {aa = 0;}
+    bb = parseFloat(ts_getInnerText(b.cells[SORT_COLUMN_INDEX]));
+    if (isNaN(bb)) {bb = 0;}
+    if (aa===bb) {return (a.rowIndex-b.rowIndex);} else {return aa-bb;}
 }
 
 function ts_sort_caseinsensitive(a,b) {
+    var aa,bb;
     aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]).toLowerCase();
     bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]).toLowerCase();
-    if (aa==bb) return (a.rowIndex-b.rowIndex);
-    if (aa<bb) return -100;
-    return 100;
-}
-
-function ts_sort_default(a,b) {
-    aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]);
-    bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]);
-    if (aa==bb) return (a.rowIndex-b.rowIndex);
-    if (aa<bb) return -100;
+    if (aa===bb) {return (a.rowIndex-b.rowIndex);}
+    if (aa<bb) {return -100;}
     return 100;
 }
 
 function ts_sort_checkbox(a,b) {
+    var aa,bb;
     aa = a.cells[SORT_COLUMN_INDEX].firstChild.checked;
     bb = b.cells[SORT_COLUMN_INDEX].firstChild.checked;
-    if (aa==bb) return (a.rowIndex-b.rowIndex);
-    if (aa) return -100;
+    if (aa===bb) {return (a.rowIndex-b.rowIndex);}
+    if (aa) {return -100;}
     return 100;
 }
-
-function filtertoggle(which) {
-    var box=document.getElementById('everything');
-    var isOn;
-    var i;
-    if (which=='all')
+/* ======================================================================================
+    start of declarations of public functions
+*/
+if (typeof window.GTD==='undefined') {window.GTD={};}
+GTD=window.GTD;
+GTD.addEvent=function ( obj, type, fn ) { // (c) John Resig - open source
+    if ( obj.attachEvent ) {
+        obj['e'+type+fn] = fn;
+        obj[type+fn] = function(){obj['e'+type+fn]( window.event );};
+        obj.attachEvent( 'on'+type, obj[type+fn] );
+    } else { obj.addEventListener( type, fn, false ); }
+};
+// ======================================================================================
+GTD.completeToday=function (datefield) {
+    var now,m,d,y,newdate;
+	now=new Date();
+	m  = now.getMonth()+1;
+	d  = now.getDate();
+	y  = now.getFullYear();
+	m=(m < 10) ? ("0" + m) : m;
+	d=(d < 10) ? ("0" + d) : d;
+	newdate=""+y+"-"+m+"-"+d;
+	document.getElementById(datefield).value=newdate;
+    //	return true;
+};
+// ======================================================================================
+GTD.confirmDelete=function(elem) { // confirm that the user wishes to delete the current item in item.php
+   var myform;
+   if (confirm("Delete this item?")) {
+       myform=document.getElementById('itemform');
+       myform.elements.doDelete.value='y';
+       myform.submit();
+   }
+   return false;
+};
+// ======================================================================================
+GTD.debugInit=function (keyToCatch) {
+	grabKey=keyToCatch;
+	GTD.addEvent(document,'keyup',keyUpHandler);
+};
+// ======================================================================================
+GTD.filtertoggle=function (which) {
+    var box,max,isOn,i;
+    box=document.getElementById('everything');
+    if (which==='all') {
         isOn=false;
-    else isOn=box.checked;
-    for (i=0;i<box.form.elements.length;i++)
-        if (box.form.elements[i].disabled!=undefined)
+    } else {isOn=box.checked;}
+    max=box.form.elements.length;
+    for (i=0;i<max;i++) {
+        if (typeof box.form.elements[i].disabled!=='undefined') {
             box.form.elements[i].disabled=isOn;
-    document.getElementById('type').disabled=false;
-    document.getElementById('needle').disabled=false;
-    document.getElementById('filtersubmit').disabled=false;
-    box.disabled=false;
+        }
+    }
+    document.getElementById('type').disabled=
+        document.getElementById('needle').disabled=
+        document.getElementById('filtersubmit').disabled=
+        document.getElementById('tags').disabled=
+        box.disabled=false;
     box.focus();
     return true;
-}
-
-function addEvent(elm, evType, fn, useCapture) {
-  // cross-browser event handling by Scott Andrew
-  if (elm.addEventListener){
-    elm.addEventListener(evType, fn, useCapture);
-    return true;
-  } else if (elm.attachEvent){
-    var r = elm.attachEvent("on"+evType, fn);
-    return r;
-  } else {
-    // don't know how to attach event
-    ;
-  }
-}
-
-var focusOn;
-function focusOnForm(id) {
-    if (typeof(id)=='string') {
+};
+// ======================================================================================
+GTD.focusOnForm=function (id) {
+    var tst,i;
+    if (typeof(id)==='string') {
         document.getElementById(id).focus();
         focusOn=id;
     }
-    if(typeof(focusOn)=='string') return;
+    if(typeof(focusOn)==='string') {return;}
     if (document.forms.length) {
-        var tst;
         for (i = 0; i < document.forms[0].length; i++) {
             tst=document.forms[0].elements[i].type;
-            if ( (tst == "button") || (tst == "checkbox") || (tst == "radio") || (tst == "select") || (tst == "select-one") || (tst == "text") || (tst == "textarea") ) {
+            if ( (tst === "button") || (tst === "checkbox") || (
+                    tst === "radio") || (tst === "select") ||
+                    (tst === "select-one") || (tst === "text") ||
+                    (tst === "textarea") ) {
                 if (!document.forms[0].elements[i].disabled) {
                   document.forms[0].elements[i].focus();
                   break;
@@ -386,7 +275,388 @@ function focusOnForm(id) {
             }
         }
     }
-}
+};
+// ======================================================================================
+GTD.freeze=function (tofreeze) {
+	if (typeof gtd_freezediv==='undefined') {
+    	gtd_freezediv=document.createElement('div');
+    	gtd_freezediv.id="freezer";
+        gtd_freezediv.style.display="none";
+    	//gtd_freezediv.appendChild(document.createElement('span')); // necessary for problem with addevent betweeen Opera and Safari
+    	document.body.appendChild(gtd_freezediv);
+    }
+	gtd_freezediv.style.display=(tofreeze)?"block":"none";
+};
+// ======================================================================================
+GTD.ParentSelector=function(ids,titles,types,onetype) { // constructor
+    var i,line,thistype,useTypes,max,
+        box=document.getElementById('searchresults');
+    this.inSearch=false;
+    this.ptitleslc=[];
+    this.ptypes=[];
+    this.ptitles=[];
+    this.parentIds=[];
+    this.editingrow=-1;
+    this.parentIds=ids;
+    this.ptypes=types;
+    this.qtype=onetype;
+    if (box.hasChildNodes()) {box.removeChild(box.lastChild);}
+    useTypes=(types.length>0);
+    if (!useTypes) {thistype=GTD.typenames[onetype];}
+    max=titles.length;
+    for (i=0;i<max;i++) {
+        this.ptitles[i]=unescape(titles[i]);
+        this.ptitleslc[i]=this.ptitles[i].toLowerCase();
+        if (useTypes) {thistype=GTD.typenames[types[i]];}
+        line=this.makeline(this.parentIds[i],this.ptitles[i],thistype,i,useTypes,onetype);
+        box.appendChild(line);
+    }
+}; // end of ParentSelector constructor
+// ======================================================================================
+GTD.ParentSelector.prototype.close=function() {
+    document.onkeypress=null;
+    document.getElementById('searcher').style.display='none';
+    GTD.freeze(false);
+    document.getElementById('parenttable').style.position=oldTablePosition;
+    GTD.focusOnForm(0);
+    this.inSearch=false;
+};
+// ======================================================================================
+GTD.ParentSelector.prototype.gotparent=function (id,title,type) { // add the clicked parent to the list of the item's parents
+    var newrow,anchor,cell,cell1,cell2;
+    if (document.getElementById('parentrow'+id)) {return;}
 
-addEvent(window,'load', focusOnForm);
-addEvent(window,'load', sortables_init);
+    newrow=document.createElement('tr');
+    cell=document.createElement('td');
+    anchor=document.createElement('a');
+    cell1=document.createElement('td');
+    cell2=document.createElement('td');
+
+    newrow.id='parentrow'+id;
+    anchor.href='#';
+    GTD.addEvent(anchor,'click',function(){return GTD.removeParent(id);});
+    anchor.title='remove as parent';
+    anchor.className='remove';
+    anchor.appendChild(document.createTextNode('X'));
+    cell.appendChild(anchor);
+    newrow.appendChild(cell);
+
+    anchor=document.createElement('a');
+    anchor.href="itemReport.php?itemId="+id;
+    anchor.title='view parent';
+    anchor.appendChild(document.createTextNode(title));
+    cell1.appendChild(anchor);
+    newrow.appendChild(cell1);
+
+    cell2.appendChild(document.createTextNode(type));
+    var input=document.createElement('input');
+    input.type='hidden';
+    input.name='parentId[]';
+    input.value=id;
+    cell2.appendChild(input);
+    newrow.appendChild(cell2);
+
+    document.getElementById("parentlist").appendChild(newrow);
+    return true;
+};
+// ======================================================================================
+GTD.ParentSelector.prototype.makeline=function(id,title,type,i,useTypes,onetype) { // display a specific parent, to go into the list of parents
+    var line=document.createElement('p'),
+        thisi='',
+        that=this,
+        anchor=document.createElement('a'),
+        linetext=title;
+    anchor.href='#';
+    GTD.addEvent(anchor,'click',function() {that.gotparent(id,title,type,thisi);});
+    anchor.appendChild(document.createTextNode('+'));
+    anchor.className='add';
+    line.appendChild(anchor);
+    if (useTypes) {linetext += " ("+type+")";}
+    line.appendChild(document.createTextNode(linetext));
+    line.style.display=(!useTypes || type===onetype)?'block':'none';
+    return line;
+};
+// ======================================================================================
+GTD.ParentSelector.prototype.refinesearch=function(needle) {
+    var i,max,ok,box,skiptype,skipsearch,
+        searchstring=document.getElementById('searcherneedle').value.toLowerCase();
+        box=document.getElementById('searchresults');
+    if (typeof(needle)==='string') { // initialising
+        this.qtype=needle;
+        document.getElementById('searcherneedle').value='';
+        document.getElementById('radio'+this.qtype).checked=true;
+    } else if (needle.name==='qtype') {
+        this.qtype=needle.value;
+    }
+    skiptype=(this.ptypes.length<2 || this.qtype==='0');
+    skipsearch=(searchstring.length===0);
+    max=this.parentIds.length;
+    for (i=0;i<max;i++) {
+        ok= ( ( skipsearch ||
+                (this.ptitleslc[i].indexOf(searchstring)>-1) ||
+                this.parentIds[i]==='0') &&
+            (skiptype || this.ptypes[i]===this.qtype) );
+        box.childNodes[i].style.display=(ok)?'block':'none';
+    }
+};
+// ======================================================================================
+GTD.ParentSelector.prototype.search=function() {
+    var parenttable,that=this;
+    if (this.inSearch) {return false;}
+    this.inSearch=true;
+    GTD.freeze(true);
+    document.getElementById('searcher').style.display='block';
+    document.getElementById("searcherneedle").focus();
+    document.onkeypress=function(e) {
+        var pressed;
+        if (window.event) {pressed=window.event.keyCode;} else {pressed=e.keyCode;}
+        if (pressed===27) {
+            that.close();
+            return false;
+        }
+        return true;
+    };
+    parenttable=document.getElementById('parenttable');
+    oldTablePosition=parenttable.style.position;
+    parenttable.style.position='fixed';
+    parenttable.style.left=0;
+};
+// ======================================================================================
+GTD.removeParent=function (id) {
+    var row=document.getElementById('parentrow'+id);
+    row.parentNode.removeChild(row);
+};
+// ======================================================================================
+GTD.resortTable=function (lnk,clid) {
+    // get the span
+    var span,i,j,max,spantext,td,column,table,itm,itmh,firstRow,newRows,
+        allspans,ci,sortfn,ARROW;
+    max=lnk.childNodes.length;
+    for (ci=0;ci<max;ci++) {
+        if (lnk.childNodes[ci].tagName &&
+            lnk.childNodes[ci].tagName.toLowerCase() === 'span') {
+            span = lnk.childNodes[ci];
+        }
+    }
+    spantext = ts_getInnerText(span);
+    td = lnk.parentNode;
+    column = clid || td.cellIndex;
+    table = getParent(td,'TABLE');
+
+    // Work out a type for the column
+    if (table.rows.length <= 1) {return;}
+    itm = ts_getInnerText(table.tBodies[0].rows[0].cells[column]);
+    itmh = table.tBodies[0].rows[0].cells[column].innerHTML;
+    sortfn = ts_sort_caseinsensitive;
+    if (itmh.match(/^<input.*(radio|checkbox).*>$/)) {sortfn = ts_sort_checkbox;}
+    else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d\d\d$/)) {sortfn = ts_sort_date;}
+    else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d$/)) {sortfn = ts_sort_date;}
+    else if (itm.match(/^[£$]/)) {sortfn = ts_sort_currency;}
+    else if (itm.match(/^[\d\.]+$/)) {sortfn = ts_sort_numeric;}
+    SORT_COLUMN_INDEX = column;
+    firstRow = newRows = [];
+    max=table.rows[0].length;
+    for (i=0;i<max;i++) { firstRow[i] = table.rows[0][i]; }
+    max=table.tBodies[0].rows.length;
+    for (j=0;j<max;j++) { newRows[j] = table.tBodies[0].rows[j]; }
+
+    newRows.sort(sortfn);
+
+    if (span.getAttribute("sortdir") === 'down') {
+        ARROW = '&nbsp;&nbsp;&uarr;';
+        newRows.reverse();
+        span.setAttribute('sortdir','up');
+    } else {
+        ARROW = '&nbsp;&nbsp;&darr;';
+        span.setAttribute('sortdir','down');
+    }
+
+    // We appendChild rows that already exist to the tbody, so it moves them rather than creating new ones
+    // don't do sortbottom rows
+    max=newRows.length;
+    for (i=0;i<max;i++) { if (!newRows[i].className || (newRows[i].className && (newRows[i].className.indexOf('sortbottom') === -1))) {table.tBodies[0].appendChild(newRows[i]);}}
+    // do sortbottom rows only
+    for (i=0;i<max;i++) { if (newRows[i].className && (newRows[i].className.indexOf('sortbottom') !== -1)) {table.tBodies[0].appendChild(newRows[i]);}}
+
+    // Delete any other arrows there may be showing
+    allspans = document.getElementsByTagName("span");
+    max=allspans.length;
+    for (ci=0;ci<max;ci++) {
+        if (allspans[ci].className === 'sortarrow') {
+            if (getParent(allspans[ci],"table") === getParent(lnk,"table")) { // in the same table as us?
+                allspans[ci].innerHTML = '&nbsp;&nbsp;&nbsp;';
+            }
+        }
+    }
+    span.innerHTML = ARROW;
+};
+// ======================================================================================
+GTD.showrecurbox=function (what,where) {
+    var freqtype,startdate,t,mth,wk,dte,day,daynum,startday,form,days,recurbox,newhome;
+    recurbox=document.getElementById(what);
+    newhome=where.parentNode;
+    while(newhome.hasChildNodes()) {newhome.removeChild(newhome.lastChild);}
+    newhome.appendChild(recurbox);
+    recurbox.style.display='block';
+    form=getParent(recurbox,'form');
+    freqtype=form.elements.FREQtype.value;
+    // if there's already a recurrence value, then we can now end
+    if (typeof freqtype!=='undefined' && freqtype!=='NORECUR') {return false;}
+    //    otherwise, populate the recurrence form with useful defaults based on existing deadline/tickler/today
+    startdate = form.elements.deadline.value || form.elements.tickledate.value || form.elements.dateCompleted.value;
+    startday=new Date();
+    if (startdate) {
+        t=Date.UTC( startdate.substr(0,4),
+                        startdate.substr(5,2)-1,
+                        startdate.substr(8,2));
+        startday.setTime(t);
+    }
+    mth=1+startday.getMonth();
+    dte=startday.getDate();
+    daynum=startday.getDay();
+    days=['SU','MO','TU','WE','TH','FR','SA'];
+    day=days[daynum];
+    wk=Math.round((dte+3)/7);
+    form.elements['WEEKLYday[]'][daynum].checked=true;
+    form.elements.MONTHLYweekday.value=
+        form.elements.YEARLYweekday.value=day;
+    form.elements.MONTHLYdate.value=
+        form.elements.YEARLYdate.value=dte;
+    form.elements.MONTHLYweek.value=
+        form.elements.YEARLYweeknum.value=wk;
+    form.elements.YEARLYmonth.value=
+        form.elements.YEARLYweekmonth.value=mth;
+    return false;
+};
+// ======================================================================================
+GTD.tagAdd=function(newtaglink) {
+    var tagfield,currentTags,newtag,testtags,rawval;
+    tagfield=document.getElementById('tags');
+    rawval=tagfield.value;
+    currentTags=','+rawval.toLowerCase()+',';
+    newtag=newtaglink.text;
+    testtags=currentTags.replace(/\s*,\s*/g,',');
+    if (testtags.search(','+newtag+',')===-1) {
+        if (rawval.search(/,\s*$/)===-1 && rawval.search(/^\s*$/)===-1)
+            tagfield.value=rawval.value+',';
+        tagfield.value=tagfield.value+newtag+',';
+    }
+    return false;
+};
+// ======================================================================================
+GTD.tagKeypress=function(e) {
+    var pressed,key;
+    if (window.event) {pressed=window.event.keyCode;} else {pressed=e.charCode;}
+    key = String.fromCharCode(pressed);
+
+    /* if we're currently offering a tag in a tooltip,
+        check to see if enter or tab was pressed, and if so, add the tooltip tag
+        to the field, and return false
+        if esc pressed, then dismiss the tooltip
+    */
+        
+    
+    if (key!==' ' && key!==',') {
+        // get everything in field after last comma
+
+        // trim it
+        
+        // prepend comma
+        
+        // seek match in GTD.tags
+
+        // if found, offer labels in tooltip, with first one highlighted
+        
+        // need to grab mouse events on tooltip too
+    }
+    return true;
+}
+// ======================================================================================
+GTD.tagShow=function(anchor) {
+    document.getElementById("taglist").style.display="inline";
+    anchor.style.display="none";
+    return false;
+};
+// ======================================================================================
+GTD.toggleHidden=function (parent,show,link) {
+    var tab=document.getElementById(parent).getElementsByTagName("*");
+    for (var i=0;i<tab.length;i++) {
+        if (tab[i].className==='togglehidden') {tab[i].style.display=show;}
+    }
+    document.getElementById(link).style.display='none';
+    return false;
+};
+// ======================================================================================
+GTD.validate=function (form) {
+    var thisfield,checkType,itemErrorMessage,itemValue,passed,i,formValid,
+        formErrorMessage,requiredList,requiredItem,max,dateFormat,fieldRequires;
+
+    // Ensure validate is being used correctly
+
+    if(typeof form.elements.required === 'undefined') {
+        document.getElementById("errorMessage").innerHTML="Error: Validate function needs 'required' form field.";
+        return false;
+    }
+    if(typeof form.elements.dateformat === 'undefined') {
+        document.getElementById("errorMessage").innerHTML="Error: Validate function needs 'dateformat' form field.";
+        return false;
+    }
+
+    // Parse required list and check each required field
+    formValid=true;
+    formErrorMessage="Please correct the following:<br />";
+    requiredList = form.required.value.split(",");
+
+    // remove any previous error flags
+    max=requiredList.length;
+    for(i = 0;i<max;i++){
+        requiredItem = requiredList[i].split(":");
+        form.elements[requiredItem[0]].className='';
+        if (requiredItem[1]==='depends') {form.elements[requiredItem[3]].className='';}
+    }
+
+    for(i = 0;i<max;i++){
+        requiredItem = requiredList[i].split(":");
+        thisfield = form.elements[requiredItem[0]];
+        if (thisfield.type==='hidden') {continue;} // don't process hidden fields
+
+        checkType = requiredItem[1];
+        itemErrorMessage = requiredItem[2];
+        itemValue = thisfield.value;
+
+        switch (checkType) {
+            case "date":
+                dateFormat = form.dateformat.value;
+                passed=checkDate(thisfield,dateFormat);
+                break;
+            case "notnull":
+        		passed=!checkForNull(thisfield);
+                break;
+            case "depends":
+            	fieldRequires = form.elements[requiredItem[3]];
+            	passed=checkForNull(thisfield) || !checkForNull(fieldRequires) || (fieldRequires.type==='hidden');
+            	if (!passed) {fieldRequires.className='formerror';}
+				break;
+            default:
+                document.getElementById("errorMessage").innerHTML="Error: Required type not valid.";
+                return false;
+        }
+        if (!passed) {
+            if (formValid) {thisfield.focus();}
+            formValid=false;
+            formErrorMessage += itemErrorMessage + "<br />";
+            thisfield.className='formerror';
+        }
+    }
+
+    document.getElementById("errorMessage").innerHTML=(formValid) ? '' : formErrorMessage;
+    return formValid;
+};
+// ======================================================================================
+GTD.addEvent(window,'load', function() {
+    GTD.focusOnForm();
+    sortables_init();
+    if (typeof GTD.debugKey!=='undefined') {GTD.debugInit(GTD.debugKey);}
+});
+window.GTD=GTD;
+})();

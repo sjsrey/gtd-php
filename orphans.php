@@ -20,8 +20,9 @@ foreach ($dispArray as $key=>$val)
     $show[$key]=true;
 if ($config['debug'] & _GTD_DEBUG) echo '<pre>Orphans:',print_r($maintable,true),'</pre>';
 echo "<h2>$cnt Orphaned Item",($cnt===1)?'':'s',"</h2>";
-if ($cnt) { ?>
-    <table class="datatable sortable" id="typetable" summary='table of orphans'>
+if ($cnt) {
+    $trimlength=$config['trimLength'];
+?>  <table class="datatable sortable" id="typetable" summary='table of orphans'>
         <?php require('displayItems.inc.php'); ?>
     </table>
 <?php } else { ?>

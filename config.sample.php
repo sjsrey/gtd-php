@@ -49,7 +49,7 @@ $config["trimLengthInReport"] = 0;     // max visible length of descriptions whe
 $config["firstDayOfWeek"] = 0; // 0=Sunday, 1=Monday, ... 6=Saturday
 $config['ReportMaxCompleteChildren']=0;  // maximum number of child items of any one type shown in itemReport
 $config['useLiveEnhancements']=true; // javascript productivity aids: tested on PC/IE7, PC/Firefox2, Linux/Firefox2, Linux/Epiphany, Linux/Konqueror3
-
+$config['radioButtonsForNextPage']=false; // false | true - use radio buttons rather than submit buttons for 'next page' options
 // These are the shortcut settings for menu options.  Add a key for any page or page view in the main menus.
 // Note IE only allows 26 access keys (a-z).
 
@@ -114,7 +114,10 @@ $config["afterCreate"]	= array (  // parent | item | list | another - default vi
 			'm'		=>	'item', // value preference
 			'v'		=>	'item', // vision preference
 			'o'		=>	'item', // role preference
-			'g'		=>	'list' // goal preference
+			'g'		=>	'list', // goal preference
+			'C'		=>	'child', // checklist preference
+			'L'		=>	'child', // list preference
+			'T'		=>	'another' // (check)list item preference
 	    );
 
 // uses initials as above; so o=role, m=value, etc., each in single quotes, separated by commas
@@ -150,16 +153,14 @@ $sort = array(
     "listselectbox"         => "l.`title` ASC",
     "parentselectbox"       => "i.`title` ASC",
     "timecontextselectbox"  => "ti.`timeframe` DESC",
-    "getlistitems"          => "li.`item` ASC",
     "getitemsandparent"     => "type ASC, ptitle ASC, title ASC, deadline ASC, dateCreated DESC",
-    "getorphaneditems"      => "ia.`type` ASC, i.`title` ASC",
-    "selectchecklist"       => "cl.`title` ASC",
-    "getchecklists"         => "c.`category` ASC",
-    "getlists"              => "c.`category` ASC",
+    "getorphaneditems"      => "`type` ASC, `title` ASC",
+    "selectchecklist"       => "`title` ASC",
+    "getchecklists"         => "`category` ASC",
+    "getlists"              => "`category` ASC",
     "getchecklistitems"     => "cli.`checked` DESC, cli.`item` ASC",
     "getchildren"           => "its.`dateCompleted` DESC, ia.`deadline` DESC, i.`title` ASC",
-    "getitems"              => "i.`title` ASC",
-    "getnotes"              => "tk.`date` DESC",
+    "getitems"              => "i.`title` ASC"
 );
 
 $config["storeRecurrences"] = true; // false | true - when recurring items are completed, store each occurrence as a completed item
@@ -170,16 +171,27 @@ $config['allowChangingTypes'] = false; // false | true - allows the user to chan
 $config['showAdmin'] = true; // false | true - adds the Admin option to the menu items
 $config['charset'] = 'ISO8859-15'; // character-encoding for pages: utf-8 IS NOT YET SUPPORTED, nor is any other multi-byte character set
 $config['withholdVersionInfo']=false; // true | false - if false, will send the version numbers of your installations of gtd-php, PHP and MySQL when you report a bug
-$config['addons']=array();
+$config['allowCustomRecurrences']=false; // false | true - allow the user to enter rfc2445 text directly to specify recurring dates
+$config['events']=$config['addons']=array();
 /*
-    addons go below this line.  For example:
+    menu-addons and event-addons go below this line.  For example:
     
 $config['addons']['achievements']=array(
         "link"=>"addons/achievements/achievements.php",
         'title'=>"Notable Achievements", 'label' => "Achievements",
         'where'=>'listItems.php?type=a&amp;tickler=true','when'=>'after',
-        'options'=>array('jpgraphdir'=>'../jpgraph/'));*/
+        'options'=>array('jpgraphdir'=>'../jpgraph/'));
 
+$config['addons']['booklet']=array(
+        "link"=>"addons/actionBooklet/actionBooklet.php",
+        'title'=>"Booklet of next actions", 'label' => "NA Booklet",
+        'where'=>'reportContext.php','when'=>'after',
+        'options'=>array('fpdf'=>'../fpdf/')
+        );
+
+$config['events'][_GTD_ON_HEADER]['*'][]="addons/ajax/insertjs.inc.php";
+
+*/
 /*********  Developer Settings ************/
 
 /* The debug value is generally for the developers of the application.  You will probably want this to remain 0

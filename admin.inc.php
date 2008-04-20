@@ -10,16 +10,20 @@ function checkErrors($prefix) {
     $items=@mysql_fetch_row(send_query($q,false));
     if (empty($items)) return false;
 
-    $q="SELECT COUNT(DISTINCT `nextaction`) FROM `{$prefix}nextactions`";
-    $na=@mysql_fetch_row(send_query($q,false));
-    
-    $q="SELECT COUNT(*) FROM `{$prefix}items` AS `i`
-            JOIN `{$prefix}itemattributes` AS `ia`  USING (`itemId`)
+    $q="SELECT COUNT(*) FROM `{$prefix}itemattributes` AS `ia`
             JOIN `{$prefix}itemstatus`     AS `its` USING (`itemId`)
             WHERE `its`.`dateCompleted` IS NULL
-                AND (ia.`type` NOT IN ('i','m')
-                    AND `i`.`itemId` NOT IN (SELECT `itemId` FROM `{$prefix}lookup`
-                ) OR ia.`type`='' OR ia.`type` IS NULL)";
+                AND ia.`nextaction`='y'";
+    $na=@mysql_fetch_row(send_query($q,false));
+
+    $q="SELECT COUNT(*) FROM `{$prefix}itemstatus`
+            WHERE `dateCompleted` IS NULL AND
+            (
+                (`type` NOT IN ('i','m','L','C')
+                    AND `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}lookup`)
+                )
+            OR `type`='' OR `type` IS NULL
+            )";
     $orphans=@mysql_fetch_row(send_query($q,false));
 
     $totals=array(
@@ -28,49 +32,25 @@ function checkErrors($prefix) {
                     ,'orphans'=>$orphans[0]
                 );
 
-
-    $q="SELECT COUNT(*) FROM `{$prefix}nextactions` WHERE ROW(`parentId`,`nextaction`) NOT IN
-            (SELECT * FROM `{$prefix}lookup`) AND `parentId`!='0'";
-    $excessNA=@mysql_fetch_row(send_query($q,false));
-
-    $q="SELECT COUNT(*) FROM `{$prefix}lookup` WHERE
-            ROW(`parentId`,`itemId`) NOT IN (SELECT * FROM `{$prefix}nextactions`)
-            AND `itemID` IN (SELECT `nextaction` FROM `{$prefix}nextactions`)";
-    $missingNA=@mysql_fetch_row(send_query($q,false));
-    
-    $q="SELECT COUNT(*) FROM `{$prefix}nextactions` AS `na`
-            JOIN `{$prefix}itemstatus` AS `its` ON (na.`nextaction`=its.`itemId`)
-            WHERE its.`dateCompleted` IS NOT NULL";
-    $completedNA=@mysql_fetch_row(send_query($q,false));
-
-    $q="SELECT COUNT(*) FROM `{$prefix}itemattributes` WHERE `suppress`='y' AND `deadline`=NULL";
-    $noTickleDate=@mysql_fetch_row(send_query($q,false));
-
     $q="SELECT COUNT(*) FROM `{$prefix}items` where `title`=NULL OR `title`=''";
     $noTitle=@mysql_fetch_row(send_query($q,false));
 
     $q="SELECT COUNT(*) FROM `{$prefix}lookup` WHERE 
-            `parentId` NOT IN (SELECT `itemId` FROM `{$prefix}itemattributes`)
-           OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}itemattributes`)";
+            `parentId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)
+           OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)";
     $redundantparent=@mysql_fetch_row(send_query($q,false));
 
     $q="SELECT COUNT(version) FROM `{$prefix}version`";
     $excessVersions=@mysql_fetch_row(send_query($q,false));
 
-    $errors=array(
-                     'redundant nextaction entries'=>$excessNA[0]
-                    ,'missing nextaction entries'=>$missingNA[0]
-                    ,'completed items marked as next actions'=>$completedNA[0]
-                    ,'missing tickle dates'=>$noTickleDate[0]
-                    ,'missing titles'=>$noTitle[0]
+    $errors=array(   'missing titles'=>$noTitle[0]
                     ,'redundant parent entries'=>$redundantparent[0]
                     ,'redundant version tags'=>-1+(int) $excessVersions[0]
                 );
 
     // remove partial items from database
-    $items1=array('items','itemstatus','itemattributes');
-    $items2=$items1;
-    foreach ($items1 as $t1) foreach ($items2 as $t2) if ($t1!=$t2) {
+    $items1=array('itemstatus'=>'items','items'=>'itemstatus','itemattributes'=>'itemstatus','itemattributes'=>'items');
+    foreach ($items1 as $t1=>$t2) {
         $q="SELECT COUNT(DISTINCT `itemId`) FROM `{$prefix}$t1` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}$t2`)";
         $val=@mysql_fetch_row(send_query($q,false));
         $errors["IDs are in $t1, but not in $t2"]=$val[0];
@@ -84,7 +64,8 @@ function checkErrors($prefix) {
 function backupData($prefix) {
     global $config;
     $sep="-- *******************************\n";
-    $tables=array('categories','checklist','checklistitems','context','itemattributes','items','itemstatus','list','listitems','lookup','nextactions','tickler','timeitems','version','preferences');
+    $tables=array('categories','checklist','checklistitems','context','itemattributes','items','itemstatus','list','listitems','lookup','preferences','tagmap','timeitems','version');
+
     $data='';
     $header='';
     $creators='';
@@ -106,39 +87,6 @@ function backupData($prefix) {
     //$data=htmlspecialchars($creators.$sep.$header.$sep.$data,ENT_NOQUOTES);
     $data=htmlspecialchars($header.$sep.$data,ENT_NOQUOTES,$config['charset']);
     return $data;
-}
-/*
-   ======================================================================================
-*/
-function recreateNextactions($prefix) { // recreate the nextactions table, removing all inconsistencies
-
-    $q="DROP TABLE IF EXISTS `{$prefix}tempNA`";
-    send_query($q);
-    $q="CREATE TABLE `{$prefix}tempNA` SELECT * FROM `{$prefix}nextactions`";
-    send_query($q);
-    $q="TRUNCATE `{$prefix}nextactions`";
-    send_query($q);
-    $q="INSERT INTO `{$prefix}nextactions` (SELECT DISTINCTROW `parentId`, `itemId` AS `nextaction`
-            FROM `{$prefix}lookup` WHERE `itemId` IN (SELECT `nextaction` FROM {$prefix}tempNA))";
-    send_query($q);
-    $q="INSERT INTO `{$prefix}nextactions` (SELECT * FROM `{$prefix}tempNA`
-            WHERE `parentId`='0' AND `nextaction` NOT IN (SELECT `itemId` FROM `{$prefix}lookup`))";
-    send_query($q);
-
-    $q="SELECT COUNT(*) FROM `{$prefix}nextactions`";
-    $tot=send_query($q,false);
-    $q="SELECT COUNT(DISTINCT `nextaction`) FROM `{$prefix}nextactions`";
-    $unique=send_query($q,false);
-    $q="SELECT COUNT(*) FROM `{$prefix}nextactions` WHERE ROW(`parentId`,`nextaction`) NOT IN (SELECT * FROM `{$prefix}tempNA`)";
-    $added=send_query($q,false);
-    $q="SELECT COUNT(*) FROM `{$prefix}tempNA` WHERE ROW(`parentId`,`nextaction`) NOT IN (SELECT * FROM `{$prefix}nextactions`)";
-    $removed=send_query($q,false);
-
-    $q="DROP TABLE `{$prefix}tempNA`";
-    send_query($q);
-    
-    $result=array('total_rows'=>$tot,'Number_of_Next_Actions'=>$unique,'added_rows'=>$added,'removed_rows'=>$removed);
-    return $result;
 }
 /*
    ======================================================================================
@@ -194,10 +142,6 @@ function fixData($prefix) {
         send_query($q);
     }
 
-    // if tickle flag is set with no deadline, remove tickle flag
-    $q="update `{$prefix}itemattributes` set `suppress`='n' where `deadline`=NULL";
-    send_query($q);
-
     // if any titles are blank, call them 'untitled'
     $q="update `{$prefix}items` set `title`='untitled' where `title`=NULL OR `title`=''";
     send_query($q);
@@ -208,14 +152,6 @@ function fixData($prefix) {
            OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}itemattributes`)";
     send_query($q);
 
-    // remove next action flag from completed items
-    $q="DELETE FROM `{$prefix}nextactions` WHERE nextaction IN (
-            SELECT `itemId` FROM `{$prefix}itemstatus` WHERE dateCompleted IS NOT NULL
-            )";
-    send_query($q);
-    
-    // and finally, fix nextactions by recreating it completely
-    recreateNextactions($prefix);
 }
 /*
    ======================================================================================
@@ -344,16 +280,22 @@ function checkTables($ver,$prefix='',$casesensitive=false) {
 */
 function checkPrefixedTables($prefix) {
 	global $versions;
-	if (_DEBUG) echo '<p class="debug">Is there a current 0.8 installation with prefix "',$prefix,'"? ';
-    $doneOK=checkTables('0.8rc-4',$prefix);
-    if ($doneOK) {
-        $retval=checkVersion($prefix);
-        // check to see if it's really 0.8rc3 masquerading as 0.8rc4, by doing a case-sensitive table check
-        if ($retval==='0.8rc-4' && !checkTables('0.8rc-4',$prefix,true))
-            $retval='0.8rc-3';
-    }else
-        $retval=false;
-    if (_DEBUG) echo (($doneOK)?'YES':'NO'),"</p><p class='debug'>Resolved version number as: '$retval'</p>\n";
+	if (_DEBUG) echo "<p class='debug'>Is there a current installation with prefix '$prefix'?</p>";
+	$retval=checkVersion($prefix);
+	if ($retval && checkTables($retval,$prefix,true)) {
+        $doneOK=true;
+    } else {
+        $doneOK=checkTables('0.8rc-4',$prefix,false);
+        if ($doneOK) {
+            // check to see if it's really 0.8rc3 masquerading as 0.8rc4, by doing a case-sensitive table check
+            if ($retval==='0.8rc-4' && !checkTables('0.8rc-4',$prefix,true)) {
+                $retval='0.8rc-3';
+            }
+        } else {
+            $retval=false;
+        }
+    }
+    if (_DEBUG) echo "<p class='debug'>",(($doneOK)?'YES':'NO')," - resolved version number as: '$retval'</p>\n";
 	return $retval;
 }
 /*
@@ -367,8 +309,8 @@ function checkVersion($prefix) {
     } else {
         $last=array(0=>null);
         while ($out=mysql_fetch_row($result)) $last=$out;
-		$retval=$last[0];
-		if (_DEBUG) echo "<p class'debug'>Found Version field: $retval</p>";
+        $retval=$last[0];
+		if (_DEBUG) echo "<p class='debug'>Found Version field: $retval </p>";
 	}
 
     return $retval;
@@ -389,23 +331,10 @@ function getExistingDestinationTables($prefix) {
    ======================================================================================
 */
 function create_tables() {
-	global $config,$install_success;
-    // start creating new tables
-	create_table('preferences');
-	create_table("categories");
-	create_table("checklist");
-	create_table("checklistitems");
-	create_table("context");
-	create_table("itemattributes");
-	create_table("items");
-	create_table("itemstatus");
-	create_table('list');
-	create_table("listitems");
-	create_table('lookup');
-	create_table("nextactions");
-	create_table("tickler");
-	create_table("timeitems");
-	createVersion();
+	global $tablesByVersion,$versions;
+	include_once 'gtd_constants.inc.php';
+    foreach ($tablesByVersion[$versions[_GTD_VERSION]['tables']] as $table)
+        create_table($table);
 }
 /*
    ======================================================================================
@@ -614,44 +543,6 @@ function create_table ($name) {
        $q.=_FULLTEXT." KEY `category` (`category`"._INDEXLEN."), ";
        $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN."))"._CREATESUFFIX;
     break;
-    case "checklist":
-       $q.="`checklistId` int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`title` text NOT NULL, ";
-       $q.="`categoryId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`description` text, ";
-       $q.="PRIMARY KEY  (`checklistId`),    ";
-       $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN."), ";
-       $q.=_FULLTEXT." KEY `title` (`title`"._INDEXLEN."))"._CREATESUFFIX;
-	break;
-	case "checklistitems":
-       $q.="`checklistItemId` int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`item` text NOT NULL, ";
-       $q.="`notes` text, ";
-       $q.="`checklistId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`checked` enum ('y', 'n') NOT NULL default 'n', ";
-       $q.="PRIMARY KEY (`checklistItemId`), KEY `checklistId` (`checklistId`),";
-       $q.=_FULLTEXT." KEY `notes` (`notes`"._INDEXLEN."), "._FULLTEXT." KEY `item` (`item`"._INDEXLEN."))"._CREATESUFFIX;
-    break;
-	case "itemattributes";
-       $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`type` enum ('m','v','o','g','p','a','r','w','i') NOT NULL default 'i', ";
-       $q.="`isSomeday` enum('y','n') NOT NULL default 'n', ";
-       $q.="`categoryId` int(11) unsigned NOT NULL default '0', ";
-       $q.="`contextId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`timeframeId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`deadline` date default NULL, ";
-       $q.="`repeat` int(10) unsigned NOT NULL default '0', ";
-       $q.="`suppress` enum('y','n') NOT NULL default 'n', ";
-       $q.="`suppressUntil` int(10) unsigned default NULL, ";
-       $q.="PRIMARY KEY (`itemId`), ";
-       $q.="KEY `contextId` (`contextId`), ";
-       $q.="KEY `suppress` (`suppress`), ";
-       $q.="KEY `type` (`type`), ";
-       $q.="KEY `timeframeId` (`timeframeId`), ";
-       $q.="KEY `isSomeday` (`isSomeday`),    ";
-       $q.="KEY `categoryId` (`categoryId`),  ";
-       $q.="KEY `isSomeday_2` (`isSomeday`))";
-	break;
     case "context":
        $q.="`contextId` int(10) unsigned NOT NULL auto_increment, ";
        $q.="`name` text NOT NULL, ";
@@ -660,11 +551,26 @@ function create_table ($name) {
        $q.=_FULLTEXT." KEY `name` (`name`"._INDEXLEN."), ";
        $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN."))"._CREATESUFFIX;
 	break;
+	case "itemattributes";
+       $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
+       $q.="`isSomeday` enum('y','n') NOT NULL default 'n', ";
+       $q.="`contextId` int(10) unsigned NOT NULL default '0', ";
+       $q.="`timeframeId` int(10) unsigned NOT NULL default '0', ";
+       $q.="`deadline` date default NULL, ";
+       $q.="`tickledate` date default NULL, ";
+       $q.="`nextaction` enum('y','n') NOT NULL DEFAULT 'n', ";
+       $q.="PRIMARY KEY (`itemId`), ";
+       $q.="KEY `contextId` (`contextId`), ";
+       $q.="KEY `timeframeId` (`timeframeId`), ";
+       $q.="KEY `isSomeday` (`isSomeday`) ) "._CREATESUFFIX;
+	break;
 	case "items":
        $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
        $q.="`title` text NOT NULL, ";
        $q.="`description` longtext, ";
        $q.="`desiredOutcome` text, ";
+       $q.="`recurdesc` text, ";
+       $q.="`recur` text, ";
        $q.="PRIMARY KEY  (`itemId`), ";
        $q.=_FULLTEXT." KEY `title` (`title`"._INDEXLEN."), ";
        $q.=_FULLTEXT." KEY `desiredOutcome` (`desiredOutcome`"._INDEXLEN."), ";
@@ -672,53 +578,14 @@ function create_table ($name) {
 	break;
 	case "itemstatus":
        $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
+       $q.="`type` enum ('m','v','o','g','p','a','r','w','i') NOT NULL default 'i', ";
        $q.="`dateCreated` date  default NULL, ";
        $q.="`lastModified` timestamp default '"._DEFAULTDATE."' ,";
        $q.="`dateCompleted` date default NULL, ";
-       $q.="PRIMARY KEY  (`itemId`))";
-	break;
-	case "list":
-       $q.="`listId` int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`title` text NOT NULL, ";
-       $q.="`categoryId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`description` text, ";
-       $q.="PRIMARY KEY  (`listId`), ";
-       $q.="KEY `categoryId` (`categoryId`), ";
-       $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN."), ";
-       $q.=_FULLTEXT." KEY `title` (`title`"._INDEXLEN.")) "._CREATESUFFIX;
-	break;
-	case "listitems":
-       $q.="`listItemId` int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`item` text NOT NULL, ";
-       $q.="`notes` text, ";
-       $q.="`listId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`dateCompleted` date default NULL, ";
-       $q.="PRIMARY KEY  (`listItemId`), ";
-       $q.="KEY `listId` (`listId`), ";
-       $q.=_FULLTEXT." KEY `notes` (`notes`"._INDEXLEN."), ";
-       $q.=_FULLTEXT." KEY `item` (`item`"._INDEXLEN.")) "._CREATESUFFIX;
-	break;
-	case "tickler":
-       $q.="`ticklerId` int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`date` date  default NULL, ";
-       $q.="`title` text NOT NULL, ";
-       $q.="`note` longtext, ";
-       $q.="`repeat` int(10) unsigned NOT NULL default '0', ";
-       $q.="`suppressUntil` int(10) unsigned NOT NULL default '0', ";
-       $q.="PRIMARY KEY  (`ticklerId`), ";
-       $q.="KEY `date` (`date`), ";
-       $q.=_FULLTEXT." KEY `note` (`note`"._INDEXLEN."), ";
-       $q.=_FULLTEXT." KEY `title` (`title`"._INDEXLEN.")) "._CREATESUFFIX;
-	break;
-	case "goals":
-       $q.="`id` int(11) NOT NULL auto_increment, ";
-       $q.="`goal`   longtext, ";
-       $q.="`description`   longtext, ";
-       $q.="`created` date default NULL, ";
-       $q.="`deadline` date default NULL, ";
-       $q.="`completed` date default NULL, ";
-       $q.="`type` enum('weekly', 'quarterly') default NULL ,";
-       $q.="`projectId` int(11) default NULL, PRIMARY KEY (`id`) )";
+       $q.="`categoryId` int(11) unsigned NOT NULL default '0', ";
+       $q.=" PRIMARY KEY  (`itemId`), ";
+       $q.=" KEY `type` (`type`), ";
+       $q.=" KEY `categoryId` (`categoryId`) ) ";
 	break;
 	case "lookup":
        $q.="`parentId` int(11) NOT NULL default '0', ";
@@ -732,11 +599,13 @@ function create_table ($name) {
        $q.="`value`  text, ";
        $q.="PRIMARY KEY  (`id`)); ";
 	break;
-	case "nextactions":
-       $q.="`parentId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`nextaction` int(10) unsigned NOT NULL default '0', ";
-       $q.="PRIMARY KEY  (`parentId`,`nextaction`))";
-	break;
+    case "tagmap":
+        $q.= "`itemId` int(10) unsigned NOT NULL,
+            `tagname` text NOT NULL,
+            PRIMARY KEY (`itemId`,`tagname`(20) ),"
+            ._FULLTEXT." KEY `itemId` (`itemId`),"
+            ._FULLTEXT." KEY `tagname` (`tagname`"._INDEXLEN.") ) "._CREATESUFFIX;
+    break;
 	case "timeitems":
        $q.="`timeframeId` int(10) unsigned NOT NULL auto_increment, ";
        $q.="`timeframe` text NOT NULL, ";

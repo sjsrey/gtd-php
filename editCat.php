@@ -4,7 +4,7 @@ require_once('editCat.inc.php');
 ?>
 <h2><?php echo $title; ?></h2>
 <?php if ($thiscat || !$id) {
-?><form action="processCat.php" method="post" onsubmit="return validate(this);">
+?><form action="processCat.php" method="post" onsubmit="return GTD.validate(this);">
 <div class='formrow'><span class="error" id='errorMessage'></span></div>
 <div>
 <input type='hidden' name='field' value='<?php echo $field; ?>' />

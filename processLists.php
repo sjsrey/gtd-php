@@ -1,7 +1,12 @@
 <?php
-require_once('headerDB.inc.php');
-if ($config['debug'] & _GTD_DEBUG)  include_once('header.php');
-include_once('lists.inc.php');
+// TOFIX - to be merged into processItems
+require_once 'headerDB.inc.php';
+
+$captureOutput=(isset($_POST['output']) && $_POST['output']==='xml');
+if ($captureOutput) ob_start();
+if ($config['debug'] & _GTD_DEBUG) include_once 'header.php';
+
+include_once 'lists.inc.php';
 
 $nextURL="reportLists.php?id={$values['id']}&$urlSuffix"; // default next action is to show the report for the current list
 
@@ -22,6 +27,7 @@ switch ($action) {
         if ($result) {
             $msg="Created";
             if (!empty($_REQUEST['again'])) $nextURL="editListItems.php?id={$values['id']}&$urlSuffix";
+            $values['newitemId']=$GLOBALS['lastinsertid'];
         } else {
             $msg="Failed to create";
             $nextURL="listLists.php?id={$values['id']}&$urlSuffix";
@@ -39,8 +45,13 @@ switch ($action) {
         $values['notes']=$_POST['notes'];
         if ($isChecklist)
             $values['checked']=(isset($_POST['checked']))?'y':'n';
+        elseif (isset($_POST['dateCompleted']))
+            $donedate=$_POST['dateCompleted'];
+        elseif (!empty($_POST['checked']))
+            $donedate=date('Y-m-d');
         else
-            $values['dateCompleted']=(empty($_POST['dateCompleted']))?'NULL':"'{$_POST['dateCompleted']}'";
+            $donedate='';
+        $values['dateCompleted']=(empty($donedate))?'NULL':"'{$donedate}'";
         $result=query("update{$check}listitem",$config,$values);
         $msg=($result) ? "Updated" : "No changes needed to";
         $_SESSION['message'][]= "$msg {$check}list item: '{$values['item']}'";
@@ -55,6 +66,18 @@ switch ($action) {
         }
         break;
     //-----------------------------------------------------------------------------------
+    case 'listcomplete1':
+        if ($_POST['checked']=='true')
+            $values['dateCompleted']="'".date('Y-m-d')."'";
+        else if (!empty($_REQUEST['dateCompleted']))
+            $values['dateCompleted']="'{$_REQUEST['dateCompleted']}'";
+        else
+            $values['dateCompleted']='NULL';
+        $values['itemfilterquery']=(int) $_POST['itemId'];
+        $cnt=query('completeitem',$config,$values);
+        $_SESSION['message'][]='Item marked '.(($values['dateCompleted']==='NULL')?'in':'').'complete';
+        break;
+    //-----------------------------------------------------------------------------------
     case 'listcomplete':
         if ($isChecklist) {
             query("clearchecklist",$config,$values);
@@ -62,20 +85,19 @@ switch ($action) {
                 $_SESSION['message'][]='All checklist items have been unchecked';
                 break;
             }
-            $query='checkchecklistitem';
-        } else {
-            if (empty($_POST['completed'])) break;
-            $query="completelistitem";
-            if (!isset($values['dateCompleted'])) $values['dateCompleted']="'".date('Y-m-d')."'";
-        }
+        } else if (empty($_POST['completed'])) break;
+        if (!isset($values['dateCompleted'])) $values['dateCompleted']="'".date('Y-m-d')."'";
         $sep='';
         $ids='';
-        foreach ($_POST['completed'] as $id) {
-            $ids.=$sep.(int) $id;
-            $sep="','";
-        }
-        $values['itemfilterquery']="'$ids'";
-        $cnt=query($query,$config,$values);
+        if (is_array($_POST['completed']) ) {
+            foreach ($_POST['completed'] as $id) {
+                $ids.=$sep.(int) $id;
+                $sep="','";
+            }
+        } else
+            $ids=(int) $_POST['completed'];
+        $values['itemfilterquery']="$ids";
+        $cnt=query("completeitem",$config,$values);
         $msg  = "$cnt {$check}list item";
         if ($cnt!==1) $msg .= 's';
         if ($isChecklist) {
@@ -92,7 +114,6 @@ switch ($action) {
     case 'listcreate':
         $values['title'] = $_POST['title'];
         $values['description'] = $_POST['description'];
-        //TOFIX datecompleted, completed
         $result= query("new{$check}list",$config,$values,$sort);
         if ($result) {
             $values['id']=$GLOBALS['lastinsertid'];
@@ -129,5 +150,24 @@ switch ($action) {
         break;
 }
 
+if ($captureOutput) {
+    $logtext=ob_get_contents();
+    ob_end_clean();
+    $outtext=$_SESSION['message'];
+    $_SESSION['message']=array();
+    if (!headers_sent()) {
+        $header="Content-Type: text/xml; charset=".$config['charset'];
+        header($header);
+    }
+    echo '<?xml version="1.0" ?','><gtdphp><values>';
+    foreach ($values as $key=>$val) echo "<$key>",makeclean($val),"</$key>";
+    echo '</values><result>';
+    if (!empty($outtext)) foreach ($outtext as $line) echo "<line>",makeclean($line),"</line>";
+    echo "</result>"
+        ,"<nextURL>",makeclean($nextURL),"</nextURL>"
+        ,"<log>",makeclean($logtext),"</log>"
+        ,"</gtdphp>";
+    exit;
+}
 nextScreen($nextURL);
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

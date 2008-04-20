@@ -1,10 +1,11 @@
 <?php
+include_once 'headerDB.inc.php';
 function makeContextRow($row) {
     global $config;
     $rowout=array();
     $rowout['itemId']=$row['itemId'];
 	$rowout['description']=$row['description'];
-	$rowout['repeat'] = ($row['repeat']=="0")?'&nbsp;':$row['repeat'];
+	$rowout['recurdesc'] = ($row['recurdesc']=="0")?'&nbsp;':$row['recurdesc'];
     if($row['deadline']) {
         $deadline=prettyDueDate($row['deadline'],$config['datemask']);
         $rowout['deadline'] =$deadline['date'];
@@ -19,11 +20,11 @@ function makeContextRow($row) {
 	$rowout['checkboxname']='isMarked[]';
 	$rowout['checkbox.title']='Mark as complete';
 	$rowout['checkboxvalue']=$row['itemId'];
-    $rowout['NA'] = $row['NA'];
+    $rowout['NA'] = $row['nextaction']==='y';
     return $rowout;
 }
 function makeContextTable($maintable) {
-    global $dispArray,$show,$config;
+    global $dispArray,$show,$config,$trimlength;
     ob_start();
     require('displayItems.inc.php');
     $out=ob_get_contents();
@@ -51,10 +52,7 @@ if ($timeframeResults) foreach($timeframeResults as $row) {
 	$timeframeDesc[(int) $row['timeframeId']]=makeclean($row['description']);
 	}
 
-//obtain all active item timeframes and count instances of each
-$NAfilter='isNA'.(($config["contextsummary"] === 'nextaction')?'only':'');
-$values['filterquery'] = sqlparts($NAfilter,$config,$values);
-$values['extravarsfilterquery'] =sqlparts("getNA",$config,$values);;
+$values['extravarsfilterquery'] ='';
 
 $thisurl=parse_url($_SERVER['PHP_SELF']);
 $dispArray=array('parent'=>'Project'
@@ -62,12 +60,13 @@ $dispArray=array('parent'=>'Project'
     ,'title'=>'Action'
     ,'description'=>'Description'
     ,'deadline'=>'Deadline'
-    ,'repeat'=>'Repeat'
+    ,'recurdesc'=>'Repeat'
     ,'checkbox'=>'Complete');
 $show=array();
 foreach ($dispArray as $key=>$val) $show[$key]=true;
 
 $wasNAonEntry=array();
+$trimlength=$config['trimLength'];
 
 $values['type'] = "a";
 $values['isSomeday'] = "n";
@@ -75,7 +74,11 @@ $values['childfilterquery']  = " WHERE ".sqlparts("typefilter",$config,$values)
                             ." AND ".sqlparts("activeitems",$config,$values)
                             ." AND ".sqlparts("issomeday",$config,$values)
                             ." AND ".sqlparts("pendingitems",$config,$values);
-$values['filterquery']      .=' WHERE '.sqlparts("liveparents",$config,$values);;
+
+if ($config["contextsummary"] === 'nextaction')
+    $values['childfilterquery'] .= ' AND '.sqlparts('isNAonly',$config,$values);
+
+$values['filterquery'] =' WHERE '.sqlparts("liveparents",$config,$values);;
 $tstsort=array('getitemsandparent'=>'cname ASC,timeframeId ASC,'.$sort['getitemsandparent']);
 $result = query("getitemsandparent",$config,$values,$tstsort);
 $grandtot=count($result);
@@ -90,15 +93,15 @@ foreach ($contextNames as $cid=>$dummy1) {
                 && (    !array_key_exists((int) $result[$index]['contextId'],$contextNames)
                      || !array_key_exists((int) $result[$index]['timeframeId'],$timeframeNames))) {
             array_push($lostitems,$result[$index++]);
-        }
+		}
 		while ($index<$grandtot &&
                 (int) $result[$index]['contextId']===$cid &&
                 (int) $result[$index]['timeframeId']===$tid ) {
             $row=$result[$index];
-            if ($row['NA']) array_push($wasNAonEntry[$cid][$tid],$row['itemId']);
+            if ($row['nextaction']==='y') array_push($wasNAonEntry[$cid][$tid],$row['itemId']);
             array_push($maintable,makeContextRow($row));
             $index++;
-		}
+        }
 		$matrixcount[$cid][$tid]=count($maintable);
         if (count($maintable))
             $matrixout[$cid][$tid]=makeContextTable($maintable);
@@ -109,7 +112,7 @@ if (count($lostitems)) {
     $cid='-1';
     $tid=0;
     $wasNAonEntry[$cid][$tid]=array();
-    foreach ($timeframeNames as $thistid=>$dummy1) $matrixcount[$cid][$thistid]=0;
+    foreach ($timeframeNames as $thistid=>$dummy2) $matrixcount[$cid][$thistid]=0;
     $contextNames[$cid]="ERROR: Failed to find context";
     $maintable=array();
     $dispArray['spatialcontext']='Context Id';
@@ -130,9 +133,10 @@ if (count($lostitems)) {
         $rowout['timeframe']        =$thisTname;
         $rowout['timeframeId']      =$row['timeframeId'];
         array_push($maintable,$rowout);
-        if ($row['NA']) array_push($wasNAonEntry[$cid][$tid],$row['itemId']);
+        if ($rowout['NA']) array_push($wasNAonEntry[$cid][$tid],$row['itemId']);
     }
     $matrixcount[$cid][$tid]=count($maintable);
     $matrixout[$cid][$tid]=makeContextTable($maintable);
 }
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser
+
