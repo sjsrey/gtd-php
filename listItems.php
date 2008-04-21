@@ -1,16 +1,8 @@
 <?php
+//INCLUDES
 require_once('listItems.inc.php');
 include_once('headerHtml.inc.php');
-?>
-<script type='text/javascript'>/* <![CDATA[ */
-GTD.addEvent(window,'load',function() {
-    GTD.filtertoggle();
-    <?php if ($quickfind) echo "GTD.focusOnForm('needle');\n"; ?>
-});
-/* ]]> */ </script>
-<?php
 include_once('header.php');
-gtd_handleEvent(_GTD_ON_DATA,$pagename);
 ?>
 <div id="filter">
     <form action="listItems.php" method="post">
@@ -41,7 +33,7 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
             <input type="checkbox" name="nextonly" id="nextonly" class="notfirst" value="true" <?php if ($filter['nextonly']=="true") echo 'checked="checked"'?> title="Show only Next Actions" /><label for='nextonly' class='right'>Next Actions</label>
             <input type="checkbox" name="dueonly" id="dueonly" class="notfirst" value="true" <?php if ($filter['dueonly']=="true") echo 'checked="checked"'?> title="Show only <?php echo $typename ?>s with a due date" /><label for='dueonly' class='right'>Due</label>
             <input type="checkbox" name="repeatingonly" id="repeatingonly" class="notfirst" value="true" <?php if ($filter['repeatingonly']=="true") echo 'checked="checked"'?> title="Show only repeating <?php echo $typename ?>s" /><label for='repeatingonly' class='right'>Repeating</label>
-            <input type="checkbox" name="everything" id="everything" class="notfirst" value="true" <?php if ($filter['everything']=="true") echo 'checked="checked"'?> title="Show all <?php echo $typename ?>s, regardless of status or labels" onclick='javascript:GTD.filtertoggle("toggle");' /><label for='everything'>Show all</label>
+            <input type="checkbox" name="everything" id="everything" class="notfirst" value="true" <?php if ($filter['everything']=="true") echo 'checked="checked"'?> title="Show all <?php echo $typename ?>s, regardless of status or labels" onclick='javascript:filtertoggle("toggle");' /><label for='everything'>Show all</label>
         </div>
         <div class="formbuttons">
            <label for="liveparents" class='left first' title="Not live means either completed, a someday/maybe, or it has not yet reached its tickler date">Status of parent:</label>
@@ -66,37 +58,67 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
             </select>
            <label for='needle' class='notfirst'>Find:</label>
            <input type='text' name='needle' id='needle' value='<?php echo $values['needle']; ?>' />
-           <label for='tags' class='notfirst'>Tag:</label>
-           <input type='text' name='tags' id='tags' value='<?php echo $values['tags']; ?>' />
-           <input type="submit" id="filtersubmit" class="button" value="Filter"
-                name="submit" onclick="javascript:GTD.filtertoggle('all');"
+            <input type="submit" id="filtersubmit" class="button" value="Filter"
+                name="submit" onclick="javascript:filtertoggle('all');"
                 title="Filter <?php echo $typename ?>s by selected criteria" />
         </div>
     </form>
 </div>
+<?php if (count($remindertable)) { ?>
+    <h2>Reminder Notes</h2>
+<p class='warning'>Deprecated feature: notes will be withdrawn before the 1.0 release of gtd-php.
+They have been superseded by tickler actions.
+Normal actions can be put into a tickler file, to be suppressed until a specified number of days before their deadlines</p>
+    <table class="datatable sortable" summary="table of reminders" id="remindertable">
+        <thead>
+            <tr>
+                <th>Reminder</th>
+                <th>Title</th>
+                <th>Note</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach($remindertable as $row) {
+            echo "<tr>\n"
+                ,"<td>",$row['date'],"</td>\n"
+                ,"<td><a href='note.php?referrer=t&amp;noteId=",$row['id']
+                ,'&amp;type=',$values['type']
+                ,"' title='Edit {$row['title']}'>{$row['title']}</a></td>\n"
+                ,"<td>{$row['note']}</td>\n"
+                ,"</tr>";
+        } ?>
+        </tbody>
+    </table>
+<?php } ?>
 <h2><?php echo $sectiontitle; ?></h2>
 <?php if (count($maintable)) { ?>
     <form action="processItems.php" method="post">
     <table class="datatable sortable" summary="Table of actions" id="actiontable">
         <?php require('displayItems.inc.php'); ?>
     </table>
-    <div class='formrow'>
-        <?php
-        if ($show['NA'])
-            echo "<input type='hidden' name='wasNAonEntry' value='",implode(' ',$wasNAonEntry),"' />\n";
-        if ($showsubmit)
-            echo "<input type='submit' class='button' value='Update marked {$typename}s' name='submit' />";
-        ?>
-        <input type="hidden" name="referrer" value="<?php echo $referrer; ?>" />
-        <input type="hidden" name="type" value="<?php echo $values['type']; ?>" />
-        <input type="hidden" name="multi" value="y" />
-        <input type="hidden" name="action" value="complete" />
+    <div>
+    <?php
+    if ($show['NA'])
+        echo "<input type='hidden' name='wasNAonEntry' value='",implode(' ',$wasNAonEntry),"' />\n";
+    if ($showsubmit)
+        echo "<input type='submit' class='button' value='Update marked {$typename}s' name='submit' />";
+    ?>
+    <input type="hidden" name="referrer" value="<?php echo $referrer; ?>" />
+    <input type="hidden" name="type" value="<?php echo $values['type']; ?>" />
+    <input type="hidden" name="multi" value="y" />
+    <input type="hidden" name="action" value="complete" />
     </div>
     </form>
+
+
     <?php
 }
 if (isset($endmsg['header'])) echo "<h4>{$endmsg['header']}</h4>\n";
 if (isset($endmsg['link'])) echo "<a href='{$endmsg['link']}'>{$endmsg['prompt']}</a>\n";
 ?>
 <p class='noprint'>To bookmark this filtered list, bookmark <a href='<?php echo $referrer; ?>'>this link</a></p>
-<?php include_once 'footer.php'; ?>
+<script type='text/javascript'>/* <![CDATA[ */
+filtertoggle();
+<?php if ($quickfind) echo "focusOnForm('needle');\n"; ?>
+/* ]]> */ </script>
+<?php include_once('footer.php'); ?>

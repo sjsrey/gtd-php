@@ -43,7 +43,7 @@ $menu[] = array("link"=>'','label'=>'Review');
 //-------------------------------------------
 $menu[] = array("link"=>"weekly.php", 'title'=>"Steps in the Weekly Review", 'label' => "Weekly Review");
 $menu[] = array("link"=>"orphans.php", 'title'=>"List items without a parent item", 'label' => "Orphaned Items");
-$menu[] = array("link"=>"listItems.php?type=*&amp;tickler=true&amp;liveparents=*", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
+$menu[] = array("link"=>"listItems.php?type=a&amp;tickler=true", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
 $menu[] = array("link"=>'','label'=>'separator');
 $menu[] = array("link"=>"listItems.php?type=g", 'title'=>"Review goals", 'label' => "Goals");
 $menu[] = array("link"=>"listItems.php?type=o", 'title'=>"Review roles / Areas of Responsibility", 'label' => "Roles");
@@ -54,11 +54,11 @@ $menu[] = array("link"=>"listItems.php?type=m", 'title'=>"Review values / Missio
 */
 $menu[] = array("link"=>'','label'=>'Lists');
 //-------------------------------------------
-$menu[] = array("link"=>"item.php?type=L", 'title'=>"Create a general purpose list", 'label' => "New List");
-$menu[] = array("link"=>"listItems.php?type=L", 'title'=>"Show general-purpose lists", 'label' => "Show Lists");
+$menu[] = array("link"=>"editLists.php?type=L", 'title'=>"Create a general purpose list", 'label' => "New List");
+$menu[] = array("link"=>"listLists.php?type=L", 'title'=>"Show general-purpose lists", 'label' => "Show Lists");
 $menu[] = array("link"=>'','label'=>'separator');
-$menu[] = array("link"=>"item.php?type=C", 'title'=>"Create a reusable list", 'label' => "New Checklist");
-$menu[] = array("link"=>"listItems.php?type=C", 'title'=>"Show reusable checklists", 'label' => "Show Checklists");
+$menu[] = array("link"=>"editLists.php?type=C", 'title'=>"Create a reusable list", 'label' => "New Checklist");
+$menu[] = array("link"=>"listLists.php?type=C", 'title'=>"Show reusable checklists", 'label' => "Show Checklists");
 /*
    ----------------------------------------------
 */
