@@ -10,7 +10,7 @@ define("_MAXKEYLENGTH",10);
     /* _ALLOWUPGRADEINPLACE = false | true -
     allow the user to upgrade the current installation by over-writing it.
     If false, then the user should enter a new prefix in config.php          */
-define("_ALLOWUPGRADEINPLACE",true);
+define("_ALLOWUPGRADEINPLACE",false);
 
     /* _ALLOWUNINSTALL = false | true -
     allow the user to remove tables associated with a particular GTD installation */

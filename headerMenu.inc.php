@@ -54,10 +54,10 @@ $menu[] = array("link"=>"listItems.php?type=m", 'title'=>"Review values / Missio
 */
 $menu[] = array("link"=>'','label'=>'Lists');
 //-------------------------------------------
-$menu[] = array("link"=>"item.php?type=L&itemId=0", 'title'=>"Create a general purpose list", 'label' => "New List");
+$menu[] = array("link"=>"item.php?type=L", 'title'=>"Create a general purpose list", 'label' => "New List");
 $menu[] = array("link"=>"listItems.php?type=L", 'title'=>"Show general-purpose lists", 'label' => "Show Lists");
 $menu[] = array("link"=>'','label'=>'separator');
-$menu[] = array("link"=>"item.php?type=C&itemId=0", 'title'=>"Create a reusable list", 'label' => "New Checklist");
+$menu[] = array("link"=>"item.php?type=C", 'title'=>"Create a reusable list", 'label' => "New Checklist");
 $menu[] = array("link"=>"listItems.php?type=C", 'title'=>"Show reusable checklists", 'label' => "Show Checklists");
 /*
    ----------------------------------------------

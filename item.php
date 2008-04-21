@@ -63,7 +63,7 @@ if (!$values['itemId']) {
     if ($show['deadline'] && !empty($_REQUEST['deadline']))$values['deadline']=$_REQUEST['deadline'];
     $parents=array();
     if ($show['ptitle']   && !empty($_REQUEST['parentId'])) {
-        $values['parentId']=explode(',',$_REQUEST['parentId']); // TOFIX  something here not working if in a list - parent not appearing
+        $values['parentId']=explode(',',$_REQUEST['parentId']);
         foreach ($values['parentId'] as $parent) {
             $result=query("selectitemshort",$config,array('itemId'=>$parent),$sort);
             if ($result) {
@@ -734,7 +734,7 @@ if ($show['recurdesc']) {
             });
         </script>
         <span>
-            <input type='radio' name='FREQtype' "value='NORECUR' id='NORECUR' <?php
+            <input type='radio' name='FREQtype' value='NORECUR' id='NORECUR' <?php
                 if ($recur['FREQtype']==='NORECUR') echo " checked='checked' ";
             ?> /><label class='right' for='NORECUR'>No repeat</label>
         </span>

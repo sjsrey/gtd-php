@@ -64,7 +64,7 @@ if ($updateGlobals['multi']) {
 		foreach (array_diff($updateGlobals['isNA'],$updateGlobals['wasNAonEntry']) as $values['itemId']) if ($values['itemId']) doAction('makeNA');
 	}
 	if (isset($updateGlobals['isMarked'])) { // doing a specific action on several items
-		foreach ($updateGlobals['isMarked'] as $nextItem) {
+		foreach ($updateGlobals['isMarked'] as $nextItem) { // TOFIX - problem - will never run if clearing a checklist and no items are marked
 			$values=array('itemId'=>$nextItem); // reset the $values array each time, so that it only contains itemId
 			doAction($action);
 		}
@@ -101,23 +101,56 @@ function doAction($localAction) { // do the current action on the current item; 
 	if ($config['debug'] & _GTD_FREEZEDB) return TRUE;
 
 	switch ($localAction) {
-		case 'makeNA':
-			makeNextAction();
-			$msg="'$title' is now a next action";
-			break;
-			
-		case 'removeNA':
-			removeNextAction();
-            $msg="'$title' is no longer a next action";
-			break;
-			
+        //-----------------------------------------------------------------------------------
+        case 'listclear': // TOFIX - needs checking, probably needs reworking
+            if ($isChecklist) {
+                query("clearchecklist",$config,$values);
+                $_SESSION['message'][]='All checklist items have been unchecked';
+            }
+            break;
+        //-----------------------------------------------------------------------------------
+        case 'listcomplete1': // TOFIX - needs checking, probably needs reworking
+            if ($_POST['checked']=='true')
+                $values['dateCompleted']="'".date('Y-m-d')."'";
+            else if (!empty($_REQUEST['dateCompleted']))
+                $values['dateCompleted']="'{$_REQUEST['dateCompleted']}'";
+            else
+                $values['dateCompleted']='NULL';
+            $values['itemfilterquery']=(int) $_POST['itemId'];
+            $cnt=query('completeitem',$config,$values);
+            $_SESSION['message'][]='Item marked '.(($values['dateCompleted']==='NULL')?'in':'').'complete';
+            break;
+        //-----------------------------------------------------------------------------------
+        case 'category':
+            $values['categoryId']=$_POST['categoryId'];
+            query('updateitemcategory',$config,$values);
+            query("touchitem",$config,$values);
+            $msg="Set category for '$title'";
+            break;
+        //-----------------------------------------------------------------------------------
 		case 'changeType':
 			changeType();
 			$newtype=getTypes($values['type']);
 			$msg="$newtype is now the type for item: '$title'";
 			$updateGlobals['referrer']="item.php?itemId={$values['itemId']}&amp;referrer={$updateGlobals['referrer']}";
 			break;
-
+        //-----------------------------------------------------------------------------------
+        case 'checkcomplete':
+            $msg=doChecklist();
+            break;
+        //-----------------------------------------------------------------------------------
+		case 'complete':
+			completeItem();
+			$msg="Completed '$title'";
+			break;
+        //-----------------------------------------------------------------------------------
+        case 'context':
+            $values['contextId']=$_POST['contextId'];
+            query('updateitemcontext',$config,$values);
+            query("touchitem",$config,$values);
+            $msg="Set space context for '$title'";
+            break;
+        //-----------------------------------------------------------------------------------
 		case 'createbasic': // deliberately flows through to case create
         case 'create':
 			retrieveFormVars();
@@ -128,12 +161,42 @@ function doAction($localAction) { // do the current action on the current item; 
                 $msg.=" and added it as a parent";
             }
 			break;
-			
-		case 'complete':
-			completeItem();
-			$msg="Completed '$title'";
+        //-----------------------------------------------------------------------------------
+		case 'delete':
+			deleteItem();
+			$msg="Deleted '$title'";
 			break;
-		
+        //-----------------------------------------------------------------------------------
+        case 'fullUpdate':
+			retrieveFormVars();
+			updateItem();
+			$msg="Updated '$title'";
+			break;
+        //-----------------------------------------------------------------------------------
+		case 'makeNA':
+			makeNextAction();
+			$msg="'$title' is now a next action";
+			break;
+        //-----------------------------------------------------------------------------------
+		case 'removeNA':
+			removeNextAction();
+            $msg="'$title' is no longer a next action";
+			break;
+        //-----------------------------------------------------------------------------------
+        case 'tag':
+            $values['tagname']=$_POST['tag'];
+            query('newtagmap',$config,$values);
+            query("touchitem",$config,$values);
+            $msg="Tagged '$title' with '{$values['tagname']}'";
+            break;
+        //-----------------------------------------------------------------------------------
+        case 'timecontext':
+            $values['timeframeId']=$_POST['timeframeId'];
+            query('updateitemtimecontext',$config,$values);
+            query("touchitem",$config,$values);
+            $msg="Set time context for '$title'";
+            break;
+        //-----------------------------------------------------------------------------------
 		case 'updateText':
             // overlay any values from $_POST, defaulting to current values
             foreach (array('title','description','desiredOutcome') as $field)
@@ -144,43 +207,7 @@ function doAction($localAction) { // do the current action on the current item; 
             query("touchitem",$config,$values);
             $msg="Updated '$title'";
             break;
-
-        case 'tag':
-            $values['tagname']=$_POST['tag'];
-            query('newtagmap',$config,$values);
-            query("touchitem",$config,$values);
-            $msg="Tagged '$title' with '{$values['tagname']}'";
-            break;
-        case 'category':
-            $values['categoryId']=$_POST['categoryId'];
-            query('updateitemcategory',$config,$values);
-            query("touchitem",$config,$values);
-            $msg="Set category for '$title'";
-            break;
-        case 'context':
-            $values['contextId']=$_POST['contextId'];
-            query('updateitemcontext',$config,$values);
-            query("touchitem",$config,$values);
-            $msg="Set space context for '$title'";
-            break;
-        case 'timecontext':
-            $values['timeframeId']=$_POST['timeframeId'];
-            query('updateitemtimecontext',$config,$values);
-            query("touchitem",$config,$values);
-            $msg="Set time context for '$title'";
-            break;
-
-        case 'fullUpdate':
-			retrieveFormVars();
-			updateItem();
-			$msg="Updated '$title'";
-			break;
-			
-		case 'delete':
-			deleteItem();
-			$msg="Deleted '$title'";
-			break;
-		
+        //-----------------------------------------------------------------------------------
 		default: // failed to identify which action we should be taking, so quit
 			return FALSE;
 	}
@@ -191,7 +218,37 @@ function doAction($localAction) { // do the current action on the current item; 
 /* ===========================================================================================
 	primary action functions
    ================================= */
-
+function doChecklist() {
+	global $config,$values,$updateGlobals,$title;
+	$todo=$updateGlobals['isMarked'];
+    $values['parentId']=$updateGlobals['parents'][0];
+    if (!isset($values['dateCompleted']))
+        $values['dateCompleted']="'".date('Y-m-d')."'";
+    $sep='';
+    $ids='';
+    foreach ($todo as $id) {
+        $ids.=$sep.(int) $id;
+        $sep="','";
+    }
+    $values['itemfilterquery']="$ids";
+    query("updatechecklist",$config,$values);
+    if ($cnt=count($todo)) {
+        $msg  = "$cnt {$check}list item";
+        if ($cnt!==1) $msg .= 's';
+        if ($isChecklist) {
+            $msg .= ($cnt!==1) ? ' are' : ' is';
+            $msg .= ' now';
+        } else {
+            $msg .= ($cnt!==1) ? ' have' : ' has';
+            $msg .= ' been';
+        }
+        $msg .= " marked complete";
+    } else {
+        $msg= 'All checklist items have been unchecked';
+    }
+    return $msg;
+}
+//===========================================================================
 function deleteItem() { // delete all references to a specific item
 	global $config,$values;
 	query("deleteitemstatus",$config,$values);

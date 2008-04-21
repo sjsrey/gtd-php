@@ -37,7 +37,7 @@ foreach ($maintable as $row) {
                 if (!empty($row['checkboxname']))
                     echo "<input name='{$row['checkboxname']}' value='{$row['checkboxvalue']}' type='checkbox'"
                         ,(empty($row['checkboxchecked'])) ? '' : " checked='checked' "
-                        ,"'/>";
+                        ,"/>";
                 break;
             case 'context':
                 if ($row[$key]=='')

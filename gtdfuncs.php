@@ -340,6 +340,8 @@ if ($type===false)
     $out=$types;
 elseif (empty($type))
     $out='item without a type assigned';
+elseif ($type='*')
+    $out='item';
 else
     $out=$types[$type];
 return $out;
