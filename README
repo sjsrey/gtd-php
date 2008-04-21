@@ -1,69 +1,15 @@
 GTD-PHP
  
-Version 0.7 (2006-09-30)
+Version 0.8 (2008-04-21)
 A web-based implementation of the Getting Things Done system for personal
 organization.
 
 Requirements:
-    mysql 
-    php
-    apache with php enabled
+    MySQL 4.1-4.x, or 5.x
+    PHP   4.3.x, 4.4.x, or 5.x
+    Apache with PHP enabled
 
-This version does not support installations using table prefixes in the
-database. We plan on adding that support in the next release.
+This version supports installations using table prefixes in the
+database.
 
-UPGRADING
-
-1. You should backup your gtd database with:
-    mysqldump gtd > gtdbackup.sql
-    (use this in case you need to restore)
-
-2. Extract the tarball into the same directory you originally 
-   installed gtd-php in. 
-
-3. Then proceed to step 8 under NEW INSTALLATION. If your current version is
-   0.6, your database remains the same, only the forms/interface/functionaly will
-   be upgraded. If you are using version 0.5 or older, this script will add
-   new tables as well as add new columns to your existing tables. Your
-   original data will be upgraded to use the new functionality in version 0.7.
-   You do not need to recreate your original database (i.e., step 1 is simply
-   a precaution).
-
-
-NEW INSTALLATION
-Installation (Mac OS X-specific. For an other OS, adjust accordingly):
-
-1. Set up mysql and php
-
-2. cd ~/Sites
-
-3. tar -xzvf pathtotarball
-
-4. cd ~/Sites/gtd-php
-
-5. cp config.sample.php config.php
-
-6. Edit config.php and change $pass and $user to values for local machine.
-
-7. In mysql create a database called gtd:
-	create database gtd;
-
-    Note that you should also set proper mysql permissions for the mysql user.
-    This user should NOT have access to other databases, nor grant privileges;
-    this should NOT be the root user.
-
-8. Make sure the name of the database and user that you created in step 7,
-   match those in your config file from step 6.
-
-9. Point your browser to http://localhost/~username/gtd-php/install.php
-
-    If you encounter a mysql error "Error connecting to database"
-    then connect to mysql from a shell and issue:
-    	set password for 'user'@'localhost' = old_password('password');
-
-	being sure to change user to the user in config.php and password to
-	the value of pass in config.php
-
-10. Explore, enjoy, and send us comments, suggestions, gripes, donations at
-    http://toae.org/boards
-
+See the INSTALL file for installation instructions, and the COPYING file for licence details.
