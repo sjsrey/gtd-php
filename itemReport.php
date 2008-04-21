@@ -140,51 +140,50 @@ if ($item['dateCompleted']) echo '<tr><th>Completed On:</th><td>'.$item['dateCom
 ?>
 </tbody></table>
 <?php
-if (!empty($childtype)) {
-	$values['parentId']=$values['itemId'];
-	
-	$thisurl=parse_url($_SERVER['PHP_SELF']);
-	$thisfile=makeclean(basename($thisurl['path']));
+if (empty($childtype)) {
+    include_once 'footer.php';
+    exit();
+}
+$values['parentId']=$values['itemId'];
 
-	//Create iteration arrays
-	$completed = array('n','y');
-	
-	//table display loop
-	foreach ($completed as $comp) foreach ($childtype as $thistype) {
-        $wasNAonEntry = array(); // reset for each table
-        $thistableid="i$comp$thistype";
-        $sectiontitle=(($comp==="y")?'Completed ':'').$typename[$thistype].'s';
-	    //Select items by type
-	    if ($thistype==='s') {
-	       $values['type']='p';
-	       $values['isSomeday']='y';
-	       $values['filterquery'] ='';
-        } else {
-            $values['isSomeday']='n';
-            $values['type']=$thistype;
-    	    $values['filterquery'] = " AND ".sqlparts("typefilter",$config,$values); // only filter on type if not a someday
-        }
-	    $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+$thisurl=parse_url($_SERVER['PHP_SELF']);
+$thisfile=makeclean(basename($thisurl['path']));
 
-        $q=($comp==='y')?'completeditems':'pendingitems';  //suppressed items will be shown on report page
-		$values['filterquery'] .= " AND ".sqlparts($q,$config,$values);
-		
-        $result = query("getchildren",$config,$values,$sort);
+if ($item['type']==='C') {  // if a checklist, wrap *all* children in a single form ?>
+<form action='processItems.php' method='post'>
+<?php }
+//Create iteration arrays
+$completed = array('n','y');
 
-        if ($comp==='n') {
-            // inherit some defaults from parent:
-            $createItemId="0&amp;parentId={$values['itemId']}&amp;action=create&amp;type=$thistype";
-            foreach (array('categoryId','contextId','deadline') as $field)
-                if ($item[$field]) $createItemId.="&amp;$field={$item[$field]}";
-        }
-        if (!$result) {
-            echo '<h3>No '
-                ,($comp==='n')?"<a href='item.php?itemId=$createItemId' title='Create a new child'>":''
-                ,$sectiontitle
-                ,($comp==='n')?'</a>':''
-                ,"</h3>\n";
-            continue;
-        }
+//table display loop
+foreach ($completed as $comp) foreach ($childtype as $thistype) {
+    $wasNAonEntry = array(); // reset for each table
+    $thistableid="i$comp$thistype";
+    $sectiontitle=(($comp==="y")?'Completed ':'').$typename[$thistype].'s';
+    //Select items by type
+    if ($thistype==='s') {
+       $values['type']='p';
+       $values['isSomeday']='y';
+       $values['filterquery'] ='';
+    } else {
+        $values['isSomeday']='n';
+        $values['type']=$thistype;
+	    $values['filterquery'] = " AND ".sqlparts("typefilter",$config,$values); // only filter on type if not a someday
+    }
+    $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+
+    $q=($comp==='y')?'completeditems':'pendingitems';  //suppressed items will be shown on report page
+	$values['filterquery'] .= " AND ".sqlparts($q,$config,$values);
+
+    $result = query("getchildren",$config,$values,$sort);
+
+    if ($comp==='n') {
+        // inherit some defaults from parent:
+        $createItemId="0&amp;parentId={$values['itemId']}&amp;type=$thistype";
+        foreach (array('categoryId','contextId','deadline') as $field)
+            if ($item[$field]) $createItemId.="&amp;$field={$item[$field]}";
+    }
+    if ($result) {
         $footertext=array();
         if ($comp==='y' && $config['ReportMaxCompleteChildren']
             && count($result) > $config['ReportMaxCompleteChildren']
@@ -240,7 +239,7 @@ if (!empty($childtype)) {
                 $dispArray['category']='category';
                 break;
         }
-            
+
         $dispArray['created']='Date Created';
 		if ($comp=="n" || $item['type']==='C') {
 			$dispArray['checkbox']='Complete';
@@ -252,7 +251,7 @@ if (!empty($childtype)) {
 		$i=0;
 		$maintable=array();
 
-        if ($result) foreach ($result as $row) {
+        foreach ($result as $row) {
 			$cleantitle=makeclean($row['title']);
 
             $maintable[$i]=array();
@@ -325,13 +324,7 @@ if (!empty($childtype)) {
             $maintable[$i]['checkboxchecked']=($comp==='y');
 
 			$i++;
-		} elseif ($comp==='y') {
-            $maintable[$i]=array('itemId'=>null,'doreport'=>'');
-            foreach ($dispArray as $field=>$dummy)
-                $maintable[$i][$field]='';
-            $maintable[$i]['title']='No items';
-            $maintable[$i]['row.class']='sortbottom';
-		}
+        }
         if ($comp==='n') {
             $maintable[$i]=array('categoryId'=>$item['categoryId'],'doreport'=>'');
             foreach ($dispArray as $field=>$dummy)
@@ -358,31 +351,48 @@ if (!empty($childtype)) {
             foreach ($footertext as $line) $tfoot.="<tr><td colspan='4'>\n$line\n</td></tr>\n";
             $tfoot.="</tfoot>\n";
         }
-        if ($comp==='n') { ?>
-            <form action='processItems.php' method='post'>
-        <?php }
-         ?>
-        <table class='datatable sortable' id='<?php
-            echo $thistableid;
-        ?>' summary='table of children of this item'>
-        <?php require('displayItems.inc.php'); ?>
-        </table>
-	    <?php
-		if ($comp==="n") {
-            if (count($maintable)) { ?>
+        if ($comp==='n' && $item['type']!=='C') { ?>
+<form action='processItems.php' method='post'><?php
+        }
+        ?>
+<table class='datatable sortable' id='<?php
+        echo $thistableid;
+?>' summary='table of children of this item'>
+        <?php
+        require('displayItems.inc.php');
+        ?>
+</table>
+    	<?php
+    } else {  // end of: if ($result)
+        echo '<h3>No '
+            ,($comp==='n')?"<a href='item.php?itemId=$createItemId' title='Create a new child'>":''
+            ,$sectiontitle
+            ,($comp==='n')?'</a>':''
+            ,"</h3>\n";
+    }
+	if ( ($comp==="n" && $result && $item['type']!=='C') || ($item['type']==='C' && $comp!=="n") ) {
+	   ?>
 <p>
 <input type="submit" class="button" value="Update marked <?php echo $typename[$thistype]; ?>s" name="submit" />
 <input type='hidden' name='referrer' value='<?php echo "{$thisfile}?itemId={$values['itemId']}"; ?>' />
+        <?php if ($item['type']!=='C') { ?>
 <input type="hidden" name="multi" value="y" />
-<input type="hidden" name="action" value="complete" />
+        <?php } ?>
+<input type="hidden" name="parentId" value="<?php echo $item['itemId']; ?>" />
+<input type="hidden" name="action" value="<?php if ($item['type']==='C') echo 'check'; ?>complete" />
 <input type="hidden" name="wasNAonEntry" value='<?php echo implode(' ',$wasNAonEntry); ?>' />
 </p>
-            <?php } ?>
-    </form>
-        <?php } ?>
-</div>
-<?php
-    } // end of foreach ($completed as $comp) foreach ($childtype as $thistype)
-} // end of if ($childtype!=NULL)
+        <?php
+        if ($item['type']!=='C') { ?>
+</form>     <?php
+        }
+    }
+    if ($result) { ?>
+</div>  <?php
+    }
+}  // end of foreach ($completed as $comp) foreach ($childtype as $thistype)
+if ($item['type']==='C') { ?>
+</form><?php
+}
 include_once 'footer.php';
 ?>

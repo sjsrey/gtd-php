@@ -1,9 +1,8 @@
 /*jslint browser: true, eqeqeq: true, nomen: true, undef: true */
+var GTD; // object for holding public functions and public variables
 (function() {
 // ======================================================================================
-var GTD,           // object for holding public functions and public variables
-    gtd_freezediv,
-    focusOn,grabKey,oldTablePosition,SORT_COLUMN_INDEX;
+var gtd_freezediv,focusOn,grabKey,oldTablePosition,SORT_COLUMN_INDEX;
 // ======================================================================================
 function checkForNull(field) {
     switch (field.type) {

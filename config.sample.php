@@ -83,11 +83,11 @@ $acckey = array(
 	"listItems.php?type=r"					=> "", // References
 	"listItems.php?type=v"					=> "", // Visions
 	"listItems.php?type=w"					=> "w", // Waiting On
-	"listLists.php?type=C"					=> "c", // Checklists
-	"listLists.php?type=L"					=> "l", // Lists
+	"listItems.php?type=C"					=> "c", // Checklists
+	"listItems.php?type=L"					=> "l", // Lists
 	"management.php"						=> "", // Management
-	"editLists.php?type=C"					=> "", // new Checklist
-	"editLists.php?type=L"					=> "", // new List
+	"item.php?type=C"      	  				=> "", // new Checklist
+	"item.php?type=L"	     				=> "", // new List
 	"orphans.php"							=> "", // Orphaned Items
 	"preferences.php"						=> "", // User Preferences
 	"reportCategory.php"					=> "", // Categories

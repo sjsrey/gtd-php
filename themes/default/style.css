@@ -88,7 +88,10 @@ input.hasdate {
     margin-right:0;
     padding-right:0;
 }
-input[type="text"].firstclick, a.firstclick:hover, #searchresults a.firstclick:hover, a.firstclick:link, a.firstclick:visited,#searchresults a.firstclick:link, #searchresults a.firstclick:visited {
+input[type="text"].firstclick, a.firstclick:hover, #searchresults a.firstclick:hover,
+    a.firstclick:link, a.firstclick:visited,#searchresults a.firstclick:link,
+    #searchresults a.firstclick:visited
+{
     color:grey;
 }
 table {
@@ -112,12 +115,12 @@ div.reportsection {
 }
 
 
-/* the ! preceding each project without a next action defined (in listProjects.php) */
+/* the ! preceding each project without a next action defined */
 span.noNextAction { 
 	margin-right: .5em;
 }
 
-/* the * marking each next action (in projectReport.php) */
+/* the * marking each next action */
 span.nextActionMarker {
 	margin-right: .5em;
 }
@@ -266,15 +269,15 @@ img {
 }
 
 select, input, textarea,button {
-	color: #665;
+	color: #221;
 	font-family:"Lucida Grande", "Lucida Sans", Verdana, Helvetica, sans-serif;
 	font-size: 11px;
 }
 select, input[type='text'], input[type='submit'], input[type='reset'], button, textarea {
 	border: 2px solid #ccb;
 }
-button:enabled {
-    color: #221;
+input[type='submit']:disabled, button:disabled,select:disabled {
+    color: #665;
 }
 .success {
     border: solid green 2px;

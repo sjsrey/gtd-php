@@ -111,16 +111,10 @@ function getsql($config,$values,$sort,$querylabel) {
 				ORDER BY {$sort['categoryselectbox']}";
 			break;
 
-		case "clearchecklist":
-			$sql="UPDATE `". $config['prefix'] ."checklistitems`
-				SET `checked` = 'n'
-				WHERE `checklistId` = '{$values['id']}'";
-			break;
-
 		case "completeitem":
 			$sql="UPDATE `{$config['prefix']}itemstatus`
 				SET `dateCompleted`={$values['dateCompleted']}, `lastModified` = NULL
-				WHERE `itemId` IN ('{$values['itemId']}')";
+				WHERE `itemId`='{$values['itemId']}'";
 			break;
 
         case 'countdoneactionsbyweek':
@@ -176,14 +170,6 @@ function getsql($config,$values,$sort,$querylabel) {
 			$sql="DELETE FROM `". $config['prefix'] ."categories`
 				WHERE `categoryId`='{$values['id']}'";
 			break;
-		case "deletechecklist":
-			$sql="DELETE FROM `". $config['prefix'] ."checklist`
-				WHERE `checklistId`='{$values['id']}'";
-			break;
-		case "deletechecklistitem":
-			$sql="DELETE FROM `". $config['prefix'] ."checklistitems`
-				WHERE `checklistItemId`='{$values['itemId']}'";
-			break;
 		case "deleteitem":
 			$sql="DELETE FROM `". $config['prefix'] ."items`
 				WHERE `itemId`='{$values['itemId']}'";
@@ -195,14 +181,6 @@ function getsql($config,$values,$sort,$querylabel) {
 		case "deleteitemstatus":
 			$sql="DELETE FROM `". $config['prefix'] ."itemstatus`
 				WHERE `itemId`='{$values['itemId']}'";
-			break;
-		case "deletelist":
-			$sql="DELETE FROM `". $config['prefix'] ."list`
-				WHERE `listId`='{$values['id']}'";
-			break;
-		case "deletelistitem":
-			$sql="DELETE FROM `". $config['prefix'] ."listitems`
-				WHERE `listItemId`='{$values['itemId']}'";
 			break;
 		case "deletelookup":
 			$sql="DELETE FROM `". $config['prefix'] ."lookup`
@@ -329,28 +307,6 @@ function getsql($config,$values,$sort,$querylabel) {
 				WHERE `itemId` = {$values['itemId']}";
 			break;
 
-		case "getlistitems":
-			$sql="SELECT i.`itemId`,i.`title`,i.`description`,its.`dateCompleted`,its.`dateCreated`
-				FROM `{$config['prefix']}lookup` AS lu
-                JOIN `{$config['prefix']}items` AS i USING (`itemId`)
-                JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-				WHERE lu.`parentId`='{$values['listId']}'
-                ORDER BY its.`dateCompleted` DESC,i.`title` ASC";
-			break;
-
-		case "getlists":
-			$sql="SELECT i.`itemId`, i.`title` AS list, i.`description`, its.`type`,its.`categoryId`, c.`category`,
-                    GROUP_CONCAT(DISTINCT tm.`tagname` ORDER BY `tagname` SEPARATOR ',') AS tags
-				FROM `{$config['prefix']}items` AS i
-                JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-				LEFT OUTER JOIN `{$config['prefix']}categories` AS c USING (`categoryId`)
-				LEFT OUTER JOIN `{$config['prefix']}tagmap` AS tm USING (`itemId`)
-				{$values['filterquery']}
-                GROUP BY `itemId`
-                ORDER BY {$sort['getlists']}";
-				//TOFIX - get tags
-			break;
-
 		case "getorphaneditems":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`, its.`type`, ia.`isSomeday`
 				FROM `{$config['prefix']}items` AS i   
@@ -446,7 +402,7 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "reassigncategory":
-			$sql="UPDATE `". $config['prefix'] . "itemattributes`
+			$sql="UPDATE `{$config['prefix']}itemstatus`
 				SET `categoryId`='{$values['newId']}'
 				WHERE `categoryId`='{$values['id']}'";
 			break;
@@ -461,11 +417,6 @@ function getsql($config,$values,$sort,$querylabel) {
 			$sql="UPDATE `". $config['prefix'] . "itemattributes`
 				SET `timeframeId`='{$values['newId']}'
 				WHERE `timeframeId`='{$values['id']}'";
-			break;
-
-		case "removelistitem":
-			$sql="DELETE FROM `{$config['prefix']}items`,`{$config['prefix']}itemstatus`,`{$config['prefix']}lookup`
-				WHERE `itemId`='{$values['itemId']}'";
 			break;
 
         case "removeitemtags":
@@ -505,9 +456,9 @@ function getsql($config,$values,$sort,$querylabel) {
 		case "selectitemshort":
 			$sql="SELECT i.`itemId`, i.`title`,
 						i.`description`, ia.`isSomeday`,its.`type`
-				FROM `". $config['prefix'] . "items` as i
-				JOIN `{$config['prefix']}itemattributes` AS ia USING (`itemId`)
+				FROM `{$config['prefix']}items` as i
 				JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
+				LEFT OUTER JOIN `{$config['prefix']}itemattributes` AS ia USING (`itemId`)
 				WHERE i.`itemId` = '{$values['itemId']}'";
 			break;
 
@@ -515,24 +466,6 @@ function getsql($config,$values,$sort,$querylabel) {
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`
 				    FROM `". $config['prefix'] . "items` as i
 				    WHERE i.`itemId` = '{$values['itemId']}'";
-			break;
-
-		case "selectlist":
-			$sql="SELECT i.`itemId`, i.`title`, i.`description`, its.`categoryId`, its.`type`, c.`category`,
-                    GROUP_CONCAT(DISTINCT tm.`tagname` ORDER BY `tagname` SEPARATOR ',') AS tags
-				FROM `{$config['prefix']}items` AS i
-				JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-                LEFT OUTER JOIN `{$config['prefix']}categories` AS c USING (`categoryId`)
-                LEFT OUTER JOIN `{$config['prefix']}tagmap` AS tm USING (`itemId`)
-				WHERE i.`itemId` = '{$values['listId']}'
-                GROUP BY (i.`itemId`)";
-			break;
-
-		case "selectlistitem":
-			$sql="SELECT `i`.itemId`,i.`title`,i.`description`,its.`dateCompleted`
-				FROM `{$config['prefix']}items` AS i
-                JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-				WHERE i.`itemId`='{$values['itemId']}'";
 			break;
 
 		case "selectparents":
@@ -583,19 +516,11 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "updatechecklist":
-			$sql="UPDATE `". $config['prefix'] ."checklist`
-				SET `title` = '{$values['title']}',
-						`description` = '{$values['description']}',
-						`categoryId` = '{$values['categoryId']}'
-				WHERE `checklistId` ='{$values['id']}'";
-			break;
-
-		case "updatechecklistitem":
-			$sql="UPDATE `". $config['prefix'] . "checklistitems`
-				SET `notes` = '{$values['notes']}', `item` = '{$values['item']}',
-						`checklistId` = '{$values['id']}',
-						`checked`='{$values['checked']}'
-				WHERE `checklistItemId` ='{$values['itemId']}'";
+			$sql="UPDATE `{$config['prefix']}lookup` AS lu
+                JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
+				SET its.`dateCompleted` = IF(`itemId` IN ('{$values['itemfilterquery']}'),{$values['dateCompleted']},NULL),
+                    its.`lastModified` = NULL
+				WHERE lu.`parentId` = '{$values['parentId']}'";
 			break;
 
 		case "updatedeadline":
@@ -627,7 +552,7 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "updateitemcategory":
-			$sql="UPDATE `{$config['prefix']}itemattributes`
+			$sql="UPDATE `{$config['prefix']}itemstatus`
 				SET `categoryId`='{$values['categoryId']}'
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
@@ -667,22 +592,6 @@ function getsql($config,$values,$sort,$querylabel) {
 					its.`dateCompleted`=NULL,
 					ia.`isSomeday`= '{$values['isSomeday']}'
 				WHERE `itemId` = '{$values['itemId']}'";
-			break;
-
-		case "updatelist":
-			$sql="UPDATE `". $config['prefix'] . "list`
-				SET `title` = '{$values['title']}',
-						`description` = '{$values['description']}',
-						`categoryId` = '{$values['categoryId']}'
-				WHERE `listId` ='{$values['id']}'";
-			break;
-
-		case "updatelistitem":
-			$sql="UPDATE `". $config['prefix'] . "listitems`
-				SET `notes` = '{$values['notes']}', `item` = '{$values['item']}',
-						`listId` = '{$values['id']}',
-						`dateCompleted`={$values['dateCompleted']}
-				WHERE `listItemId` ='{$values['itemId']}'";
 			break;
 
 		case "updatenextaction":
