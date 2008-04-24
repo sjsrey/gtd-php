@@ -349,7 +349,7 @@ span.comingdue {
 span.due {
 	font-weight: bolder;
 }
-a.add:hover, #searchresults a:hover, a.add:link, a.add:visited,#searchresults a:link, #searchresults a:visited {
+.addlink,a.add:hover, #searchresults a:hover, a.add:link, a.add:visited,#searchresults a:link, #searchresults a:visited {
 	color:green;
 	font-weight:bolder;
     font-size:larger;

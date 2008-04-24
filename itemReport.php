@@ -183,7 +183,7 @@ foreach ($completed as $comp) foreach ($childtype as $thistype) {
         foreach (array('categoryId','contextId','deadline') as $field)
             if ($item[$field]) $createItemId.="&amp;$field={$item[$field]}";
     }
-    if ($result) {
+    if ($result || $comp==='n') {
         $footertext=array();
         if ($comp==='y' && $config['ReportMaxCompleteChildren']
             && count($result) > $config['ReportMaxCompleteChildren']
@@ -251,7 +251,7 @@ foreach ($completed as $comp) foreach ($childtype as $thistype) {
 		$i=0;
 		$maintable=array();
 
-        foreach ($result as $row) {
+        if ($result) foreach ($result as $row) {
 			$cleantitle=makeclean($row['title']);
 
             $maintable[$i]=array();
@@ -318,7 +318,9 @@ foreach ($completed as $comp) foreach ($childtype as $thistype) {
 				$maintable[$i]['completed']=date($config['datemask'],strtotime($row['dateCompleted']));
             }
 
-			$maintable[$i]['checkbox.title']="Mark $cleantitle complete";
+			$maintable[$i]['checkbox.title']="Mark $cleantitle ".
+                    ( ($comp==='y') ? 'in' : '' ).
+                    "complete";
 			$maintable[$i]['checkboxname']='isMarked[]';
 			$maintable[$i]['checkboxvalue']=$row['itemId'];
             $maintable[$i]['checkboxchecked']=($comp==='y');
@@ -331,7 +333,8 @@ foreach ($completed as $comp) foreach ($childtype as $thistype) {
                 $maintable[$i][$field]='';
             $maintable[$i]['itemId']=$createItemId;
             $maintable[$i]['title']="Add new {$typename[$thistype]}";
-            $maintable[$i]['row.class']='sortbottom';
+            $maintable[$i]['row.class']='sortbottom'.
+                (($thistype==='T') ? ' creator' : '');
             $maintable[$i]['NA']=null;
 		}
     	if ($suppressed) {
@@ -351,7 +354,7 @@ foreach ($completed as $comp) foreach ($childtype as $thistype) {
             foreach ($footertext as $line) $tfoot.="<tr><td colspan='4'>\n$line\n</td></tr>\n";
             $tfoot.="</tfoot>\n";
         }
-        if ($comp==='n' && $item['type']!=='C') { ?>
+        if ($comp==='n' && $item['type']!=='C' && $result) { ?>
 <form action='processItems.php' method='post'><?php
         }
         ?>
@@ -373,12 +376,17 @@ foreach ($completed as $comp) foreach ($childtype as $thistype) {
 	if ( ($comp==="n" && $result && $item['type']!=='C') || ($item['type']==='C' && $comp!=="n") ) {
 	   ?>
 <p>
+<input type="reset" class="button" />
 <input type="submit" class="button" value="Update marked <?php echo $typename[$thistype]; ?>s" name="submit" />
 <input type='hidden' name='referrer' value='<?php echo "{$thisfile}?itemId={$values['itemId']}"; ?>' />
-        <?php if ($item['type']!=='C') { ?>
+        <?php if ($item['type']==='C') { ?>
+<button type='submit' name='clearchecklist' value='y'>Clear Checklist</button>
+        <?php } else { ?>
 <input type="hidden" name="multi" value="y" />
         <?php } ?>
 <input type="hidden" name="parentId" value="<?php echo $item['itemId']; ?>" />
+<input type='hidden' name='ptype' value='<?php echo $item['type']; ?>' />
+<input type='hidden' name='type' value='<?php echo $thistype; ?>' />
 <input type="hidden" name="action" value="<?php if ($item['type']==='C') echo 'check'; ?>complete" />
 <input type="hidden" name="wasNAonEntry" value='<?php echo implode(' ',$wasNAonEntry); ?>' />
 </p>
@@ -387,7 +395,7 @@ foreach ($completed as $comp) foreach ($childtype as $thistype) {
 </form>     <?php
         }
     }
-    if ($result) { ?>
+    if ($result || $comp==='n') { ?>
 </div>  <?php
     }
 }  // end of foreach ($completed as $comp) foreach ($childtype as $thistype)

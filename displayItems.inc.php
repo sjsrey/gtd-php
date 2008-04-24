@@ -63,15 +63,6 @@ foreach ($maintable as $row) {
                         ,($row[$key]==='noChild')?'!':'&nbsp;'
                         ,"</a>";
                 break;
-            case 'list':
-                $cleaned=makeclean($row[$key]);
-                if ($row['itemId']===null) {
-                    echo $cleaned;
-                } else {
-                    // TOFIX - port this over to itemReport
-                    echo "<a title='View list' href='reportLists.php?itemId={$row['itemId']}'>$cleaned</a>";
-                }
-                break;
             case 'NA':
                 if ($row[$key]!==null)
                     echo "<input name='isNAs[]' value='{$row['itemId']}'"

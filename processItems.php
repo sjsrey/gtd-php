@@ -64,7 +64,7 @@ if ($updateGlobals['multi']) {
 		foreach (array_diff($updateGlobals['isNA'],$updateGlobals['wasNAonEntry']) as $values['itemId']) if ($values['itemId']) doAction('makeNA');
 	}
 	if (isset($updateGlobals['isMarked'])) { // doing a specific action on several items
-		foreach ($updateGlobals['isMarked'] as $nextItem) { // TOFIX - problem - will never run if clearing a checklist and no items are marked
+		foreach ($updateGlobals['isMarked'] as $nextItem) {
 			$values=array('itemId'=>$nextItem); // reset the $values array each time, so that it only contains itemId
 			doAction($action);
 		}
@@ -102,25 +102,6 @@ function doAction($localAction) { // do the current action on the current item; 
 
 	switch ($localAction) {
         //-----------------------------------------------------------------------------------
-        case 'listclear': // TOFIX - needs checking, probably needs reworking
-            if ($isChecklist) {
-                query("clearchecklist",$config,$values);
-                $_SESSION['message'][]='All checklist items have been unchecked';
-            }
-            break;
-        //-----------------------------------------------------------------------------------
-        case 'listcomplete1': // TOFIX - needs checking, probably needs reworking
-            if ($_POST['checked']=='true')
-                $values['dateCompleted']="'".date('Y-m-d')."'";
-            else if (!empty($_REQUEST['dateCompleted']))
-                $values['dateCompleted']="'{$_REQUEST['dateCompleted']}'";
-            else
-                $values['dateCompleted']='NULL';
-            $values['itemfilterquery']=(int) $_POST['itemId'];
-            $cnt=query('completeitem',$config,$values);
-            $_SESSION['message'][]='Item marked '.(($values['dateCompleted']==='NULL')?'in':'').'complete';
-            break;
-        //-----------------------------------------------------------------------------------
         case 'category':
             $values['categoryId']=$_POST['categoryId'];
             query('updateitemcategory',$config,$values);
@@ -137,6 +118,12 @@ function doAction($localAction) { // do the current action on the current item; 
         //-----------------------------------------------------------------------------------
         case 'checkcomplete':
             $msg=doChecklist();
+            break;
+        //-----------------------------------------------------------------------------------
+        case 'clearCheckmark':
+            $values['dateCompleted']='NULL';
+            query("completeitem",$config,$values);
+            $msg="Checkmark cleared from '$title'";
             break;
         //-----------------------------------------------------------------------------------
 		case 'complete':
@@ -220,7 +207,10 @@ function doAction($localAction) { // do the current action on the current item; 
    ================================= */
 function doChecklist() {
 	global $config,$values,$updateGlobals,$title;
-	$todo=$updateGlobals['isMarked'];
+	if (empty($_REQUEST['clearchecklist']))
+        $todo=$updateGlobals['isMarked'];
+    else
+        $todo=array();
     $values['parentId']=$updateGlobals['parents'][0];
     if (!isset($values['dateCompleted']))
         $values['dateCompleted']="'".date('Y-m-d')."'";
@@ -534,7 +524,7 @@ function getItemCopy() { // retrieve values for the current item, and store in t
 	$result = query("selectitem",$config,$values,array());
 	$copy=($result) ? $result[0] : array();
 	// now get parents
-	$result=query("lookupparent",$config,$values,array());
+	$result=query("selectparents",$config,$values,array());
 	$copy['parents']=array();
 	if ($result) {
         foreach ($result as $parent)
@@ -632,7 +622,7 @@ function nextPage() { // set up the forwarding to the next page
             break;
 		case "referrer":
             $nextURL=(empty($updateGlobals['referrer']) )
-                        ? $_SESSION["lastfilter$t"]         // TOFIX - this may not be defined when it is used!
+                        ? (empty($_SESSION["lastfilter$t"])?'':$_SESSION["lastfilter$t"])
                         : $updateGlobals['referrer'];
             break;
         default        :
@@ -647,9 +637,11 @@ function nextPage() { // set up the forwarding to the next page
     }
     if ($nextURL=='')
         $nextURL="listItems.php?type=$t";
-    else if (strpos($nextURL,'nextId=0')!==false)
+    else if (strpos($nextURL,'nextId=0')!==false) {
         $nextURL=str_replace('nextId=0','nextId='.$values['newitemId'],$nextURL);
-    if (strpos($nextURL,'nextId=')!==false) $_SESSION[$key]=$tst;
+        $_SESSION[$key]=$tst;
+        $_SESSION['message'][]='Creation of this '.getTypes($values['type']).' has been suspended while parent is created';
+    }
     $nextURL=html_entity_decode($nextURL);
 	
 	if ($updateGlobals['captureOutput']) {

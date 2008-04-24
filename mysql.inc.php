@@ -1,6 +1,4 @@
 <?php
-// TOFIX - change type and categoryId - now they come from its, not ia
-// TOFIX - change all list queries to use item* tables
 /*
     MySQL extensions to standard SQL have been avoided where known & where practical
   ===============================================================
@@ -88,16 +86,15 @@ function safeIntoDB(&$value,$key=NULL) {
 }
 /*
   ===============================================================
+GENERAL RULES:
+    "select*" = query for something by its id; a single-row result
+    "get*" = query for something of a particular type; a multi-row result
+    "new*", "update*", "delete*" are self-explanatory
+    "complete*" = set status to completed
+    "remove*" = remove by association Id (items associated with a project, etc)
+    "Count*" = # of a particular type in table
+    "*selectbox" = get results to create a selectbox- for assignment or filter
 */
-//GENERAL RULES:
-//"select" = query for something by its id; a single-row result
-//"get" = query for something of a particular type; a multi-row result
-//"new", "update", "delete" are self-explanatory
-//"check"="complete" for checklistselectbox
-//"complete" = set status to completed
-//"remove" = remove by association Id (items associated with a project, etc)
-//"Count" = # of a particular type in table
-//"selectbox" = get results to create a selectbox- for assignment or filter
 function getsql($config,$values,$sort,$querylabel) {
 
     if (is_array($values))

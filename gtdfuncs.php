@@ -340,7 +340,7 @@ if ($type===false)
     $out=$types;
 elseif (empty($type))
     $out='item without a type assigned';
-elseif ($type='*')
+elseif ($type==='*')
     $out='item';
 else
     $out=$types[$type];
@@ -370,7 +370,6 @@ function getShow($where,$type) {
         'category'      =>($type!=='m' && $type!=='C' && $type!=='T'),
         'ptitle'        =>($type!=='m' && $type!=='i'),
         'dateCompleted' =>($type!=='m' && $type!=='L' && $type!=='C'),
-        'complete'      =>($type!=='m' && $type!=='r'), // TOFIX - what IS this doing?
 
         // fields only shown for certain types
         'timeframe'     =>($type==='i' || $type==='a' || $type==='p' || $type==='g'  || $type==='o' || $type==='v'),

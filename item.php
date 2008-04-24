@@ -1,6 +1,5 @@
 <?php
 include_once 'headerDB.inc.php';
-
 $values = array();
 $values['itemId']= (empty($_REQUEST['itemId']))? 0 : (int) $_REQUEST['itemId'];
 $values['parentId']=array();
@@ -31,6 +30,7 @@ if ($values['itemId']) { // editing an item
     $values['deadline']=$values['dateCompleted']=$values['recurdesc']=$values['tickledate']=null;
     $values['type']=$_REQUEST['type'];
     $values['isSomeday']=(isset($_GET['someday']) &&  $_GET['someday']=='true')?'y':'n';
+    $values['parentId']=(empty($_REQUEST['parentId'])) ? array() : explode(',',$_REQUEST['parentId']); // TOFIX - why explode???
     $nextaction=isset($_REQUEST['nextonly']) && ($_REQUEST['nextonly']=='true' || $_REQUEST['nextonly']==='y');
     foreach ( array('category','context','timeframe') as $cat)
         $values[$cat.'Id']= (isset($_REQUEST[$cat.'Id']))?(int) $_REQUEST[$cat.'Id']:0;
@@ -48,7 +48,7 @@ $ptypes=getParentType($values['type']);
 if (count($ptypes)) $values['ptype']=$ptypes[0];
 $show=getShow($where,$values['type']);
 $show['tags']=$show['header']=$show['footer']=$show['submitbuttons']=true;
-$show['scriptparents']= $_SESSION['useLiveEnhancements'] && !empty($values['ptype']);
+$show['scriptparents']= $_SESSION['useLiveEnhancements'] && !empty($values['ptype']) && $show['ptitle'];
 $show['dateCreated']=!empty($values['itemId']);
 $show['changetypes']=    in_array($values['type'],$canchangetypesafely)
                       && $values['itemId'] ;
@@ -57,14 +57,14 @@ $typename=   ( $nextaction ? 'Next ' : '')
 $title=($values['itemId']>0)?("Edit $typename: ".makeclean($values['title'])):"New $typename";
 
 if (!$values['itemId']) {
-    $values['tickledate']= ($show['tickledate'] && !empty($_REQUEST['tickledate']))
+    $values['tickledate']= ($show['tickledate'] && !empty($_REQUEST['tickledate'])) // TOFIX = do I really only want to do this if $show is true???
                             ? $_REQUEST['tickledate']
                             : NULL;
     if ($show['deadline'] && !empty($_REQUEST['deadline']))$values['deadline']=$_REQUEST['deadline'];
     $parents=array();
-    if ($show['ptitle']   && !empty($_REQUEST['parentId'])) {
+    if (!empty($_REQUEST['parentId'])) {
         $values['parentId']=explode(',',$_REQUEST['parentId']);
-        foreach ($values['parentId'] as $parent) {
+        if ($show['ptitle']) foreach ($values['parentId'] as $parent) {
             $result=query("selectitemshort",$config,array('itemId'=>$parent),$sort);
             if ($result) {
                 $newparent=array(
@@ -94,6 +94,7 @@ $oldtype=$values['type'];
 
 $hiddenvars=array(
             'referrer'=>(isset($_REQUEST['referrer']))?$_REQUEST['referrer']:''
+            ,'afterCreate'=>''
             ,'type'   =>$values['type']
             ,'itemId' =>$values['itemId']
             );
@@ -116,8 +117,17 @@ if ($_SESSION['useLiveEnhancements']) {
     $values['ptypefilterquery']=" AND ia.`type`='{$ptypes[0]}' ";
 
 if ($show['scriptparents']) {
+
     $partt= $ptitle= $pid ='[';
     $sep='';
+
+    if (empty($_REQUEST['nextId']) && $ptypes) foreach ($ptypes as $thisptype) {
+        $pid   .=$sep.'"0"';
+        $ptitle.=$sep.'"Create a parent"';
+        $partt .="$sep\"$thisptype\"";
+        $sep=',';
+    }
+
     foreach ($potentialparents as $oneparent) {
         $pid   .=$sep.'"'.$oneparent['itemId'].'"';
         $ptitle.=$sep.'"'.str_replace(array('\\','"'),array('\\\\','\\"'),$oneparent['title']).'"'; // escape backslashes and double-quotes
@@ -206,7 +216,6 @@ if (empty($values['recur'])) {
         do some clever regexp matching - might actually be easier!
     */
     
-    
     // get the date of the next recurrence, after the current one has been completed, for the user's information
     $nextdate=getNextRecurrence($values);
 }
@@ -217,9 +226,8 @@ if (empty($values['recur'])) {
     ===========================================================================
 */
 include_once 'headerHtml.inc.php';
-//gtd_handleEvent(_GTD_ON_DATA,$pagename);
+gtd_handleEvent(_GTD_ON_DATA,$pagename);
 if ($show['scriptparents']) {
-    // TOFIX - this javascript is very probably inefficient, but I don't have the resources to optimise it
     ?>
     <script type='text/javascript'>
         /* <![CDATA[ */
@@ -287,7 +295,7 @@ if (!empty($_REQUEST['createnote'])) { ?>
         if ($show['ptitle']) { ?>
             <div class='formrow'>
                 <label for='parenttable' class='left first'>Parent(s):</label>
-                <?php if ($_SESSION['useLiveEnhancements']) {
+                <?php if ($show['scriptparents']) {
                     include_once('liveParents.inc.php');
                 } else { ?>
                     <select name="parentId[]" id='parenttable' multiple="multiple" size="6">
@@ -445,7 +453,7 @@ if (!empty($_REQUEST['createnote'])) { ?>
             $hiddenvars['recur']=$values['recur'];
         }
         
-        if ($show['tags']) { ?>
+        if ($show['tags']) { // TOFIX - put in catch for useLiveEnhancements. ?>
             <div class='formrow'>
                 <label class='left first'>Tags:</label>
                 <input type='text' id='tags' name='tags' size='70' value='<?php echo $values['tagname']; ?>'  onkeypress='return GTD.tagKeypress(event);' /> <a href='#' onclick='return GTD.tagShow(this);'>Show all</a>
@@ -462,7 +470,7 @@ if (!empty($_REQUEST['createnote'])) { ?>
     	   <input type='hidden' name='required' value='title:notnull:Title can not be blank.,tickledate:date:Suppress date must be a valid date.,deadline:date:Deadline must be a valid date.,dateCompleted:date:Completion date is not valid.' />
     	   <input type='hidden' name='dateformat' value='ccyy-mm-dd' />
             <?php
-                if (!$values['itemId']) $hiddenvars['lastcreate']=$_SERVER['QUERY_STRING'];
+                if (!$values['itemId']) $hiddenvars['lastcreate']=$_SERVER['QUERY_STRING']; // TOFIX - why do this???
                 foreach ($hiddenvars as $key=>$val) echo hidePostVar($key,$val);
             ?>
         </div><?php
@@ -489,6 +497,7 @@ if (!$show['submitbuttons']) {
             <input type='hidden' name='addAsParentTo' value='<?php
                 echo $_REQUEST['nextId'];
             ?>' />
+        </div>
         <?php
         }
     else if ($config['radioButtonsForNextPage']) {

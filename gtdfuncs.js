@@ -1,4 +1,9 @@
 /*jslint browser: true, eqeqeq: true, nomen: true, undef: true */
+/*global unescape */
+/*
+    NB we need unescape, because decodeURIcomponent corrupts some characters in AJAX
+    - but this will change when we get proper i18n/utf8/mbcs handling in gtd-php
+*/
 var GTD; // object for holding public functions and public variables
 (function() {
 // ======================================================================================
@@ -288,7 +293,7 @@ GTD.freeze=function (tofreeze) {
 };
 // ======================================================================================
 GTD.ParentSelector=function(ids,titles,types,onetype) { // constructor
-    var i,line,thistype,useTypes,max,
+    var i,line,type,typename,useTypes,max,
         box=document.getElementById('searchresults');
     this.inSearch=false;
     this.ptitleslc=[];
@@ -301,13 +306,19 @@ GTD.ParentSelector=function(ids,titles,types,onetype) { // constructor
     this.qtype=onetype;
     if (box.hasChildNodes()) {box.removeChild(box.lastChild);}
     useTypes=(types.length>0);
-    if (!useTypes) {thistype=GTD.typenames[onetype];}
+    if (!useTypes) {
+        typename=GTD.typenames[onetype];
+        type=onetype;
+    }
     max=titles.length;
     for (i=0;i<max;i++) {
         this.ptitles[i]=unescape(titles[i]);
         this.ptitleslc[i]=this.ptitles[i].toLowerCase();
-        if (useTypes) {thistype=GTD.typenames[types[i]];}
-        line=this.makeline(this.parentIds[i],this.ptitles[i],thistype,i,useTypes,onetype);
+        if (useTypes) {
+            typename=GTD.typenames[types[i]];
+            type=types[i];
+        }
+        line=this.makeline(this.parentIds[i],this.ptitles[i],type,typename,i,useTypes,onetype);
         box.appendChild(line);
     }
 }; // end of ParentSelector constructor
@@ -321,8 +332,20 @@ GTD.ParentSelector.prototype.close=function() {
     this.inSearch=false;
 };
 // ======================================================================================
-GTD.ParentSelector.prototype.gotparent=function (id,title,type) { // add the clicked parent to the list of the item's parents
+GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rownum) {
+    document.forms[0].afterCreate.value=
+        document.forms[0].referrer.value=
+        'item.php?nextId=0&amp;type='+type;
+    document.forms[0].submit();
+    return false;
+};
+// ======================================================================================
+GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) { // add the clicked parent to the list of the item's parents
     var newrow,anchor,cell,cell1,cell2;
+    if (id==='0') {
+        this.gocreateparent(id,title,type,typename,rownum);
+        return false;
+    }
     if (document.getElementById('parentrow'+id)) {return;}
 
     newrow=document.createElement('tr');
@@ -347,7 +370,7 @@ GTD.ParentSelector.prototype.gotparent=function (id,title,type) { // add the cli
     cell1.appendChild(anchor);
     newrow.appendChild(cell1);
 
-    cell2.appendChild(document.createTextNode(type));
+    cell2.appendChild(document.createTextNode(typename));
     var input=document.createElement('input');
     input.type='hidden';
     input.name='parentId[]';
@@ -359,20 +382,22 @@ GTD.ParentSelector.prototype.gotparent=function (id,title,type) { // add the cli
     return true;
 };
 // ======================================================================================
-GTD.ParentSelector.prototype.makeline=function(id,title,type,i,useTypes,onetype) { // display a specific parent, to go into the list of parents
+GTD.ParentSelector.prototype.makeline=function(id,title,type,typename,i,useTypes,onetype) { // display a specific parent, to go into the list of parents
     var line=document.createElement('p'),
         thisi='',
         that=this,
         anchor=document.createElement('a'),
         linetext=title;
     anchor.href='#';
-    GTD.addEvent(anchor,'click',function() {that.gotparent(id,title,type,thisi);});
+    GTD.addEvent(anchor,'click',function() {
+        that.gotparent(id,title,type,typename,thisi);
+    });
     anchor.appendChild(document.createTextNode('+'));
     anchor.className='add';
     line.appendChild(anchor);
-    if (useTypes) {linetext += " ("+type+")";}
+    if (useTypes) {linetext += " ("+typename+")";}
     line.appendChild(document.createTextNode(linetext));
-    line.style.display=(!useTypes || type===onetype)?'block':'none';
+    line.style.display=(!useTypes || typename===onetype)?'block':'none';
     return line;
 };
 // ======================================================================================
@@ -536,8 +561,9 @@ GTD.tagAdd=function(newtaglink) {
     newtag=newtaglink.text;
     testtags=currentTags.replace(/\s*,\s*/g,',');
     if (testtags.search(','+newtag+',')===-1) {
-        if (rawval.search(/,\s*$/)===-1 && rawval.search(/^\s*$/)===-1)
+        if (rawval.search(/,\s*$/)===-1 && rawval.search(/^\s*$/)===-1) {
             tagfield.value=rawval.value+',';
+        }
         tagfield.value=tagfield.value+newtag+',';
     }
     return false;
@@ -569,11 +595,17 @@ GTD.tagKeypress=function(e) {
         // need to grab mouse events on tooltip too
     }
     return true;
-}
+};
 // ======================================================================================
 GTD.tagShow=function(anchor) {
-    document.getElementById("taglist").style.display="inline";
-    anchor.style.display="none";
+    var taglist=document.getElementById("taglist");
+    if (taglist.style.display==="inline") {
+        document.getElementById("taglist").style.display="none";
+        anchor.firstChild.textContent='Show all';
+    } else {
+        document.getElementById("taglist").style.display="inline";
+        anchor.firstChild.textContent='Hide all';
+    }
     return false;
 };
 // ======================================================================================
