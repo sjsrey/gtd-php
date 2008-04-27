@@ -18,9 +18,9 @@ editGoal.php
 editList.php
 editListItem.php
 editTimeContext.php
-footer.php
-gtdfuncs.php
-header.php
+footer.inc.php
+gtdfuncs.inc.php
+header.inc.php
 img.gif
 index.php
 install.php

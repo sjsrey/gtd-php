@@ -22,7 +22,7 @@ if ($_SESSION['version']!==_GTD_VERSION && !isset($areUpdating) ) {
 if (!headers_sent()) header("Content-Type: text/html; charset={$config['charset']}");
 
 $thisurl=parse_url($_SERVER['PHP_SELF']);
-$pagename=basename($thisurl['path'],".php");
+$pagename=makeclean(basename($thisurl['path'],".php"));
 
 if (empty($title)) $title= ($config["title_suffix"]) ? $pagename : '';
 

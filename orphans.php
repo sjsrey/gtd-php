@@ -1,6 +1,6 @@
 <?php
 //INCLUDES
-include_once('header.php');
+include_once('header.inc.php');
 
 //RETRIEVE URL VARIABLES
 $values=array();
@@ -27,4 +27,4 @@ if ($cnt) {
     </table>
 <?php } else { ?>
     <p>Congratulations: you have no orphaned items.</p>
-<?php } include_once('footer.php'); ?>
+<?php } include_once('footer.inc.php'); ?>

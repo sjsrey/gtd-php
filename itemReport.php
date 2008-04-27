@@ -1,5 +1,5 @@
 <?php
-include_once('header.php');
+include_once('headerDB.inc.php');
 
 $values=array();
 $values['itemId'] = (int) $_GET['itemId'];
@@ -10,14 +10,16 @@ $values['filterquery']='';
 $values['extravarsfilterquery'] ='';
 $result = query("getitemsandparent",$config,$values,$sort);
 if (!$result) {
+    include_once('header.inc.php');
     echo ("<p class='error'>Failed to find item {$values['itemId']}</p>");
-    include_once('footer.php');
+    include_once('footer.inc.php');
     die;
 }
 $item=$result[0];
 $values['isSomeday']=($item['isSomeday']=="y")?'y':'n';
 $values['type']=$item['type'];
-
+$title="View ".makeclean($item['title']);
+include_once('header.inc.php');
 //Find previous and next projects
 if (isset($_SESSION['idlist-'.$item['type']])) {
     $ndx=$_SESSION['idlist-'.$item['type']];
@@ -65,17 +67,222 @@ if($cnt>1) {
         $nexttitle    =$nextitem[0]['title'];
     }
 }
- 
-//PAGE DISPLAY AREA
 
-//set item labels
-$typename=array();
-$typename=getTypes();
+$typename=getTypes(); //set item labels
 
-$childtype=array();  //I don't like this... but it's the best solution at the moment...
-
-$childtype=getChildType($item['type']);
+$childtype=getChildType($item['type']); // array of item types that can be children of this item
 $afterTypeChange="itemReport.php?itemId={$values['itemId']}";
+if (empty($item['parentId'])) {
+    $pids=$pnames=array();
+} else {
+    $pids=explode(',',$item['parentId']);
+    $pnames=explode($config['separator'],$item['ptitle']);
+}
+$values['parentId']=$values['itemId'];
+// initiate arrays for children tables
+$AcreateItemId=$AnoEntries=$Athistableid=$AwasNAonEntry=$Afootertext=$AdispArray
+    =$Amaintable=array();
+
+if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as $thistype) { // loop to build tables of children, by completion status and type
+    // reset arrays for each table
+    $wasNAonEntry=$footertext=$dispArray=$maintable=array();
+    $thistableid="i$comp$thistype";
+    $sectiontitle=(($comp==="y")?'Completed ':'').$typename[$thistype].'s';
+    //Select items by type
+    if ($thistype==='s') {
+       $values['type']='p';
+       $values['isSomeday']='y';
+       $values['filterquery'] ='';
+    } else {
+        $values['isSomeday']='n';
+        $values['type']=$thistype;
+	    $values['filterquery'] = " AND ".sqlparts("typefilter",$config,$values); // only filter on type if not a someday
+    }
+    $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+
+    $q=($comp==='y')?'completeditems':'pendingitems';  //suppressed items will be shown on report page
+	$values['filterquery'] .= " AND ".sqlparts($q,$config,$values);
+
+    $result = query("getchildren",$config,$values,$sort);
+
+    if ($comp==='n') {
+        // inherit some defaults from parent:
+        $createItemId="0&amp;parentId={$values['itemId']}&amp;type=$thistype";
+        foreach (array('categoryId','contextId','deadline') as $field)
+            if ($item[$field]) $createItemId.="&amp;$field={$item[$field]}";
+    }
+    $noEntries= '<h3>No '
+            . (($comp==='n')?"<a href='item.php?itemId=$createItemId' title='Create a new child'>":'' )
+            .$sectiontitle
+            .( ($comp==='n')?'</a>':'' )
+            ."</h3>\n";
+    if ($comp==='y' && $config['ReportMaxCompleteChildren']
+        && count($result) > $config['ReportMaxCompleteChildren']
+        && $item['type']!=='L' && $item['type']!=='C' ) {
+        $limit=$config['ReportMaxCompleteChildren'];
+        $footertext[]="<a href='listItems.php?type=$thistype&amp;parentId={$values['parentId']}&amp;completed=true'".
+            (($_SESSION['useLiveEnhancements'])?" onclick='return GTD.toggleHidden(\"$thistableid\",\"table-row\",\"f$thistableid\");'":'').
+            ">".(count($result)-$limit)." more... (".count($result)." items in total)</a>";
+    } else {
+        $limit=count($result);
+    }
+	$shownext= ($comp==='n') && ($values['type']==='a' || $values['type']==='w');
+	$suppressed=0;
+    $trimlength=$config[($comp==="n")?'trimLengthInReport':'trimLength'];
+    if($trimlength) {
+	    $descriptionField='shortdesc';
+	    $outcomeField='shortoutcome';
+    } else {
+        $descriptionField='description';
+        $outcomeField='desiredOutcome';
+    }
+    if ($shownext) $dispArray['NA']='NA';
+    $dispArray['title']=$sectiontitle;
+    $dispArray[$descriptionField]='Description';
+
+    switch ($values['type']) {
+        case 'T':
+            // prevent display of category for (check)list items
+            break;
+        case 'a': // deliberately flows through to 'w'
+    		if ($comp=="n") {
+                $dispArray['tickledate']='Suppress until';
+    			$dispArray['deadline']='Deadline';
+    			$dispArray['recurdesc']='Repeat';
+            }
+        case 'r': // deliberately flows through to 'w'
+        case 'w':
+            $dispArray['context']='context';
+            $dispArray['timeframe']='time';
+            break;
+        case 'm': // deliberately flows through to 'p;
+        case 'v': // deliberately flows through to 'p;
+        case 'o': // deliberately flows through to 'p;
+        case 'g': // deliberately flows through to 'p;
+        case 's': // deliberately flows through to 'p;
+        case 'p': // deliberately flows through to default;
+            $dispArray[$outcomeField]='Outcome';
+        default:
+            $dispArray['category']='category';
+            break;
+    }
+
+    $dispArray['created']='Date Created';
+	if ($comp=="n" || $item['type']==='C') {
+		$dispArray['checkbox']='Complete';
+	} else {
+		$dispArray['completed']='Date Completed';
+	}
+    foreach ($dispArray as $key=>$val) $show[$key]=true;
+    if ($config['nextaction']==='single') $dispArray['NA.type']='radio';
+	$i=0;
+
+    if ($result) foreach ($result as $row) {
+		$cleantitle=makeclean($row['title']);
+
+        $maintable[$i]=array();
+        if ($i >= $limit) {
+            if ($_SESSION['useLiveEnhancements']) {
+                $maintable[$i]['row.class']='togglehidden';
+            } else {
+                array_pop($maintable);
+                break;
+            }
+        }
+        $maintable[$i]['itemId']=$row['itemId'];
+        $maintable[$i]['title']=$row['title'];
+        $maintable[$i][$descriptionField]=$row['description'];
+        $maintable[$i][$outcomeField]=$row['desiredOutcome'];
+        $maintable[$i]['recurdesc']=$row['recurdesc'];
+        $maintable[$i]['created']=date($config['datemask'],
+                (empty($row['dateCreated']))
+                    ? null
+                    : strtotime($row['dateCreated']));
+
+		$maintable[$i]['categoryId']=$row['categoryId'];
+		$maintable[$i]['category']=makeclean($row['category']);
+
+		$maintable[$i]['contextId']=$row['contextId'];
+		$maintable[$i]['context']=makeclean($row['cname']);
+		$maintable[$i]['context.title']='Go to '.$maintable[$i]['context'].' context report';
+
+		$maintable[$i]['timeframeId']=$row['timeframeId'];
+		$maintable[$i]['timeframe']=makeclean($row['timeframe']);
+		$maintable[$i]['timeframe.title']='Go to '.$maintable[$i]['timeframe'].' time-context report';
+
+		if ($comp==='n') {
+            if (!empty($row['tickledate'])) {
+				if (strtotime($row['tickledate'])>time()) { // item is not yet tickled - count it, then skip displaying it
+					$suppressed++;
+					if ($_SESSION['useLiveEnhancements'])
+                        $maintable[$i]['row.class']='togglehidden';
+                    else {
+					    array_pop($maintable);
+                        continue;
+                    }
+				}
+				$maintable[$i]['tickledate']=$row['tickledate'];
+			} else
+				$maintable[$i]['tickledate']=null;
+
+            if (empty($row['deadline']))
+                $maintable[$i]['deadline']=null;
+            else {
+                $deadline=prettyDueDate($row['deadline'],$config['datemask']);
+                $maintable[$i]['deadline']      =$deadline['date'];
+                $maintable[$i]['deadline.class']=$deadline['class'];
+                $maintable[$i]['deadline.title']=$deadline['title'];
+            }
+
+
+			if ($shownext) {
+                $maintable[$i]['NA']=$comp!=="y" && $row['nextaction']==='y';
+                $maintable[$i]['NA.title']='Mark as a Next Action';
+                if ($maintable[$i]['NA']==='y') array_push($wasNAonEntry,$row['itemId']);
+            }
+		} else {
+			$maintable[$i]['completed']=date($config['datemask'],strtotime($row['dateCompleted']));
+        }
+
+		$maintable[$i]['checkbox.title']="Mark $cleantitle ".
+                ( ($comp==='y') ? 'in' : '' ).
+                "complete";
+		$maintable[$i]['checkboxname']='isMarked[]';
+		$maintable[$i]['checkboxvalue']=$row['itemId'];
+        $maintable[$i]['checkboxchecked']=($comp==='y');
+
+		$i++;
+    }
+	if ($suppressed) {
+        $is=($suppressed===1)?'is':'are';
+        $also=(count($maintable))?'also':'';
+        $plural=($suppressed===1)?'':'s';
+		array_unshift($footertext,
+            "<a href='listItems.php?tickler=true&amp;type={$thistype}&amp;parentId={$values['parentId']}'".
+            (($_SESSION['useLiveEnhancements'])?" onclick='return GTD.toggleHidden(\"$thistableid\",\"table-row\",\"f$thistableid\");'":'').
+            ">There $is $also $suppressed tickler ".$typename[$thistype].$plural." not yet due for action</a>"
+        );
+	}
+    if (empty($footertext)) {
+        $tfoot='';
+    } else {
+        $tfoot="<tfoot id='f$thistableid'>\n";
+        foreach ($footertext as $line) $tfoot.="<tr><td colspan='4'>\n$line\n</td></tr>\n";
+        $tfoot.="</tfoot>\n";
+    }
+    $AwasNAonEntry[$comp][$thistype]=$wasNAonEntry;
+    $Athistableid[$comp][$thistype] =$thistableid;
+    $AwasNAonEntry[$comp][$thistype]=$wasNAonEntry;
+    $Afootertext[$comp][$thistype]  =$footertext;
+    $AdispArray[$comp][$thistype]   =$dispArray;
+    $Amaintable[$comp][$thistype]   =$maintable;
+    $AnoEntries[$comp][$thistype]   =$noEntries;
+    $AcreateItemId[$comp][$thistype]=$createItemId;
+} // end of loop to build tables of children,
+/*============================================================================
+    got all data - now display page
+*/
+gtd_handleEvent(_GTD_ON_DATA,$pagename);
 ?>
 <h1><span class='noprint hoverbox'><?php
 if(isset($previousId))
@@ -103,11 +310,9 @@ if ($item['type']==='i')
 //Item details
 if ($item['description']) echo "<tr><th>Description:</th><td>",nl2br(escapeChars($item['description'])),"</td></tr>\n";
 if ($item['desiredOutcome']) echo "<tr><th>Desired Outcome:</th><td>",nl2br(escapeChars($item['desiredOutcome'])),"</td></tr>\n";
-if (!empty($item['parentId'])) {
+if (!empty($pids)) {
     echo "<tr><th>Parents:&nbsp;</th><td>";
     $brk='';
-    $pids=explode(',',$item['parentId']);
-    $pnames=explode($config['separator'],$item['ptitle']);
     foreach ($pids as $pkey=>$pid) {
         $thisparent=makeclean($pnames[$pkey]);
         echo "$brk<a href='itemReport.php?itemId=$pid' title='Go to the $thisparent report'>$thisparent</a> ";
@@ -141,220 +346,33 @@ if ($item['dateCompleted']) echo '<tr><th>Completed On:</th><td>'.$item['dateCom
 </tbody></table>
 <?php
 if (empty($childtype)) {
-    include_once 'footer.php';
+    include_once 'footer.inc.php';
     exit();
 }
-$values['parentId']=$values['itemId'];
-
-$thisurl=parse_url($_SERVER['PHP_SELF']);
-$thisfile=makeclean(basename($thisurl['path']));
-
+/* ============================================================================
+    now display children
+*/
 if ($item['type']==='C') {  // if a checklist, wrap *all* children in a single form ?>
 <form action='processItems.php' method='post'>
 <?php }
-//Create iteration arrays
-$completed = array('n','y');
 
-//table display loop
-foreach ($completed as $comp) foreach ($childtype as $thistype) {
-    $wasNAonEntry = array(); // reset for each table
-    $thistableid="i$comp$thistype";
-    $sectiontitle=(($comp==="y")?'Completed ':'').$typename[$thistype].'s';
-    //Select items by type
-    if ($thistype==='s') {
-       $values['type']='p';
-       $values['isSomeday']='y';
-       $values['filterquery'] ='';
-    } else {
-        $values['isSomeday']='n';
-        $values['type']=$thistype;
-	    $values['filterquery'] = " AND ".sqlparts("typefilter",$config,$values); // only filter on type if not a someday
-    }
-    $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as $thistype) { //table display loop
+    $wasNAonEntry=$AwasNAonEntry[$comp][$thistype];
+    $thistableid =$Athistableid[$comp][$thistype] ;
+    $wasNAonEntry=$AwasNAonEntry[$comp][$thistype];
+    $footertext  =$Afootertext[$comp][$thistype]  ;
+    $dispArray   =$AdispArray[$comp][$thistype]   ;
+    $maintable   =$Amaintable[$comp][$thistype]   ;
+    $noEntries   =$AnoEntries[$comp][$thistype]    ;
 
-    $q=($comp==='y')?'completeditems':'pendingitems';  //suppressed items will be shown on report page
-	$values['filterquery'] .= " AND ".sqlparts($q,$config,$values);
-
-    $result = query("getchildren",$config,$values,$sort);
-
-    if ($comp==='n') {
-        // inherit some defaults from parent:
-        $createItemId="0&amp;parentId={$values['itemId']}&amp;type=$thistype";
-        foreach (array('categoryId','contextId','deadline') as $field)
-            if ($item[$field]) $createItemId.="&amp;$field={$item[$field]}";
-    }
-    if ($result || $comp==='n') {
-        $footertext=array();
-        if ($comp==='y' && $config['ReportMaxCompleteChildren']
-            && count($result) > $config['ReportMaxCompleteChildren']
-            && $item['type']!=='L' && $item['type']!=='C' ) {
-            $limit=$config['ReportMaxCompleteChildren'];
-            $footertext[]="<a href='listItems.php?type=$thistype&amp;parentId={$values['parentId']}&amp;completed=true'".
-                (($_SESSION['useLiveEnhancements'])?" onclick='return GTD.toggleHidden(\"$thistableid\",\"table-row\",\"f$thistableid\");'":'').
-                ">".(count($result)-$limit)." more... (".count($result)." items in total)</a>";
-        } else {
-            $limit=count($result);
-        }
+    if (count($maintable)) {
         ?>
 <div class='reportsection'>
         <?php
 		$shownext= ($comp==='n') && ($values['type']==='a' || $values['type']==='w');
 		$suppressed=0;
         $trimlength=$config[($comp==="n")?'trimLengthInReport':'trimLength'];
-        if($trimlength) {
-		    $descriptionField='shortdesc';
-		    $outcomeField='shortoutcome';
-        } else {
-            $descriptionField='description';
-            $outcomeField='desiredOutcome';
-        }
-		$dispArray=array();
-        if ($shownext) $dispArray['NA']='NA';
-        $dispArray['title']=$sectiontitle;
-        $dispArray[$descriptionField]='Description';
-
-        switch ($values['type']) {
-            case 'T':
-                // prevent display of category for (check)list items
-                break;
-            case 'a': // deliberately flows through to 'w'
-        		if ($comp=="n") {
-                    $dispArray['tickledate']='Suppress until';
-        			$dispArray['deadline']='Deadline';
-        			$dispArray['recurdesc']='Repeat';
-                }
-            case 'r': // deliberately flows through to 'w'
-            case 'w':
-                $dispArray['context']='context';
-                $dispArray['timeframe']='time';
-                break;
-            case 'm': // deliberately flows through to 'p;
-            case 'v': // deliberately flows through to 'p;
-            case 'o': // deliberately flows through to 'p;
-            case 'g': // deliberately flows through to 'p;
-            case 's': // deliberately flows through to 'p;
-            case 'p': // deliberately flows through to default;
-                $dispArray[$outcomeField]='Outcome';
-            default:
-                $dispArray['category']='category';
-                break;
-        }
-
-        $dispArray['created']='Date Created';
-		if ($comp=="n" || $item['type']==='C') {
-			$dispArray['checkbox']='Complete';
-		} else {
-			$dispArray['completed']='Date Completed';
-		}
-        foreach ($dispArray as $key=>$val) $show[$key]=true;
-        if ($config['nextaction']==='single') $dispArray['NA.type']='radio';
-		$i=0;
-		$maintable=array();
-
-        if ($result) foreach ($result as $row) {
-			$cleantitle=makeclean($row['title']);
-
-            $maintable[$i]=array();
-            if ($i >= $limit) {
-                if ($_SESSION['useLiveEnhancements']) {
-                    $maintable[$i]['row.class']='togglehidden';
-                } else {
-                    array_pop($maintable);
-                    break;
-                }
-            }
-            $maintable[$i]['itemId']=$row['itemId'];
-            $maintable[$i]['title']=$row['title'];
-            $maintable[$i][$descriptionField]=$row['description'];
-            $maintable[$i][$outcomeField]=$row['desiredOutcome'];
-            $maintable[$i]['recurdesc']=$row['recurdesc'];
-            $maintable[$i]['created']=date($config['datemask'],
-                    (empty($row['dateCreated']))
-                        ? null
-                        : strtotime($row['dateCreated']));
-
-			$maintable[$i]['categoryId']=$row['categoryId'];
-			$maintable[$i]['category']=makeclean($row['category']);
-
-			$maintable[$i]['contextId']=$row['contextId'];
-			$maintable[$i]['context']=makeclean($row['cname']);
-			$maintable[$i]['context.title']='Go to '.$maintable[$i]['context'].' context report';
-
-			$maintable[$i]['timeframeId']=$row['timeframeId'];
-			$maintable[$i]['timeframe']=makeclean($row['timeframe']);
-			$maintable[$i]['timeframe.title']='Go to '.$maintable[$i]['timeframe'].' time-context report';
-
-			if ($comp==='n') {
-                if (!empty($row['tickledate'])) {
-					if (strtotime($row['tickledate'])>time()) { // item is not yet tickled - count it, then skip displaying it
-						$suppressed++;
-						if ($_SESSION['useLiveEnhancements'])
-                            $maintable[$i]['row.class']='togglehidden';
-                        else {
-						    array_pop($maintable);
-                            continue;
-                        }
-					}
-					$maintable[$i]['tickledate']=$row['tickledate'];
-				} else
-					$maintable[$i]['tickledate']=null;
-
-                if (empty($row['deadline']))
-                    $maintable[$i]['deadline']=null;
-                else {
-                    $deadline=prettyDueDate($row['deadline'],$config['datemask']);
-                    $maintable[$i]['deadline']      =$deadline['date'];
-                    $maintable[$i]['deadline.class']=$deadline['class'];
-                    $maintable[$i]['deadline.title']=$deadline['title'];
-                }
-
-
-    			if ($shownext) {
-                    $maintable[$i]['NA']=$comp!=="y" && $row['nextaction']==='y';
-                    $maintable[$i]['NA.title']='Mark as a Next Action';
-                    if ($maintable[$i]['NA']==='y') array_push($wasNAonEntry,$row['itemId']);
-                }
-   			} else {
-				$maintable[$i]['completed']=date($config['datemask'],strtotime($row['dateCompleted']));
-            }
-
-			$maintable[$i]['checkbox.title']="Mark $cleantitle ".
-                    ( ($comp==='y') ? 'in' : '' ).
-                    "complete";
-			$maintable[$i]['checkboxname']='isMarked[]';
-			$maintable[$i]['checkboxvalue']=$row['itemId'];
-            $maintable[$i]['checkboxchecked']=($comp==='y');
-
-			$i++;
-        }
-        if ($comp==='n') {
-            $maintable[$i]=array('categoryId'=>$item['categoryId'],'doreport'=>'');
-            foreach ($dispArray as $field=>$dummy)
-                $maintable[$i][$field]='';
-            $maintable[$i]['itemId']=$createItemId;
-            $maintable[$i]['title']="Add new {$typename[$thistype]}";
-            $maintable[$i]['row.class']='sortbottom'.
-                (($thistype==='T') ? ' creator' : '');
-            $maintable[$i]['NA']=null;
-		}
-    	if ($suppressed) {
-            $is=($suppressed===1)?'is':'are';
-            $also=(count($maintable))?'also':'';
-            $plural=($suppressed===1)?'':'s';
-    		array_unshift($footertext,
-                "<a href='listItems.php?tickler=true&amp;type={$thistype}&amp;parentId={$values['parentId']}'".
-                (($_SESSION['useLiveEnhancements'])?" onclick='return GTD.toggleHidden(\"$thistableid\",\"table-row\",\"f$thistableid\");'":'').
-                ">There $is $also $suppressed tickler ".$typename[$thistype].$plural." not yet due for action</a>"
-            );
-    	}
-        if (empty($footertext)) {
-            $tfoot='';
-        } else {
-            $tfoot="<tfoot id='f$thistableid'>\n";
-            foreach ($footertext as $line) $tfoot.="<tr><td colspan='4'>\n$line\n</td></tr>\n";
-            $tfoot.="</tfoot>\n";
-        }
-        if ($comp==='n' && $item['type']!=='C' && $result) { ?>
+        if ($comp==='n' && $item['type']!=='C') { ?>
 <form action='processItems.php' method='post'><?php
         }
         ?>
@@ -366,19 +384,16 @@ foreach ($completed as $comp) foreach ($childtype as $thistype) {
         ?>
 </table>
     	<?php
-    } else {  // end of: if ($result)
-        echo '<h3>No '
-            ,($comp==='n')?"<a href='item.php?itemId=$createItemId' title='Create a new child'>":''
-            ,$sectiontitle
-            ,($comp==='n')?'</a>':''
-            ,"</h3>\n";
+    } else {  // end of: if (count($maintable))
+        echo $noEntries;
     }
-	if ( ($comp==="n" && $result && $item['type']!=='C') || ($item['type']==='C' && $comp!=="n") ) {
+	if (   ($comp==="n" && (count($maintable)) && $item['type']!=='C')
+        || ($item['type']==='C' && $comp!=="n") ) {
 	   ?>
 <p>
 <input type="reset" class="button" />
 <input type="submit" class="button" value="Update marked <?php echo $typename[$thistype]; ?>s" name="submit" />
-<input type='hidden' name='referrer' value='<?php echo "{$thisfile}?itemId={$values['itemId']}"; ?>' />
+<input type='hidden' name='referrer' value='<?php echo "{$pagename}.php?itemId={$values['itemId']}"; ?>' />
         <?php if ($item['type']==='C') { ?>
 <button type='submit' name='clearchecklist' value='y'>Clear Checklist</button>
         <?php } else { ?>
@@ -395,12 +410,12 @@ foreach ($completed as $comp) foreach ($childtype as $thistype) {
 </form>     <?php
         }
     }
-    if ($result || $comp==='n') { ?>
+    if (count($maintable)) { ?>
 </div>  <?php
     }
 }  // end of foreach ($completed as $comp) foreach ($childtype as $thistype)
 if ($item['type']==='C') { ?>
 </form><?php
 }
-include_once 'footer.php';
+include_once 'footer.inc.php';
 ?>

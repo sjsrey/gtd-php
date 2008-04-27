@@ -1,4 +1,4 @@
-<?php include_once('header.php'); ?>
+<?php include_once('header.inc.php'); ?>
 <h2>GTD-PHP Version Information</h2>
 <table summary='version information'>
     <tbody>
@@ -22,4 +22,4 @@
         </tr>
     </tbody>
 </table>
-<?php include_once('footer.php'); ?>
+<?php include_once('footer.inc.php'); ?>

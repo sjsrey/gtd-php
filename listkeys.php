@@ -1,5 +1,5 @@
 <?php
-$title='gtd-php shortcut keys';
+$title='shortcut keys';
 $menu='';
 require_once("headerHtml.inc.php");
 ob_start();

@@ -1,5 +1,5 @@
 <?php
-require_once("ses.php");
+require_once("ses.inc.php");
 require_once("config.php");
 if ($config['debug'] & _GTD_NOTICE)
 		error_reporting(E_ALL);
@@ -58,5 +58,5 @@ switch ($config['dbtype']) {
 }
 //connect to database
 $connection = connectdb($config);
-require_once("gtdfuncs.php");
+require_once("gtdfuncs.inc.php");
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

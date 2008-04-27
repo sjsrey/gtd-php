@@ -18,7 +18,7 @@ if ($values['itemId']) { // editing an item
         $nextaction= ($result[0]['nextaction']==='y');
         $parents = query("selectparents",$config,$values,$sort);
     } else {
-        include_once 'header.php';
+        include_once 'header.inc.php';
         echo "<p class='error'>Failed to retrieve item {$values['itemId']}</p>";
         return;
     }
@@ -175,7 +175,7 @@ $recur=$defaults;
 if (empty($values['recur'])) {
     $values['recur']=$values['recurdesc']=null;
 } else {
-    require_once 'iCalcreator.class.php';
+    require_once 'iCalcreator.class.inc.php';
     $c = new vcalendar();
     $e = new vevent();
     $e->parse(array('RRULE:'.$values['recur']));
@@ -250,7 +250,7 @@ if ($show['scriptparents']) {
 }
 
 if ($show['header']) {
-    include_once 'header.php';
+    include_once 'header.inc.php';
     ?>
     <h2><?php
     if ($values['itemId'])
@@ -760,7 +760,7 @@ if ($show['dateCreated']) { ?>
     </div>
 <?php }
 if ($show['scriptparents']) include_once 'searcher.inc.php';
-if ($show['footer']) include_once 'footer.php';
+if ($show['footer']) include_once 'footer.inc.php';
 function hidePostVar($name,$val) {
     $val=makeclean($val);
     return "<input type='hidden' name='$name' value='$val' />\n";

@@ -222,20 +222,9 @@ function doChecklist() {
     }
     $values['itemfilterquery']="$ids";
     query("updatechecklist",$config,$values);
-    if ($cnt=count($todo)) {
-        $msg  = "$cnt {$check}list item";
-        if ($cnt!==1) $msg .= 's';
-        if ($isChecklist) {
-            $msg .= ($cnt!==1) ? ' are' : ' is';
-            $msg .= ' now';
-        } else {
-            $msg .= ($cnt!==1) ? ' have' : ' has';
-            $msg .= ' been';
-        }
-        $msg .= " marked complete";
-    } else {
-        $msg= 'All checklist items have been unchecked';
-    }
+    $msg  = ($cnt=count($todo))." checklist item"
+            .( ($cnt===1) ? '' : 's' )
+            .' marked complete';
     return $msg;
 }
 //===========================================================================
@@ -391,7 +380,7 @@ function retrieveFormVars() {
 function processRecurrence() {
     global $config,$values;
     $rrule=array();
-    require_once 'iCalcreator.class.php';
+    require_once 'iCalcreator.class.inc.php';
     $vevent = new vevent();
 
     $rrule=array();
@@ -472,7 +461,7 @@ function processRecurrence() {
 //===========================================================================
 function recurItem() {
 	global $config,$values,$updateGlobals;
-	require_once 'iCalcreator.class.php';
+	require_once 'iCalcreator.class.inc.php';
 
     $nextdue=getNextRecurrence();
 

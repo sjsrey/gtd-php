@@ -1,5 +1,5 @@
 <?php
-    include_once('header.php');
+    include_once('header.inc.php');
 ?>
 <h2>gtd-php </h2>
 <h3>Help Support gtd-php through your donations</h3>
@@ -28,5 +28,5 @@ repositories, the user forums, documnentation and related activities.
 
 
 <?php
-	include_once('footer.php')
+	include_once('footer.inc.php')
 ?>

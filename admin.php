@@ -147,4 +147,4 @@ if (!empty($backup)) {
  <a href='listItems.php?type=a&amp;tickler=true'>tickler file</a>, and on the
  <a href='listItems.php?type=w'>waiting-on list</a>, and so will rarely match the
   total shown on the <a href='listItems.php?type=a&amp;nextonly=true'>next-actions report</a>.</p>
-<?php require_once('footer.php'); ?>
+<?php require_once('footer.inc.php'); ?>

@@ -1,6 +1,6 @@
 <?php
 //INCLUDES
-include_once('header.php');
+include_once('header.inc.php');
 
     $values=array();
 
@@ -123,6 +123,6 @@ include_once('header.php');
 </table>
 
 <?php
-    if (!empty($config['show7'])) include_once('sevenhabits.php');
-	include_once('footer.php');
+    if (!empty($config['show7'])) include_once('sevenhabits.inc.php');
+	include_once('footer.inc.php');
 ?>

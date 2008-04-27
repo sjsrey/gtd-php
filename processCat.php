@@ -55,7 +55,7 @@ if (isset($_POST['next']))
 nextScreen($nexturl);
 
 if ($html)
-    include_once('footer.php');
+    include_once('footer.inc.php');
 else
     echo '</head></html>';
 

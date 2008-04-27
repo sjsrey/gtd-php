@@ -1,6 +1,6 @@
 <?php
 //INCLUDES
-include_once('header.php');
+include_once('header.inc.php');
 
 // query theme directory to build dropdown selector
 $themedir = "./themes";
@@ -47,4 +47,4 @@ if ($config['useLiveEnhancements']) {
         <input type="submit" class="button" value="Apply" name="submit" id='submit' />
     </div>
 </form>
-<?php include_once('footer.php'); ?>
+<?php include_once('footer.inc.php'); ?>

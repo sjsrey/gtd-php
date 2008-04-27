@@ -1,4 +1,4 @@
-<?php include_once('header.php'); ?>
+<?php include_once('header.inc.php'); ?>
 
 <h2>gtd-php </h2>
 <table summary='licence'>
@@ -12,4 +12,4 @@
 <h2>Supplmentary modules</h2>
 <p>The Calendar javascript component is (c) 2002-2005 <a href='http://www.bazon.net/mishoo'>Mihai Bazon</a>, and released under the <a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a></p>
 <p>The javascript table-sorter is a modified version of the sorter (c) 1997-2007 <a href='http://kryogenix.org/code/browser/sorttable/'>Stuart Langridge</a>, which is free open source.</p>
-<?php include_once('footer.php'); ?>
+<?php include_once('footer.inc.php'); ?>

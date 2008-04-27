@@ -167,7 +167,7 @@ else {
     $checkState='in';
 	checkInstall();
 }
-include_once 'footer.php';
+include_once 'footer.inc.php';
 return;
 /*
    ======================================================================================
@@ -461,7 +461,6 @@ installation for use and familiarize yourself with the system.</p>\n
 				send_query($q);
 			}
 		}
-		create_table('tags');
 		create_table('tagmap');
 
         $q="alter table `{$config['prefix']}itemattributes` add column `nextaction` enum('y','n') NOT NULL DEFAULT 'n';";

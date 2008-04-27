@@ -9,7 +9,7 @@ GTD.addEvent(window,'load',function() {
 });
 /* ]]> */ </script>
 <?php
-include_once('header.php');
+include_once('header.inc.php');
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
 ?>
 <div id="filter">
@@ -99,4 +99,4 @@ if (isset($endmsg['header'])) echo "<h4>{$endmsg['header']}</h4>\n";
 if (isset($endmsg['link'])) echo "<a href='{$endmsg['link']}'>{$endmsg['prompt']}</a>\n";
 ?>
 <p class='noprint'>To bookmark this filtered list, bookmark <a href='<?php echo $referrer; ?>'>this link</a></p>
-<?php include_once 'footer.php'; ?>
+<?php include_once 'footer.inc.php'; ?>

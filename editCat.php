@@ -1,5 +1,5 @@
 <?php
-require_once('header.php');
+require_once('header.inc.php');
 require_once('editCat.inc.php');
 ?>
 <h2><?php echo $title; ?></h2>
@@ -93,4 +93,4 @@ require_once('editCat.inc.php');
 </table>
 </form><?php
 }
-include_once('footer.php'); ?>
+include_once('footer.inc.php'); ?>
