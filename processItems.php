@@ -642,8 +642,8 @@ function nextPage() { // set up the forwarding to the next page
             $header="Content-Type: text/xml; charset=".$config['charset'];
             header($header);
         }
-        echo '<?xml version="1.0" encoding="',$config['charset'],'"?','><gtdphp>';
-        echo '<values>';
+        echo '<?xml version="1.0" ?',">\n<gtdphp>\n"; // encoding="{$config['charset']}"
+        echo "<values>\n";
         foreach ($values as $key=>$val) {
             echo "<$key>";
             switch ($key) {
@@ -661,7 +661,7 @@ function nextPage() { // set up the forwarding to the next page
                     echo '<![CDATA[',makeclean($val),']]>';
                     break;
             }
-            echo "</$key>";
+            echo "</$key>\n";
         }
         echo '</values>';
 

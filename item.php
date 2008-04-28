@@ -540,11 +540,11 @@ if ($show['submitbuttons']) { ?>
             ,($values['itemId'])?"Update $typename":'Create'
             ,"' name='submit' />\n";
     } else { ?>
-        <div class='formbuttons'>
+        <div class='formbuttons formrow'>
+        <label class='left first'><?php
+            echo ($values['itemId'])?'Update':'Create';
+        ?> and then:</label>
         <?php
-        echo "<label class='left first'>"
-            ,($values['itemId'])?'Update':'Create'," and then:</label>\n";
-
         $buttons=array();
         if ($show['ptitle']) $buttons['parent']='View parent';
         $buttons['item']='View item';
@@ -597,7 +597,7 @@ if ($show['submitbuttons']) { ?>
 
 if ($show['recurdesc']) {
 ?><div id='recur' <?php
-    if ($_SESSION['useLiveEnhancements']) echo " style='display:none;' ";
+    if ($_SESSION['useLiveEnhancements']) echo " class='togglehidden' ";
 ?>><a name='recurform' id='recurform'></a>
     <div class='formrow'>
         <span>

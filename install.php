@@ -69,9 +69,7 @@ $tablesByVersion=array( // NB the order of tables in these arrays is CRITICAL. t
     '0.8rc-3' => array('categories','checklist','checklistItems','context','itemattributes','items','itemstatus','list','listItems','lookup','nextactions','tickler','timeitems','version','preferences'),
     // 0.8rc-4 saw all table names being standardised to lower case:
     '0.8rc-4' => array('categories','checklist','checklistitems','context','itemattributes','items','itemstatus','list','listitems','lookup','nextactions','tickler','timeitems','version','preferences'),
-    // 0.8z.03 - tags and tagmap tables introduced, nextactions table removed
-    '0.8z.03'   => array('categories','checklist','checklistitems','context','itemattributes','items','itemstatus','list','listitems','lookup','tagmap','timeitems','version','preferences'),
-    // 0.8z.04 - checklist, checklistitems, list, listitems tables removed.   items, itemstatus, itemattributes reworked
+    // 0.8z.04 - tagmap table introduced;     checklist,checklistitems,list,listitems,nextactions tables removed;   items,itemstatus,itemattributes reworked
     '0.8z.04'   => array('categories','context','itemattributes','items','itemstatus','lookup','tagmap','timeitems','version','preferences')
     );
 
@@ -91,9 +89,6 @@ $versions=array(
     '0.8rc-4'=> array(  'tables'=>'0.8rc-4',
                         'database'=>'0.8rc-4',
                         'upgradepath'=>'0.8rc-4'),
-    '0.8z.03'  => array(  'tables'=>'0.8z.03',
-                        'database'=>'0.8z.03',
-                        'upgradepath'=>'0.8z.03'),
     '0.8z.04'  => array(  'tables'=>'0.8z.04',
                         'database'=>'0.8z.04',
                         'upgradepath'=>'copy')
@@ -471,17 +466,7 @@ installation for use and familiarize yourself with the system.</p>\n
 		send_query($q);
 		
 	    createrecurfields();
-	    
-	    $fromPrefix=$config['prefix'];
-    case '0.8z.03': // TOFIX - APS intermediate upgrade
-    	if ($fromPrefix!==$config['prefix']){ // updating to new prefix
-			foreach ($tablesByVersion[$versions['0.8z.03']['tables']] as $key=>$table) {
-				$q = "CREATE TABLE `{$config['prefix']}$table` LIKE `$fromPrefix$table`";
-				send_query($q);
-				$q = "INSERT INTO `{$config['prefix']}$table` SELECT * FROM `$fromPrefix$table`";
-				send_query($q);
-			}
-		}
+
         $q="ALTER TABLE `{$config['prefix']}itemstatus` ADD COLUMN (
                 `type` enum('m','v','o','g','p','a','r','w','i','L','C','T','x') NOT NULL DEFAULT 'i',
                 categoryId int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -601,7 +586,19 @@ installation for use and familiarize yourself with the system.</p>\n
 		$q="DROP TABLE `{$config['prefix']}list`,`{$config['prefix']}checklist`,
                 `{$config['prefix']}listitems`,`{$config['prefix']}checklistitems`";
 		send_query($q);
+		
+		$fromPrefix=$config['prefix']; // must only copy to new prefix ONCE, so prevent it happening again
+		// deliberately flows through to next case
 		//---------------------------------------------------
+	 case '0.8z.04': // ugprade from 0.8z.04          ============================================================
+    	if ($fromPrefix!==$config['prefix']){ // updating to new prefix
+			foreach ($tablesByVersion[$versions['0.8z.03']['tables']] as $key=>$table) {
+				$q = "CREATE TABLE `{$config['prefix']}$table` LIKE `$fromPrefix$table`";
+				send_query($q);
+				$q = "INSERT INTO `{$config['prefix']}$table` SELECT * FROM `$fromPrefix$table`";
+				send_query($q);
+			}
+		}
         updateVersion();
         $endMsg="<p>GTD-PHP 0.8 upgraded from 0.8rc-4 to "._GTD_VERSION." - gosh, you're brave</p>";
         $install_success = true;

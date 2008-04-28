@@ -64,8 +64,7 @@ function checkErrors($prefix) {
 function backupData($prefix) {
     global $config;
     $sep="-- *******************************\n";
-    $tables=array('categories','checklist','checklistitems','context','itemattributes','items','itemstatus','list','listitems','lookup','preferences','tagmap','timeitems','version');
-
+    $tables=array('categories','context','itemattributes','items','itemstatus','lookup','preferences','tagmap','timeitems','version');
     $data='';
     $header='';
     $creators='';
