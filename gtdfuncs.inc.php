@@ -421,7 +421,7 @@ function columnedTable($cols,$data,$link='itemReport.php') {
 */
 function getNextRecurrence() { // returns false if failed, else returns timestamp of next recurrence
     global $config,$values;
-    require_once 'iCalcreator.class.php';
+    require_once 'iCalcreator.class.inc.php';
 
     if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>creating vcalendar to get recurrence date";
     $vcal = new vcalendar();

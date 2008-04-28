@@ -30,7 +30,6 @@ if ($values['itemId']) { // editing an item
     $values['deadline']=$values['dateCompleted']=$values['recurdesc']=$values['tickledate']=null;
     $values['type']=$_REQUEST['type'];
     $values['isSomeday']=(isset($_GET['someday']) &&  $_GET['someday']=='true')?'y':'n';
-    $values['parentId']=(empty($_REQUEST['parentId'])) ? array() : explode(',',$_REQUEST['parentId']); // TOFIX - why explode???
     $nextaction=isset($_REQUEST['nextonly']) && ($_REQUEST['nextonly']=='true' || $_REQUEST['nextonly']==='y');
     foreach ( array('category','context','timeframe') as $cat)
         $values[$cat.'Id']= (isset($_REQUEST[$cat.'Id']))?(int) $_REQUEST[$cat.'Id']:0;
@@ -57,31 +56,29 @@ $typename=   ( $nextaction ? 'Next ' : '')
 $title=($values['itemId']>0)?("Edit $typename: ".makeclean($values['title'])):"New $typename";
 
 if (!$values['itemId']) {
-    $values['tickledate']= ($show['tickledate'] && !empty($_REQUEST['tickledate'])) // TOFIX = do I really only want to do this if $show is true???
+    $values['tickledate']= ($show['tickledate'] && !empty($_REQUEST['tickledate']))
                             ? $_REQUEST['tickledate']
                             : NULL;
     if ($show['deadline'] && !empty($_REQUEST['deadline']))$values['deadline']=$_REQUEST['deadline'];
     $parents=array();
     if (!empty($_REQUEST['parentId'])) {
-        $values['parentId']=explode(',',$_REQUEST['parentId']);
-        if ($show['ptitle']) foreach ($values['parentId'] as $parent) {
-            $result=query("selectitemshort",$config,array('itemId'=>$parent),$sort);
-            if ($result) {
-                $newparent=array(
-                     'parentId'=>$result[0]['itemId']
-                    ,'ptitle'=>$result[0]['title']
-                    ,'isSomeday'=>$result[0]['isSomeday']
-                    ,'ptype'=>$result[0]['type']);
-                $parents[]=$newparent;
-            }
+        $pids=$_REQUEST['parentId'];
+        if (!is_array($pids)) $pids=array($pids);
+        if ($show['ptitle']) foreach ($pids as $pid) {
+            $result=query("selectitemshort",$config,array('itemId'=>$pid),$sort);
+            if ($result) $parents[]=array(
+                 'parentId'=>$result[0]['itemId']
+                ,'ptitle'=>$result[0]['title']
+                ,'isSomeday'=>$result[0]['isSomeday']
+                ,'ptype'=>$result[0]['type']);
+        } else {
+            $values['parentId']=$pids;
         }
     }
 }
-
-if (is_array($parents) && count($parents))
-    foreach ($parents as $pid=>$ptitle)
-        $values['parentId'][]=$pid;
-
+if ($parents)
+    foreach ($parents as $parent)
+        $values['parentId'][]=$parent['parentId'];
 //create filters for selectboxes
 $values['timefilterquery'] = ($config['useTypesForTimeContexts'] && $values['type']!=='i')?" WHERE ".sqlparts("timetype",$config,$values):'';
 
@@ -225,7 +222,7 @@ if (empty($values['recur'])) {
     end of data handling - start of html output
     ===========================================================================
 */
-include_once 'headerHtml.inc.php';
+if ($show['header']) include_once 'headerHtml.inc.php';
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
 if ($show['scriptparents']) {
     ?>
@@ -260,6 +257,11 @@ if ($show['header']) {
     echo $title;
     ?></h2><?php
 }
+if ($config['debug'] & _GTD_DEBUG)
+    echo '<pre>$_POST: ',print_r($_POST,true),
+         '<br />$_GET: ',print_r($_GET,true),
+         '</pre>';
+
 $sep='<p>';
 if ($show['changetypes']) foreach ($canchangetypesafely as $totype)
     if ($totype!==$values['type']) {
@@ -278,12 +280,9 @@ if ($show['type']) {
     $sep=' , ';
 }
 if ($sep!=='<p>') echo "</p>\n";
-
-if (!empty($_REQUEST['createnote'])) { ?>
-    <p class='warning'>Notes have been superseded by tickler actions. These actions get
-    suppressed until a specified number of days before their deadlines</p>
-<?php } ?>
-<form action="processItems.php" id="itemform" method="post" onsubmit="return GTD.validate(this);"><div class='form'>
+?>
+<form action="processItems.php" id="itemform" method="post" onsubmit="return GTD.validate(this);">
+<div class='form'>
     <div class='formrow' id='errorbox'><span class="error" id='errorMessage'></span></div>
         <?php if($show['title']) { ?>
             <div class='formrow'>
@@ -303,9 +302,9 @@ if (!empty($_REQUEST['createnote'])) { ?>
                     </select>
                 <?php } ?>
             </div>
-        <?php } elseif (is_array($parents))
-            foreach ($values['parentId'] as $parent)
-                echo hidePostVar('parentId[]',$parent);
+        <?php } elseif (count($values['parentId']))
+            foreach ($values['parentId'] as $pid)
+                echo hidePostVar('parentId[]',$pid);
         ?><div class='formrow'>
             <?php if ($show['category']) { ?>
                 <label for='category' class='left first'>Category:</label>
@@ -453,15 +452,19 @@ if (!empty($_REQUEST['createnote'])) { ?>
             $hiddenvars['recur']=$values['recur'];
         }
         
-        if ($show['tags']) { // TOFIX - put in catch for useLiveEnhancements. ?>
+        if ($show['tags']) { ?>
             <div class='formrow'>
                 <label class='left first'>Tags:</label>
                 <input type='text' id='tags' name='tags' size='70' value='<?php echo $values['tagname']; ?>'  onkeypress='return GTD.tagKeypress(event);' /> <a href='#' onclick='return GTD.tagShow(this);'>Show all</a>
                 <br />
                 <span id='taglist'>
-                    <?php foreach ($taglist as $tag) { ?>
-                        <a class='add' href='#' onclick='return GTD.tagAdd(this)'><?php echo $tag; ?></a>,
-                    <?php } ?>
+                    <?php foreach ($taglist as $tag)
+                            echo "<a class='add' href='#'"
+                                ,($config['useLiveEnhancements']) ?
+                                    " onclick='return GTD.tagAdd(this)'"
+                                    : ''
+                                ,">$tag</a>, \n";
+                    ?>
                 </span>
             </div>
         <?php } ?>
@@ -483,10 +486,8 @@ if ($values['itemId'] && !empty($_SESSION[$key]))
     $tst=$_SESSION[$key];
 else
     $tst=$config['afterCreate'][$values['type']];
-
-if (!$show['submitbuttons']) {
-    // don't show any next item buttons
-} else {
+if ($show['submitbuttons']) { ?>
+    <?php
     if (isset($_REQUEST['nextId'])) {
         // don't show any next item buttons: we are creating a parent item here
         ?><div class='formbuttons'>
@@ -497,14 +498,14 @@ if (!$show['submitbuttons']) {
             <input type='hidden' name='addAsParentTo' value='<?php
                 echo $_REQUEST['nextId'];
             ?>' />
-        </div>
         <?php
-        }
-    else if ($config['radioButtonsForNextPage']) {
-        echo "<div class='formrow'>\n<label class='left first'>After "
-            ,($values['itemId'])?'updating':'creating'
-            ,":</label>\n";
-
+    } else if ($config['radioButtonsForNextPage']) { ?>
+        <div class='formrow'>
+        <label class='left first'>After <?php
+            echo ($values['itemId'])?'updating':'creating';
+        ?>
+        </label>
+        <?php
         if ($show['ptitle'])
             echo "<input type='radio' name='afterCreate' id='parentNext' value='parent' class='first'"
         	 	,($tst=='parent')?" checked='checked' ":""
@@ -532,13 +533,16 @@ if (!$show['submitbuttons']) {
             echo "<input type='radio' name='afterCreate' id='referrer' value='referrer' class='notfirst'"
         	 	,($tst=='referrer')?" checked='checked' ":''
         		," /><label for='referrer' class='right'>Return to previous list</label>\n";
-        }
-        echo "</div><div class='formbuttons'>\n"
-            ,"<input type='submit' value='"
+        } ?>
+        </div>
+        <div class='formbuttons'>
+        <?php echo "<input type='submit' value='"
             ,($values['itemId'])?"Update $typename":'Create'
             ,"' name='submit' />\n";
-    } else {
-        echo "<div class='formrow'>\n<label class='left first'>"
+    } else { ?>
+        <div class='formbuttons'>
+        <?php
+        echo "<label class='left first'>"
             ,($values['itemId'])?'Update':'Create'," and then:</label>\n";
 
         $buttons=array();
@@ -574,9 +578,7 @@ if (!$show['submitbuttons']) {
             ?><tr><?php echo $row2; ?></tr>
             </tbody>
         </table>
-        </div>
     <?php } ?>
-    <div class='formbuttons'>
     <input type='reset' value='Reset' />
 <?php
     if ($values['itemId']) {
@@ -590,14 +592,13 @@ if (!$show['submitbuttons']) {
         <?php
         }
     }
-?></div>
-<?php }
+?></div><?php
+} // end of if ($show['submitbuttons'])
 
 if ($show['recurdesc']) {
 ?><div id='recur' <?php
     if ($_SESSION['useLiveEnhancements']) echo " style='display:none;' ";
 ?>><a name='recurform' id='recurform'></a>
-
     <div class='formrow'>
         <span>
             <label class='left first' for='freqtext'>Repeat:</label>
