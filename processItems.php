@@ -242,8 +242,9 @@ function createItem() { // create an item and its parent-child relationships
 	//Insert new records
 	$result = query("newitem",$config,$values);
 	$values['newitemId'] = $GLOBALS['lastinsertid'];
-	$result = query("newitemattributes",$config,$values);
 	$result = query("newitemstatus",$config,$values);
+	if ($values['type']!=='L' && $values['type']!=='C' && $values['type']!=='T')
+	   $result = query("newitemattributes",$config,$values);
 	setParents('new');
 	$title=$values['title'];
 	$values['itemId']=$values['newitemId'];

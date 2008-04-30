@@ -15,12 +15,17 @@ if (!$result) {
     include_once('footer.inc.php');
     die;
 }
-$item=$result[0];
+
+$item=$result[0]; // $item will store the values for the item being viewed
+
 $values['isSomeday']=($item['isSomeday']=="y")?'y':'n';
 $values['type']=$item['type'];
 $title="View ".makeclean($item['title']);
 include_once('header.inc.php');
-//Find previous and next projects
+
+/* -------------------------------------------
+    Find previous and next projects
+*/
 if (isset($_SESSION['idlist-'.$item['type']])) {
     $ndx=$_SESSION['idlist-'.$item['type']];
     unset($result);
@@ -67,10 +72,11 @@ if($cnt>1) {
         $nexttitle    =$nextitem[0]['title'];
     }
 }
-
+/*
+    Got previous and next projects
+----------------------------------------------------------*/
 $typename=getTypes(); //set item labels
 
-$childtype=getChildType($item['type']); // array of item types that can be children of this item
 $afterTypeChange="itemReport.php?itemId={$values['itemId']}";
 if (empty($item['parentId'])) {
     $pids=$pnames=array();
@@ -79,16 +85,26 @@ if (empty($item['parentId'])) {
     $pnames=explode($config['separator'],$item['ptitle']);
 }
 $values['parentId']=$values['itemId'];
+/* -------------------------------------------------------------------
+    get all children for this item, and accumulate them into arrays,
+    grouped by completion status and child item type
+*/
+
 // initiate arrays for children tables
 $AcreateItemId=$AnoEntries=$Athistableid=$AwasNAonEntry=$Afootertext=$AdispArray
     =$Amaintable=array();
+$childtype=getChildType($item['type']); // array of item types that can be children of this item
 
-if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as $thistype) { // loop to build tables of children, by completion status and type
+// loop to build tables of children, by completion status and type
+if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as $thistype) {
     // reset arrays for each table
     $wasNAonEntry=$footertext=$dispArray=$maintable=array();
-    $thistableid="i$comp$thistype";
+
+    $thistableid="i$comp$thistype"; // set the unique id for each table
     $sectiontitle=(($comp==="y")?'Completed ':'').$typename[$thistype].'s';
-    //Select items by type
+    /* -------------------------------------
+        Query: select children for this type
+    */
     if ($thistype==='s') {
        $values['type']='p';
        $values['isSomeday']='y';
@@ -102,20 +118,24 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
 
     $q=($comp==='y')?'completeditems':'pendingitems';  //suppressed items will be shown on report page
 	$values['filterquery'] .= " AND ".sqlparts($q,$config,$values);
-
     $result = query("getchildren",$config,$values,$sort);
-
+    /*
+        end of query
+    ----------------------------------------*/
     if ($comp==='n') {
         // inherit some defaults from parent:
         $createItemId="0&amp;parentId={$values['itemId']}&amp;type=$thistype";
         foreach (array('categoryId','contextId','deadline') as $field)
             if ($item[$field]) $createItemId.="&amp;$field={$item[$field]}";
     }
+    // prepare text to display for use if there are no children:
     $noEntries= '<h3>No '
             . (($comp==='n')?"<a href='item.php?itemId=$createItemId' title='Create a new child'>":'' )
             .$sectiontitle
             .( ($comp==='n')?'</a>':'' )
-            ."</h3>\n";
+            ."</h3>";
+    /* set limit on number of children to dispay, if we are processing completed items,
+        and the number of returned items is greater than the user-configured display limit */
     if ($comp==='y' && $config['ReportMaxCompleteChildren']
         && count($result) > $config['ReportMaxCompleteChildren']
         && $item['type']!=='L' && $item['type']!=='C' ) {
@@ -126,6 +146,9 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
     } else {
         $limit=count($result);
     }
+    /* ------------------------------------------------
+        decide which fields to tabulate, based on child item type, and completion status
+    */
 	$shownext= ($comp==='n') && ($values['type']==='a' || $values['type']==='w');
 	$suppressed=0;
     $trimlength=$config[($comp==="n")?'trimLengthInReport':'trimLength'];
@@ -175,6 +198,10 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
 	}
     foreach ($dispArray as $key=>$val) $show[$key]=true;
     if ($config['nextaction']==='single') $dispArray['NA.type']='radio';
+    /*  finished choosing which fields to display
+        ----------------------------------------------------------
+        now process the query result, row by row, ready for tabulation
+    */
 	$i=0;
 
     if ($result) foreach ($result as $row) {
@@ -234,7 +261,6 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
                 $maintable[$i]['deadline.title']=$deadline['title'];
             }
 
-
 			if ($shownext) {
                 $maintable[$i]['NA']=$comp!=="y" && $row['nextaction']==='y';
                 $maintable[$i]['NA.title']='Mark as a Next Action';
@@ -253,6 +279,10 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
 
 		$i++;
     }
+    /*  finished row-by row processing
+        ------------------------------------------------
+        now set table footer
+    */
 	if ($suppressed) {
         $is=($suppressed===1)?'is':'are';
         $also=(count($maintable))?'also':'';
@@ -270,6 +300,12 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
         foreach ($footertext as $line) $tfoot.="<tr><td colspan='4'>\n$line\n</td></tr>\n";
         $tfoot.="</tfoot>\n";
     }
+    /*  finished table footer
+        ------------------------------------------------
+        accumulate arrays for this child type and completion status,
+        into the master arrays of all children
+    */
+
     $AwasNAonEntry[$comp][$thistype]=$wasNAonEntry;
     $Athistableid[$comp][$thistype] =$thistableid;
     $AwasNAonEntry[$comp][$thistype]=$wasNAonEntry;
@@ -278,8 +314,12 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
     $Amaintable[$comp][$thistype]   =$maintable;
     $AnoEntries[$comp][$thistype]   =$noEntries;
     $AcreateItemId[$comp][$thistype]=$createItemId;
-} // end of loop to build tables of children,
-/*============================================================================
+}
+/*
+    end of loop to build tables of children
+    ============================================================================
+    and end of data processing
+    ============================================================================
     got all data - now display page
 */
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
@@ -304,6 +344,9 @@ if ($item['type']==='i')
     echo "<div class='editbar'>"
         ,"[<a href='assignType.php?itemId={$values['itemId']}&amp;referrer=$afterTypeChange'>Set type</a>] \n"
         ,"</div>";
+/* --------------------------------------------------
+    display values for this item
+*/
 ?>
 <table id='report' summary='item attributes'><tbody>
 <?php
@@ -345,6 +388,9 @@ if ($item['dateCompleted']) echo '<tr><th>Completed On:</th><td>'.$item['dateCom
 ?>
 </tbody></table>
 <?php
+/*
+    finished displaying item values
+ ============================================================================ */
 if (empty($childtype)) {
     include_once 'footer.inc.php';
     exit();

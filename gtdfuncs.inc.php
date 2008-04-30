@@ -1,6 +1,15 @@
 <?php
-
-include_once('gtd_constants.inc.php');
+include_once 'gtd_constants.inc.php';
+/*
+   ======================================================================================
+*/
+function escapeforjavascript($in) {
+    $out=str_replace(
+        array('\\'   , '"'  , '/'   ),
+        array('\\\\' , '\\"', '\\/' )
+        ,$in);
+    return $out;
+}
 /*
    ======================================================================================
 */

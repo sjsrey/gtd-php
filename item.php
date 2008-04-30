@@ -127,7 +127,7 @@ if ($show['scriptparents']) {
 
     foreach ($potentialparents as $oneparent) {
         $pid   .=$sep.'"'.$oneparent['itemId'].'"';
-        $ptitle.=$sep.'"'.str_replace(array('\\','"'),array('\\\\','\\"'),$oneparent['title']).'"'; // escape backslashes and double-quotes
+        $ptitle.=$sep.'"'.escapeforjavascript($oneparent['title']).'"'; // escape backslashes and double-quotes
         $partt .=$sep.'"'
                 .(($oneparent['isSomeday']==='y')?'s':$oneparent['type'])
                 .'"';
@@ -302,7 +302,7 @@ if ($sep!=='<p>') echo "</p>\n";
                     </select>
                 <?php } ?>
             </div>
-        <?php } elseif (count($values['parentId']))
+        <?php } elseif (!empty($values['parentId'])) // TOFIX - not set, if orphan
             foreach ($values['parentId'] as $pid)
                 echo hidePostVar('parentId[]',$pid);
         ?><div class='formrow'>
