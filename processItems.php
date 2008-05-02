@@ -469,7 +469,8 @@ function recurItem() {
     // before processing the next due date, do some house-cleaning and preparation
     $values['oldDateCompleted']=$values['dateCompleted'];
 	if ($config['storeRecurrences']) {
-		$copy=getItemCopy();
+		$values['oldid']=$values['itemId'];
+        $copy=getItemCopy();
 		makeComplete();
 		$values=array_merge($values,$copy);
 		$updateGlobals['parents']=$copy['parents'];

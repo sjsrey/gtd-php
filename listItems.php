@@ -99,4 +99,5 @@ if (isset($endmsg['header'])) echo "<h4>{$endmsg['header']}</h4>\n";
 if (isset($endmsg['link'])) echo "<a href='{$endmsg['link']}'>{$endmsg['prompt']}</a>\n";
 ?>
 <p class='noprint'>To bookmark this filtered list, bookmark <a href='<?php echo $referrer; ?>'>this link</a></p>
+<div id='debuglog'></div>
 <?php include_once 'footer.inc.php'; ?>

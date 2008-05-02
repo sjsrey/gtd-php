@@ -106,7 +106,6 @@ function fixAllDates($prefix) {
    fixDate('itemstatus','dateCreated');
    fixDate('itemstatus','lastModified');
    fixDate('listitems','dateCompleted');
-   fixDate('tickler','date');
    fixData($prefix);
 }
 /*
@@ -133,13 +132,18 @@ function fixData($prefix) {
                 (SELECT `itemId` FROM `{$prefix}itemstatus`)";
     send_query($q);
 
-    // remove partial items from database
-    $items1=array('items','itemstatus','itemattributes');
-    $items2=$items1;
-    foreach ($items1 as $t1) foreach ($items2 as $t2) if ($t1!=$t2) {
+    // remove partial items from database 
+    $items1=array('itemstatus'=>'items','items'=>'itemstatus','itemattributes'=>'itemstatus','itemattributes'=>'items');
+    foreach ($items1 as $t1=>$t2) {
         $q="DELETE FROM `{$prefix}$t1` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}$t2`)";
         send_query($q);
     }
+
+    // repair any missing dateCreated/lastModified
+    $q="update `{$prefix}itemstatus` set `lastModified`=CURDATE() where `lastModified` IS NULL";
+    send_query($q);
+    $q="update `{$prefix}itemstatus` set `dateCreated`=CURDATE() where `dateCreated` IS NULL";
+    send_query($q);
 
     // if any titles are blank, call them 'untitled'
     $q="update `{$prefix}items` set `title`='untitled' where `title`=NULL OR `title`=''";
@@ -147,10 +151,12 @@ function fixData($prefix) {
     
     // now fix lookup
     $q="DELETE FROM `{$prefix}lookup` WHERE
-            `parentId` NOT IN (SELECT `itemId` FROM `{$prefix}itemattributes`)
-           OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}itemattributes`)";
+            `parentId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)
+           OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)";
     send_query($q);
 
+    // TOFIX - if any itemIds in tagmap but not in items, remove
+    // TOFIX - if any itemstatus type is null, make it 'i'
 }
 /*
    ======================================================================================
@@ -334,34 +340,6 @@ function create_tables() {
 	include_once 'gtd_constants.inc.php';
     foreach ($tablesByVersion[$versions[_GTD_VERSION]['tables']] as $table)
         create_table($table);
-}
-/*
-   ======================================================================================
-*/
-function amendIndexes() {
-    global $config;
-    $indexarray=array(
-        'categories'    =>array('category','description'),
-        'checklist'     =>array('description','title'),
-        'checklistitems'=>array('notes','item'),
-        'context'       =>array('name','description'),
-    	'items'         =>array('title','desiredOutcome','description'),
-    	'list'          =>array('description','title'),
-    	'listitems'     =>array('notes','item'),
-    	'tickler'       =>array('note','title'),
-    	'timeitems'     =>array('timeframe','description') );
-
-    $q="ALTER TABLE {$config['prefix']}tickler DROP INDEX `notes`";
-    send_query($q,false);
-
-    foreach ($indexarray as $table=>$indexes) {
-        foreach ($indexes as $col) {
-            $q="ALTER TABLE {$config['prefix']}$table DROP INDEX `$col`";
-            send_query($q,false);
-            $q="ALTER TABLE {$config['prefix']}$table ADD INDEX "._FULLTEXT." `$col` (`$col`"._INDEXLEN.")";
-            send_query($q);
-        }
-    }
 }
 /*
    ======================================================================================
@@ -577,10 +555,10 @@ function create_table ($name) {
 	break;
 	case "itemstatus":
        $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`type` enum ('m','v','o','g','p','a','r','w','i') NOT NULL default 'i', ";
-       $q.="`dateCreated` date  default NULL, ";
+       $q.="`dateCreated` date NOT NULL default '"._DEFAULTDATE."', ";
        $q.="`lastModified` timestamp default '"._DEFAULTDATE."' ,";
        $q.="`dateCompleted` date default NULL, ";
+       $q.="`type` enum ('m','v','o','g','p','a','r','w','i','L','C','T') NOT NULL default 'i', ";
        $q.="`categoryId` int(11) unsigned NOT NULL default '0', ";
        $q.=" PRIMARY KEY  (`itemId`), ";
        $q.=" KEY `type` (`type`), ";

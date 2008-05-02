@@ -38,7 +38,9 @@ require_once('editCat.inc.php');
             if ($showTypes) {
                 echo "<td>\n";
                 $cls='first';
-                foreach (array("v"=>"Vision","o"=>"Role","g"=>"Goal","p"=>"Project","a"=>"Action") as $key=>$val) {
+                $alltypes=getTypes();
+                foreach (array('v','o','g','p','a') as $key) {
+                    $val=$alltypes[$key];
                     echo "<input type='radio' name='type' id='$val' value='$key'";
                     if ($thiscat['type']===$key) echo " checked='checked'";
                     echo " class='$cls' /><label for='$val' class='$cls'>$val</label> ";

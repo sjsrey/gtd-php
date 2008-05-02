@@ -293,13 +293,6 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
             ">There $is $also $suppressed tickler ".$typename[$thistype].$plural." not yet due for action</a>"
         );
 	}
-    if (empty($footertext)) {
-        $tfoot='';
-    } else {
-        $tfoot="<tfoot id='f$thistableid'>\n";
-        foreach ($footertext as $line) $tfoot.="<tr><td colspan='4'>\n$line\n</td></tr>\n";
-        $tfoot.="</tfoot>\n";
-    }
     /*  finished table footer
         ------------------------------------------------
         accumulate arrays for this child type and completion status,
@@ -426,6 +419,13 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
         echo $thistableid;
 ?>' summary='table of children of this item'>
         <?php
+        if (empty($footertext)) {
+            $tfoot='';
+        } else {
+            $tfoot="<tfoot id='f$thistableid'>\n";
+            foreach ($footertext as $line) $tfoot.="<tr><td colspan='4'>\n$line\n</td></tr>\n";
+            $tfoot.="</tfoot>\n";
+        }
         require('displayItems.inc.php');
         ?>
 </table>

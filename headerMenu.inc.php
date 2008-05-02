@@ -1,5 +1,7 @@
 <?php
-require_once("headerDB.inc.php");
+require_once 'headerDB.inc.php';
+require_once 'gtdfuncs.inc.php';
+$alltypes=getTypes();
 /*
    ----------------------------------------------
    first, define the default menus
@@ -16,10 +18,10 @@ $menu[] = array("link"=>"item.php?type=r", 'title'=>"Create a reference", 'label
 $menu[] = array("link"=>"item.php?type=p", 'title'=>"Create a new project", 'label' => "Project");
 $menu[] = array("link"=>"item.php?type=p&amp;someday=true", 'title'=>"Create a future project", 'label' => "Someday/Maybe");
 $menu[] = array("link"=>'','label'=>'separator');
-$menu[] = array("link"=>"item.php?type=g", 'title'=>"Define a new goal", 'label' => "Goal");
-$menu[] = array("link"=>"item.php?type=o", 'title'=>"Define a new role", 'label' => "Role");
-$menu[] = array("link"=>"item.php?type=v", 'title'=>"Define a new vision", 'label' => "Vision");
-$menu[] = array("link"=>"item.php?type=m", 'title'=>"Define a new value", 'label' => "Value");
+$menu[] = array("link"=>"item.php?type=g", 'title'=>"Define a new {$alltypes['g']}", 'label' => "{$alltypes['g']}");
+$menu[] = array("link"=>"item.php?type=o", 'title'=>"Define a new {$alltypes['o']}", 'label' => "{$alltypes['o']}");
+$menu[] = array("link"=>"item.php?type=v", 'title'=>"Define a new {$alltypes['v']}", 'label' => "{$alltypes['v']}");
+$menu[] = array("link"=>"item.php?type=m", 'title'=>"Define a new {$alltypes['m']}", 'label' => "{$alltypes['m']}");
 /*
    ----------------------------------------------
 */
@@ -45,10 +47,10 @@ $menu[] = array("link"=>"weekly.php", 'title'=>"Steps in the Weekly Review", 'la
 $menu[] = array("link"=>"orphans.php", 'title'=>"List items without a parent item", 'label' => "Orphaned Items");
 $menu[] = array("link"=>"listItems.php?type=*&amp;tickler=true&amp;liveparents=*", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
 $menu[] = array("link"=>'','label'=>'separator');
-$menu[] = array("link"=>"listItems.php?type=g", 'title'=>"Review goals", 'label' => "Goals");
-$menu[] = array("link"=>"listItems.php?type=o", 'title'=>"Review roles / Areas of Responsibility", 'label' => "Roles");
-$menu[] = array("link"=>"listItems.php?type=v", 'title'=>"Review visions", 'label' => "Visions");
-$menu[] = array("link"=>"listItems.php?type=m", 'title'=>"Review values / Mission", 'label' => "Values");
+$menu[] = array("link"=>"listItems.php?type=g", 'title'=>"Review {$alltypes['g']}", 'label' => "{$alltypes['g']}");
+$menu[] = array("link"=>"listItems.php?type=o", 'title'=>"Review {$alltypes['o']}", 'label' => "{$alltypes['o']}");
+$menu[] = array("link"=>"listItems.php?type=v", 'title'=>"Review {$alltypes['v']}", 'label' => "{$alltypes['v']}");
+$menu[] = array("link"=>"listItems.php?type=m", 'title'=>"Review {$alltypes['m']}", 'label' => "{$alltypes['m']}");
 /*
    ----------------------------------------------
 */

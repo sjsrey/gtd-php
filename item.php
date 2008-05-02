@@ -302,7 +302,7 @@ if ($sep!=='<p>') echo "</p>\n";
                     </select>
                 <?php } ?>
             </div>
-        <?php } elseif (!empty($values['parentId'])) // TOFIX - not set, if orphan
+        <?php } elseif (!empty($values['parentId']))
             foreach ($values['parentId'] as $pid)
                 echo hidePostVar('parentId[]',$pid);
         ?><div class='formrow'>
