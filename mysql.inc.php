@@ -515,7 +515,7 @@ function getsql($config,$values,$sort,$querylabel) {
 		case "updatechecklist":
 			$sql="UPDATE `{$config['prefix']}lookup` AS lu
                 JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-				SET its.`dateCompleted` = IF(`itemId` IN ('{$values['itemfilterquery']}'),{$values['dateCompleted']},NULL),
+				SET its.`dateCompleted` = IF(its.`itemId` IN ('{$values['itemfilterquery']}'),{$values['dateCompleted']},NULL),
                     its.`lastModified` = NULL
 				WHERE lu.`parentId` = '{$values['parentId']}'";
 			break;

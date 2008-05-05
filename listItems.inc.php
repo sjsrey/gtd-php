@@ -278,28 +278,28 @@ Section Heading
 $link="item.php?type=".$values['type'];
 
 if($filter['everything']=="true")
-    $sectiontitle = '';
+    $title = '';
 else {
     $link .= $linkfilter;
     if ($filter['completed']=="true")
-        $sectiontitle = 'Completed ';
+        $title = 'Completed ';
     elseif ($filter['dueonly']=="true")
-        $sectiontitle =  'Due ';
-    else $sectiontitle ='';
+        $title =  'Due ';
+    else $title ='';
 
     if ($filter['repeatingonly']=="true")
-        $sectiontitle .= 'Repeating ';
+        $title .= 'Repeating ';
 
     if ($filter['someday']=="true") {
-        $sectiontitle .= 'Someday/Maybe ';
+        $title .= 'Someday/Maybe ';
         $link.='&amp;someday=true';
     }
     if ($filter['nextonly']=="true") {
-        $sectiontitle .= 'Next ';
+        $title .= 'Next ';
         $link .='&amp;nextonly=true';
     }
 }
-$sectiontitle .= $typename;
+$title .= $typename;
 /*
     ===================================================================
     main query: build array of items
@@ -430,28 +430,28 @@ if ($result) {
 */
 $_SESSION['idlist-'.$values['type']]=$allids;
 $numrows=count($maintable);
-if ($numrows!==1) $sectiontitle.='s';
+if ($numrows!==1) $title.='s';
 if ($filter['tickler']=="true" && $filter['everything']!="true") {
-    $sectiontitle .= ' in Tickler File';
+    $title .= ' in Tickler File';
     $link .= '&amp;suppress=true';
 }
 
 if ($quickfind)
-    $sectiontitle='&nbsp;';
+    $title='&nbsp;';
 elseif($filter['everything']=="true") {
     switch ($numrows) {
         case 0:
-            $sectiontitle = 'There are no '.$sectiontitle;
+            $title = 'There are no '.$title;
             break;
         case 1:
-            $sectiontitle = 'There is one '.$sectiontitle;
+            $title = 'There is one '.$title;
             break;
         default:
-            $sectiontitle = "All $numrows $sectiontitle";
+            $title = "All $numrows $title";
             break;
     }
 } else
-    $sectiontitle = $numrows.' '.$sectiontitle;
+    $title = $numrows.' '.$title;
 
 if($numrows || $quickfind)
     $endmsg='';
@@ -463,7 +463,9 @@ else {
     }
 }
 if (($filter['completed']!="true" || $filter['everything']=="true") && $filter['type']!=='*')
-    $sectiontitle = "<a title='Add new' href='$link'>$sectiontitle</a>";
+    $sectiontitle = "<a title='Add new' href='$link'>$title</a>";
+else
+    $sectiontitle =$title;
 
 $_SESSION['lastfilter'.$values['type']]=$referrer;
 $showsubmit=($show['NA'] || $show['checkbox']) && count($maintable);

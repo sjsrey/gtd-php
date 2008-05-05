@@ -1,4 +1,5 @@
 <?php
+include_once 'headerDB.inc.php';
 $values = array();
 $thiscat=array();
 $field=$_GET['field'];
@@ -70,8 +71,8 @@ if ($result) {
     else if ($nextcat===-1)
         $nextcat=0;
 }
-if (!$thiscat && $id)
+if ($thiscat)
+    $title.=': '.$thiscat['name'];
+else if ($id)
     $title=makeClean("Failed to find $field with id=$id");
-if ($config['debug'] & _GTD_DEBUG) echo "<pre>catlist:",print_r($catlist,true),'</pre>';
 
-?>
