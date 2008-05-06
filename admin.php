@@ -6,8 +6,8 @@ define("_DRY_RUN",false);
 
 define("_ALLOWUNINSTALL",false); // NOT YET ACTIVE
 
-require_once("headerDB.inc.php");
-require_once('admin.inc.php');
+require_once 'headerDB.inc.php';
+require_once 'admin.inc.php';
 
 define("_DEBUG",true && ($config['debug'] & _GTD_DEBUG));
 
@@ -101,9 +101,9 @@ switch ($action) {
     output begins here
  ------------------------------------------------------------------------*/
 ?>
-<?php require_once("headerHtml.inc.php"); ?>
+<?php require_once 'headerHtml.inc.php'; ?>
 </head><body><div id='container'>
-<?php require_once("headerMenu.inc.php"); ?>
+<?php require_once 'headerMenu.inc.php'; ?>
 <div id='main'>
 <h1>gtd-php Admin Tasks</h1>
 <?php if ($action==='delete') { ?>
@@ -147,4 +147,4 @@ if (!empty($backup)) {
  <a href='listItems.php?type=a&amp;tickler=true'>tickler file</a>, and on the
  <a href='listItems.php?type=w'>waiting-on list</a>, and so will rarely match the
   total shown on the <a href='listItems.php?type=a&amp;nextonly=true'>next-actions report</a>.</p>
-<?php require_once('footer.inc.php'); ?>
+<?php require_once 'footer.inc.php'; ?>

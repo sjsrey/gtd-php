@@ -165,7 +165,7 @@ function fixData($prefix) {
 */
 function deleteInstall($ver,$prefix) {
 global $versions,$config,$tablesByVersion;
-    require_once('headerDB.inc.php');
+    require_once 'headerDB.inc.php';
 	echo "<h1>GTD-PHP - Deleting an installation</h1>\n<div id='main'>\n";
 	if (isset($_POST['tablesToDelete'])) {
         echo "<p>Deleting temporary installation tables</p>\n<ol>\n";

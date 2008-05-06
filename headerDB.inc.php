@@ -1,6 +1,6 @@
 <?php
-require_once("ses.inc.php");
-require_once("config.php");
+require_once 'ses.inc.php';
+require_once 'config.php';
 if ($config['debug'] & _GTD_NOTICE)
 		error_reporting(E_ALL);
     else
@@ -33,30 +33,30 @@ if ($config['debug'] & _GTD_NOTICE)
 */
 switch ($config['dbtype']) {
     case "mysql":
-		require_once("mysql.inc.php");
+		require_once 'mysql.inc.php';
         break;
     /*
        only mysql is supported, at present! - all of the others are here as placeholders for later development
     */
     case "frontbase":
-        require_once("frontbase.inc.php");
+        require_once 'frontbase.inc.php';
         break;
     case "msql":
-        require_once("msql.inc.php");
+        require_once 'msql.inc.php';
         break;
     case "mssql":
-        require("mssql.inc.php");
+        require 'mssql.inc.php';
         break;
     case "postgres":
-        require("postgres.inc.php");
+        require 'postgres.inc.php';
         break;
     case "sqlite":
-        require("sqlite.inc.php");
+        require 'sqlite.inc.php';
         break;
     default:
         die("Database type not configured.  Please edit the config.php file.");
 }
 //connect to database
 $connection = connectdb($config);
-require_once("gtdfuncs.inc.php");
+require_once 'gtdfuncs.inc.php';
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

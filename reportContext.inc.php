@@ -26,7 +26,7 @@ function makeContextRow($row) {
 function makeContextTable($maintable) {
     global $dispArray,$show,$config,$trimlength;
     ob_start();
-    require('displayItems.inc.php');
+    require 'displayItems.inc.php';
     $out=ob_get_contents();
     ob_end_clean();
     return $out;

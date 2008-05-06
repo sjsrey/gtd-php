@@ -3,7 +3,7 @@ global $pagename;
 
 list($usec, $sec) = explode(" ", microtime());
 $starttime=(float)$usec + (float)$sec;
-require_once("headerDB.inc.php");
+require_once 'headerDB.inc.php';
 
 if ($_SESSION['version']!==_GTD_VERSION && !isset($areUpdating) ) {
     $testver=query('getgtdphpversion',$config);
@@ -61,7 +61,7 @@ $headertext=<<<HTML1
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset={$config['charset']}" />
-<title>{$config['title']} - $title</title>
+<title>{$config['title']} $title</title>
 {$debugstyle}
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all" href="calendar-win2k-cold-1.css" title="win2k-cold-1" />

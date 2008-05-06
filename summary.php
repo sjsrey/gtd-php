@@ -1,6 +1,6 @@
 <?php
 //INCLUDES
-include_once('header.inc.php');
+include_once 'header.inc.php';
 
 $values=array();
 
@@ -137,5 +137,5 @@ if($numbersomeday) {
 }
 echo "</div>\n";
 
-include_once('footer.inc.php');
+include_once 'footer.inc.php';
 ?>

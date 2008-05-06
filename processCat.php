@@ -1,9 +1,9 @@
 <?php
-require_once('headerDB.inc.php');
+require_once 'headerDB.inc.php';
 $html=false;
 if ($config['debug'] & _GTD_DEBUG) {
     $html=true;
-    include_once('headerHtml.inc.php');
+    include_once 'headerHtml.inc.php';
     echo "</head><body><div id='container'><pre>\n",print_r($_POST,true),"</pre>\n";
 }
 
@@ -55,7 +55,7 @@ if (isset($_POST['next']))
 nextScreen($nexturl);
 
 if ($html)
-    include_once('footer.inc.php');
+    include_once 'footer.inc.php';
 else
     echo '</head></html>';
 

@@ -1,5 +1,5 @@
 <?php
-include_once('headerDB.inc.php');
+include_once 'headerDB.inc.php';
 
 $values=array();
 $values['itemId'] = (int) $_GET['itemId'];
@@ -10,9 +10,9 @@ $values['filterquery']='';
 $values['extravarsfilterquery'] ='';
 $result = query("getitemsandparent",$config,$values,$sort);
 if (!$result) {
-    include_once('header.inc.php');
+    include_once 'header.inc.php';
     echo ("<p class='error'>Failed to find item {$values['itemId']}</p>");
-    include_once('footer.inc.php');
+    include_once 'footer.inc.php';
     die;
 }
 
@@ -21,7 +21,7 @@ $item=$result[0]; // $item will store the values for the item being viewed
 $values['isSomeday']=($item['isSomeday']=="y")?'y':'n';
 $values['type']=$item['type'];
 $title="View ".makeclean($item['title']);
-include_once('header.inc.php');
+include_once 'header.inc.php';
 
 /* -------------------------------------------
     Find previous and next projects
@@ -426,7 +426,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
             foreach ($footertext as $line) $tfoot.="<tr><td colspan='4'>\n$line\n</td></tr>\n";
             $tfoot.="</tfoot>\n";
         }
-        require('displayItems.inc.php');
+        require 'displayItems.inc.php';
         ?>
 </table>
     	<?php

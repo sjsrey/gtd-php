@@ -1,6 +1,6 @@
 <?php
-require_once('ses.inc.php');
-require_once('gtdfuncs.inc.php');
+require_once 'ses.inc.php';
+require_once 'gtdfuncs.inc.php';
 unset($_POST['submit']);
 $newPrefs=$_POST;
 // for each checkbox: if value is set at all, set to TRUE, otherwise set to FALSE

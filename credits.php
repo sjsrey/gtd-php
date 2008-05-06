@@ -1,5 +1,5 @@
 <?php
-	include_once('header.inc.php');
+	include_once 'header.inc.php';
 ?>
 <h2>gtd-php Credits</h2>
 <table summary='development team'>
@@ -34,5 +34,5 @@
 </table>
 
 <?php
-	include_once('footer.inc.php')
+	include_once 'footer.inc.php';
 ?>

@@ -1,6 +1,6 @@
 <?php
-require_once('editCat.inc.php');
-require_once('header.inc.php');
+require_once 'editCat.inc.php';
+require_once 'header.inc.php';
 if ($config['debug'] & _GTD_DEBUG) echo "<pre>catlist:",print_r($catlist,true),'</pre>';
 ?>
 <h2><?php echo $title; ?></h2>
@@ -96,4 +96,4 @@ if ($config['debug'] & _GTD_DEBUG) echo "<pre>catlist:",print_r($catlist,true),'
 </table>
 </form><?php
 }
-include_once('footer.inc.php'); ?>
+include_once 'footer.inc.php'; ?>

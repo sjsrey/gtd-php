@@ -1,5 +1,5 @@
 <?php
-include_once 'headerDB.inc.php';
+require_once 'headerDB.inc.php';
 $values = array();
 $thiscat=array();
 $field=$_GET['field'];

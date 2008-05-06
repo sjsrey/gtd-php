@@ -1,6 +1,6 @@
 <?php
 gtd_handleEvent(_GTD_ON_FOOTER,$pagename);
-include('showMessage.inc.php'); ?>
+include 'showMessage.inc.php'; ?>
 </div><!-- main -->
 <?php if(isset($starttime)) {
     list($usec, $sec) = explode(" ", microtime());

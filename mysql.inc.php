@@ -583,12 +583,12 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "updateitemtype":
-			$sql="UPDATE `{$config['prefix']}itemstatus AS itsattributes`
-                    JOIN `{$config['prefix']}itemattributes`AS ia USING (`itemId`)
+			$sql="UPDATE `{$config['prefix']}itemstatus` AS its
+                    JOIN `{$config['prefix']}itemattributes` AS ia USING (`itemId`)
 				SET its.`type` = '{$values['type']}',
 					its.`dateCompleted`=NULL,
 					ia.`isSomeday`= '{$values['isSomeday']}'
-				WHERE `itemId` = '{$values['itemId']}'";
+				WHERE its.`itemId` = '{$values['itemId']}'";
 			break;
 
 		case "updatenextaction":

@@ -1,9 +1,9 @@
 <?php
 $title='shortcut keys';
 $menu='';
-require_once("headerHtml.inc.php");
+require_once 'headerHtml.inc.php';
 ob_start();
-require_once('headerMenu.inc.php');
+require_once 'headerMenu.inc.php';
 $menutext=ob_get_contents();
 ob_end_clean();
 ?>

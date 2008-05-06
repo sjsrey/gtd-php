@@ -1,5 +1,5 @@
 <?php
-include_once('gtd_constants.inc.php');
+include_once 'gtd_constants.inc.php';
 /*
     Note that for any of these settings, if you wish to set them to blank,
     assign them an empty string, rather than deleting the line from the file:

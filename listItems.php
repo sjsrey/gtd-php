@@ -1,6 +1,6 @@
 <?php
-require_once('listItems.inc.php');
-include_once('headerHtml.inc.php');
+require_once 'listItems.inc.php';
+require_once 'headerHtml.inc.php';
 ?>
 <script type='text/javascript'>/* <![CDATA[ */
 GTD.addEvent(window,'load',function() {
@@ -9,7 +9,7 @@ GTD.addEvent(window,'load',function() {
 });
 /* ]]> */ </script>
 <?php
-include_once('header.inc.php');
+require_once 'header.inc.php';
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
 ?>
 <div id="filter">
@@ -78,7 +78,7 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
 <?php if (count($maintable)) { ?>
     <form action="processItems.php" method="post">
     <table class="datatable sortable" summary="Table of actions" id="actiontable">
-        <?php require('displayItems.inc.php'); ?>
+        <?php require 'displayItems.inc.php'; ?>
     </table>
     <div class='formrow'>
         <?php

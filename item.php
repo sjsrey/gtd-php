@@ -295,7 +295,7 @@ if ($sep!=='<p>') echo "</p>\n";
             <div class='formrow'>
                 <label for='parenttable' class='left first'>Parent(s):</label>
                 <?php if ($show['scriptparents']) {
-                    include_once('liveParents.inc.php');
+                    include_once 'liveParents.inc.php';
                 } else { ?>
                     <select name="parentId[]" id='parenttable' multiple="multiple" size="6">
                         <?php echo parentselectbox($config,$values,$sort); ?>
