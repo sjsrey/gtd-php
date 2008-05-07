@@ -90,30 +90,19 @@ function backupData($prefix) {
 /*
    ======================================================================================
 */
-function fixDate($tableName,$columnName){
-    global $config;
-   // change dates of "0000-00-00" to NULL
-   # fix date NULL versus 0000-00-00 issue
-   $q=" update `{$config['prefix']}{$tableName}` set {$columnName}=NULL where `$columnName`='0000-00-00'";
-   send_query($q);
-}
-/*
-   ======================================================================================
-*/
-function fixAllDates($prefix) {
-   fixDate('itemattributes','deadline');
-   fixDate('itemstatus','dateCompleted');
-   fixDate('itemstatus','dateCreated');
-   fixDate('itemstatus','lastModified');
-   fixDate('listitems','dateCompleted');
-   fixData($prefix);
-}
-/*
-   ======================================================================================
-*/
 function fixData($prefix) {
     global $config;
 
+    foreach ( array( 'deadline'=>'itemattributes'
+                    ,'tickledate'=>'itemattributes'
+                    ,'dateCompleted'=>'itemstatus'
+                    ,'dateCreated'=>'itemstatus'
+                    ,'lastModified'=>'itemstatus'
+             ) as $field=>$table) {
+        // change dates of "0000-00-00" to NULL
+        $q="UPDATE `{$config['prefix']}{$table}` SET `$field`=NULL where `$field`='0000-00-00'";
+        send_query($q);
+    }
     // remove duplicate version tags
     $q="CREATE TABLE `{$prefix}versiontemp`
             SELECT * FROM `{$prefix}version` WHERE `updated` >= ALL
@@ -139,10 +128,17 @@ function fixData($prefix) {
         send_query($q);
     }
 
-    // repair any missing dateCreated/lastModified
+    // repair empty dates for fields where date should not be null
     $q="update `{$prefix}itemstatus` set `lastModified`=CURDATE() where `lastModified` IS NULL";
     send_query($q);
     $q="update `{$prefix}itemstatus` set `dateCreated`=CURDATE() where `dateCreated` IS NULL";
+    send_query($q);
+    // repair impossible dates - by default, MySQL v4.x allowed dates such as 2008-13-51
+    $q="UPDATE `{$prefix}itemstatus`     AS its
+          JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
+             SET its.`dateCompleted`=its.`dateCompleted`+'0 DAY',
+                  ia.`deadline`     = ia.`deadline`     +'0 DAY',
+                  ia.`tickledate`   = ia.`tickledate`   +'0 DAY' ";
     send_query($q);
 
     // if any titles are blank, call them 'untitled'
@@ -200,7 +196,7 @@ function fixLastModifiedColumn() {
    $q="UPDATE `{$config['prefix']}itemstatus` SET `lastModified`=`dateCreated` WHERE `lastModified`='"._DEFAULTDATE."'";
    send_query($q,false);
    $q="ALTER TABLE `{$config['prefix']}itemstatus` MODIFY `lastModified`
-   timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP";
+                    timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP";
    send_query($q);
 }
 /*
@@ -555,7 +551,7 @@ function create_table ($name) {
 	break;
 	case "itemstatus":
        $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`dateCreated` date NOT NULL default '"._DEFAULTDATE."', ";
+       $q.="`dateCreated` date default '"._DEFAULTDATE."', ";
        $q.="`lastModified` timestamp default '"._DEFAULTDATE."' ,";
        $q.="`dateCompleted` date default NULL, ";
        $q.="`type` enum ('m','v','o','g','p','a','r','w','i','L','C','T') NOT NULL default 'i', ";

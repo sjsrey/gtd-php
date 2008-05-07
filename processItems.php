@@ -360,7 +360,7 @@ function retrieveFormVars() {
 
 	// dates
 	foreach ( array('tickledate','dateCompleted','deadline') as $field)
-	   $values[$field]  = (empty($_POST[$field])) ? "NULL" : "'{$_POST[$field]}'";
+	   $values[$field]  = (empty($_POST[$field])) ? "NULL" : ("'".date('Y-m-d',strtotime($_POST[$field]))."'");
 
     if (    empty($_POST['FREQtype']) 
         || $_POST['FREQtype']==='NORECUR' 

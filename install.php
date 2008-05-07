@@ -10,7 +10,7 @@ define("_MAXKEYLENGTH",10);
     /* _ALLOWUPGRADEINPLACE = false | true -
     allow the user to upgrade the current installation by over-writing it.
     If false, then the user should enter a new prefix in config.php          */
-define("_ALLOWUPGRADEINPLACE",false);
+define("_ALLOWUPGRADEINPLACE",true);
 
     /* _ALLOWUNINSTALL = false | true -
     allow the user to remove tables associated with a particular GTD installation */
@@ -478,14 +478,14 @@ installation for use and familiarize yourself with the system.</p>\n
                 SET its.`type`=ia.`type`, its.`categoryId`=ia.`categoryId`";
 		send_query($q);
 
-      // create list-ids and categories
+        // create list-ids and categories
         $q="INSERT INTO `{$config['prefix']}itemstatus` (`itemId`,`type`,`categoryId`,`oldid`,`dateCreated`)
             SELECT NULL,'L',`categoryId`,`listId`,CURDATE() FROM `{$config['prefix']}list`";
         send_query($q);
 
         // create entries for lists in the table of text descriptions too
-        $q="INSERT INTO `{$config['prefix']}items` (`itemId`)
-            SELECT `itemId` FROM `{$config['prefix']}itemstatus` WHERE `type`='L' ";
+        $q="INSERT INTO `{$config['prefix']}items` (`itemId`,`title`)
+            SELECT `itemId`,'untitled' FROM `{$config['prefix']}itemstatus` WHERE `type`='L' ";
         send_query($q);
 
         // id translation, and populate text fields
@@ -502,8 +502,8 @@ installation for use and familiarize yourself with the system.</p>\n
         send_query($q);
 
         // copy listitem ids into the items table
-        $q="INSERT INTO `{$config['prefix']}items` (`itemId`)
-            SELECT `itemId` FROM `{$config['prefix']}itemstatus` WHERE `type`='T' ";
+        $q="INSERT INTO `{$config['prefix']}items` (`itemId`,`title`)
+            SELECT `itemId`,'untitled' FROM `{$config['prefix']}itemstatus` WHERE `type`='T' ";
         send_query($q);
 
         // populate text fields
@@ -530,8 +530,8 @@ installation for use and familiarize yourself with the system.</p>\n
         send_query($q);
 
         // create entries for lists in the table of text descriptions too
-        $q="INSERT INTO `{$config['prefix']}items` (`itemId`)
-            SELECT `itemId` FROM `{$config['prefix']}itemstatus` WHERE `type`='C' ";
+        $q="INSERT INTO `{$config['prefix']}items` (`itemId`,`title`)
+            SELECT `itemId`,'untitled' FROM `{$config['prefix']}itemstatus` WHERE `type`='C' ";
         send_query($q);
 
         // id translation, and populate text fields
@@ -548,8 +548,8 @@ installation for use and familiarize yourself with the system.</p>\n
         send_query($q);
 
         // create entries for lists in the table of text descriptions too
-        $q="INSERT INTO `{$config['prefix']}items` (`itemId`)
-            SELECT `itemId` FROM `{$config['prefix']}itemstatus` WHERE `type`='x' ";
+        $q="INSERT INTO `{$config['prefix']}items` (`itemId`,`title`)
+            SELECT `itemId`,'untitled' FROM `{$config['prefix']}itemstatus` WHERE `type`='x' ";
         send_query($q);
 
         // id translation, and populate text fields

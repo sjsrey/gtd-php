@@ -32,6 +32,21 @@ if ($config['useLiveEnhancements']) {
         ."</div>\n";
 } else $useLiveEnhancements='';
 
+
+$optionsarray=array(
+    array('title','text','title'),
+    array('title_suffix','checkbox','Add filename to page title'),
+    array('trimLength','text','Max length of descriptions in lists of items'),
+    array('trimLengthInReport','text','Max length of descriptions of children in item reports'),
+    array('firstDayOfWeek','select:0,Sunday;...','First day of week'),
+    array('ReportMaxCompleteChildren','text','Max number of children of each type to display in item reports'),
+    array('useLiveEnhancements','checkbox','Use javascript enhancements'),
+    array('radioButtonsForNextPage','checkbox','when editin an item, display choice of next page as a radio group rather than as submit buttons'),
+    // cycle through all options in headerMenu, for shortcut keys: but what do we use as option label???
+    array('contextsummaryshowsonlynextactions','checkbox','In the space contexts report, show only <b>next</b> actions'),
+    array('reviewProjectsWithoutOutcomes','checkbox','In the weekly review, identify projects without outcomes'),
+);
+
 ?>
 
 <h2>Preference</h2>
