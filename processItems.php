@@ -35,7 +35,7 @@ if (isset($_POST['isMarked'])) { // doing a specific action on several items (cu
 
 // some debugging - if debug is set to halt, dump all the variables we've got
 
-if ($config['debug'] & _GTD_DEBUG) {
+if ($_SESSION['debug']['debug']) {
     echo "<html><head><title>Process Item</title></head><body>\n";
     $html=true;
 	// debugging text - simply dump the variables, and quit, without processing anything
@@ -43,7 +43,6 @@ if ($config['debug'] & _GTD_DEBUG) {
     literaldump('$_POST');
     literaldump('$_SESSION');
 	literaldump('$action');
-	literaldump('$config');
 	literaldump('$values');
 	literaldump('$updateGlobals');
 	if (isset($updateGlobals['isNA'])) {
@@ -86,9 +85,9 @@ return;
 ========================================================================================*/
 
 function doAction($localAction) { // do the current action on the current item; returns TRUE if succeeded, else returns FALSE
-	global $config,$values,$updateGlobals,$title;
+	global $values,$updateGlobals,$title;
 	if ($values['itemId']) {
-        $result=query('getitembrief',$config,$values); // TOFIX - should really only do this query at the end, after processing, if necessary then
+        $result=query('getitembrief',$values); // TOFIX - should really only do this query at the end, after processing, if necessary then
         if ($result) {
             $briefitem=$result[0];
     	    $title=($result)?$briefitem['title']:'title unknown';
@@ -96,16 +95,16 @@ function doAction($localAction) { // do the current action on the current item; 
     } else
         $title=(empty($_POST['title']))?'':$_POST['title'];
 
-	if ($config['debug'] & _GTD_DEBUG) echo "<p><b>Action here is: $localAction item {$values['itemId']} - $title</b></p>";
+	if ($_SESSION['debug']['debug']) echo "<p><b>Action here is: $localAction item {$values['itemId']} - $title</b></p>";
     if ($title=='') $title='item '.$values['itemId'];
-	if ($config['debug'] & _GTD_FREEZEDB) return TRUE;
+	if ($_SESSION['debug']['freeze']) return TRUE;
 
 	switch ($localAction) {
         //-----------------------------------------------------------------------------------
         case 'category':
             $values['categoryId']=$_POST['categoryId'];
-            query('updateitemcategory',$config,$values);
-            query("touchitem",$config,$values);
+            query('updateitemcategory',$values);
+            query("touchitem",$values);
             $msg="Set category for '$title'";
             break;
         //-----------------------------------------------------------------------------------
@@ -122,7 +121,7 @@ function doAction($localAction) { // do the current action on the current item; 
         //-----------------------------------------------------------------------------------
         case 'clearCheckmark':
             $values['dateCompleted']='NULL';
-            query("completeitem",$config,$values);
+            query("completeitem",$values);
             $msg="Checkmark cleared from '$title'";
             break;
         //-----------------------------------------------------------------------------------
@@ -133,8 +132,8 @@ function doAction($localAction) { // do the current action on the current item; 
         //-----------------------------------------------------------------------------------
         case 'context':
             $values['contextId']=$_POST['contextId'];
-            query('updateitemcontext',$config,$values);
-            query("touchitem",$config,$values);
+            query('updateitemcontext',$values);
+            query("touchitem",$values);
             $msg="Set space context for '$title'";
             break;
         //-----------------------------------------------------------------------------------
@@ -172,15 +171,15 @@ function doAction($localAction) { // do the current action on the current item; 
         //-----------------------------------------------------------------------------------
         case 'tag':
             $values['tagname']=$_POST['tag'];
-            query('newtagmap',$config,$values);
-            query("touchitem",$config,$values);
+            query('newtagmap',$values);
+            query("touchitem",$values);
             $msg="Tagged '$title' with '{$values['tagname']}'";
             break;
         //-----------------------------------------------------------------------------------
         case 'timecontext':
             $values['timeframeId']=$_POST['timeframeId'];
-            query('updateitemtimecontext',$config,$values);
-            query("touchitem",$config,$values);
+            query('updateitemtimecontext',$values);
+            query("touchitem",$values);
             $msg="Set time context for '$title'";
             break;
         //-----------------------------------------------------------------------------------
@@ -188,10 +187,10 @@ function doAction($localAction) { // do the current action on the current item; 
             // overlay any values from $_POST, defaulting to current values
             foreach (array('title','description','desiredOutcome') as $field)
                 $values[$field] = (isset($_POST[$field]))
-                    ? iconv('UTF-8',$config['charset'].'//IGNORE',$_POST[$field])
+                    ? iconv('UTF-8',$_SESSION['config']['charset'].'//IGNORE',$_POST[$field])
                     : $briefitem[$field];
-            $result=query('updateitemtext',$config,$values);
-            query("touchitem",$config,$values);
+            $result=query('updateitemtext',$values);
+            query("touchitem",$values);
             $msg="Updated '$title'";
             break;
         //-----------------------------------------------------------------------------------
@@ -206,7 +205,7 @@ function doAction($localAction) { // do the current action on the current item; 
 	primary action functions
    ================================= */
 function doChecklist() {
-	global $config,$values,$updateGlobals,$title;
+	global $values,$updateGlobals,$title;
 	if (empty($_REQUEST['clearchecklist']))
         $todo=$updateGlobals['isMarked'];
     else
@@ -221,7 +220,7 @@ function doChecklist() {
         $sep="','";
     }
     $values['itemfilterquery']="$ids";
-    query("updatechecklist",$config,$values);
+    query("updatechecklist",$values);
     $msg  = ($cnt=count($todo))." checklist item"
             .( ($cnt===1) ? '' : 's' )
             .' marked complete';
@@ -229,22 +228,22 @@ function doChecklist() {
 }
 //===========================================================================
 function deleteItem() { // delete all references to a specific item
-	global $config,$values;
-	query("deleteitemstatus",$config,$values);
-	query("deleteitemattributes",$config,$values);
-	query("deleteitem",$config,$values);
-	query("deletelookup",$config,$values);
-	query("deletelookupparents",$config,$values);
+	global $values;
+	query("deleteitemstatus",$values);
+	query("deleteitemattributes",$values);
+	query("deleteitem",$values);
+	query("deletelookup",$values);
+	query("deletelookupparents",$values);
 }
 //===========================================================================
 function createItem() { // create an item and its parent-child relationships
-	global $config,$values,$updateGlobals,$title;
+	global $values,$updateGlobals,$title;
 	//Insert new records
-	$result = query("newitem",$config,$values);
+	$result = query("newitem",$values);
 	$values['newitemId'] = $GLOBALS['lastinsertid'];
-	$result = query("newitemstatus",$config,$values);
+	$result = query("newitemstatus",$values);
 	if ($values['type']!=='L' && $values['type']!=='C' && $values['type']!=='T')
-	   $result = query("newitemattributes",$config,$values);
+	   $result = query("newitemattributes",$values);
 	setParents('new');
 	$title=$values['title'];
 	$values['itemId']=$values['newitemId'];
@@ -252,31 +251,31 @@ function createItem() { // create an item and its parent-child relationships
 }
 //===========================================================================
 function updateItem() { // update all the values for the current item
-	global $config,$values,$updateGlobals,$title;
-	query("deletelookup",$config,$values);
+	global $values,$updateGlobals,$title;
+	query("deletelookup",$values);
     if ($values['type']!=='L' && $values['type']!=='C' && $values['type']!=='T')
-        query("updateitemattributes",$config,$values);
-    query("updateitem",$config,$values);
-    query("updateitemstatus",$config,$values);
+        query("updateitemattributes",$values);
+    query("updateitem",$values);
+    query("updateitemstatus",$values);
     updateTags();
     if ($values['type'] === $values['oldtype']) {
     	setParents('update');
     } else {
         // changing item type - sever child links
-    	query("deletelookupparents",$config,$values);
+    	query("deletelookupparents",$values);
     }
 	if ($values['dateCompleted']==='NULL')
-		query('completeitem',$config,$values);
+		query('completeitem',$values);
 	else
 		completeItem();
 	$title=$values['title'];
 }
 //===========================================================================
 function completeItem() { // mark an item as completed, and recur if required
-	global $config,$values;
+	global $values;
 	if (!isset($values['dateCompleted'])) $values['dateCompleted']="'".date('Y-m-d')."'";
 	if (!isset($values['recur'])) {
-		$testrow = query("testitemrepeat",$config,$values);
+		$testrow = query("testitemrepeat",$values);
 		if ($testrow) {
             $values['deadline']  =$testrow[0]['deadline'];
             $values['recur']     =$testrow[0]['recur'];
@@ -287,24 +286,24 @@ function completeItem() { // mark an item as completed, and recur if required
 }
 //===========================================================================
 function makeNextAction() { // mark the current item as a next action
-	global $config,$values;
+	global $values;
 	$values['nextaction']='y';
-    query('updatenextaction',$config,$values);
+    query('updatenextaction',$values);
 }
 //===========================================================================
 function removeNextAction() { // remove the next action reference for the current item
-	global $config,$values;
+	global $values;
 	$values['nextaction']='n';
-    query('updatenextaction',$config,$values);
+    query('updatenextaction',$values);
 }
 //===========================================================================
 function changeType() {
-	global $config,$values;
+	global $values;
     $values['isSomeday']=isset($_REQUEST['isSomeday'])?$_REQUEST['isSomeday']:'n';
-    query("updateitemtype",$config,$values);
+    query("updateitemtype",$values);
     if (empty($_REQUEST['safe'])) {
-    	query("deletelookup",$config,$values);
-    	query("deletelookupparents",$config,$values);
+    	query("deletelookup",$values);
+    	query("deletelookupparents",$values);
     	removeNextAction();
     }
 }
@@ -313,25 +312,25 @@ function changeType() {
    =========================================== */
 
 function updateTags() {
-    global $config,$values;
-    query('removeitemtags',$config,$values);
+    global $values;
+    query('removeitemtags',$values);
     if (!empty($values['alltags']))
         foreach ($values['alltags'] as $tag)
             if (!empty($tag)) {
                 $values['tagname']=trim($tag);
-                query('newtagmap',$config,$values);
+                query('newtagmap',$values);
             }
 }
 //===========================================================================
 function addAsParent() {
-    global $config,$values;
+    global $values;
     // we need to make the item we've just created, a parent of the item with id addAsParentTo
     $tempvalues=array('parentId'=>$values['newitemId'],'newitemId'=>$_REQUEST['addAsParentTo']);
-    $result = query("newparent",$config,$tempvalues);
+    $result = query("newparent",$tempvalues);
 }
 //===========================================================================
 function retrieveFormVars() {
-	global $config,$updateGlobals,$values;
+	global $updateGlobals,$values;
 
     // TOFIX - what we should really do here is retrieve the item, and then over-write with $_POST variables if and only if they are available
     // although we'd need to check that unticked checkboxes came through ok - that could be tricky
@@ -346,12 +345,12 @@ function retrieveFormVars() {
         elseif (empty($_POST['fromjavascript']))
             $values[$field] = $_POST[$field];
         else {
-            $values[$field] = iconv('UTF-8',$config['charset'].'//IGNORE',$_POST[$field]);
+            $values[$field] = iconv('UTF-8',$_SESSION['config']['charset'].'//IGNORE',$_POST[$field]);
         }
     }
     $tags=(isset($_POST['tags']))?strtolower($_POST['tags']):'';
     $tags=array_unique(explode(',',$tags));
-    if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>tags=",print_r($tags,true),"</p>\n";
+    if ($_SESSION['debug']['debug']) echo "<p class='debug'>tags=",print_r($tags,true),"</p>\n";
     $values['alltags']=$tags;
     
 	// binary yes/no
@@ -371,7 +370,7 @@ function retrieveFormVars() {
         processRecurrence();
     }
 
-	if ($config['debug'] & _GTD_DEBUG) {
+	if ($_SESSION['debug']['debug']) {
 		echo '<hr /><pre><b>retrieved form vars</b><br />';
 		literaldump('$values');
 		echo '</pre>';
@@ -379,7 +378,7 @@ function retrieveFormVars() {
 }
 //===========================================================================
 function processRecurrence() {
-    global $config,$values;
+    global $values;
     $rrule=array();
     require_once 'iCalcreator.class.inc.php';
     $vevent = new vevent();
@@ -438,11 +437,11 @@ function processRecurrence() {
     */
     if ($_POST['FREQtype']!=='TEXT')
         $vevent->setProperty( "rrule",$rrule);
-    if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>RRULE: ",print_r($rrule,true),"</p>";
+    if ($_SESSION['debug']['debug']) echo "<p class='debug'>RRULE: ",print_r($rrule,true),"</p>";
     
     $rrule=$vevent->getProperty('rrule');
     $rruletext=$vevent->_format_recur('',array(array('value'=>$rrule)));
-    if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>RRULEtext: $rruletext =",print_r($rrule,true),"</p>";
+    if ($_SESSION['debug']['debug']) echo "<p class='debug'>RRULEtext: $rruletext =",print_r($rrule,true),"</p>";
     // now we've done the round trip, we can be confident that it's a valid recurrence string, so store it
     $values['recur']=$rruletext;
     if (  !empty($rruletext)
@@ -451,7 +450,7 @@ function processRecurrence() {
         // haven't got a startdate, so use what the next recurrence date would be
         $nextdue=getNextRecurrence();
         if ($nextdue) $values['deadline']="'$nextdue'";
-        if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>Forcing deadline where none given - $nextdue</p>";
+        if ($_SESSION['debug']['debug']) echo "<p class='debug'>Forcing deadline where none given - $nextdue</p>";
     }
     if (empty($_POST['recurdesc'])) {
         // set desc based on intelligent description
@@ -461,14 +460,14 @@ function processRecurrence() {
 }
 //===========================================================================
 function recurItem() {
-	global $config,$values,$updateGlobals;
+	global $values,$updateGlobals;
 	require_once 'iCalcreator.class.inc.php';
 
     $nextdue=getNextRecurrence();
 
     // before processing the next due date, do some house-cleaning and preparation
     $values['oldDateCompleted']=$values['dateCompleted'];
-	if ($config['storeRecurrences']) {
+	if ($_SESSION['config']['storeRecurrences']) {
 		$values['oldid']=$values['itemId'];
         $copy=getItemCopy();
 		makeComplete();
@@ -483,7 +482,7 @@ function recurItem() {
     // now process the next due date
     if (empty($nextdue)) {
         $msg="There are no further occurrences of item {$values['itemId']} - {$values['title']}";
-        if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>$msg</p>";
+        if ($_SESSION['debug']['debug']) echo "<p class='debug'>$msg</p>";
         $_SESSION['message'][] = $msg;
     } else {
         // now need to set tickle date (either to NULL, or to date in quotes)
@@ -500,28 +499,28 @@ function recurItem() {
                 );
             $values['deadline']="'$nextdue'";
     	}
-        if ($config['debug'] & _GTD_DEBUG) echo "<p class='debug'>new deadline={$values['deadline']}, new tickler={$values['tickledate']}</p>";
-    	if ($config['storeRecurrences']) createItem();
+        if ($_SESSION['debug']['debug']) echo "<p class='debug'>new deadline={$values['deadline']}, new tickler={$values['tickledate']}</p>";
+    	if ($_SESSION['config']['storeRecurrences']) createItem();
     } // end of processing next due date
     
-	if (!$config['storeRecurrences']) {
-		query("updatedeadline",$config,$values);
-		query("completeitem",$config,$values); // reset completed date to null, and touch the last modified date
+	if (!$_SESSION['config']['storeRecurrences']) {
+		query("updatedeadline",$values);
+		query("completeitem",$values); // reset completed date to null, and touch the last modified date
 	}
 }
 //===========================================================================
 function getItemCopy() { // retrieve values for the current item, and store in the $values array
-	global $config,$values,$updateGlobals;
-	$result = query("selectitem",$config,$values,array());
+	global $values,$updateGlobals;
+	$result = query("selectitem",$values,array());
 	$copy=($result) ? $result[0] : array();
 	// now get parents
-	$result=query("selectparents",$config,$values,array());
+	$result=query("selectparents",$values,array());
 	$copy['parents']=array();
 	if ($result) {
         foreach ($result as $parent)
             $copy['parents'][]=$parent['parentId'];
     }
-	if ($config['debug'] & _GTD_DEBUG) {
+	if ($_SESSION['debug']['debug']) {
 		echo '<pre>Retrieved record for copying: </pre>';
 		literaldump('$values');
 		echo '<pre>Parents:',print_r($copy['parents'],true),'</pre>';
@@ -530,16 +529,16 @@ function getItemCopy() { // retrieve values for the current item, and store in t
 }
 //===========================================================================
 function setParents($new) {
-    global $config,$values,$updateGlobals;
-	if($config['debug'] & _GTD_DEBUG) echo '<pre>',print_r($updateGlobals['parents'],true),'</pre>';
+    global $values,$updateGlobals;
+	if($_SESSION['debug']['debug']) echo '<pre>',print_r($updateGlobals['parents'],true),'</pre>';
     foreach ($updateGlobals['parents'] as $values['parentId'])
         if ($values['parentId'])
-    	   $result = query($new."parent",$config,$values);
+    	   $result = query($new."parent",$values);
 }
 //===========================================================================
 function makeComplete() { // mark an action as completed
-	global $config,$values;
-	query("completeitem",$config,$values);
+	global $values;
+	query("completeitem",$values);
 }
 
 /* ===========================================================================================
@@ -547,7 +546,7 @@ function makeComplete() { // mark an action as completed
    ========================================================= */
 
 function nextPage() { // set up the forwarding to the next page
-	global $config,$values,$updateGlobals,$action;
+	global $values,$updateGlobals,$action;
 	$t = (isset($values['oldtype']))?$values['oldtype']:((isset($values['type']))?$values['type']:null);
 	$key='afterCreate'.$t;
     $id=(empty($values['newitemId']))?$values['itemId']:$values['newitemId'];
@@ -620,7 +619,7 @@ function nextPage() { // set up the forwarding to the next page
             $nextURL=$tst;
             break;
 	}
-	if ($config['debug'] & _GTD_DEBUG) {
+	if ($_SESSION['debug']['debug']) {
         echo '<pre>$referrer=',print_r($updateGlobals['referrer'],true),'<br />'
             ,((empty($values['type']))?'':"type={$values['type']}<br />")
             ,'session=',print_r($_SESSION,true),'<br />'
@@ -641,10 +640,10 @@ function nextPage() { // set up the forwarding to the next page
         $outtext=$_SESSION['message'];
         $_SESSION['message']=array();
         if (!headers_sent()) {
-            $header="Content-Type: text/xml; charset=".$config['charset'];
+            $header="Content-Type: text/xml; charset=".$_SESSION['config']['charset'];
             header($header);
         }
-        echo '<?xml version="1.0" ?',">\n<gtdphp>\n"; // encoding="{$config['charset']}"
+        echo '<?xml version="1.0" ?',">\n<gtdphp>\n"; // encoding="{$_SESSION['config']['charset']}"
         echo "<values>\n";
         foreach ($values as $key=>$val) {
             echo "<$key>";

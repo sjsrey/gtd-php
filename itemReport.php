@@ -5,10 +5,10 @@ $values=array();
 $values['itemId'] = (int) $_GET['itemId'];
 
 //Get item details
-$values['childfilterquery']=' WHERE '.sqlparts('singleitem',$config,$values);
+$values['childfilterquery']=' WHERE '.sqlparts('singleitem',$values);
 $values['filterquery']='';
 $values['extravarsfilterquery'] ='';
-$result = query("getitemsandparent",$config,$values,$sort);
+$result = query("getitemsandparent",$values);
 if (!$result) {
     include_once 'header.inc.php';
     echo ("<p class='error'>Failed to find item {$values['itemId']}</p>");
@@ -30,11 +30,11 @@ if (isset($_SESSION['idlist-'.$item['type']])) {
     $ndx=$_SESSION['idlist-'.$item['type']];
     unset($result);
 } else {
-    $values['filterquery']  = " WHERE ".sqlparts("typefilter",$config,$values);
-    $values['filterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
-    $values['filterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);
-    $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
-    $result = query("getitems",$config,$values,$sort);
+    $values['filterquery']  = " WHERE ".sqlparts("typefilter",$values);
+    $values['filterquery'] .= " AND ".sqlparts("activeitems",$values);
+    $values['filterquery'] .= " AND ".sqlparts("pendingitems",$values);
+    $values['filterquery'] .= " AND ".sqlparts("issomeday",$values);
+    $result = query("getitems",$values);
     $c=0;
     $ndx=array();
     if ($result) {
@@ -66,9 +66,9 @@ if($cnt>1) {
         $previoustitle=$result[$prev]['title'];
         $nexttitle    =$result[$next]['title'];
     } else {
-        $previtem = query("selectitemtitle",$config,array('itemId'=>$previousId),$sort);
+        $previtem = query("selectitemtitle",array('itemId'=>$previousId));
         $previoustitle=$previtem[0]['title'];
-        $nextitem = query("selectitemtitle",$config,array('itemId'=>$nextId),    $sort);
+        $nextitem = query("selectitemtitle",array('itemId'=>$nextId));
         $nexttitle    =$nextitem[0]['title'];
     }
 }
@@ -82,7 +82,7 @@ if (empty($item['parentId'])) {
     $pids=$pnames=array();
 } else {
     $pids=explode(',',$item['parentId']);
-    $pnames=explode($config['separator'],$item['ptitle']);
+    $pnames=explode($_SESSION['config']['separator'],$item['ptitle']);
 }
 $values['parentId']=$values['itemId'];
 /* -------------------------------------------------------------------
@@ -112,13 +112,13 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
     } else {
         $values['isSomeday']='n';
         $values['type']=$thistype;
-	    $values['filterquery'] = " AND ".sqlparts("typefilter",$config,$values); // only filter on type if not a someday
+	    $values['filterquery'] = " AND ".sqlparts("typefilter",$values); // only filter on type if not a someday
     }
-    $values['filterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+    $values['filterquery'] .= " AND ".sqlparts("issomeday",$values);
 
     $q=($comp==='y')?'completeditems':'pendingitems';  //suppressed items will be shown on report page
-	$values['filterquery'] .= " AND ".sqlparts($q,$config,$values);
-    $result = query("getchildren",$config,$values,$sort);
+	$values['filterquery'] .= " AND ".sqlparts($q,$values);
+    $result = query("getchildren",$values);
     /*
         end of query
     ----------------------------------------*/
@@ -136,10 +136,10 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
             ."</h3>";
     /* set limit on number of children to dispay, if we are processing completed items,
         and the number of returned items is greater than the user-configured display limit */
-    if ($comp==='y' && $config['ReportMaxCompleteChildren']
-        && count($result) > $config['ReportMaxCompleteChildren']
+    if ($comp==='y' && $_SESSION['config']['ReportMaxCompleteChildren']
+        && count($result) > $_SESSION['config']['ReportMaxCompleteChildren']
         && $item['type']!=='L' && $item['type']!=='C' ) {
-        $limit=$config['ReportMaxCompleteChildren'];
+        $limit=$_SESSION['config']['ReportMaxCompleteChildren'];
         $footertext[]="<a href='listItems.php?type=$thistype&amp;parentId={$values['parentId']}&amp;completed=true'".
             (($_SESSION['useLiveEnhancements'])?" onclick='return GTD.toggleHidden(\"$thistableid\",\"table-row\",\"f$thistableid\");'":'').
             ">".(count($result)-$limit)." more... (".count($result)." items in total)</a>";
@@ -151,7 +151,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
     */
 	$shownext= ($comp==='n') && ($values['type']==='a' || $values['type']==='w');
 	$suppressed=0;
-    $trimlength=$config[($comp==="n")?'trimLengthInReport':'trimLength'];
+    $trimlength=$_SESSION['config'][($comp==="n")?'trimLengthInReport':'trimLength'];
     if($trimlength) {
 	    $descriptionField='shortdesc';
 	    $outcomeField='shortoutcome';
@@ -197,7 +197,6 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
 		$dispArray['completed']='Date Completed';
 	}
     foreach ($dispArray as $key=>$val) $show[$key]=true;
-    if ($config['nextaction']==='single') $dispArray['NA.type']='radio';
     /*  finished choosing which fields to display
         ----------------------------------------------------------
         now process the query result, row by row, ready for tabulation
@@ -221,7 +220,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
         $maintable[$i][$descriptionField]=$row['description'];
         $maintable[$i][$outcomeField]=$row['desiredOutcome'];
         $maintable[$i]['recurdesc']=$row['recurdesc'];
-        $maintable[$i]['created']=date($config['datemask'],
+        $maintable[$i]['created']=date($_SESSION['config']['datemask'],
                 (empty($row['dateCreated']))
                     ? null
                     : strtotime($row['dateCreated']));
@@ -255,7 +254,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
             if (empty($row['deadline']))
                 $maintable[$i]['deadline']=null;
             else {
-                $deadline=prettyDueDate($row['deadline'],$config['datemask']);
+                $deadline=prettyDueDate($row['deadline'],$_SESSION['config']['datemask']);
                 $maintable[$i]['deadline']      =$deadline['date'];
                 $maintable[$i]['deadline.class']=$deadline['class'];
                 $maintable[$i]['deadline.title']=$deadline['title'];
@@ -267,7 +266,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
                 if ($maintable[$i]['NA']==='y') array_push($wasNAonEntry,$row['itemId']);
             }
 		} else {
-			$maintable[$i]['completed']=date($config['datemask'],strtotime($row['dateCompleted']));
+			$maintable[$i]['completed']=date($_SESSION['config']['datemask'],strtotime($row['dateCompleted']));
         }
 
 		$maintable[$i]['checkbox.title']="Mark $cleantitle ".
@@ -322,7 +321,7 @@ if(isset($previousId))
     echo "<a href='itemReport.php?itemId=$previousId' title='Previous: ",makeclean($previoustitle),"'> &lt; </a> \n";
     
 echo " <a href='item.php?itemId={$values['itemId']}'>"
-        ," <img src='themes/{$config['theme']}/edit.gif' alt='Edit ' title='Edit' /> "
+        ," <img src='themes/{$_SESSION['theme']}/edit.gif' alt='Edit ' title='Edit' /> "
      ,"</a> ";
 
 if(isset($nextId))
@@ -360,7 +359,7 @@ if ($item['categoryId']) echo "<tr><th>Category:</th><td><a href='editCat.php?id
 if ($item['contextId']) echo "<tr><th>Space Context:</th><td><a href='editCat.php?id={$item['contextId']}&amp;field=context'>".makeclean($item['cname'])."</a></td></tr>\n";
 if ($item['timeframeId']) echo "<tr><th>Time Context:</th><td><a href='editCat.php?id={$item['timeframeId']}&amp;field=time-context'>".makeclean($item['timeframe'])."</a></td></tr>\n";
 if (!empty($item['deadline'])) {
-    $deadline=prettyDueDate($item['deadline'],$config['datemask']);
+    $deadline=prettyDueDate($item['deadline'],$_SESSION['config']['datemask']);
     echo "<tr><th>Deadline:</th>"
         ,"<td class='{$deadline['class']}' title='{$deadline['title']}'>"
         ,$deadline['date'],"</td></tr>\n";
@@ -386,7 +385,7 @@ if ($item['dateCompleted']) echo '<tr><th>Completed On:</th><td>'.$item['dateCom
  ============================================================================ */
 if (empty($childtype)) {
     include_once 'footer.inc.php';
-    exit();
+    exit;
 }
 /* ============================================================================
     now display children
@@ -410,7 +409,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
         <?php
 		$shownext= ($comp==='n') && ($values['type']==='a' || $values['type']==='w');
 		$suppressed=0;
-        $trimlength=$config[($comp==="n")?'trimLengthInReport':'trimLength'];
+        $trimlength=$_SESSION['config'][($comp==="n")?'trimLengthInReport':'trimLength'];
         if ($comp==='n' && $item['type']!=='C') { ?>
 <form action='processItems.php' method='post'><?php
         }

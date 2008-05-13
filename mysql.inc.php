@@ -7,10 +7,10 @@
 function connectdb($config) {
 
     $connection = mysql_connect($config['host'], $config['user'], $config['pass'])
-        or die ("Unable to connect to MySQL server: check your host, user and pass settings in config.php!");
+        or die ("Unable to connect to MySQL server: check your host, user and pass settings in config.inc.php!");
         
     mysql_select_db($config['db'])
-        or die ("Unable to select database '{$config['db']}' - check your db setting in config.php!");
+        or die ("Unable to select database '{$config['db']}' - check your db setting in config.inc.php!");
         
     return $connection;
 }
@@ -64,8 +64,8 @@ function doQuery($query,$label=NULL) {
 /*
   ===============================================================
 */
-function safeIntoDB(&$value,$key=NULL) {
-	// don't clean arrays - clean individual strings/values
+function safeIntoDB($value,$key=NULL) {
+	// don't clean arrays - clean individual strings/values. TOFIX: this looks very inefficient, and gets called A LOT
 	if (is_array($value)) {
 		foreach ($value as $key=>$string) $value[$key] = safeIntoDB($string,$key);
 		return $value;
@@ -95,21 +95,19 @@ GENERAL RULES:
     "Count*" = # of a particular type in table
     "*selectbox" = get results to create a selectbox- for assignment or filter
 */
-function getsql($config,$values,$sort,$querylabel) {
+function getsql($querylabel,$values,$sort) {
 
-    if (is_array($values))
-        foreach ($values as $key=>$value)
-            $values[$key] = safeIntoDB($value, $key);
-
+    $values = safeIntoDB($values);
+    $prefix=$_SESSION['prefix'];
 	switch ($querylabel) {
 		case "categoryselectbox":
 			$sql="SELECT c.`categoryId`, c.`category`, c.`description`
-				FROM `". $config['prefix'] ."categories` as c
+				FROM `{$prefix}categories` as c
 				ORDER BY {$sort['categoryselectbox']}";
 			break;
 
 		case "completeitem":
-			$sql="UPDATE `{$config['prefix']}itemstatus`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `dateCompleted`={$values['dateCompleted']}, `lastModified` = NULL
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
@@ -118,7 +116,7 @@ function getsql($config,$values,$sort,$querylabel) {
             $sql="SELECT its.`dateCompleted`,
                         truncate(datediff(curdate(),its.`dateCompleted`)/7,0) AS `weeksago`,
                         count(*) AS `numdone`
-                  FROM `{$config['prefix']}itemstatus` AS `its`
+                  FROM `{$prefix}itemstatus` AS `its`
                   WHERE its.`dateCompleted` IS NOT NULL AND its.`type`='a'
                   GROUP BY `weeksago` ORDER BY `dateCompleted` ASC";
             break;
@@ -127,7 +125,7 @@ function getsql($config,$values,$sort,$querylabel) {
             $sql="SELECT its.`type`,
                          interval(datediff(curdate(),its.`dateCompleted`),7,30,90,365) AS `daysago`,
                          count(*) AS `numdone`
-                  FROM `{$config['prefix']}itemstatus` AS `its` USING (`itemId`)
+                  FROM `{$prefix}itemstatus` AS `its` USING (`itemId`)
                   WHERE its.`dateCompleted` IS NOT NULL
                   GROUP BY `type`,`daysago`";
             break;
@@ -140,9 +138,9 @@ function getsql($config,$values,$sort,$querylabel) {
 						SELECT
 							ia.`itemId`,its.`type`, ia.`deadline`, ia.`nextaction`,
                             ia.`tickledate`, its.`dateCompleted`, lu.`parentId`
-						FROM `{$config['prefix']}itemattributes` AS ia
-                        JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-						LEFT OUTER JOIN `{$config['prefix']}lookup` AS lu USING (`itemId`)
+						FROM `{$prefix}itemattributes` AS ia
+                        JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+						LEFT OUTER JOIN `{$prefix}lookup` AS lu USING (`itemId`)
 						{$values['childfilterquery']}
 				    ) as x
     				LEFT OUTER JOIN (
@@ -150,8 +148,8 @@ function getsql($config,$values,$sort,$querylabel) {
 							ia.`itemId` AS parentId, ia.`isSomeday` AS pisSomeday,
 							ia.`tickledate` AS ptickledate,
 							its.`dateCompleted` AS pdateCompleted
-						FROM `{$config['prefix']}itemattributes` AS ia
-						JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
+						FROM `{$prefix}itemattributes` AS ia
+						JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
 					) as y USING(`parentId`)
 				{$values['filterquery']}
                 GROUP BY `duecategory`";
@@ -161,38 +159,38 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 		case "countspacecontexts":
 			$sql="SELECT COUNT(*)
-				FROM `". $config['prefix'] ."context`";
+				FROM `{$prefix}context`";
 			break;
 		case "deletecategory":
-			$sql="DELETE FROM `". $config['prefix'] ."categories`
+			$sql="DELETE FROM `{$prefix}categories`
 				WHERE `categoryId`='{$values['id']}'";
 			break;
 		case "deleteitem":
-			$sql="DELETE FROM `". $config['prefix'] ."items`
+			$sql="DELETE FROM `{$prefix}items`
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
 		case "deleteitemattributes":
-			$sql="DELETE FROM `". $config['prefix'] ."itemattributes`
+			$sql="DELETE FROM `{$prefix}itemattributes`
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
 		case "deleteitemstatus":
-			$sql="DELETE FROM `". $config['prefix'] ."itemstatus`
+			$sql="DELETE FROM `{$prefix}itemstatus`
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
 		case "deletelookup":
-			$sql="DELETE FROM `". $config['prefix'] ."lookup`
+			$sql="DELETE FROM `{$prefix}lookup`
 				WHERE `itemId` ='{$values['itemId']}'";
 			break;
 		case "deletelookupparents":
-			$sql="DELETE FROM `". $config['prefix'] ."lookup`
+			$sql="DELETE FROM `{$prefix}lookup`
 				WHERE `parentId` ='{$values['itemId']}'";
 			break;
 		case "deletespacecontext":
-			$sql="DELETE FROM `". $config['prefix'] ."context`
+			$sql="DELETE FROM `{$prefix}context`
 				WHERE `contextId`='{$values['id']}'";
 			break;
 		case "deletetimecontext":
-			$sql="DELETE FROM `". $config['prefix'] ."timeitems`
+			$sql="DELETE FROM `{$prefix}timeitems`
 				WHERE `timeframeId`='{$values['id']}'";
 			break;
 
@@ -205,34 +203,39 @@ function getsql($config,$values,$sort,$querylabel) {
 					its.`lastModified`, its.`categoryId`,
 					c.`category`, ia.`contextId`,
 					cn.`name` AS cname, ia.`timeframeId`, ti.`timeframe`
-				FROM `{$config['prefix']}lookup` AS lu
-					JOIN `{$config['prefix']}items` AS i USING (`itemId`)
-					JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-					LEFT OUTER JOIN `{$config['prefix']}itemattributes` AS ia USING (`itemId`)
-					LEFT OUTER JOIN `{$config['prefix']}context` AS cn
+				FROM `{$prefix}lookup` AS lu
+					JOIN `{$prefix}items` AS i USING (`itemId`)
+					JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+					LEFT OUTER JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
+					LEFT OUTER JOIN `{$prefix}context` AS cn
 						ON (ia.`contextId` = cn.`contextId`)
-					LEFT OUTER JOIN `{$config['prefix']}categories` AS c
+					LEFT OUTER JOIN `{$prefix}categories` AS c
 						ON (its.`categoryId` = c.`categoryId`)
-					LEFT OUTER JOIN `{$config['prefix']}timeitems` AS ti
+					LEFT OUTER JOIN `{$prefix}timeitems` AS ti
 						ON (ia.`timeframeId` = ti.`timeframeId`)
 				WHERE lu.`parentId`= '{$values['parentId']}' {$values['filterquery']}
 				ORDER BY {$sort['getchildren']}";
 			break;
 
+        case "getconfig":
+            $sql="SELECT `option`,`value` FROM `{$prefix}preferences`
+                    WHERE `uid`='{$values['uid']}' {$values['filterquery']}";
+            break;
+            
 		case "getgtdphpversion":
-			$sql="SELECT `version` FROM `{$config['prefix']}version`";
+			$sql="SELECT `version` FROM `{$prefix}version`";
 			break;
 
 		case "getitems":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`, ia.`deadline`
-				FROM `{$config['prefix']}items` AS i
-					JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-					LEFT OUTER JOIN `". $config['prefix'] . "itemattributes` AS ia USING (`itemId`)
-					LEFT OUTER JOIN `". $config['prefix'] . "context` as cn
+				FROM `{$prefix}items` AS i
+					JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+					LEFT OUTER JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
+					LEFT OUTER JOIN `{$prefix}context` as cn
 						ON (ia.`contextId` = cn.`contextId`)
-					LEFT OUTER JOIN `". $config['prefix'] ."categories` as c
+					LEFT OUTER JOIN `{$prefix}categories` as c
 						ON (its.`categoryId` = c.`categoryId`)
-					LEFT OUTER JOIN `". $config['prefix'] . "timeitems` as ti
+					LEFT OUTER JOIN `{$prefix}timeitems` as ti
 						ON (ia.`timeframeId` = ti.`timeframeId`) "
                 .$values['filterquery'].
 				" ORDER BY {$sort['getitems']}";
@@ -248,7 +251,7 @@ function getsql($config,$values,$sort,$querylabel) {
     				x.`contextId`, x.`cname`, x.`timeframeId`,
     				x.`timeframe`,x.`nextaction`,
     				GROUP_CONCAT(DISTINCT y.`parentId` ORDER BY y.`ptitle`) as `parentId`,
-    				GROUP_CONCAT(DISTINCT y.`ptitle` ORDER BY y.`ptitle` SEPARATOR '{$config['separator']}') AS `ptitle`,
+    				GROUP_CONCAT(DISTINCT y.`ptitle` ORDER BY y.`ptitle` SEPARATOR '{$_SESSION['config']['separator']}') AS `ptitle`,
                     GROUP_CONCAT(DISTINCT tm.`tagname` ORDER BY `tagname` SEPARATOR ',') AS tags
     				{$values['extravarsfilterquery']}
 				FROM (
@@ -261,22 +264,22 @@ function getsql($config,$values,$sort,$querylabel) {
 							its.`categoryId`, c.`category`, ia.`contextId`,
 							cn.`name` AS cname, ia.`timeframeId`,
 							ti.`timeframe`, lu.`parentId`
-						FROM `{$config['prefix']}items` as i
-							JOIN `". $config['prefix'] . "itemstatus` as its
+						FROM `{$prefix}items` as i
+							JOIN `{$prefix}itemstatus` as its
 								ON (i.`itemId` = its.`itemId`)
-							LEFT OUTER JOIN `{$config['prefix']}lookup` as lu
+							LEFT OUTER JOIN `{$prefix}lookup` as lu
 								ON (i.`itemId` = lu.`itemId`)
-							LEFT OUTER JOIN `{$config['prefix']}itemattributes` AS ia
+							LEFT OUTER JOIN `{$prefix}itemattributes` AS ia
 								ON (ia.`itemId` = i.`itemId`)
-							LEFT OUTER JOIN `". $config['prefix'] . "context` as cn
+							LEFT OUTER JOIN `{$prefix}context` as cn
 								ON (ia.`contextId` = cn.`contextId`)
-							LEFT OUTER JOIN `". $config['prefix'] ."categories` as c
+							LEFT OUTER JOIN `{$prefix}categories` as c
 								ON (its.`categoryId` = c.`categoryId`)
-							LEFT OUTER JOIN `". $config['prefix'] . "timeitems` as ti
+							LEFT OUTER JOIN `{$prefix}timeitems` as ti
 								ON (ia.`timeframeId` = ti.`timeframeId`)
                             {$values['childfilterquery']}
 				) as x
-				LEFT OUTER JOIN `{$config['prefix']}tagmap` as tm
+				LEFT OUTER JOIN `{$prefix}tagmap` as tm
 					ON (x.`itemId` = tm.`itemId`)
 				LEFT OUTER JOIN (
 						SELECT
@@ -287,10 +290,10 @@ function getsql($config,$values,$sort,$querylabel) {
 							ia.`deadline` AS pdeadline, i.`recurdesc` AS precurdesc,
 							ia.`tickledate` AS ptickledate,
 							its.`dateCompleted` AS pdateCompleted
-						FROM `{$config['prefix']}items` as i
-							JOIN `{$config['prefix']}itemstatus` as its
+						FROM `{$prefix}items` as i
+							JOIN `{$prefix}itemstatus` as its
 								ON (i.`itemId` = its.`itemId`)
-							LEFT OUTER JOIN `{$config['prefix']}itemattributes` AS ia
+							LEFT OUTER JOIN `{$prefix}itemattributes` AS ia
 								ON (ia.`itemId` = i.`itemId`)
 					) as y ON (y.`parentId` = x.`parentId`)
 				{$values['filterquery']} GROUP BY x.`itemId`
@@ -300,46 +303,50 @@ function getsql($config,$values,$sort,$querylabel) {
 
 		case "getitembrief":
 			$sql="SELECT `title`, `description`, `desiredOutcome`
-				FROM  `". $config['prefix'] . "items`
+				FROM  `{$prefix}items`
 				WHERE `itemId` = {$values['itemId']}";
 			break;
 
+        case 'getoptions':
+            $sql="SELECT `option`,`value` FROM `{$prefix}preferences` WHERE (`uid`='0')";
+            break;
+
 		case "getorphaneditems":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`, its.`type`, ia.`isSomeday`
-				FROM `{$config['prefix']}items` AS i   
-				JOIN `{$config['prefix']}itemstatus` AS its USING (itemId)
-				LEFT OUTER JOIN `{$config['prefix']}itemattributes` AS ia USING (itemId)
+				FROM `{$prefix}items` AS i   
+				JOIN `{$prefix}itemstatus` AS its USING (itemId)
+				LEFT OUTER JOIN `{$prefix}itemattributes` AS ia USING (itemId)
 				WHERE (its.`dateCompleted` IS NULL)
-					AND (its.`type` NOT IN ({$values['notOrphansfilterquery']})
+					AND (its.`type` NOT IN ({$values['orphansfilterquery']})
 					       AND (its.`itemId` NOT IN
-						(SELECT lu.`itemId` FROM `{$config['prefix']}lookup` as lu)
+						(SELECT lu.`itemId` FROM `{$prefix}lookup` as lu)
                            ) OR its.`type` IS NULL OR its.`type`='')
 				ORDER BY {$sort['getorphaneditems']}";
 			break;
 
 		case "getspacecontexts":
 			$sql="SELECT `contextId`, `name`
-				FROM `". $config['prefix'] . "context` ORDER BY `name` ASC";
+				FROM `{$prefix}context` ORDER BY `name` ASC";
 			break;
 
 		case "gettags":
-			$sql="SELECT DISTINCT `tagname` FROM `{$config['prefix']}tagmap` AS i
+			$sql="SELECT DISTINCT `tagname` FROM `{$prefix}tagmap` AS i
                     {$values['filterquery']} ORDER BY `tagname`";
 			break;
 
 		case "gettimecontexts":
 			$sql="SELECT `timeframeId`, `timeframe`, `description`
-				FROM `". $config['prefix'] . "timeitems` AS ti
+				FROM `{$prefix}timeitems` AS ti
 				{$values['timefilterquery']} ORDER BY `timeframeId` ASC";
 			break;
 
 		case "newcategory":
-			$sql="INSERT INTO `". $config['prefix'] ."categories`
+			$sql="INSERT INTO `{$prefix}categories`
 				VALUES (NULL, '{$values['name']}', '{$values['description']}')";
 			break;
 
 		case "newitem":
-			$sql="INSERT INTO `". $config['prefix'] . "items`
+			$sql="INSERT INTO `{$prefix}items`
 						(`title`,`description`,`desiredOutcome`,`recurdesc`,`recur`)
 				VALUES ('{$values['title']}','{$values['description']}',
 						'{$values['desiredOutcome']}',
@@ -347,7 +354,7 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "newitemattributes":
-			$sql="INSERT INTO `{$config['prefix']}itemattributes`
+			$sql="INSERT INTO `{$prefix}itemattributes`
 						(`itemId`,`isSomeday`,`contextId`,
 						`timeframeId`,`deadline`,`tickledate`,`nextaction`)
 				VALUES ('{$values['newitemId']}','{$values['isSomeday']}',
@@ -356,7 +363,7 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "newitemstatus":
-			$sql="INSERT INTO `{$config['prefix']}itemstatus`
+			$sql="INSERT INTO `{$prefix}itemstatus`
 						(`itemId`,`dateCreated`,`lastModified`,`dateCompleted`,
                         `type`,`categoryId`)
 				VALUES ('{$values['newitemId']}',CURRENT_DATE,NULL,{$values['dateCompleted']},
@@ -364,25 +371,25 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "newparent":
-			$sql="INSERT INTO `". $config['prefix'] . "lookup`
+			$sql="INSERT INTO `{$prefix}lookup`
 						(`parentId`,`itemId`)
 				VALUES ('{$values['parentId']}','{$values['newitemId']}')";
 			break;
 
 		case "newspacecontext":
-			$sql="INSERT INTO `". $config['prefix'] . "context`
+			$sql="INSERT INTO `{$prefix}context`
 						(`name`,`description`)
 				VALUES ('{$values['name']}', '{$values['description']}')";
 			break;
 
         case "newtagmap":
-            $sql="INSERT INTO `{$config['prefix']}tagmap` (`itemId`,`tagname`) "
+            $sql="INSERT INTO `{$prefix}tagmap` (`itemId`,`tagname`) "
                 ." VALUES ({$values['itemId']},'{$values['tagname']}') "
                 ." ON DUPLICATE KEY UPDATE `tagname`='{$values['tagname']}'";
             break;
 
 		case "newtimecontext":
-			$sql="INSERT INTO `". $config['prefix'] . "timeitems`
+			$sql="INSERT INTO `{$prefix}timeitems`
 						(`timeframe`,`description`,`type`)
 				VALUES ('{$values['name']}', '{$values['description']}', '{$values['type']}')";
 			break;
@@ -390,45 +397,45 @@ function getsql($config,$values,$sort,$querylabel) {
 		case "parentselectbox":
 			$sql="SELECT i.`itemId`, i.`title`,
 						i.`description`, ia.`isSomeday`,its.`type`
-				FROM `". $config['prefix'] . "items` as i
-				JOIN `{$config['prefix']}itemstatus` as its USING (`itemId`)
-				LEFT OUTER JOIN `{$config['prefix']}itemattributes` as ia USING (`itemId`)
+				FROM `{$prefix}items` as i
+				JOIN `{$prefix}itemstatus` as its USING (`itemId`)
+				LEFT OUTER JOIN `{$prefix}itemattributes` as ia USING (`itemId`)
 				WHERE (its.`dateCompleted` IS NULL) {$values['ptypefilterquery']}
 				ORDER BY its.`type`,i.`title`";
 				#ORDER BY {$sort['parentselectbox']}";
 			break;
 
 		case "reassigncategory":
-			$sql="UPDATE `{$config['prefix']}itemstatus`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `categoryId`='{$values['newId']}'
 				WHERE `categoryId`='{$values['id']}'";
 			break;
 
 		case "reassignspacecontext":
-			$sql="UPDATE `". $config['prefix'] . "itemattributes`
+			$sql="UPDATE `{$prefix}itemattributes`
 				SET `contextId`='{$values['newId']}'
 				WHERE `contextId`='{$values['id']}'";
 			break;
 
 		case "reassigntimecontext":
-			$sql="UPDATE `". $config['prefix'] . "itemattributes`
+			$sql="UPDATE `{$prefix}itemattributes`
 				SET `timeframeId`='{$values['newId']}'
 				WHERE `timeframeId`='{$values['id']}'";
 			break;
 
         case "removeitemtags":
-            $sql="DELETE FROM `{$config['prefix']}tagmap` WHERE `itemId`='{$values['itemId']}'";
+            $sql="DELETE FROM `{$prefix}tagmap` WHERE `itemId`='{$values['itemId']}'";
 			break;
 
 		case "selectcategory":
 			$sql="SELECT `categoryId`, `category`, `description`
-				FROM `". $config['prefix'] ."categories`
+				FROM `{$prefix}categories`
 				WHERE `categoryId` = '{$values['categoryId']}'";
 			break;
 
 		case "selectcontext":
 			$sql="SELECT `contextId`, `name`, `description`
-				FROM `". $config['prefix'] . "context`
+				FROM `{$prefix}context`
 				WHERE `contextId` = '{$values['contextId']}'";
 			break;
 
@@ -436,15 +443,15 @@ function getsql($config,$values,$sort,$querylabel) {
 			$sql="SELECT i.*,ia.*,its.*,
 				    c.`category`, ti.`timeframe`,cn.`name` AS `cname`,
                     GROUP_CONCAT(tm.`tagname` ORDER BY tm.`tagname` SEPARATOR ',') AS tagname
-				FROM `{$config['prefix']}items`      AS i
-				JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-				LEFT OUTER JOIN `{$config['prefix']}itemattributes` AS ia  USING (`itemId`)
-                LEFT OUTER JOIN `{$config['prefix']}tagmap` AS tm USING (`itemId`)
-				LEFT OUTER JOIN `{$config['prefix']}categories` as c
+				FROM `{$prefix}items`      AS i
+				JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+				LEFT OUTER JOIN `{$prefix}itemattributes` AS ia  USING (`itemId`)
+                LEFT OUTER JOIN `{$prefix}tagmap` AS tm USING (`itemId`)
+				LEFT OUTER JOIN `{$prefix}categories` as c
 					ON (c.`categoryId` = its.`categoryId`)
-				LEFT OUTER JOIN `{$config['prefix']}context` as cn
+				LEFT OUTER JOIN `{$prefix}context` as cn
 					ON (cn.`contextId` = ia.`contextId`)
-				LEFT OUTER JOIN `{$config['prefix']}timeitems` as ti
+				LEFT OUTER JOIN `{$prefix}timeitems` as ti
 					ON (ti.`timeframeId` = ia.`timeframeId`)
                 WHERE i.`itemId` = '{$values['itemId']}'
                 GROUP BY i.`itemId` ";
@@ -453,82 +460,91 @@ function getsql($config,$values,$sort,$querylabel) {
 		case "selectitemshort":
 			$sql="SELECT i.`itemId`, i.`title`,
 						i.`description`, ia.`isSomeday`,its.`type`
-				FROM `{$config['prefix']}items` as i
-				JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-				LEFT OUTER JOIN `{$config['prefix']}itemattributes` AS ia USING (`itemId`)
+				FROM `{$prefix}items` as i
+				JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+				LEFT OUTER JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
 				WHERE i.`itemId` = '{$values['itemId']}'";
 			break;
 
 		case "selectitemtitle":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`
-				    FROM `". $config['prefix'] . "items` as i
+				    FROM `{$prefix}items` as i
 				    WHERE i.`itemId` = '{$values['itemId']}'";
 			break;
 
 		case "selectparents":
 			$sql="SELECT lu.`parentId`,i.`title` AS `ptitle`,ia.`isSomeday`,its.`type` AS `ptype`
-				FROM `{$config['prefix']}lookup` AS lu
-				JOIN `{$config['prefix']}items` AS i ON (lu.`parentId` = i.`itemId`)
-				JOIN `{$config['prefix']}itemstatus` AS its ON (lu.`parentId` = its.`itemId`)
-				LEFT OUTER JOIN `{$config['prefix']}itemattributes` AS ia ON (lu.`parentId` = ia.`itemId`)
+				FROM `{$prefix}lookup` AS lu
+				JOIN `{$prefix}items` AS i ON (lu.`parentId` = i.`itemId`)
+				JOIN `{$prefix}itemstatus` AS its ON (lu.`parentId` = its.`itemId`)
+				LEFT OUTER JOIN `{$prefix}itemattributes` AS ia ON (lu.`parentId` = ia.`itemId`)
 				WHERE lu.`itemId`='{$values['itemId']}'";
 			break;
 
 		case "selecttimecontext":
 			$sql="SELECT `timeframeId`, `timeframe`, `description`, `type`
-				FROM `". $config['prefix'] . "timeitems`
+				FROM `{$prefix}timeitems`
 				WHERE `timeframeId` = '{$values['tcId']}'";
 			break;
 
 		case "spacecontextselectbox":
 			$sql="SELECT `contextId`, `name`, `description`
-				FROM `". $config['prefix'] . "context` as cn
+				FROM `{$prefix}context` as cn
 				ORDER BY {$sort['spacecontextselectbox']}";
 			break;
 
 		case "testitemrepeat":
 			$sql="SELECT i.`recur`,ia.`tickledate`,ia.`deadline`
-				FROM `{$config['prefix']}itemattributes` AS ia
-                JOIN `{$config['prefix']}items`          AS i   USING (`itemId`)
+				FROM `{$prefix}itemattributes` AS ia
+                JOIN `{$prefix}items`          AS i   USING (`itemId`)
 				WHERE ia.`itemId`='{$values['itemId']}'";
 			break;
 
 		case "timecontextselectbox":
 			$sql="SELECT `timeframeId`, `timeframe`, `description`, `type`
-				FROM `". $config['prefix'] . "timeitems` as ti".$values['timefilterquery']."
+				FROM `{$prefix}timeitems` as ti".$values['timefilterquery']."
 				ORDER BY {$sort['timecontextselectbox']}";
 			break;
 
 		case "touchitem":
-			$sql="UPDATE `". $config['prefix'] . "itemstatus`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `lastModified` = NULL
 				WHERE `itemId` = '{$values['itemId']}'";
 			break;
 
 		case "updatecategory":
-			$sql="UPDATE `". $config['prefix'] ."categories`
+			$sql="UPDATE `{$prefix}categories`
 				SET `category` ='{$values['name']}',
 						`description` ='{$values['description']}'
 				WHERE `categoryId` ='{$values['id']}'";
 			break;
 
 		case "updatechecklist":
-			$sql="UPDATE `{$config['prefix']}lookup` AS lu
-                JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
+			$sql="UPDATE `{$prefix}lookup` AS lu
+                JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
 				SET its.`dateCompleted` = IF(its.`itemId` IN ('{$values['itemfilterquery']}'),{$values['dateCompleted']},NULL),
                     its.`lastModified` = NULL
 				WHERE lu.`parentId` = '{$values['parentId']}'";
 			break;
 
+        case "updateconfig":
+            $sql="REPLACE INTO `{$prefix}preferences` (`uid`,`option`,`value`)
+                    VALUES ('0','config'   ,'{$values['config']}'   ),
+                           ('0','keys'     ,'{$values['keys']}'     ),
+                           ('0','hierarchy','{$values['hierarchy']}'),
+                           ('0','debug'    ,'{$values['debug']}'    ),
+                           ('0','sort'     ,'{$values['sort']}'     )";
+            break;
+
 		case "updatedeadline":
-			$sql="UPDATE `{$config['prefix']}itemattributes`
+			$sql="UPDATE `{$prefix}itemattributes`
 				SET `deadline` ={$values['deadline']},
 				    `tickledate` ={$values['tickledate']}
 				WHERE `itemId` = '{$values['itemId']}'";
 			break;
 
 		case "updateitem":
-			$sql="UPDATE `". $config['prefix'] . "items`
+			$sql="UPDATE `{$prefix}items`
 				SET `description` = '{$values['description']}',
 						`title` = '{$values['title']}',
 						`desiredOutcome` = '{$values['desiredOutcome']}',
@@ -538,7 +554,7 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "updateitemattributes":
-			$sql="UPDATE `{$config['prefix']}itemattributes`
+			$sql="UPDATE `{$prefix}itemattributes`
 				SET `isSomeday`= '{$values['isSomeday']}',
 					`contextId` = '{$values['contextId']}',
 					`timeframeId` = '{$values['timeframeId']}',
@@ -549,19 +565,19 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "updateitemcategory":
-			$sql="UPDATE `{$config['prefix']}itemstatus`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `categoryId`='{$values['categoryId']}'
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
 
 		case "updateitemcontext":
-			$sql="UPDATE `{$config['prefix']}itemattributes`
+			$sql="UPDATE `{$prefix}itemattributes`
 				SET `contextId`='{$values['contextId']}'
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
 
 		case "updateitemstatus":
-			$sql="UPDATE `{$config['prefix']}itemstatus`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `type` = '{$values['type']}',
 					`categoryId` = '{$values['categoryId']}',
 					`lastModified` = NULL
@@ -569,7 +585,7 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 			
 		case "updateitemtext":
-			$sql="UPDATE `". $config['prefix'] . "items`
+			$sql="UPDATE `{$prefix}items`
 				SET `description` = '{$values['description']}',
 						`title` = '{$values['title']}',
 						`desiredOutcome` = '{$values['desiredOutcome']}'
@@ -577,14 +593,14 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "updateitemtimecontext":
-			$sql="UPDATE `{$config['prefix']}itemattributes`
+			$sql="UPDATE `{$prefix}itemattributes`
 				SET `timeframeId`='{$values['timeframeId']}'
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
 
 		case "updateitemtype":
-			$sql="UPDATE `{$config['prefix']}itemstatus` AS its
-                    JOIN `{$config['prefix']}itemattributes` AS ia USING (`itemId`)
+			$sql="UPDATE `{$prefix}itemstatus` AS its
+                    JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
 				SET its.`type` = '{$values['type']}',
 					its.`dateCompleted`=NULL,
 					ia.`isSomeday`= '{$values['isSomeday']}'
@@ -592,28 +608,33 @@ function getsql($config,$values,$sort,$querylabel) {
 			break;
 
 		case "updatenextaction":
-			$sql="UPDATE `{$config['prefix']}itemattributes` AS ia
-                JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
+			$sql="UPDATE `{$prefix}itemattributes` AS ia
+                JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
                 SET ia.`nextaction`='{$values['nextaction']}', its.`lastModified`=NULL
                 WHERE ia.`itemId`='{$values['itemId']}'";
 			break;
 
+        case 'updateoptions':
+           $sql="REPLACE INTO `{$prefix}preferences` (`uid`,`option`,`value`)
+                VALUES ('{$values['uid']}','{$values['option']}','{$values['config']}' )";
+            break;
+            
 		case "updateparent":
-			$sql="INSERT INTO `". $config['prefix'] . "lookup`
+			$sql="INSERT INTO `{$prefix}lookup`
 						(`parentId`,`itemId`)
 				VALUES ('{$values['parentId']}','{$values['itemId']}')
 				ON DUPLICATE KEY UPDATE `parentId`='{$values['parentId']}'";
 			break;
 
 		case "updatespacecontext":
-			$sql="UPDATE `". $config['prefix'] . "context`
+			$sql="UPDATE `{$prefix}context`
 				SET `name` ='{$values['name']}',
 						`description`='{$values['description']}'
 				WHERE `contextId` ='{$values['id']}'";
 			break;
 
 		case "updatetimecontext":
-			$sql="UPDATE `". $config['prefix'] . "timeitems`
+			$sql="UPDATE `{$prefix}timeitems`
 				SET `timeframe` ='{$values['name']}',
 						`description`='{$values['description']}',
 						`type`='{$values['type']}'
@@ -629,12 +650,10 @@ function getsql($config,$values,$sort,$querylabel) {
 /*
   ===============================================================
 */
-function sqlparts($part,$config,$values) {
+function sqlparts($part,$values) {
+  $prefix=$_SESSION['prefix'];
+  $values = safeIntoDB($values);
 
-  if (is_array($values))
-    foreach ($values as $key=>$value)
-        $values[$key] = safeIntoDB($value, $key);
-        
   switch ($part) {
 	case "activeitems":
 		$sqlpart = " (CURDATE()>=ia.`tickledate` OR ia.`tickledate` IS NULL) ";
@@ -650,9 +669,9 @@ function sqlparts($part,$config,$values) {
             SELECT chp.`parentId` as itemId,
                 COUNT(chp.`itemId`) AS numChildren,
                 COUNT(IF(chia.`nextaction`='y',1,NULL)) as numNA
-            FROM       `{$config['prefix']}lookup`         AS chp
-                  JOIN `{$config['prefix']}itemstatus`     AS chits USING (`itemId`)
-       LEFT OUTER JOIN `{$config['prefix']}itemattributes` AS chia  USING (`itemId`)
+            FROM       `{$prefix}lookup`         AS chp
+                  JOIN `{$prefix}itemstatus`     AS chits USING (`itemId`)
+       LEFT OUTER JOIN `{$prefix}itemattributes` AS chia  USING (`itemId`)
                 WHERE chits.`dateCompleted` IS NULL AND chits.`type` <> 'r'
                 GROUP BY (chp.`parentId`)
             ) AS act ON (act.itemId=x.itemId) ";
@@ -674,7 +693,7 @@ function sqlparts($part,$config,$values) {
 		break;
     case "hastags":
         $sqlpart = " i.`itemId` IN (SELECT DISTINCT `itemId`
-                        FROM `{$config['prefix']}tagmap` WHERE `tagname` IN (";
+                        FROM `{$prefix}tagmap` WHERE `tagname` IN (";
         $tags=explode(',',$values['tags']);
         $sep='';
         foreach ($tags as $tag) {
@@ -715,6 +734,16 @@ function sqlparts($part,$config,$values) {
 	case "nottimeframefilter":
 		$sqlpart = " ia.`timeframeId` !='{$values['timeframeId']}' ";
 		break;
+    case 'orphantypes':
+        $sqlpart='';
+        $sep='';
+        if (preg_match_all('/[a-zA-Z0-9]/',$values['suppressAsOrphans'],$tst)) {
+            foreach ($tst[0] as $type) {
+                $sqlpart .= "$sep'$type'";
+                $sep=',';
+            }
+        }
+        break;
 	case "pendingitems":
 		$sqlpart = " its.`dateCompleted` IS NULL ";
 		break;
@@ -724,6 +753,9 @@ function sqlparts($part,$config,$values) {
 	case "singleitem":
 		$sqlpart = " i.`itemId`='{$values['itemId']}' ";
 		break;
+    case 'singleoption':
+        $sqlpart = " `option`='{$values['option']}' ";
+        break;
 	case "suppresseditems":
 		$sqlpart = " (CURDATE()<ia.`tickledate`) ";
 		break;
@@ -737,12 +769,12 @@ function sqlparts($part,$config,$values) {
 		$sqlpart = " its.`type` IN ('{$values['type']}') ";
 		break;
     default:
-        if ($config['debug'] & _GTD_DEBUG) echo "<p class='error'>Failed to find sql component '$part'</p>'";
+        if ($_SESSION['debug']['debug']) echo "<p class='error'>Failed to find sql component '$part'</p>'";
         $sqlpart=$part;
         break;
   }
 
-  if ($config['debug'] & _GTD_DEBUG)
+  if ($_SESSION['debug']['debug'])
       echo "<pre>Sqlparts '$part': Result $sqlpart<br />Sanitised values in sqlparts: ",print_r($values,true),'</pre>';
 
   return $sqlpart;

@@ -1,7 +1,7 @@
 <?php
 require_once 'headerDB.inc.php';
 $html=false;
-if ($config['debug'] & _GTD_DEBUG) {
+if ($_SESSION['debug']['debug']) {
     $html=true;
     include_once 'headerHtml.inc.php';
     echo "</head><body><div id='container'><pre>\n",print_r($_POST,true),"</pre>\n";
@@ -26,7 +26,7 @@ if (isset($_POST['id'])) {
         case 'time-context':
             $query='timecontext';
             $getId='timecontext';
-            if ($config['useTypesForTimeContexts'] && isset($_POST['type']) && $_POST['type']!='')
+            if ($_SESSION['config']['useTypesForTimeContexts'] && isset($_POST['type']) && $_POST['type']!='')
                 $values['type']=$_POST['type'];
             else
                 $values['type']='a';
@@ -35,15 +35,15 @@ if (isset($_POST['id'])) {
             break;
     }
     if ($values['id']==0) {
-        $result = query("new$query",$config,$values);
+        $result = query("new$query",$values);
         $msg='Created';
     } elseif (isset($_POST['delete']) && $_POST['delete']==="y") {
         $values['newId']=(int) $_POST['replacewith'];
-        $result=query("reassign$query",$config,$values);
-        if ($result!==false) $result=query("delete$query",$config,$values); // don't delete if reassign fails
+        $result=query("reassign$query",$values);
+        if ($result!==false) $result=query("delete$query",$values); // don't delete if reassign fails
         $msg='Deleted';
     } else {
-        $result=query("update$query",$config,$values);
+        $result=query("update$query",$values);
         $msg='Updated';
     }
 } // end of: if (isset($_POST['id']))

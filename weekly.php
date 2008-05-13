@@ -1,24 +1,25 @@
 <?php
-//INCLUDES
 include_once 'header.inc.php';
 
     $values=array();
 
-//SQL CODE AREA
-//select active projects
+    /* ------------------------------------------------------------
+        select active projects
+    */
     $values['isSomeday']="n";
     $values['type']='p';
-    $values['childfilterquery']  = " WHERE " .sqlparts("typefilter",$config,$values);
-    $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
-    $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
-    $values['childfilterquery'] .= " AND ".sqlparts("pendingitems",$config,$values);
-    $values['filterquery'] = sqlparts("checkchildren",$config,$values)
-                            .' WHERE '.sqlparts("liveparents",$config,$values);
-    $values['extravarsfilterquery'] = sqlparts("countchildren",$config,$values);;
-    $result = query("getitemsandparent",$config,$values,array('getitemsandparent'=>'title ASC'));
+    $values['childfilterquery']  = " WHERE " .sqlparts("typefilter",$values);
+    $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$values);
+    $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$values);
+    $values['childfilterquery'] .= " AND ".sqlparts("pendingitems",$values);
+    $values['filterquery'] = sqlparts("checkchildren",$values)
+                            .' WHERE '.sqlparts("liveparents",$values);
+    $values['extravarsfilterquery'] = sqlparts("countchildren",$values);;
+    $result = query("getitemsandparent",$values,array('getitemsandparent'=>'title ASC'));
     $maintable=array();
     $noOutcomes=array();
     if ($result) {
+        // scan list for projects without next actions, and projects without outcomes
         $numProjects=count($result);
         foreach ($result as $row) {
             if (empty($row['numNA'])) $maintable[]=$row;
@@ -28,12 +29,15 @@ include_once 'header.inc.php';
         $numProjects=0;
     $numNoNext=count($maintable);
     
-    $values=array();
-	$values['notOrphansfilterquery']=(empty($config['suppressAsOrphans']))?"'i','m'":$config['suppressAsOrphans'];
-	$orph_maintable = query("getorphaneditems",$config,$values,$sort);
+    // get list of orphans
+	$orph_maintable = getOrphans();
 	$orphancnt=($orph_maintable)?count($orph_maintable):0;
 
-//PAGE DISPLAY CODE
+    // get custom list of weekly tasks
+    $tmpval=array('uid'=>0);
+    $tmpval['filterquery']=' AND '.sqlparts('singleoption',array('option'=>'customreview'));
+    $result=query('getconfig',$tmpval);
+    if ($result) $custom_review=unserialize($result[0]['value']);
 ?>
 <h2>The Weekly Review</h2>
 <table class='weeklytable' summary='Table of weekly actions'>
@@ -59,7 +63,7 @@ include_once 'header.inc.php';
         <td>Use the 'Set Type' button to convert each one into a project, action, reference or waiting-on</td>
     </tr>
 <?php if ($orphancnt) { ?>
-    <tr><td>Re-parent your <a href='orphans.php'>orphans</a></td>
+    <tr><td>Assign parents to the <a href='orphans.php'>orphans</a></td>
         <td>You have <?php echo $orphancnt?> orphan<?php if ($orphancnt > 1) echo "s"; ?> that need<?php if ($orphancnt == 1) echo "s"; ?> to be addressed.
         
         <table summary='Orphans'>
@@ -85,7 +89,7 @@ include_once 'header.inc.php';
              } else echo "All $numProjects have next actions defined.";
         ?></td>
     </tr>
-    <?php if ($config['reviewProjectsWithoutOutcomes'] && count($noOutcomes)) { ?>
+    <?php if ($_SESSION['config']['reviewProjectsWithoutOutcomes'] && count($noOutcomes)) { ?>
     <tr>
         <td>Review Projects with no outcomes</td>
         <td>All of your projects should have a clear statement of the desired outcome.
@@ -123,6 +127,6 @@ include_once 'header.inc.php';
 </table>
 
 <?php
-    if (!empty($config['show7'])) include_once 'sevenhabits.inc.php';
+    if (!empty($_SESSION['config']['show7'])) include_once 'sevenhabits.inc.php';
 	include_once 'footer.inc.php';
 ?>

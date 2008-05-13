@@ -5,18 +5,18 @@ $values['itemId']= (empty($_REQUEST['itemId']))? 0 : (int) $_REQUEST['itemId'];
 $values['parentId']=array();
 
 $values['filterquery']='';
-$taglisttemp=query('gettags',$config,$values);
+$taglisttemp=query('gettags',$values);
 $taglist=array();
 if ($taglisttemp) foreach ($taglisttemp as $tag) $taglist[]=$tag['tagname'];
 
 //SQL CODE
 if ($values['itemId']) { // editing an item
     $where='edit';
-    $result = query("selectitem",$config,$values,$sort);
+    $result = query("selectitem",$values);
     if ($result) {
         $values = $result[0];
         $nextaction= ($result[0]['nextaction']==='y');
-        $parents = query("selectparents",$config,$values,$sort);
+        $parents = query("selectparents",$values);
     } else {
         include_once 'header.inc.php';
         echo "<p class='error'>Failed to retrieve item {$values['itemId']}</p>";
@@ -65,7 +65,7 @@ if (!$values['itemId']) {
         $pids=$_REQUEST['parentId'];
         if (!is_array($pids)) $pids=array($pids);
         if ($show['ptitle']) foreach ($pids as $pid) {
-            $result=query("selectitemshort",$config,array('itemId'=>$pid),$sort);
+            $result=query("selectitemshort",array('itemId'=>$pid));
             if ($result) $parents[]=array(
                  'parentId'=>$result[0]['itemId']
                 ,'ptitle'=>$result[0]['title']
@@ -80,12 +80,12 @@ if ($parents)
     foreach ($parents as $parent)
         $values['parentId'][]=$parent['parentId'];
 //create filters for selectboxes
-$values['timefilterquery'] = ($config['useTypesForTimeContexts'] && $values['type']!=='i')?" WHERE ".sqlparts("timetype",$config,$values):'';
+$values['timefilterquery'] = ($_SESSION['config']['useTypesForTimeContexts'] && $values['type']!=='i')?" WHERE ".sqlparts("timetype",$values):'';
 
 //create item, timecontext, and spacecontext selectboxes
-$cashtml = categoryselectbox($config,$values,$sort);
-$cshtml = contextselectbox($config,$values,$sort);
-$tshtml = timecontextselectbox($config,$values,$sort);
+$cashtml = categoryselectbox($values);
+$cshtml = contextselectbox($values);
+$tshtml = timecontextselectbox($values);
 
 $oldtype=$values['type'];
 
@@ -108,7 +108,7 @@ if ($_SESSION['useLiveEnhancements']) {
     foreach($ptypes as $ptype)
         $allowedSearchTypes[$ptype]=$alltypes[$ptype].'s';
     $values['ptypefilterquery']=" AND its.`type` IN ('".implode("','",$ptypes)."') ";
-    $potentialparents = query("parentselectbox",$config,$values,$sort);
+    $potentialparents = query("parentselectbox",$values);
     if (!$potentialparents) $potentialparents=array();
 } elseif (count($ptypes))
     $values['ptypefilterquery']=" AND ia.`type`='{$ptypes[0]}' ";
@@ -205,7 +205,7 @@ if (empty($values['recur'])) {
         $recur['day']=$recur['BYDAY']['DAY'];
         if (isset($recur['BYDAY'][0])) $recur['week']=$recur['BYDAY'][0];
     }
-    if($config['debug'] & _GTD_DEBUG) echo '<pre>',print_r($recur,true),'</pre>';
+    if($_SESSION['debug']['debug']) echo '<pre>',print_r($recur,true),'</pre>';
     /* TOFIX - identify when it's a TEXT type of recurrence, by
         processing the form in the same way as if it had been submitted to processItems,
         and then comparing the resulting rfc2445 text with that in the db.
@@ -252,12 +252,12 @@ if ($show['header']) {
     <h2><?php
     if ($values['itemId'])
         echo "\n<a href='itemReport.php?itemId={$values['itemId']}'>"
-            ,"<img src='themes/{$config['theme']}/report.gif' class='noprint' "
+            ,"<img src='themes/{$_SESSION['theme']}/report.gif' class='noprint' "
             ,"alt='Report' title='View Report' /></a>\n";
     echo $title;
     ?></h2><?php
 }
-if ($config['debug'] & _GTD_DEBUG)
+if ($_SESSION['debug']['debug'])
     echo '<pre>$_POST: ',print_r($_POST,true),
          '<br />$_GET: ',print_r($_GET,true),
          '</pre>';
@@ -298,7 +298,7 @@ if ($sep!=='<p>') echo "</p>\n";
                     include_once 'liveParents.inc.php';
                 } else { ?>
                     <select name="parentId[]" id='parenttable' multiple="multiple" size="6">
-                        <?php echo parentselectbox($config,$values,$sort); ?>
+                        <?php echo parentselectbox($values); ?>
                     </select>
                 <?php } ?>
             </div>
@@ -339,7 +339,7 @@ if ($sep!=='<p>') echo "</p>\n";
                 <button type='reset' id='tickledate_trigger'>&hellip;</button>
                 <script type='text/javascript'>
                     Calendar.setup({
-						firstDay    :   <?php echo (int) $config['firstDayOfWeek']; ?>,
+						firstDay    :   <?php echo (int) $_SESSION['config']['firstDayOfWeek']; ?>,
                         inputField  :	'tickledate',	  // id of the input field
                         ifFormat	:	'%Y-%m-%d',	   // format of the input field
                         showsTime	:	false,			// will display a time selector
@@ -359,7 +359,7 @@ if ($sep!=='<p>') echo "</p>\n";
                 <button type='reset' id='deadline_trigger'>&hellip;</button>
                     <script type='text/javascript'>
                         Calendar.setup({
-							firstDay    :   <?php echo (int) $config['firstDayOfWeek']; ?>,
+							firstDay    :   <?php echo (int) $_SESSION['config']['firstDayOfWeek']; ?>,
                             inputField  :	'deadline',	  // id of the input field
                             ifFormat	:	'%Y-%m-%d',	   // format of the input field
                             showsTime	:	false,			// will display a time selector
@@ -379,7 +379,7 @@ if ($sep!=='<p>') echo "</p>\n";
                 <button type='reset' id='dateCompleted_trigger'>&hellip;</button>
                     <script type='text/javascript'>
                         Calendar.setup({
-							firstDay    :    <?php echo (int) $config['firstDayOfWeek']; ?>,
+							firstDay    :    <?php echo (int) $_SESSION['config']['firstDayOfWeek']; ?>,
                             inputField	:	'dateCompleted',	  // id of the input field
                             ifFormat	:	'%Y-%m-%d',	   // format of the input field
                             showsTime	:	false,			// will display a time selector
@@ -460,7 +460,7 @@ if ($sep!=='<p>') echo "</p>\n";
                 <span id='taglist'>
                     <?php foreach ($taglist as $tag)
                             echo "<a class='add' href='#'"
-                                ,($config['useLiveEnhancements']) ?
+                                ,($_SESSION['config']['useLiveEnhancements']) ?
                                     " onclick='return GTD.tagAdd(this)'"
                                     : ''
                                 ,">$tag</a>, \n";
@@ -479,13 +479,13 @@ if ($sep!=='<p>') echo "</p>\n";
         </div><?php
 $key='afterCreate'.$values['type'];
 // always use config value when creating
-if (!empty($config['afterCreate'][$values['type']]) && empty($_SESSION[$key]))
-	$_SESSION[$key]=$config['afterCreate'][$values['type']];
+if (!empty($_SESSION['config']['afterCreate'][$values['type']]) && empty($_SESSION[$key]))
+	$_SESSION[$key]=$_SESSION['config']['afterCreate'][$values['type']];
 
 if ($values['itemId'] && !empty($_SESSION[$key]))
     $tst=$_SESSION[$key];
 else
-    $tst=$config['afterCreate'][$values['type']];
+    $tst=$_SESSION['config']["afterCreate{$values['type']}"];
 if ($show['submitbuttons']) { ?>
     <?php
     if (isset($_REQUEST['nextId'])) {
@@ -499,7 +499,7 @@ if ($show['submitbuttons']) { ?>
                 echo $_REQUEST['nextId'];
             ?>' />
         <?php
-    } else if ($config['radioButtonsForNextPage']) { ?>
+    } else if ($_SESSION['config']['radioButtonsForNextPage']) { ?>
         <div class='formrow'>
         <label class='left first'>After <?php
             echo ($values['itemId'])?'updating':'creating';
@@ -527,7 +527,7 @@ if ($show['submitbuttons']) { ?>
         else if ($values['type']==='C' || $values['type']==='L')
             echo "<input type='radio' name='afterCreate' id='childNext' value='child' class='notfirst'"
         	 	,($tst=='child')?" checked='checked' ":""
-        		," /><label for='childNext' class='right'>Create a child itme</label>\n";
+        		," /><label for='childNext' class='right'>Create a child item</label>\n";
 
         if (!empty($hiddenvars['referrer']) || !empty($_SESSION[$key])) {
             echo "<input type='radio' name='afterCreate' id='referrer' value='referrer' class='notfirst'"
@@ -604,12 +604,12 @@ if ($show['recurdesc']) {
             <label class='left first' for='freqtext'>Repeat:</label>
             <input type='radio' id='freqtext' name='FREQtype' value='TEXT' <?php
                 if ($recur['FREQ']==='TEXT') echo "checked='checked'";
-                if  (!$config['allowCustomRecurrences']) echo " disabled='disabled' ";
+                if  (!$_SESSION['config']['allowCustomRecurrences']) echo " disabled='disabled' ";
             ?> />in .ics format
             <label>RRULE: <input type='text' name='icstext' size='70' <?php
                 if (!empty($values['recur']))
                     echo " value='{$values['recur']}' ";
-                if  (!$config['allowCustomRecurrences'])
+                if  (!$_SESSION['config']['allowCustomRecurrences'])
                     echo " disabled='disabled' ";
             ?> /></label>
         </span>
@@ -734,7 +734,7 @@ if ($show['recurdesc']) {
         <button type='reset' id='UNTIL_trigger'>&hellip;</button>
         <script type='text/javascript'>
             Calendar.setup({
-				firstDay    :    <?php echo (int) $config['firstDayOfWeek']; ?>,
+				firstDay    :    <?php echo (int) $_SESSION['config']['firstDayOfWeek']; ?>,
                 inputField	:	'UNTIL',	  // id of the input field
                 ifFormat	:	'%Y-%m-%d',	   // format of the input field
                 showsTime	:	false,			// will display a time selector

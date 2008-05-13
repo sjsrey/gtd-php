@@ -9,7 +9,7 @@ define("_ALLOWUNINSTALL",false); // NOT YET ACTIVE
 require_once 'headerDB.inc.php';
 require_once 'admin.inc.php';
 
-define("_DEBUG",true && ($config['debug'] & _GTD_DEBUG));
+define("_DEBUG",true && ($_SESSION['debug']['debug']));
 
 /*
 TOFIX: scan for available installations
@@ -30,7 +30,7 @@ mysql> INSERT INTO t SELECT * FROM t AS t1;
 $action=(isset($_REQUEST['action']))?$_REQUEST['action']:'validate';
 $showInstallations=true;
 $showCommands=true;
-$prefix=(isset($_REQUEST['prefix']))?$_REQUEST['prefix']:$config['prefix'];
+$prefix=(isset($_REQUEST['prefix']))?$_REQUEST['prefix']:$_SESSION['prefix'];
 if (!checkPrefix($prefix)) $prefix='';
 $availableActions=array('validate','repair','backup');
 if (_ALLOWUNINSTALL) $availableActions[]='delete';
@@ -79,7 +79,7 @@ switch ($action) {
             $validate="<h2>Validation checks on installation with prefix $prefix</h2>";
         if ($result===false) {
             $validate.="<p class='error'>No database with prefix '$prefix'</p>\n";
-            $prefix=$config['prefix'];
+            $prefix=$_SESSION['prefix'];
         } else {
             $toterrs=0;
             $validate.="<p>Number of inconsistencies in the gtd-php data-set. NB some errors may overlap.</p>\n"

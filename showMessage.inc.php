@@ -1,5 +1,5 @@
 <?php
-if (count($_SESSION['message'])) {
+if (!empty($_SESSION['message'])) {
     if (is_array($_SESSION['message'])) {
         include_once 'gtdfuncs.inc.php';
         echo "<div class='success'>\n";

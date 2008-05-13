@@ -77,7 +77,7 @@ foreach ($maintable as $row) {
                     $out='';
                     $brk='';
                     $pids=explode(',',$row['parentId']);
-                    $pnames=explode($config['separator'],$row['ptitle']);
+                    $pnames=explode($_SESSION['config']['separator'],$row['ptitle']);
                     foreach ($pids as $pkey=>$pid) {
                         echo "$brk<a href='itemReport.php?itemId=$pid' title='View report'>"
                             ,makeclean($pnames[$pkey])
@@ -107,9 +107,9 @@ foreach ($maintable as $row) {
 
                     if ($row['itemId'][0]!=='0')
                         echo "<a href='itemReport.php?itemId={$row['itemId']}'>"
-                            ,"<img src='themes/{$config['theme']}/report.gif' class='noprint' alt='Report' title='View Report' /></a>";
+                            ,"<img src='themes/{$_SESSION['theme']}/report.gif' class='noprint' alt='Report' title='View Report' /></a>";
                     echo "<a href='item.php?itemId={$row['itemId']}'>"
-                    ,"<img src='themes/{$config['theme']}/edit.gif' class='noprint' alt='Edit ' title='Edit' /></a>"
+                    ,"<img src='themes/{$_SESSION['theme']}/edit.gif' class='noprint' alt='Edit ' title='Edit' /></a>"
                     ,"<a ",(empty($row['NA']))?'':"class='nextactionlink'"
                     ," title='"
                     ,(empty($row['doreport']))?'Edit':'View Report'

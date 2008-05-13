@@ -1,7 +1,8 @@
 <?php
 require_once 'ses.inc.php';
-require_once 'config.php';
-if ($config['debug'] & _GTD_NOTICE)
+require_once 'config.inc.php';
+$_SESSION['prefix']=$config['prefix'];
+if (!empty($_SESSION['debug']['notice']))
 		error_reporting(E_ALL);
     else
 		error_reporting(E_ALL ^ E_NOTICE);
@@ -23,10 +24,10 @@ if ($config['debug'] & _GTD_NOTICE)
   safeIntoDB($value,$key) - to make a value safe for database processing,
                             by escaping any control characters
 
-  getsql($config,$values,$sort,$querylabel) - to return the sql query text,
+  getsql($querylabel,$values,$sort) - to return the sql query text,
                                               for query with name: $querylabel
 
-  sqlparts($part,$config,$values) - to return the sql query subclause text,
+  sqlparts($part,$values) - to return the sql query subclause text,
                                         for the subclause with name: $querylabel
 
   connectdb($config) - to open a connection to the database, and return the connector handle
@@ -54,9 +55,21 @@ switch ($config['dbtype']) {
         require 'sqlite.inc.php';
         break;
     default:
-        die("Database type not configured.  Please edit the config.php file.");
+        die("Database type not configured.  Please edit the config.inc.php file.");
 }
 //connect to database
 $connection = connectdb($config);
+unset($config['pass']); // don't let the database password leak out
 require_once 'gtdfuncs.inc.php';
+
+// if no options, read them in from preferences table, and then overwrite with cookie values
+if (empty($_SESSION['config'])) {
+    $optionarray=query('getconfig',array('uid'=>0,'filterquery'=>'') );
+    if ($optionarray) foreach ($optionarray as $options)
+        $_SESSION[$options['option']]=unserialize($options['value']);
+    foreach ($_COOKIE as $key=>$val) // retrieve cookie values
+        if (!empty($key) && isset($_SESSION[$key]))
+            $_SESSION[$key]=$val; 
+}
+
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

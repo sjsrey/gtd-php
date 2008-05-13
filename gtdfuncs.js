@@ -234,7 +234,7 @@ GTD.confirmDelete=function(elem) { // confirm that the user wishes to delete the
 // ======================================================================================
 GTD.debugInit=function (keyToCatch) {
 	grabKey=keyToCatch;
-	GTD.addEvent(document,'keyup',keyUpHandler);
+	GTD.addEvent(document,'keypress',keyUpHandler);
 };
 // ======================================================================================
 GTD.filtertoggle=function (which) {

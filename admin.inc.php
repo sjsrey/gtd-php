@@ -62,7 +62,6 @@ function checkErrors($prefix) {
    ======================================================================================
 */
 function backupData($prefix) {
-    global $config;
     $sep="-- *******************************\n";
     $tables=array('categories','context','itemattributes','items','itemstatus','lookup','preferences','tagmap','timeitems','version');
     $data='';
@@ -84,15 +83,13 @@ function backupData($prefix) {
         }
     }
     //$data=htmlspecialchars($creators.$sep.$header.$sep.$data,ENT_NOQUOTES);
-    $data=htmlspecialchars($header.$sep.$data,ENT_NOQUOTES,$config['charset']);
+    $data=htmlspecialchars($header.$sep.$data,ENT_NOQUOTES,$_SESSION['config']['charset']);
     return $data;
 }
 /*
    ======================================================================================
 */
 function fixData($prefix) {
-    global $config;
-
     foreach ( array( 'deadline'=>'itemattributes'
                     ,'tickledate'=>'itemattributes'
                     ,'dateCompleted'=>'itemstatus'
@@ -100,7 +97,7 @@ function fixData($prefix) {
                     ,'lastModified'=>'itemstatus'
              ) as $field=>$table) {
         // change dates of "0000-00-00" to NULL
-        $q="UPDATE `{$config['prefix']}{$table}` SET `$field`=NULL where `$field`='0000-00-00'";
+        $q="UPDATE `$prefix{$table}` SET `$field`=NULL where `$field`='0000-00-00'";
         send_query($q);
     }
     // remove duplicate version tags
@@ -160,7 +157,7 @@ function fixData($prefix) {
    ======================================================================================
 */
 function deleteInstall($ver,$prefix) {
-global $versions,$config,$tablesByVersion;
+global $versions,$tablesByVersion;
     require_once 'headerDB.inc.php';
 	echo "<h1>GTD-PHP - Deleting an installation</h1>\n<div id='main'>\n";
 	if (isset($_POST['tablesToDelete'])) {
@@ -190,18 +187,6 @@ function makeDeleteButton($prefix,$ver) {
 /*
    ======================================================================================
 */
-function fixLastModifiedColumn() {
-    global $config;
-
-   $q="UPDATE `{$config['prefix']}itemstatus` SET `lastModified`=`dateCreated` WHERE `lastModified`='"._DEFAULTDATE."'";
-   send_query($q,false);
-   $q="ALTER TABLE `{$config['prefix']}itemstatus` MODIFY `lastModified`
-                    timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP";
-   send_query($q);
-}
-/*
-   ======================================================================================
-*/
 function offerToDeleteOne($prefix,$ver) {
     echo showDeleteWarning(true)
         ,"<form action='install.php' method='post'><div>\n"
@@ -218,7 +203,7 @@ function showNoUpgradeMsg($prefix,$ver) {
         ," (version $ver) with prefix '$prefix'<br />\n"
         ," The installation options that are currently set do "
         ," not allow you to upgrade the current installation in place: change the "
-        ," prefix in config.php to allow you to create a new installation.</p>\n";
+        ," prefix in config.inc.php to allow you to create a new installation.</p>\n";
 }
 /*
    ======================================================================================
@@ -246,7 +231,7 @@ function checkPrefix($prefix) {
 	if (_DEBUG) echo '<p class="debug">Validating prefix '."'{$prefix}'</p>\n";
 	$prefixOK=preg_match("/^[-_a-zA-Z0-9]*$/",$prefix);
 	if (!$prefixOK)
-		echo '<p class="error">Prefix "',$prefix, '" is invalid - change config.php.'
+		echo '<p class="error">Prefix "',$prefix, '" is invalid - change config.inc.php.'
 			 ," The only valid characters are numbers, letters, _ (underscore) and - (hyphen):"
              ," for maximum compatibility and portability, we recommend using no upper case letters</p>\n";
 
@@ -269,7 +254,9 @@ function checkTables($ver,$prefix='',$casesensitive=false) {
         foreach ($tablelist as $table)
             $haystack[]=strtolower($table);
     }
-   	foreach ($needle as $table)
+   	if (empty($needle))
+        $doneOK=false;
+    else foreach ($needle as $table)
 		if (!in_array($prefix.$table,$haystack,true)) {
 			$doneOK=false;
 			break;
@@ -382,21 +369,10 @@ function send_query($q,$dieOnFail=true) {
 /*
    ======================================================================================
 */
-function createVersion()  {
-    global $config,$temp;
-    create_table('version');
-    $q="INSERT INTO `{$config['prefix']}{$temp}version` (`version`) VALUES";
-    $q.=" ('"._GTD_VERSION."')";
-    send_query($q);
-}
-/*
-   ======================================================================================
-*/
 function updateVersion() {
-    global $config;
-    $q="TRUNCATE `{$config['prefix']}version`";
+    $q="TRUNCATE `{$_SESSION['prefix']}version`";
     send_query($q,false);
-    $q="INSERT INTO `{$config['prefix']}version` VALUES('"._GTD_VERSION."',NULL)";
+    $q="INSERT INTO `{$_SESSION['prefix']}version` VALUES('"._GTD_VERSION."',NULL)";
     send_query($q,false);
 }
 /*
@@ -460,21 +436,21 @@ function failDuringCheck() {
         case 'in': // barely started
             echo "<p class='error'>Unable to start the installation pre-flight checks</p>";
             break;
-        case 'config': // no valid config.php
-    		echo "<p class='error'>No valid config.php file found.<br />"
-    			,"Copy the config.sample.php file to config.php, and set the MySQL parameters</p>\n";
-    		// TOFIX - link to config.php documentation here
+        case 'config': // no valid config.inc.php
+    		echo "<p class='error'>No valid config.inc.php file found.<br />"
+    			,"Copy the config.sample.php file to config.inc.php, and set the MySQL parameters</p>\n";
+    		// TOFIX - link to config.inc.php documentation here
 
             break;
         case 'db': // failed during attempt to open database
             echo "<p class='error'>";
-            if ($config['db']=='')
-                echo "No database name was found in the config.php file: you will need to add the "
-                    ," database name, database user name, and password, to the config.php file ";
+            if (empty($config['db']))
+                echo "No database name was found in the config.inc.php file: you will need to add the "
+                    ," database name, database user name, and password, to the config.inc.php file ";
             else
-                echo "Please check your config.php file. It's currently set to use the '{$config['db']}' MySQL database."
+                echo "Please check your config.inc.php file. It's currently set to use the '{$config['db']}' MySQL database."
                 ," If that is the correct name, it may be that the database is not yet created, "
-                ," or that the database user name or password in the config.php file are incorrect."
+                ," or that the database user name or password in the config.inc.php file are incorrect."
                 ," Either create the database, adjust the user permissions, or set the username and password correctly,";
 
             echo " (contact your administrator if you don't know how to do this)"
@@ -484,7 +460,7 @@ function failDuringCheck() {
             echo "<p class='error'>Failed to get a list of the current tables in the database: check your MySQL database structure</p>\n";
             break;
         case 'prefix':
-            echo "<p class='error'>Change the prefix value in config.php file, then return to this page</p>\n";
+            echo "<p class='error'>Change the prefix value in config.inc.php file, then return to this page</p>\n";
             break;
         case 'installations':
             echo "<p class='error'>Failed while examining current installations</p>\n";
@@ -504,8 +480,8 @@ function failDuringCheck() {
    ======================================================================================
 */
 function create_table ($name) {
-	global $config, $temp;
-	$tablename=$config['prefix'].$temp.$name;
+	global $temp;
+	$tablename=$_SESSION['prefix'].$temp.$name;
     $q="CREATE TABLE `$tablename` (";
 	switch ($name) {
 	case "categories":
@@ -566,11 +542,12 @@ function create_table ($name) {
        $q.="PRIMARY KEY  (`parentId`,`itemId`) )";
     break;
 	case "preferences":
-       $q.="`id`  int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`uid` int(10)  NOT NULL default '0', ";
-       $q.="`option`  text, ";
-       $q.="`value`  text, ";
-       $q.="PRIMARY KEY  (`id`)); ";
+       $q.="`id`  int(10) unsigned NOT NULL auto_increment,
+            `uid` int(10)  NOT NULL default '0',
+            `option` text NOT NULL,
+            `value`  text,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY(`uid`,`option`(10)) ) "._CREATESUFFIX;
 	break;
     case "tagmap":
         $q.= "`itemId` int(10) unsigned NOT NULL,

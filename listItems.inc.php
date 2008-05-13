@@ -1,6 +1,6 @@
 <?php
 require_once 'headerDB.inc.php';
-if ($config['debug'] & _GTD_DEBUG) {
+if ($_SESSION['debug']['debug']) {
     include_once 'header.inc.php';
     echo '<pre>POST: ',var_dump($_POST),'</pre>';
 }
@@ -47,7 +47,7 @@ if ($quickfind) {
 
 /* end of setting $filter
  --------------------------------------*/
-if ($config['debug'] & _GTD_DEBUG) echo '<pre>Filter:',print_r($filter,true),'</pre>';
+if ($_SESSION['debug']['debug']) echo '<pre>Filter:',print_r($filter,true),'</pre>';
 
 $values['type']           =$filter['type'];
 $values['parentId']       =$filter['parentId'];
@@ -60,17 +60,17 @@ $values['tags']           =$filter['tags'];
 //SQL CODE
 
 $values['filterquery']='';
-$taglisttemp=query('gettags',$config,$values);
+$taglisttemp=query('gettags',$values);
 $taglist=array();
 if ($taglisttemp) foreach ($taglisttemp as $tag) $taglist[]=$tag['tagname'];
 
 //create filters for selectboxes
-$values['timefilterquery'] = ($config['useTypesForTimeContexts'] && $values['type']!=='*')?" WHERE ".sqlparts("timetype",$config,$values):'';
+$values['timefilterquery'] = ($_SESSION['config']['useTypesForTimeContexts'] && $values['type']!=='*')?" WHERE ".sqlparts("timetype",$values):'';
 
 //create filter selectboxes
-$cashtml=str_replace('--','(any)',categoryselectbox   ($config,$values,$sort));
-$cshtml =str_replace('--','(any)',contextselectbox    ($config,$values,$sort));
-$tshtml =str_replace('--','(any)',timecontextselectbox($config,$values,$sort));
+$cashtml=str_replace('--','(any)',categoryselectbox   ($values));
+$cshtml =str_replace('--','(any)',contextselectbox    ($values));
+$tshtml =str_replace('--','(any)',timecontextselectbox($values));
 
 // pass filters in referrer
 $thisurl=parse_url($_SERVER['PHP_SELF']);
@@ -80,7 +80,7 @@ foreach($filter as $filterkey=>$filtervalue)
 
 
 //Select items
-$trimlength=$config['trimLength'];
+$trimlength=$_SESSION['config']['trimLength'];
 if($trimlength) {
     $descriptionField='shortdesc';
     $outcomeField='shortoutcome';
@@ -185,22 +185,22 @@ $values['childfilterquery'] = "WHERE TRUE";
 
 //type filter
 if ($values['type']!=='*')
-    $values['childfilterquery'] .= " AND ".sqlparts("typefilter",$config,$values);
+    $values['childfilterquery'] .= " AND ".sqlparts("typefilter",$values);
 
 // search string
 if ($filter['needle']!=='')
-    $values['childfilterquery'] .= " AND ".sqlparts("matchall",$config,$values);
+    $values['childfilterquery'] .= " AND ".sqlparts("matchall",$values);
 
 $linkfilter='';
 
 if ($checkchildren) {
-    $values['filterquery'] = sqlparts("checkchildren",$config,$values);
-    $values['extravarsfilterquery'] = sqlparts("countchildren",$config,$values);;
+    $values['filterquery'] = sqlparts("checkchildren",$values);
+    $values['extravarsfilterquery'] = sqlparts("countchildren",$values);;
 } else $values['filterquery']=$values['extravarsfilterquery']='';
 
 if ($filter['tags'] !=NULL) {
     // now put into array, to count
-    $values['childfilterquery'] .= " AND " .sqlparts("hastags",$config,$values);
+    $values['childfilterquery'] .= " AND " .sqlparts("hastags",$values);
     $show['tags']=true;
 }
 
@@ -209,10 +209,10 @@ if ($filter['tags'] !=NULL) {
 */
 if ($filter['everything']!="true") {
     if ($values['parentId']!='')
-        $values['filterquery'] .= " WHERE ".sqlparts("hasparent",$config,$values);
+        $values['filterquery'] .= " WHERE ".sqlparts("hasparent",$values);
     else switch ($filter['liveparents']) {
         case 'false': // show only children of completed / suppressed / someday parents
-            $values['filterquery'] .= ' WHERE NOT ( '.sqlparts("liveparents",$config,$values).' )';
+            $values['filterquery'] .= ' WHERE NOT ( '.sqlparts("liveparents",$values).' )';
             break;
 
         case '*': // don't filter on completion status of parents
@@ -220,56 +220,56 @@ if ($filter['everything']!="true") {
 
         case 'true': //Filter out items with completed/suppressed/someday parents  - deliberately flows through to default case
         default:
-            $values['filterquery'] .= ' WHERE '.sqlparts("liveparents",$config,$values);
+            $values['filterquery'] .= ' WHERE '.sqlparts("liveparents",$values);
             break;
     }
 
     //filter box filters
     if ($filter['categoryId'] != NULL && $filter['notcategory']=="true")
-        $values['childfilterquery'] .= " AND ".sqlparts("notcategoryfilter",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("notcategoryfilter",$values);
     elseif($filter['categoryId'] != NULL || $filter['notcategory']=="true") {
-        $values['childfilterquery'] .= " AND ".sqlparts("categoryfilter",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("categoryfilter",$values);
         $linkfilter .= '&amp;categoryId='.$values['categoryId'];
     }
     
     if ($filter['contextId'] != NULL && $filter['notspacecontext']=="true")
-        $values['childfilterquery'] .= " AND ".sqlparts("notcontextfilter",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("notcontextfilter",$values);
     elseif ($filter['contextId'] != NULL || $filter['notspacecontext']=="true") {
-        $values['childfilterquery'] .= " AND ".sqlparts("contextfilter",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("contextfilter",$values);
         $linkfilter .= '&amp;contextId='.$values['contextId'];
     }
     
     if ($filter['timeframeId'] != NULL && $filter['nottimecontext']=="true")
-        $values['childfilterquery'] .= " AND ".sqlparts("nottimeframefilter",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("nottimeframefilter",$values);
     elseif ($filter['timeframeId'] != NULL || $filter['nottimecontext']=="true") {
-        $values['childfilterquery'] .= " AND ".sqlparts("timeframefilter",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("timeframefilter",$values);
         $linkfilter .= '&amp;timeframeId='.$values['timeframeId'];
     }
     
-    if ($filter['completed']=="true") $values['childfilterquery'] .= " AND ".sqlparts("completeditems",$config,$values);
-    else $values['childfilterquery'] .= " AND " .sqlparts("pendingitems",$config,$values);
+    if ($filter['completed']=="true") $values['childfilterquery'] .= " AND ".sqlparts("completeditems",$values);
+    else $values['childfilterquery'] .= " AND " .sqlparts("pendingitems",$values);
     
     if ($filter['someday']=="true") {
         $values['isSomeday']="y";
-        $values['childfilterquery'] .= " AND " .sqlparts("issomeday",$config,$values);
+        $values['childfilterquery'] .= " AND " .sqlparts("issomeday",$values);
     } else {
         $values['isSomeday']="n";
-        $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$values);
     }
     
     if ($filter['tickler']=="true") {
         $linkfilter .='&amp;tickler=true';
-        $values['childfilterquery'] .= " AND ".sqlparts("suppresseditems",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("suppresseditems",$values);
     } else {
-        $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$config,$values);
+        $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$values);
     }
     
-    if ($filter['repeatingonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("repeating",$config,$values);
+    if ($filter['repeatingonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("repeating",$values);
     
-    if ($filter['dueonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("due",$config,$values);
+    if ($filter['dueonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("due",$values);
 
     if ($filter['nextonly']=='true' && !$checkchildren)
-        $values['childfilterquery'] .= ' AND '.sqlparts("isNAonly",$config,$values);
+        $values['childfilterquery'] .= ' AND '.sqlparts("isNAonly",$values);
 
 }
 /*
@@ -308,7 +308,7 @@ $title .= $typename;
 if ($quickfind)
     $result=0;
 else
-    $result=query("getitemsandparent",$config,$values,$sort);
+    $result=query("getitemsandparent",$values);
     
 $maintable=array();
 $thisrow=0;
@@ -387,7 +387,7 @@ if ($result) {
         if (count($childType)) $maintable[$thisrow]['childtype'] =$childType[0];
         
         if($row['deadline']) {
-            $deadline=prettyDueDate($row['deadline'],$config['datemask']);
+            $deadline=prettyDueDate($row['deadline'],$_SESSION['config']['datemask']);
             $maintable[$thisrow]['deadline'] =$deadline['date'];
             if (empty($row['dateCompleted'])) {
                 $maintable[$thisrow]['deadline.class']=$deadline['class'];
@@ -421,7 +421,7 @@ if ($result) {
         ,'checkbox'=>'Complete'
         ,'tags'=>'Tags'
         );
-    if ($config['debug'] & _GTD_DEBUG) echo '<pre>values to print:',print_r($maintable,true),'</pre>';
+    if ($_SESSION['debug']['debug']) echo '<pre>values to print:',print_r($maintable,true),'</pre>';
 } // end of: if($result)
 /*
     ===================================================================

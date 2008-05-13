@@ -16,7 +16,7 @@ $menu[] = array("link"=>"item.php?type=a", 'title'=>"Create a new action", 'labe
 $menu[] = array("link"=>"item.php?type=w", 'title'=>"Create a new waiting on item", 'label' => "Waiting On");
 $menu[] = array("link"=>"item.php?type=r", 'title'=>"Create a reference", 'label' => "Reference");
 $menu[] = array("link"=>"item.php?type=p", 'title'=>"Create a new project", 'label' => "Project");
-$menu[] = array("link"=>"item.php?type=p&amp;someday=true", 'title'=>"Create a future project", 'label' => "Someday/Maybe");
+$menu[] = array("link"=>"item.php?type=p&amp;someday=true", 'title'=>"Create a project for someday", 'label' => "Someday/Maybe");
 $menu[] = array("link"=>'','label'=>'separator');
 $menu[] = array("link"=>"item.php?type=g", 'title'=>"Define a new {$alltypes['g']}", 'label' => "{$alltypes['g']}");
 $menu[] = array("link"=>"item.php?type=o", 'title'=>"Define a new {$alltypes['o']}", 'label' => "{$alltypes['o']}");
@@ -71,15 +71,18 @@ $menu[] = array("link"=>"editCat.php?field=context", 'title'=>"Edit spatial cont
 $menu[] = array("link"=>"editCat.php?field=time-context", 'title'=>"Edit time contexts", 'label' => "Time Contexts");
 $menu[] = array("link"=>'','label'=>'separator');
 $menu[] = array("link"=>"preferences.php", 'title'=>"User preferences", 'label' => "User Preferences");
-if ($config['showAdmin'])
+if ($_SESSION['config']['showAdmin']) {
+    $menu[] = array("link"=>"types1.php", 'title'=>"Change names in the hierarchy", 'label' => "Edit Level names");
+    $menu[] = array("link"=>"types2.php", 'title'=>"Change relationships between the levels", 'label' => "Edit Levels");
     $menu[] = array("link"=>"admin.php", 'title'=>"Administration", 'label' => "Admin");
+}
 /*
    ----------------------------------------------
 */
 $menu[] = array("link"=>'','label'=>'Help');
 //-------------------------------------------
 $newbuglink="https://www.hosted-projects.com/trac/toae/gtdphp/newticket";
-if (!$config['withholdVersionInfo']) $newbuglink.='?milestone='._GTDPHP_VERSION.'&amp;description='
+if (!$_SESSION['config']['withholdVersionInfo']) $newbuglink.='?milestone='._GTDPHP_VERSION.'&amp;description='
     .urlencode('gtd-php='._GTD_REVISION.' , GTD-db='._GTD_VERSION
     .' , PHP='.PHP_VERSION.' , Database='.getDBVersion()
     );
@@ -90,7 +93,7 @@ $menu[] = array("link"=>"http://toae.org/boards", 'title'=>"Help and development
 $menu[] = array('link'=>'http://www.gtd-php.com/Developers/Contrib','title'=>'User-contributed enhancements','label'=>'Themes and add-ons');
 $menu[] = array("link"=>"https://www.hosted-projects.com/trac/toae/gtdphp", 'title'=>"Bug tracking and project development", 'label' => "Developers' wiki");
 $menu[] = array("link"=>"http://www.frappr.com/gtdphp", 'title'=>"Tell us where you are", 'label' => "Frappr Map");
-if ($config['debug'] & _GTD_DEBUG) {
+if ($_SESSION['debug']['debug']) {
     $menu[] = array("link"=>"https://www.hosted-projects.com/trac/toae/gtdphp/log?action=stop_on_copy&amp;rev="
         ._GTD_REVISION."&amp;stop_rev=411&amp;mode=follow_copy&amp;verbose=on"
         ,'title'=>'Changelog (requires trac login)', 'label'=>'Changelog');
@@ -104,7 +107,7 @@ $menu[] = array("link"=>"version.php", 'title'=>"Version information", 'label' =
    ----------------------------------------------
         now process addons
 */
-if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddon) {
+if (!empty($_SESSION['config']['addons'])) foreach ($_SESSION['config']['addons'] as $addonid=>$thisaddon) {
     $url=$thisaddon['where'];
     foreach ($menu as $key=>$line) {
         if ($url!==$line['link']) continue;
@@ -136,7 +139,7 @@ if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddo
 */
 ?>
 <div id="header">
-	<h1 id='sitename'><a href='index.php'><?php echo $config['title'];?></a></h1>
+	<h1 id='sitename'><a href='index.php'><?php echo $_SESSION['config']['title'];?></a></h1>
 </div>
 <div id="menudiv">
 	<ul id="menulist">
@@ -151,12 +154,13 @@ if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddo
                 $menuend="</ul></li>\n";
             }
         } else {
-            if (empty($acckey[$line['link']]))
+            if (empty($_SESSION['keys'][$line['link']]))
                 $accesskey=$keypress='';
             else {
-                $menu[$index]['key']=$acckey[$line['link']];
-                $keypress=" ({$acckey[$line['link']]})";
-                $accesskey=" accesskey='{$acckey[$line['link']]}'";
+                $key=$_SESSION['keys'][$line['link']];
+                $menu[$index]['key']=$key;
+                $keypress=" ($key)";
+                $accesskey=" accesskey='$key' ";
             }
 	        echo "<li$class>\n"
                 ,"<a href='{$line['link']}' title='{$line['title']}' $accesskey>"

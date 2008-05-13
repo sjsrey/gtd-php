@@ -10,7 +10,7 @@ ob_end_clean();
 </head><body>
 <div class='noprint'>
     <?php echo $menutext; ?>
-    <p id='main'>These keys can be changed in config.php</p>
+    <p id='main'>These keys can be changed in config.inc.php</p>
 </div>
 <h2>Shortcut keys for gtd-php</h2>
 <table summary='Shortcut keys'>

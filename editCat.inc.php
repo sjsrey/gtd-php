@@ -38,14 +38,14 @@ switch ($field) {
         $query='timecontextselectbox' ;
         $values['timefilterquery'] = '';
         $keys[]='type';
-        $showTypes=$config['useTypesForTimeContexts'];
+        $showTypes=$_SESSION['config']['useTypesForTimeContexts'];
         break;
     default:
         $query='';
         $showTypes=false;
         break;
 }
-$result = query($query,$config,$values,$sort);
+$result = query($query,$values);
 $catlist=array();
 $count=0;
 $thiscat=false;

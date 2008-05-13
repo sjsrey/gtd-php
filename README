@@ -41,9 +41,9 @@ Installation (Mac OS X-specific. For an other OS, adjust accordingly):
 
 4. cd ~/Sites/gtd-php
 
-5. cp config.sample.php config.php
+5. cp config.sample.php config.inc.php
 
-6. Edit config.php and change $pass and $user to values for local machine.
+6. Edit config.inc.php and change $pass and $user to values for local machine.
 
 7. In mysql create a database called gtd:
 	create database gtd;
@@ -61,8 +61,8 @@ Installation (Mac OS X-specific. For an other OS, adjust accordingly):
     then connect to mysql from a shell and issue:
     	set password for 'user'@'localhost' = old_password('password');
 
-	being sure to change user to the user in config.php and password to
-	the value of pass in config.php
+	being sure to change user to the user in config.inc.php and password to
+	the value of pass in config.inc.php
 
 10. Explore, enjoy, and send us comments, suggestions, gripes, donations at
     http://toae.org/boards

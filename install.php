@@ -9,7 +9,7 @@ define("_MAXKEYLENGTH",10);
 
     /* _ALLOWUPGRADEINPLACE = false | true -
     allow the user to upgrade the current installation by over-writing it.
-    If false, then the user should enter a new prefix in config.php          */
+    If false, then the user should enter a new prefix in config.inc.php          */
 define("_ALLOWUPGRADEINPLACE",true);
 
     /* _ALLOWUNINSTALL = false | true -
@@ -56,8 +56,6 @@ if (_USEFULLTEXT) {
 /* ============================================================================
   global variables
 */
-$config=array();
-
 $tablesByVersion=array( // NB the order of tables in these arrays is CRITICAL. they must be consistent across the 0.8 sub-versions
     // we don't offer an upgrade path from 0.6.  Any 0.6 installations should first upgrade to 0.7, then run this routine
     '0.6'     => array('context','goals','maybe','maybesomeday','nextactions','projects','reference','waitingon'),
@@ -71,6 +69,7 @@ $tablesByVersion=array( // NB the order of tables in these arrays is CRITICAL. t
     '0.8rc-4' => array('categories','checklist','checklistitems','context','itemattributes','items','itemstatus','list','listitems','lookup','nextactions','tickler','timeitems','version','preferences'),
     // 0.8z.04 - tagmap table introduced;     checklist,checklistitems,list,listitems,nextactions tables removed;   items,itemstatus,itemattributes reworked
     '0.8z.04'   => array('categories','context','itemattributes','items','itemstatus','lookup','tagmap','timeitems','version','preferences')
+    // 0.8z.05 - preferences table revised, no change to list of tables
     );
 
 $versions=array(
@@ -91,6 +90,9 @@ $versions=array(
                         'upgradepath'=>'0.8rc-4'),
     '0.8z.04'  => array(  'tables'=>'0.8z.04',
                         'database'=>'0.8z.04',
+                        'upgradepath'=>'0.8z.04'),
+    '0.8z.05'  => array(  'tables'=>'0.8z.04',
+                        'database'=>'0.8z.05',
                         'upgradepath'=>'copy')
     );
 /*
@@ -101,11 +103,28 @@ $versions=array(
 $areUpdating=false;
 $wantToDelete=false;
 $areDeleting=false;
-
-require_once 'headerHtml.inc.php';
-echo "</head><body><div id='container'>";
-include 'showMessage.inc.php';
-echo "<h2>This is the gtd-php v0.8 installer</h2>\n";
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+		  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>gtd-php installer</title>
+<?php if (_DEBUG) { ?>
+    <style type='text/css'>pre,.debug {}</style>
+    <script type='text/javascript'>
+    GTD={debugKey:'h'};
+    </script>
+    <script type="text/javascript" src="gtdfuncs.js"></script>
+<?php } ?>
+<link rel="stylesheet" href="themes/default/style.css" type="text/css"/>
+<link rel="stylesheet" href="themes/default/style_screen.css" type="text/css" media="screen" />
+</head>
+<body>
+<div id='container'>
+<?php include 'showMessage.inc.php'; ?>
+<h2>This is the gtd-php v0.8 installer</h2>
+<?php
 
 if (_DEBUG) echo '<pre>'
 	,(_DRY_RUN)?'Executing Dry run - no tables will be amended in this run':'This is a <b>live</b> run'
@@ -116,11 +135,12 @@ if (isset($_POST['cancel']))
 elseif (isset($_POST['install'])) {
     $toPrefix=$_POST['prefix'];
     $toDB=$_POST['db'];
-    // check to see whether the prefix in config.php hsa been changed between POST and now
+    // check to see whether the prefix in config.inc.php hsa been changed between POST and now
+    include_once 'config.inc.php';
     if ($toPrefix===$config['prefix'] && $toDB===$config['db'])
         $areUpdating=true; // ok, it's safe to update.
     else {
-        echo "<p class='error warning'>config.php has changed during the installation process. "
+        echo "<p class='error warning'>config.inc.php has changed during the installation process. "
             ," The upgrade cannot continue. Please select your upgrade option again.";
     }
 }elseif (_ALLOWUNINSTALL && !isset($_POST['check'])) {
@@ -162,7 +182,12 @@ else {
     $checkState='in';
 	checkInstall();
 }
-include_once 'footer.inc.php';
+?>
+</div>
+</div>
+</body>
+</html>
+<?php
 return;
 /*
    ======================================================================================
@@ -173,7 +198,7 @@ return;
    ======================================================================================
 */
 function checkInstall() {
-	global $config,$versions,$tablelist,$sort,$checkState,$tablesByVersion;
+	global $config,$versions,$tablelist,$checkState,$tablesByVersion;
 
     register_shutdown_function('failDuringCheck');
 	$goodToGo=true; // assume we'll be able to upgrade, until we find something to stop us
@@ -186,37 +211,31 @@ function checkInstall() {
 	}
     // check the config file
 	$checkState='config';
-	if (_DEBUG) echo '<p class="debug">Got config.php:</p><pre>',print_r($config,true),'</pre>';
-	if (!isset($config['db'])) {
-        echo "<p class='warning'>Fatal Error: no valid config.php file has been found. "
-            ," you should update the config.php file, based on the config.sample.php "
-            ," file supplied with GTD-PHP, before using this installer.</p>\n";
-        exit();
+	include_once 'config.inc.php';
+	if (_DEBUG) {
+        $configsav=$config;
+        $configsav['pass']='********';
+        echo '<p class="debug">Got config.inc.php:</p><pre>',print_r($configsav,true),'</pre>';
     }
-
-	// check to see whether config file is 0.7 or 0.8 style: if the former, warn the installer, and link to documentation
-	$configFileIsOld=!(isset($config['firstDayOfWeek']) && is_array($sort));
-	if ($configFileIsOld) {
-        echo "<p class='warning'>Warning: your config.php file appears to be for "
-            ," an earlier version of GTD-PHP! The installation may be able to "
-            ," proceed successfully, but you should update the config.php file, "
-            ," based on the config.sample.php file supplied, before using the "
-            ," package.</p>\n";
-	}
-
-	// validate the prefix
-	$checkState='prefix';
-	if (!checkPrefix($config['prefix'])) exit(); // invalid prefix = fatal error
-
+	if (empty($config['db'])) {
+        echo "<p class='warning'>Fatal Error: no valid config.inc.php file has been found. "
+            ," you should update the config.inc.php file, based on the config.sample.php "
+            ," file supplied with GTD-PHP, before using this installer.</p>\n";
+        exit;
+    }
+    
     // try to open the database
     $checkState='db';
 	require_once 'headerDB.inc.php';
-
 	// got a database; now get a list of its tables
 	$checkState='tables';
 	$tablelist = getDBTables($config['db']);
 	$nt=count($tablelist);
 	if (_DEBUG) echo "<pre>Number of tables: $nt<br />",print_r($tablelist,true),"</pre>";
+
+	// validate the prefix
+	$checkState='prefix';
+	if (!checkPrefix($config['prefix'])) exit; // invalid prefix = fatal error
 
 	/*
 		Build an array of current installlations,
@@ -319,7 +338,7 @@ function checkInstall() {
                 ,"<input type='hidden' name='tablesToDelete' value='"
                 ,implode(' ',$tmptables)
                 ,"'></p></form>\n";
-            else echo "<p class='warning'>$msg<br />Change the installation prefix in config.php, or consult your administrator, to fix the problem.</p>\n";
+            else echo "<p class='warning'>$msg<br />Change the installation prefix in config.inc.php, or consult your administrator, to fix the problem.</p>\n";
         }
 
     }
@@ -379,7 +398,7 @@ function checkInstall() {
         if ($destInUse)
             echo "<span class='warning'>Warning: this will over-write your current installation! "
                 ," Make sure you have a backup of your data first! If you're not sure, "
-                ," change the prefix in config.php, to create a new installation, "
+                ," change the prefix in config.inc.php, to create a new installation, "
                 ," rather than over-writing the current one.</span>\n";
         echo "</div>\n</form>\n";
 	}
@@ -394,9 +413,8 @@ function checkInstall() {
 */
 function doInstall($installType,$fromPrefix) {
 	global $config,$temp,$install_success,$versions,$tablesByVersion;
-
     require_once "headerDB.inc.php";
-
+    $toPrefix=$config['prefix'];
 	$temp='';
 	register_shutdown_function('cleanup');
 	if (_DEBUG) echo "<pre>Install type is: $installType<br />Source database has prefix $fromPrefix</pre>";
@@ -424,7 +442,6 @@ installation for use and familiarize yourself with the system.</p>\n
 	   break;
 	 case '1': // new install with sample data
 		create_tables();
-		fixLastModifiedColumn();
 		create_data();
     	$install_success = true;
        // give some direction about what happens next for the user.
@@ -433,13 +450,13 @@ installation for use and familiarize yourself with the system.</p>\n
                ."Sample data has been created as part of the installation.</p>\n";
 		break;
 	 case 'copy': // already at latest release ============================================================
-    	if ($fromPrefix===$config['prefix']){
+    	if ($fromPrefix===$toPrefix){
 			$install_success = false;
 			$endMsg="<p class='warning'>Cannot copy database to itself!</p>";
     	} else {
 			create_tables();
 			foreach ($tablesByVersion[$versions[_GTD_VERSION]['tables']] as $table){
-				$q = "INSERT INTO ".$config['prefix']. $table . " select * from `". $fromPrefix . $table ."`";
+				$q = "INSERT INTO ".$toPrefix. $table . " select * from `". $fromPrefix . $table ."`";
 				send_query($q);
 			}
 			updateVersion();
@@ -448,159 +465,228 @@ installation for use and familiarize yourself with the system.</p>\n
 		}
 	   break;
 	 case '0.8rc-4': // ugprade from 0.8rc-4          ============================================================
-    	if ($fromPrefix!==$config['prefix']){ // updating to new prefix
+    	if ($fromPrefix!==$toPrefix){ // updating to new prefix
 			foreach ($tablesByVersion[$versions['0.8rc-4']['tables']] as $key=>$table) {
-				$q = "CREATE TABLE `{$config['prefix']}$table` LIKE `$fromPrefix$table`";
+				$q = "CREATE TABLE `{$toPrefix}$table` LIKE `$fromPrefix$table`";
 				send_query($q);
-				$q = "INSERT INTO `{$config['prefix']}$table` SELECT * FROM `$fromPrefix$table`";
+				$q = "INSERT INTO `{$toPrefix}$table` SELECT * FROM `$fromPrefix$table`";
 				send_query($q);
 			}
 		}
 		create_table('tagmap');
 
-        $q="alter table `{$config['prefix']}itemattributes` add column `nextaction` enum('y','n') NOT NULL DEFAULT 'n';";
+        $q="alter table `{$toPrefix}itemattributes` add column `nextaction` enum('y','n') NOT NULL DEFAULT 'n';";
 		send_query($q);
-		$q="update `{$config['prefix']}itemattributes` set `nextaction`='y' where `itemId` in (select `nextaction` from `{$fromPrefix}nextactions`)";
+		$q="update `{$toPrefix}itemattributes` set `nextaction`='y' where `itemId` in (select `nextaction` from `{$fromPrefix}nextactions`)";
 		send_query($q);
-		$q="drop table if exists `{$config['prefix']}nextactions`";
+		$q="drop table if exists `{$toPrefix}nextactions`";
 		send_query($q);
 		
-	    createrecurfields();
+        /*
+            --------------------------------------------------------------------------
+            new database fields for rfc2445 (iCal) recurrence patterns
+        */
+        $q="ALTER TABLE `{$toPrefix}items`
+                ADD COLUMN (`recurdesc` text, `recur` text, `oldid` int(10) )";
+           send_query($q);
 
-        $q="ALTER TABLE `{$config['prefix']}itemstatus` ADD COLUMN (
+        $q="ALTER TABLE `{$toPrefix}itemattributes`
+                ADD COLUMN (`tickledate` date )";
+           send_query($q);
+
+        // turn suppressUntil displacements + deadlines into tickler dates
+        $q="UPDATE {$toPrefix}itemattributes
+                SET `tickledate`=SUBDATE(`deadline`,`suppressUntil`)
+            WHERE `suppress`='y'";
+        send_query($q);
+
+        $q="UPDATE {$toPrefix}items AS i
+                JOIN {$toPrefix}itemattributes AS ia USING (`itemId`)
+            SET i.`recurdesc`=CONCAT('+',ia.`repeat`,'d'),
+                i.`recur`=CONCAT('FREQ=DAILY;INTERVAL=',ia.`repeat`)
+            WHERE ia.`repeat`>0";
+        send_query($q);
+
+        // move items from the tickler table into items
+
+        $q="INSERT INTO `{$toPrefix}items`
+            (`title`,`description`,`recurdesc`,`recur`,`oldid`)
+            SELECT `title`,`note`,
+                CONCAT('+',`repeat`,'d'),
+                CONCAT('FREQ=DAILY;INTERVAL=',`repeat`),
+                `ticklerId`
+             FROM {$toPrefix}tickler";
+        send_query($q);
+
+        $q="INSERT INTO `{$toPrefix}itemattributes`
+                (`itemId`,`tickledate`,`type`,`isSomeday`)
+            SELECT i.`itemId`,SUBDATE(t.`date`,t.`suppressUntil`),'a','n'
+            FROM `{$toPrefix}tickler`     AS t
+            INNER JOIN `{$toPrefix}items` AS i ON (i.`oldid`=t.`ticklerId`)";
+        send_query($q);
+
+        $q="INSERT INTO `{$toPrefix}itemstatus` (`itemId`)
+                SELECT i.`itemId`
+            FROM `{$toPrefix}tickler`     AS t
+            INNER JOIN `{$toPrefix}items` AS i ON (i.`oldid`=t.`ticklerId`)";
+        send_query($q);
+
+        // finishing work on recurrence fields: tidy up
+
+        $q="ALTER TABLE `{$toPrefix}items` DROP COLUMN `oldid`";
+        send_query($q);
+
+        $q="ALTER TABLE `{$toPrefix}itemattributes`
+                DROP COLUMN `suppress`,
+                DROP COLUMN `repeat`,
+                DROP COLUMN `suppressUntil`";
+        send_query($q);
+
+        drop_table("{$toPrefix}tickler");
+        drop_table("{$toPrefix}notes");
+
+        /*--------------------------------------------------------------------------
+            move (check)list(item)s from separate tables, into the items and itemstatus tables
+        */
+        
+        $q="ALTER TABLE `{$toPrefix}itemstatus` ADD COLUMN (
                 `type` enum('m','v','o','g','p','a','r','w','i','L','C','T','x') NOT NULL DEFAULT 'i',
                 categoryId int(11) UNSIGNED NOT NULL DEFAULT '0',
                 `oldid` int(10) UNSIGNED DEFAULT NULL,`oldparent` int(10) UNSIGNED DEFAULT NULL),
                 ADD INDEX `type` (`type`), ADD INDEX `categoryId`(`categoryId`)";
 		send_query($q);
-		$q="UPDATE `{$config['prefix']}itemstatus` AS its
-              JOIN `{$config['prefix']}itemattributes` AS ia USING (`itemId`)
+		$q="UPDATE `{$toPrefix}itemstatus` AS its
+              JOIN `{$toPrefix}itemattributes` AS ia USING (`itemId`)
                 SET its.`type`=ia.`type`, its.`categoryId`=ia.`categoryId`";
 		send_query($q);
 
         // create list-ids and categories
-        $q="INSERT INTO `{$config['prefix']}itemstatus` (`itemId`,`type`,`categoryId`,`oldid`,`dateCreated`)
-            SELECT NULL,'L',`categoryId`,`listId`,CURDATE() FROM `{$config['prefix']}list`";
+        $q="INSERT INTO `{$toPrefix}itemstatus` (`itemId`,`type`,`categoryId`,`oldid`,`dateCreated`)
+            SELECT NULL,'L',`categoryId`,`listId`,CURDATE() FROM `{$toPrefix}list`";
         send_query($q);
 
         // create entries for lists in the table of text descriptions too
-        $q="INSERT INTO `{$config['prefix']}items` (`itemId`,`title`)
-            SELECT `itemId`,'untitled' FROM `{$config['prefix']}itemstatus` WHERE `type`='L' ";
+        $q="INSERT INTO `{$toPrefix}items` (`itemId`,`title`)
+            SELECT `itemId`,'untitled' FROM `{$toPrefix}itemstatus` WHERE `type`='L' ";
         send_query($q);
 
         // id translation, and populate text fields
-        $q="UPDATE   `{$config['prefix']}items` AS i
-                JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-                JOIN `{$config['prefix']}list` AS l ON (l.`listId`=its.`oldid`)
+        $q="UPDATE   `{$toPrefix}items` AS i
+                JOIN `{$toPrefix}itemstatus` AS its USING (`itemId`)
+                JOIN `{$toPrefix}list` AS l ON (l.`listId`=its.`oldid`)
             SET i.`title`=  l.`title`, i.`description`=l.`description`
             WHERE its.`type`='L' ";
         send_query($q);
 
        // create listitem ids and links to parent Ids
-        $q="INSERT INTO `{$config['prefix']}itemstatus` (`itemId`,`type`,`oldid`,`oldparent`,`dateCompleted`,`dateCreated`)
-            SELECT NULL,'T',`listitemId`,`listId`,`dateCompleted`,CURDATE() FROM `{$config['prefix']}listitems`";
+        $q="INSERT INTO `{$toPrefix}itemstatus` (`itemId`,`type`,`oldid`,`oldparent`,`dateCompleted`,`dateCreated`)
+            SELECT NULL,'T',`listitemId`,`listId`,`dateCompleted`,CURDATE() FROM `{$toPrefix}listitems`";
         send_query($q);
 
         // copy listitem ids into the items table
-        $q="INSERT INTO `{$config['prefix']}items` (`itemId`,`title`)
-            SELECT `itemId`,'untitled' FROM `{$config['prefix']}itemstatus` WHERE `type`='T' ";
+        $q="INSERT INTO `{$toPrefix}items` (`itemId`,`title`)
+            SELECT `itemId`,'untitled' FROM `{$toPrefix}itemstatus` WHERE `type`='T' ";
         send_query($q);
 
         // populate text fields
-        $q="UPDATE   `{$config['prefix']}items` AS i
-                JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-                JOIN `{$config['prefix']}listitems` AS l ON (l.`listitemId`=its.`oldid`)
+        $q="UPDATE   `{$toPrefix}items` AS i
+                JOIN `{$toPrefix}itemstatus` AS its USING (`itemId`)
+                JOIN `{$toPrefix}listitems` AS l ON (l.`listitemId`=its.`oldid`)
             SET i.`title`=  l.`item`, i.`description`=l.`notes`
             WHERE its.`type`='T' ";
         send_query($q);
 
         // populate lookup with the list / listitem relationships
-        $q="INSERT INTO `{$config['prefix']}lookup` (`parentId`,`itemId`)
+        $q="INSERT INTO `{$toPrefix}lookup` (`parentId`,`itemId`)
                 SELECT itsp.`itemId` AS `parentId`, its.`itemId` AS `itemId`
-                FROM `{$config['prefix']}itemstatus` AS its
-                JOIN `{$config['prefix']}itemstatus` AS itsp ON (its.`oldparent`=itsp.`oldid`)
+                FROM `{$toPrefix}itemstatus` AS its
+                JOIN `{$toPrefix}itemstatus` AS itsp ON (its.`oldparent`=itsp.`oldid`)
                 WHERE its.`type`='T' AND itsp.`type`='L'";
         send_query($q);
 
         //---------------------------------------------------
         // almost the same again, for checklists
         // create checklist-ids and categories
-        $q="INSERT INTO `{$config['prefix']}itemstatus` (`itemId`,`type`,`categoryId`,`oldid`,`dateCreated`)
-            SELECT NULL,'C',`categoryId`,`checklistId`,CURDATE() FROM `{$config['prefix']}checklist`";
+        $q="INSERT INTO `{$toPrefix}itemstatus` (`itemId`,`type`,`categoryId`,`oldid`,`dateCreated`)
+            SELECT NULL,'C',`categoryId`,`checklistId`,CURDATE() FROM `{$toPrefix}checklist`";
         send_query($q);
 
         // create entries for lists in the table of text descriptions too
-        $q="INSERT INTO `{$config['prefix']}items` (`itemId`,`title`)
-            SELECT `itemId`,'untitled' FROM `{$config['prefix']}itemstatus` WHERE `type`='C' ";
+        $q="INSERT INTO `{$toPrefix}items` (`itemId`,`title`)
+            SELECT `itemId`,'untitled' FROM `{$toPrefix}itemstatus` WHERE `type`='C' ";
         send_query($q);
 
         // id translation, and populate text fields
-        $q="UPDATE   `{$config['prefix']}items` AS i
-                JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-                JOIN `{$config['prefix']}checklist` AS c ON (c.`checklistId`=its.`oldid`)
+        $q="UPDATE   `{$toPrefix}items` AS i
+                JOIN `{$toPrefix}itemstatus` AS its USING (`itemId`)
+                JOIN `{$toPrefix}checklist` AS c ON (c.`checklistId`=its.`oldid`)
             SET i.`title`=  c.`title`, i.`description`=c.`description`
             WHERE its.`type`='C' ";
         send_query($q);
 
        // create checklist item ids, and mark with dummy type x for now.  Also carry over old checklist item id, and old checklist id
-        $q="INSERT INTO `{$config['prefix']}itemstatus` (`itemId`,`type`,`oldid`,`oldparent`,`dateCompleted`,`dateCreated`)
-            SELECT NULL,'x',`checklistitemId`,`checklistId`,IF(`checked`='y',CURDATE(),NULL),CURDATE() FROM `{$config['prefix']}checklistitems`";
+        $q="INSERT INTO `{$toPrefix}itemstatus` (`itemId`,`type`,`oldid`,`oldparent`,`dateCompleted`,`dateCreated`)
+            SELECT NULL,'x',`checklistitemId`,`checklistId`,IF(`checked`='y',CURDATE(),NULL),CURDATE() FROM `{$toPrefix}checklistitems`";
         send_query($q);
 
         // create entries for lists in the table of text descriptions too
-        $q="INSERT INTO `{$config['prefix']}items` (`itemId`,`title`)
-            SELECT `itemId`,'untitled' FROM `{$config['prefix']}itemstatus` WHERE `type`='x' ";
+        $q="INSERT INTO `{$toPrefix}items` (`itemId`,`title`)
+            SELECT `itemId`,'untitled' FROM `{$toPrefix}itemstatus` WHERE `type`='x' ";
         send_query($q);
 
         // id translation, and populate text fields
-        $q="UPDATE   `{$config['prefix']}items` AS i
-                JOIN `{$config['prefix']}itemstatus` AS its USING (`itemId`)
-                JOIN `{$config['prefix']}checklistitems` AS l ON (l.`checklistitemId`=its.`oldid`)
+        $q="UPDATE   `{$toPrefix}items` AS i
+                JOIN `{$toPrefix}itemstatus` AS its USING (`itemId`)
+                JOIN `{$toPrefix}checklistitems` AS l ON (l.`checklistitemId`=its.`oldid`)
             SET i.`title`=  l.`item`, i.`description`=l.`notes`,
                 its.`dateCompleted`=IF(l.`checked`='y',CURDATE(),NULL)
             WHERE its.`type`='x' ";
         send_query($q);
 
         // populate lookup with the checklist /items relationships
-        $q="INSERT INTO `{$config['prefix']}lookup` (`parentId`,`itemId`)
+        $q="INSERT INTO `{$toPrefix}lookup` (`parentId`,`itemId`)
                 SELECT itsp.`itemId` AS `parentId`, its.`itemId` AS `itemId`
-                FROM `{$config['prefix']}itemstatus` AS its
-                JOIN `{$config['prefix']}itemstatus` AS itsp ON (its.`oldparent`=itsp.`oldid`)
+                FROM `{$toPrefix}itemstatus` AS its
+                JOIN `{$toPrefix}itemstatus` AS itsp ON (its.`oldparent`=itsp.`oldid`)
                 WHERE its.`type`='x' AND itsp.`type`='C'";
         send_query($q);
 
         // finally mark checklist items with their proper type, T, rather than dummy type x used during upgrade
-        $q="UPDATE `{$config['prefix']}itemstatus` SET `type`='T' WHERE `type`='x'";
+        $q="UPDATE `{$toPrefix}itemstatus` SET `type`='T' WHERE `type`='x'";
         send_query($q);
-        //---------------------------------------------------
-        // all done - now clean up
-        $q="ALTER TABLE `{$config['prefix']}itemattributes` DROP COLUMN `type`,
+        /*---------------------------------------------------------------------
+                 all done - now clean up
+        */
+        $q="ALTER TABLE `{$toPrefix}itemattributes` DROP COLUMN `type`,
                 DROP COLUMN `categoryId`, DROP INDEX `type`, DROP INDEX `categoryId`";
 		send_query($q);
-		$q="ALTER TABLE `{$config['prefix']}itemstatus` DROP COLUMN `oldid`,
+		$q="ALTER TABLE `{$toPrefix}itemstatus` DROP COLUMN `oldid`,
                 DROP COLUMN `oldparent`";
 		send_query($q);
-        $q="ALTER TABLE `{$config['prefix']}itemstatus` MODIFY COLUMN
+        $q="ALTER TABLE `{$toPrefix}itemstatus` MODIFY COLUMN
                 `type` enum('m','v','o','g','p','a','r','w','i','L','C','T') NOT NULL DEFAULT 'i'";
 		send_query($q);
-		$q="DROP TABLE `{$config['prefix']}list`,`{$config['prefix']}checklist`,
-                `{$config['prefix']}listitems`,`{$config['prefix']}checklistitems`";
+		$q="DROP TABLE `{$toPrefix}list`,`{$toPrefix}checklist`,
+                `{$toPrefix}listitems`,`{$toPrefix}checklistitems`";
 		send_query($q);
 		
-		$fromPrefix=$config['prefix']; // must only copy to new prefix ONCE, so prevent it happening again
+		$fromPrefix=$toPrefix; // must only copy to new prefix ONCE, so prevent it happening again
 		// deliberately flows through to next case
 		//---------------------------------------------------
 	 case '0.8z.04': // ugprade from 0.8z.04          ============================================================
-    	if ($fromPrefix!==$config['prefix']){ // updating to new prefix
-			foreach ($tablesByVersion[$versions['0.8z.03']['tables']] as $key=>$table) {
-				$q = "CREATE TABLE `{$config['prefix']}$table` LIKE `$fromPrefix$table`";
+    	if ($fromPrefix!==$toPrefix){ // updating to new prefix
+			foreach ($tablesByVersion[$versions['0.8z.04']['tables']] as $key=>$table) {
+				$q = "CREATE TABLE `{$toPrefix}$table` LIKE `$fromPrefix$table`";
 				send_query($q);
-				$q = "INSERT INTO `{$config['prefix']}$table` SELECT * FROM `$fromPrefix$table`";
+				$q = "INSERT INTO `{$toPrefix}$table` SELECT * FROM `$fromPrefix$table`";
 				send_query($q);
 			}
 		}
+		drop_table("{$toPrefix}preferences");
+		create_table("preferences");
+        importOldConfig();
         updateVersion();
-        $endMsg="<p>GTD-PHP 0.8 upgraded from 0.8rc-4 to "._GTD_VERSION." - gosh, you're brave</p>";
+        $endMsg="<p>GTD-PHP 0.8 upgraded to "._GTD_VERSION." - gosh, you're brave</p>";
         $install_success = true;
         break;
 	 default: // no idea what the current installation is ==========================
@@ -611,18 +697,22 @@ installation for use and familiarize yourself with the system.</p>\n
 			 .' an installation from gtd-php versions earlier than 0.7</p>';
 		break;
     } // end of switch
-
+    
+    
 	if ($install_success) {
         require_once 'headerMenu.inc.php';
-        echo "<div id='main'><p>Installation completed: <a href='index.php'>Let's begin</a></p>\n";
-    } else echo "<div id='main'>\n";
+        echo "<div id='main'><p>Installation completed:
+            <a href='preferences.php'>Now check the preferences</a>,
+            and make any necessary changes</p>";
+    } else {
+        echo "<div id='main'>";
+    }
 	echo $endMsg;
 }
 /*
    ======================================================================================
 */
 function create_data() {
-    global $config;
 	// a load of inserts here to create the sample data
 	$sample=fopen('gtdsample.inc.sql','r');
     if ($sample) {
@@ -635,72 +725,6 @@ function create_data() {
         }
         fclose($sample);
     }
-}
-/*
-   ======================================================================================
-*/
-function createrecurfields() {
-    global $config;
-
-    $q="ALTER TABLE `{$config['prefix']}items`
-            ADD COLUMN (`recurdesc` text, `recur` text, `oldid` int(10) )";
-       send_query($q);
-
-    $q="ALTER TABLE `{$config['prefix']}itemattributes`
-            ADD COLUMN (`tickledate` date )";
-       send_query($q);
-
-    // now turn suppressUntil displacements + deadlines into tickler dates
-
-    $q="UPDATE {$config['prefix']}itemattributes
-            SET `tickledate`=SUBDATE(`deadline`,`suppressUntil`)
-        WHERE `suppress`='y'";
-    send_query($q);
-
-    $q="UPDATE {$config['prefix']}items AS i
-            JOIN {$config['prefix']}itemattributes AS ia USING (`itemId`)
-        SET i.`recurdesc`=CONCAT('+',ia.`repeat`,'d'),
-            i.`recur`=CONCAT('FREQ=DAILY;INTERVAL=',ia.`repeat`)
-        WHERE ia.`repeat`>0";
-    send_query($q);
-
-    // now move items from the tickler table into items
-
-    $q="INSERT INTO `{$config['prefix']}items`
-        (`title`,`description`,`recurdesc`,`recur`,`oldid`)
-        SELECT `title`,`note`,
-            CONCAT('+',`repeat`,'d'),
-            CONCAT('FREQ=DAILY;INTERVAL=',`repeat`),
-            `ticklerId`
-         FROM {$config['prefix']}tickler";
-    send_query($q);
-
-    $q="INSERT INTO `{$config['prefix']}itemattributes`
-            (`itemId`,`tickledate`,`type`,`isSomeday`)
-        SELECT i.`itemId`,SUBDATE(t.`date`,t.`suppressUntil`),'a','n'
-        FROM `{$config['prefix']}tickler`     AS t
-        INNER JOIN `{$config['prefix']}items` AS i ON (i.`oldid`=t.`ticklerId`)";
-    send_query($q);
-
-    $q="INSERT INTO `{$config['prefix']}itemstatus` (`itemId`)
-            SELECT i.`itemId`
-        FROM `{$config['prefix']}tickler`     AS t
-        INNER JOIN `{$config['prefix']}items` AS i ON (i.`oldid`=t.`ticklerId`)";
-    send_query($q);
-
-    // and finally, tidy up
-
-    $q="ALTER TABLE `{$config['prefix']}items` DROP COLUMN `oldid`";
-    send_query($q);
-
-    $q="ALTER TABLE `{$config['prefix']}itemattributes`
-            DROP COLUMN `suppress`,
-            DROP COLUMN `repeat`,
-            DROP COLUMN `suppressUntil`";
-    send_query($q);
-
-    drop_table("{$config['prefix']}tickler");
-    drop_table("{$config['prefix']}notes");
 }
 /*
    ======================================================================================

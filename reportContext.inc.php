@@ -1,13 +1,12 @@
 <?php
 include_once 'headerDB.inc.php';
 function makeContextRow($row) {
-    global $config;
     $rowout=array();
     $rowout['itemId']=$row['itemId'];
 	$rowout['description']=$row['description'];
 	$rowout['recurdesc'] = ($row['recurdesc']=="0")?'&nbsp;':$row['recurdesc'];
     if($row['deadline']) {
-        $deadline=prettyDueDate($row['deadline'],$config['datemask']);
+        $deadline=prettyDueDate($row['deadline'],$_SESSION['config']['datemask']);
         $rowout['deadline'] =$deadline['date'];
         $rowout['deadline.class']=$deadline['class'];
         $rowout['deadline.title']=$deadline['title'];
@@ -24,7 +23,7 @@ function makeContextRow($row) {
     return $rowout;
 }
 function makeContextTable($maintable) {
-    global $dispArray,$show,$config,$trimlength;
+    global $dispArray,$show,$trimlength;
     ob_start();
     require 'displayItems.inc.php';
     $out=ob_get_contents();
@@ -35,7 +34,7 @@ $values=array();
 
 //SQL CODE AREA
 //obtain all contexts
-$contextResults = query("getspacecontexts",$config,$values,$sort);
+$contextResults = query("getspacecontexts",$values);
 $contextNames=array(0=>'none');
 if ($contextResults)
     foreach ($contextResults as $row)
@@ -43,8 +42,8 @@ if ($contextResults)
 
 //obtain all timeframes
 $values['type']='a';
-$values['timefilterquery'] = ($config['useTypesForTimeContexts'])?" WHERE ".sqlparts("timetype",$config,$values):'';
-$timeframeResults = query("gettimecontexts",$config,$values,$sort);
+$values['timefilterquery'] = ($_SESSION['config']['useTypesForTimeContexts'])?" WHERE ".sqlparts("timetype",$values):'';
+$timeframeResults = query("gettimecontexts",$values);
 $timeframeNames=array(0=>'none');
 $timeframeDesc=array(0=>'none');
 if ($timeframeResults) foreach($timeframeResults as $row) {
@@ -66,21 +65,21 @@ $show=array();
 foreach ($dispArray as $key=>$val) $show[$key]=true;
 
 $wasNAonEntry=array();
-$trimlength=$config['trimLength'];
+$trimlength=$_SESSION['config']['trimLength'];
 
 $values['type'] = "a";
 $values['isSomeday'] = "n";
-$values['childfilterquery']  = " WHERE ".sqlparts("typefilter",$config,$values)
-                            ." AND ".sqlparts("activeitems",$config,$values)
-                            ." AND ".sqlparts("issomeday",$config,$values)
-                            ." AND ".sqlparts("pendingitems",$config,$values);
+$values['childfilterquery']  = " WHERE ".sqlparts("typefilter",$values)
+                            ." AND ".sqlparts("activeitems",$values)
+                            ." AND ".sqlparts("issomeday",$values)
+                            ." AND ".sqlparts("pendingitems",$values);
 
-if ($config["contextsummary"] === 'nextaction')
-    $values['childfilterquery'] .= ' AND '.sqlparts('isNAonly',$config,$values);
+if ($_SESSION['config']["contextsummary"])
+    $values['childfilterquery'] .= ' AND '.sqlparts('isNAonly',$values);
 
-$values['filterquery'] =' WHERE '.sqlparts("liveparents",$config,$values);;
-$tstsort=array('getitemsandparent'=>'cname ASC,timeframeId ASC,'.$sort['getitemsandparent']);
-$result = query("getitemsandparent",$config,$values,$tstsort);
+$values['filterquery'] =' WHERE '.sqlparts("liveparents",$values);;
+$tstsort=array('getitemsandparent'=>'cname ASC,timeframeId ASC,'.$_SESSION['sort']['getitemsandparent']);
+$result = query("getitemsandparent",$values,$tstsort);
 $grandtot=count($result);
 $index=0;
 $lostitems=array();

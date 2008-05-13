@@ -1,13 +1,8 @@
 <?php
-//INCLUDES
 include_once 'header.inc.php';
-
-//RETRIEVE URL VARIABLES
-$values=array();
-$values['notOrphansfilterquery']=(empty($config['suppressAsOrphans']))?"'i','m'":$config['suppressAsOrphans'];
-$maintable = query("getorphaneditems",$config,$values,$sort);
-
+$maintable = getOrphans();
 $cnt=($maintable)?count($maintable):0;
+
 $dispArray=array();
 $thisrow=0;
 $dispArray=array(
@@ -18,10 +13,10 @@ $dispArray=array(
 $show=array();
 foreach ($dispArray as $key=>$val)
     $show[$key]=true;
-if ($config['debug'] & _GTD_DEBUG) echo '<pre>Orphans:',print_r($maintable,true),'</pre>';
+if ($_SESSION['debug']['debug']) echo '<pre>Orphans:',print_r($maintable,true),'</pre>';
 echo "<h2>$cnt Orphaned Item",($cnt===1)?'':'s',"</h2>";
 if ($cnt) {
-    $trimlength=$config['trimLength'];
+    $trimlength=$_SESSION['config']['trimLength'];
 ?>  <table class="datatable sortable" id="typetable" summary='table of orphans'>
         <?php require 'displayItems.inc.php'; ?>
     </table>

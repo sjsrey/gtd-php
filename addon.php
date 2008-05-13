@@ -1,7 +1,7 @@
 <?php
-include_once 'config.php';
+include_once 'config.inc.php';
 $id=$_REQUEST['addonid'];
-$addon=$config['addons'][$id];
+$addon=$_SESSION['config']['addons'][$id];
 $addon['id']=$id;
 $addon['urlprefix']="{$_SERVER['PHP_SELF']}?addonid=$id&amp;url=".dirname($addon['link']).'/';
 $url= (empty($_REQUEST['url'])) ? $addon['link'] : $_REQUEST['url'];

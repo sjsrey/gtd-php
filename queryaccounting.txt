@@ -4,7 +4,6 @@ Available Queries:
 
 categoryselectbox
 checkchecklistitem
-checklistselectbox
 clearchecklist
 completeitem
 completelistitem
@@ -39,7 +38,6 @@ getnextactions
 getorphaneditems
 getspacecontexts
 gettimecontexts
-listselectbox
 lookupparent
 newcategory
 newchecklist
@@ -150,8 +148,6 @@ edittimecontext
 
 gtdfuncs
     categoryselectbox
-    checklistselectbox
-    listselectbox
     parentselectbox
     spacecontextselectbox
     timecontextselectbox
