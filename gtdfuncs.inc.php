@@ -13,11 +13,36 @@ function escapeforjavascript($in) {
 /*
    ======================================================================================
 */
+function getEvents($addon) {
+    if (   (@include "./addons/$addon/setup.inc.php")===false
+        || !isset($events)) return false;
+    $_SESSION["addons-$addon"]=array(); // this array will store the options for the addon
+    $triggercount=0;
+    foreach ($events as $trigger=>$what) {
+        foreach ($what as $page=>$handler) {
+            if (is_array($handler) && array_key_exists('options',$handler)) {
+                // options are present, so store them in the session global, indexed by addon name, event trigger, and page name
+                // TOFIX - does not get saved to db.  Should we redo this at the start of each session?
+                $_SESSION["addons-$addon"]["$trigger-$page"]=$handler['options']; 
+                unset($handler['options']);
+            }
+            $_SESSION['addons'][$trigger][$page][$addon]=$handler;
+            $triggercount++;
+        }
+    }
+    $_SESSION['installedaddons'][$addon]=true;
+    return $triggercount;
+}
+/*
+   ======================================================================================
+*/
 function gtd_handleEvent($event,$page) {
-    $eventhandlers=@array_merge((array)$_SESSION['config']['events'][$event][$page],(array)$_SESSION['config']['events'][$event]['*']);
-    foreach ($eventhandlers as $thishandler) {
-        $addonpath=dirname($thishandler).'/';
-        include $thishandler;
+    $eventhandlers=@array_merge((array)$_SESSION['addons'][$event]['*'],
+                                (array)$_SESSION['addons'][$event][$page]
+                                );
+    foreach ($eventhandlers as $addonid=>$handler) {
+        $addonpath="./addons/$addonid/";
+        include "$addonpath$handler";
     }
 }
 /*
@@ -273,11 +298,17 @@ function getTypes($type=false) {
 }
 //----------------------------------------------------------------
 function getChildType($parentType) {
-    return $_SESSION['hierarchy']['children'][$parentType];
+    if ($parentType==='*')
+        return '';
+    else
+        return $_SESSION['hierarchy']['children'][$parentType];
 }
 //----------------------------------------------------------------
 function getParentType($childType) {
-    return $_SESSION['hierarchy']['parents'][$childType];
+    if ($childType==='*')
+        return '';
+    else
+        return $_SESSION['hierarchy']['parents'][$childType];
 }
 //----------------------------------------------------------------
 function getShow($where,$type) {
@@ -509,8 +540,9 @@ function importOldConfig() {
     define('_GTD_DEBUG'   ,2);
     define('_GTD_FREEZEDB',4);
     define('_GTD_NOTICE'  ,8);
-    include 'config.php';
-    if (!isset($config)) {
+    if (    (false===(@include 'config.php') || !isset($config) )
+         && (false===(@include 'defaultconfig.inc.php')  || !isset($config) )
+       ) {
         return false;
     }
     unset($config['pass']); // stop the password leaking anywhere
@@ -548,10 +580,13 @@ function importOldConfig() {
                 : 'item';
         unset($config['afterCreate'][$type]);
     }
-
+    $_SESION['addons']=array();
+    $values=array('uid'=>0,'option'=>'addons','config'=>serialize($_SESION['addons']));
+    query('updateoptions',$values);
     $values=array('uid'=>0,'option'=>'customreview','config'=>serialize($custom_review));
     query('updateoptions',$values);
 
+    $_SESSION['installedaddons']=array();
     $result=saveConfig();
     return $result;
 }
@@ -564,7 +599,8 @@ function saveConfig() { // store config preferences in the table
             'sort'     =>serialize($_SESSION['sort']),
             'keys'     =>serialize($_SESSION['keys']),
             'hierarchy'=>serialize($_SESSION['hierarchy']),
-            'debug'    =>serialize($_SESSION['debug'])
+            'debug'    =>serialize($_SESSION['debug']),
+            'installedaddons'=>serialize($_SESSION['installedaddons'])
         )
     );
     return $tst;

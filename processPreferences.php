@@ -1,5 +1,15 @@
 <?php
-require_once 'ses.inc.php';
+$_SESSION['config']='NonEmptyDummyValue';
+require_once 'headerDB.inc.php';
+
+if (isset($_REQUEST['restoredefaults'])) {
+    $_SESSION['message'][]= (importOldConfig())
+        ? 'Reverted to default preferences'
+        : 'Failed to find default preferences in either config.php or defaultconfig.inc.php';
+    nextScreen('preferences.php');
+    exit;
+}
+
 $newPrefs=$_POST;
 // some variables are stored as cookies locally, rather than in the db
 $cookievars=array('theme','useLiveEnhancements');
@@ -9,7 +19,6 @@ foreach ($cookievars as $key) {
     unset($newPrefs[$key]);
 }
 
-require_once 'headerDB.inc.php';
 if ($_SESSION['debug']['debug']) {
     include 'headerHtml.inc.php';
     echo '</head><body><pre>POST: ',print_r($_POST,true),
@@ -26,37 +35,39 @@ array_pop($checkboxes);
 foreach ($checkboxes as $val)
     $newPrefs[$val]=(isset($newPrefs[$val]));
 
-$prefixes=array('keys','sort','debg');
-$preflen=array();
-foreach ($prefixes as $key=>$prefix) {
-    $preflen[$key]=strlen($prefix);
-}
-$_SESSION['debug']=$_SESSION['sort']=$_SESSION['keys']=$_SESSION['config']=array();
+$_SESSION['addons']=$_SESSION['debug']=$_SESSION['sort']=$_SESSION['keys']=
+    $_SESSION['config']=array();
 
-// apply the preferences to this session
+/* -------------------------------------------------------------------
+     apply the preferences to this session
+*/
 foreach ($newPrefs as $key=>$val) {
     switch (substr($key,0,4)) {
-        case 'lkey':
-            $index=null;
+    
+        case 'addo': // addon activated
+            if ($val) getEvents(substr($key,6));
             break;
-        case 'keys':
-            $sessfield='keys';
-            $index= (empty($val)) ? null : $_POST["l$key"];
+            
+        case 'debu': // set one of the debug controls
+            $_SESSION['debug'][substr($key,5)]=$val;
             break;
-        case 'sort':
-            $sessfield='sort';
-            $index=substr($key,4);
+            
+        case 'keys': // assign a shortcut key
+            if (!empty($val))
+                $_SESSION['keys'][$_POST["l$key"]]=$val;
             break;
-        case 'debu':
-            $sessfield='debug';
-            $index=substr($key,5);
+            
+        case 'lkey':  // value is used when assigning keys, no processing needed here
             break;
-        default:
-            $index=$key;
-            $sessfield='config';
+            
+        case 'sort': // sorting tables in listItems, reportContext, etc
+            $_SESSION['sort'][substr($key,4)]=$val;
+            break;
+            
+        default: // standard config item
+            $_SESSION['config'][$key]=$val;
             break;
     }
-    if ($index!==null) $_SESSION[$sessfield][$index]=$val;
 }
 
 if ($_SESSION['debug']['debug'])

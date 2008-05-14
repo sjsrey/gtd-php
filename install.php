@@ -443,6 +443,7 @@ installation for use and familiarize yourself with the system.</p>\n
 	 case '1': // new install with sample data
 		create_tables();
 		create_data();
+        importOldConfig();
     	$install_success = true;
        // give some direction about what happens next for the user.
        $endMsg="<h2>Welcome to GTD-PHP</h2>\n"
@@ -463,7 +464,8 @@ installation for use and familiarize yourself with the system.</p>\n
 			$install_success = true;
 			$endMsg='<p>Database copied.</p>';
 		}
-	   break;
+        importOldConfig();
+        break;
 	 case '0.8rc-4': // ugprade from 0.8rc-4          ============================================================
     	if ($fromPrefix!==$toPrefix){ // updating to new prefix
 			foreach ($tablesByVersion[$versions['0.8rc-4']['tables']] as $key=>$table) {

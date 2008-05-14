@@ -64,12 +64,18 @@ require_once 'gtdfuncs.inc.php';
 
 // if no options, read them in from preferences table, and then overwrite with cookie values
 if (empty($_SESSION['config'])) {
-    $optionarray=query('getconfig',array('uid'=>0,'filterquery'=>'') );
+    $optionarray=query('getoptions',array('uid'=>0,'filterquery'=>'') );
     if ($optionarray) foreach ($optionarray as $options)
         $_SESSION[$options['option']]=unserialize($options['value']);
-    foreach ($_COOKIE as $key=>$val) // retrieve cookie values
+        
+    // retrieve cookie values, and overlay them onto preferences
+    foreach ($_COOKIE as $key=>$val) 
         if (!empty($key) && isset($_SESSION[$key]))
-            $_SESSION[$key]=$val; 
+            $_SESSION[$key]=$val;
+            
+    // go through the list of installed addons, and register them
+    foreach($_SESSION['installedaddons'] as $addon=>$dummy)
+        getEvents($addon); 
 }
 
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

@@ -62,7 +62,7 @@ if (isset($_POST['L0p8'])) {
     ======================================================================
     Now save the changes, whatever they were, to the preferences table
 */
-if ($save===$_SESSION['hierarchy']) {
+if ($save===$_SESSION['hierarchy']) { // session var is same now as before applying POSTed variables, so no change have been made
     $result=true;
     $_SESSION['message'][]="No changes made to $updatetype";
 } else {

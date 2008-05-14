@@ -1,25 +1,22 @@
 <?php
 /*
-TOFIX - variables still to do:
-$config['events']=$config['addons']=array();
-$config['addons']['achievements']=array(
-        "link"=>"addons/achievements/achievements.php", 'title'=>"Notable Achievements", 'label' => "Achievements",
-        'where'=>'listItems.php?type=*&amp;tickler=true&amp;liveparents=*','when'=>'after','options'=>array('jpgraphdir'=>'../jpgraph/'));
-$config['events'][_GTD_ON_HEADER]['*'][]="addons/ajax/insertjs.inc.php";
    ======================================================================================
 */
 function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
     global $checkboxes;
-    echo "<h2 class='tab' id='$tabname'>$tabname</h2>
-          <div class='tabsheet' id='sheet-$tabname'>";
+    ?>
+    <h2><?php echo $tabname; ?></h2>
+    <div class='tabsheet' id='<?php echo $tabname; ?>'>
+    <?php
     //echo '<pre>values=',print_r($values,true),' array=',print_r($array,true),'</pre>'; // debugging line
     foreach ($array as $option) {
         $name=$varprefix.$option[0];
+        $val=(isset($values[$option[0]])) ? $values[$option[0]] : null;
         echo "<div class='formrow'>\n";
         switch ($option[1]) {
             case 'checkbox':
                 echo "<input type='checkbox' name='$name' "
-                    ,($values[$option[0]]) ? " checked='checked' ": ''
+                    ,($val) ? " checked='checked' ": ''
                     ,"/>";
                 $checkboxes.="$name,";
                 break;
@@ -28,14 +25,14 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
                 break;
             case 'text': // deliberately flows through
                 echo "<input type='text' name='$name' size='$textsize' value='"
-                    ,(empty($values[$option[0]])) ? '' : makeclean($values[$option[0]])
+                    ,makeclean($val)
                     ,"' />\n";
                 break;
             default: // it's a select
                 echo "<select name='$name'>";
                 foreach ($option[1] as $optval=>$opttext)
                     echo "<option value='$optval'"
-                        ,($values[$option[0]]==$optval) ? " selected='selected' ": ''
+                        ,($val==$optval) ? " selected='selected' ": ''
                         ,">",makeclean($opttext),"</option>\n";
                 echo "</select>";
                 break;
@@ -56,14 +53,27 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
 $menu='';
 include_once 'header.inc.php';
 
+$checkboxes='';
 // get a list of theme sub-directories, to go into the dropdown selector
 $themes=array();
-$checkboxes='';
-$themedir = "./themes";
-if ($handle = opendir($themedir)) {
+$dir = "./themes";
+if ($handle = opendir($dir)) {
 	while (false !== ($file = readdir($handle))) {
-		if ($file[0] !== "." && is_dir($themedir. "/" . $file)) {
+		if ($file[0] !== "." && is_dir($dir. "/" . $file)) {
+            $file=makeclean($file);
 			$themes[$file] = $file;
+		}
+	}
+	closedir($handle);
+}
+// get a list of addons present
+$addons=array();
+$dir = "./addons";
+if ($handle = opendir($dir)) {
+	while (false !== ($file = readdir($handle))) {
+		if ($file[0] !== "." && is_dir($dir. "/" . $file)) {
+            $file=makeclean($file);
+			$addons[$file] = $file;
 		}
 	}
 	closedir($handle);
@@ -72,11 +82,9 @@ $config=$_SESSION['config'];
 $cookievars=array('theme','useLiveEnhancements');
 foreach ($cookievars as $key)
     $config[$key]=$_SESSION[$key];
-
+$hidden='';
 ?>
 <form action="processPreferences.php" method="post" id='optionsform'>
-<div id='tabrow' class='hidden'></div>
-<div>
 <?php
 
 /* ------------------------------------------------------------------------
@@ -99,10 +107,17 @@ $array=array(
 );
 makeOptionsTab($array,$config,'Options');
 /* ------------------------------------------------------------------------
-    Addons: TOFIX scan for add-ons, grab auto-config file, and offer option of enabling / disabling
-$array=array();
-makeOptionsTab($array,$config,'Add-ons');
+    Addons: scan for add-ons, grab auto-config file, and offer option of enabling / disabling
 */
+$array=array();
+foreach ($addons as $addon)
+    $array[]=array($addon,'checkbox',"$addon enabled");
+$live=array();
+foreach ($_SESSION['addons'] as $where)
+    foreach ($where as $page)
+        foreach ($page as $addonname=>$how)
+            $live[$addonname]=true;
+makeOptionsTab($array,$live,'Addons','addons','50');
 /* ------------------------------------------------------------------------
     Default actions after creating items
 */
@@ -127,7 +142,7 @@ $array=array(
     array('show7','checkbox','Show the Seven Habits of Highly Effective People and Sharpening the Saw in Weekly Review'),
     array('separator','text','Separator string for MySQL GROUP queries'),
 );
-makeOptionsTab($array,$config,'Advanced');
+makeOptionsTab($array,$config,'Advanced','',15);
 /* ------------------------------------------------------------------------
     sort options
 */
@@ -142,7 +157,7 @@ $array=array(
 );
 makeOptionsTab($array,$_SESSION['sort'],'Sort','sort',50);
 /* ------------------------------------------------------------------------
-    shortcut keys TOFIX: cycle through all options in $menu, for shortcut keys
+    shortcut keys: cycle through all options in $menu, for shortcut keys
 */
 $keylist=$array=array();
 $mainmenu='';
@@ -157,7 +172,7 @@ foreach ($menu as $menuitem) { // Store keyprefs against link in db.
     // keys are link, title, label
     $array[]=array($keyentry,'text',$menuitem['title']);
     $link=$menuitem['link'];
-    echo "<input type='hidden' name='lkeys$keyentry' value='",makeclean($link),"' />\n";
+    $hidden.="<input type='hidden' name='lkeys$keyentry' value='".makeclean($link)."' />\n";
     $keylist[$keyentry]=(isset($_SESSION['keys'][$link])) ? $_SESSION['keys'][$link] : null;
     $keyentry++;
 }
@@ -177,7 +192,12 @@ makeOptionsTab($array,$_SESSION['debug'],'Debugging','debug',1);
     finish form
 */
 ?>
-    <input type='hidden' name='checkboxes' value='<?php echo $checkboxes; ?>' />
+<div class='formbuttons'>
+    <input type='submit' name='restoredefaults' value='Restore default preferences' />
+    <?php
+    $hidden.="<input type='hidden' name='checkboxes' value='$checkboxes' />\n";
+    echo $hidden;
+    ?>
 </div>
 </form>
 <?php include_once 'footer.inc.php'; ?>

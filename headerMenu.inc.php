@@ -107,7 +107,10 @@ $menu[] = array("link"=>"version.php", 'title'=>"Version information", 'label' =
    ----------------------------------------------
         now process addons
 */
-if (!empty($_SESSION['config']['addons'])) foreach ($_SESSION['config']['addons'] as $addonid=>$thisaddon) {
+$eventhandlers=@array_merge((array)$_SESSION['addons'][_GTD_ON_MENU]['*'],
+                            (array)$_SESSION['addons'][_GTD_ON_MENU][$page]
+                            );
+foreach ($eventhandlers as $addonid=>$thisaddon) {
     $url=$thisaddon['where'];
     foreach ($menu as $key=>$line) {
         if ($url!==$line['link']) continue;
@@ -128,7 +131,7 @@ if (!empty($_SESSION['config']['addons'])) foreach ($_SESSION['config']['addons'
         }
         unset($thisaddon['where']);
         unset($thisaddon['when']);
-        $thisaddon['link']="addon.php?addonid=$addonid";
+        $thisaddon['link']="addon.php?addonid=$addonid&amp;url={$thisaddon['link']}";
         array_splice($menu,$offset,$length,array($thisaddon));
         break;
     }

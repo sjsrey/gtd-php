@@ -36,7 +36,7 @@ include_once 'header.inc.php';
     // get custom list of weekly tasks
     $tmpval=array('uid'=>0);
     $tmpval['filterquery']=' AND '.sqlparts('singleoption',array('option'=>'customreview'));
-    $result=query('getconfig',$tmpval);
+    $result=query('getoptions',$tmpval);
     if ($result) $custom_review=unserialize($result[0]['value']);
 ?>
 <h2>The Weekly Review</h2>

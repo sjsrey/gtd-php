@@ -62,7 +62,7 @@ $values['tags']           =$filter['tags'];
 $values['filterquery']='';
 $taglisttemp=query('gettags',$values);
 $taglist=array();
-if ($taglisttemp) foreach ($taglisttemp as $tag) $taglist[]=$tag['tagname'];
+if ($taglisttemp) foreach ($taglisttemp as $tag) $taglist[]=makeclean($tag['tagname']);
 
 //create filters for selectboxes
 $values['timefilterquery'] = ($_SESSION['config']['useTypesForTimeContexts'] && $values['type']!=='*')?" WHERE ".sqlparts("timetype",$values):'';

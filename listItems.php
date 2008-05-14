@@ -15,25 +15,31 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
 <div id="filter">
     <form action="listItems.php" method="post">
         <div class="formrow">
+
             <label for='categoryId' class='left nomargin'>Category:</label>
             <select name="categoryId" id="categoryId" title="Filter items by parent category">
             <?php echo $cashtml; ?>
             </select>
             <input type="checkbox" id="notcategory" name="notcategory" title="Exclude category from list" value="true" <?php if ($filter['notcategory']=="true") echo 'checked="checked"'?> />
             <label for='notcategory' class='notfirst'>NOT</label>
+
             <label for='contextId' class='left'>Context:</label>
             <select name="contextId" id="contextId" title="Filter items by context">
             <?php echo $cshtml; ?>
             </select>
             <input type="checkbox" id="notspacecontext" name="notspacecontext" title="Exclude spatial context from list" value="true" <?php if ($filter['notspacecontext']=="true") echo 'checked="checked"'?> />
             <label for='notspacecontext' class='notfirst'>NOT</label>
+
             <label for='timeframeId' class='left'>Time:</label>
             <select name="timeframeId" id="timeframeId" title="Filter items by time context">
             <?php echo $tshtml; ?>
             </select>
             <input type="checkbox" name="nottimecontext" id="nottimecontext" title="Exclude time context from list" value="true" <?php if ($filter['nottimecontext']=="true") echo 'checked="checked"'?> />
             <label for='nottimecontext' class='notfirst'>NOT</label>
+
         </div>
+
+
         <div class="formrow">
             <input type='checkbox' name='completed' id='completed' value='true' class="left first" <?php if ($filter['completed']=="true") echo 'checked="checked"'?> title="Show achievements" /><label for='completed' class='right'>Completed</label>
             <input type='checkbox' name='tickler' id='suppressed' value='true' class="notfirst" <?php if ($filter['tickler']=="true") echo 'checked="checked"'?> title="Show tickler <?php echo $typename ?>s" /><label for='suppressed' class='right'>Tickler</label>
@@ -43,7 +49,10 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
             <input type="checkbox" name="repeatingonly" id="repeatingonly" class="notfirst" value="true" <?php if ($filter['repeatingonly']=="true") echo 'checked="checked"'?> title="Show only repeating <?php echo $typename ?>s" /><label for='repeatingonly' class='right'>Repeating</label>
             <input type="checkbox" name="everything" id="everything" class="notfirst" value="true" <?php if ($filter['everything']=="true") echo 'checked="checked"'?> title="Show all <?php echo $typename ?>s, regardless of status or labels" onclick='javascript:GTD.filtertoggle("toggle");' /><label for='everything'>Show all</label>
         </div>
+
+
         <div class="formbuttons">
+
            <label for="liveparents" class='left first' title="Not live means either completed, a someday/maybe, or it has not yet reached its tickler date">Status of parent:</label>
            <select name="liveparents" id="liveparents" title="Not live means either completed, a someday/maybe, or it has not yet reached its tickler date">
            <?php
@@ -53,6 +62,7 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
                         ,">$key</option>\n";
            ?>
            </select>
+
            <label for='type' class='left notfirst'>Type:</label>
             <select name="type" id="type" title="Filter items by type">
             <?php
@@ -64,10 +74,21 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
                 }
             ?>
             </select>
+
+           <label for='tags' class='notfirst'>Tag:</label>
+           <select name='tags' id='tags'>
+                <option value=''>(any)</option>
+                <?php foreach ($taglist as $tag) { ?>
+                    <option value=<?php
+                        echo "'$tag'";
+                        if ($values['tags']===$tag) echo " selected='selected' ";
+                    ?> ><?php echo $tag; ?></option>
+                <?php } ?>
+            </select>
+
            <label for='needle' class='notfirst'>Find:</label>
            <input type='text' name='needle' id='needle' value='<?php echo $values['needle']; ?>' />
-           <label for='tags' class='notfirst'>Tag:</label>
-           <input type='text' name='tags' id='tags' value='<?php echo $values['tags']; ?>' />
+
            <input type="submit" id="filtersubmit" class="button" value="Filter"
                 name="submit" onclick="javascript:GTD.filtertoggle('all');"
                 title="Filter <?php echo $typename ?>s by selected criteria" />

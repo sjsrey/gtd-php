@@ -217,11 +217,6 @@ function getsql($querylabel,$values,$sort) {
 				ORDER BY {$sort['getchildren']}";
 			break;
 
-        case "getconfig":
-            $sql="SELECT `option`,`value` FROM `{$prefix}preferences`
-                    WHERE `uid`='{$values['uid']}' {$values['filterquery']}";
-            break;
-            
 		case "getgtdphpversion":
 			$sql="SELECT `version` FROM `{$prefix}version`";
 			break;
@@ -308,7 +303,8 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
         case 'getoptions':
-            $sql="SELECT `option`,`value` FROM `{$prefix}preferences` WHERE (`uid`='0')";
+            $sql="SELECT `option`,`value` FROM `{$prefix}preferences`
+                    WHERE `uid`='{$values['uid']}' {$values['filterquery']}";
             break;
 
 		case "getorphaneditems":
@@ -533,7 +529,8 @@ function getsql($querylabel,$values,$sort) {
                            ('0','keys'     ,'{$values['keys']}'     ),
                            ('0','hierarchy','{$values['hierarchy']}'),
                            ('0','debug'    ,'{$values['debug']}'    ),
-                           ('0','sort'     ,'{$values['sort']}'     )";
+                           ('0','sort'     ,'{$values['sort']}'     ),
+                           ('0','installedaddons','{$values['installedaddons']}' )";
             break;
 
 		case "updatedeadline":
