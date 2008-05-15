@@ -41,8 +41,8 @@ function gtd_handleEvent($event,$page) {
                                 (array)$_SESSION['addons'][$event][$page]
                                 );
     foreach ($eventhandlers as $addonid=>$handler) {
-        $addonpath="./addons/$addonid/";
-        include "$addonpath$handler";
+        $addon=array('id'=>$addonid,'dir'=>"./addons/$addonid/");
+        include "{$addon['dir']}$handler";
     }
 }
 /*
