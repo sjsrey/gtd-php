@@ -254,7 +254,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
             if (empty($row['deadline']))
                 $maintable[$i]['deadline']=null;
             else {
-                $deadline=prettyDueDate($row['deadline'],$_SESSION['config']['datemask']);
+                $deadline=prettyDueDate($row['deadline'],$row['daysdue']);
                 $maintable[$i]['deadline']      =$deadline['date'];
                 $maintable[$i]['deadline.class']=$deadline['class'];
                 $maintable[$i]['deadline.title']=$deadline['title'];
@@ -359,7 +359,7 @@ if ($item['categoryId']) echo "<tr><th>Category:</th><td><a href='editCat.php?id
 if ($item['contextId']) echo "<tr><th>Space Context:</th><td><a href='editCat.php?id={$item['contextId']}&amp;field=context'>".makeclean($item['cname'])."</a></td></tr>\n";
 if ($item['timeframeId']) echo "<tr><th>Time Context:</th><td><a href='editCat.php?id={$item['timeframeId']}&amp;field=time-context'>".makeclean($item['timeframe'])."</a></td></tr>\n";
 if (!empty($item['deadline'])) {
-    $deadline=prettyDueDate($item['deadline'],$_SESSION['config']['datemask']);
+    $deadline=prettyDueDate($item['deadline'],$item['daysdue']);
     echo "<tr><th>Deadline:</th>"
         ,"<td class='{$deadline['class']}' title='{$deadline['title']}'>"
         ,$deadline['date'],"</td></tr>\n";

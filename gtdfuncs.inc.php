@@ -237,16 +237,31 @@ function makeOption($row,$selected) {
 /*
    ======================================================================================
 */
-function prettyDueDate($dateToShow,$thismask) {
+function prettyDueDate($dateToShow,$daysdue,$thismask=null) {
+    if (is_null($thismask)) $thismask=$_SESSION['config']['datemask'];
 	$retval=array('class'=>'','title'=>'');
     if(trim($dateToShow)!='') {
-        $retval['date'] = date($thismask,strtotime($dateToShow) );
-        if ($dateToShow<date("Y-m-d")) {
+        $timestamp=strtotime($dateToShow);
+        $retval['date'] = date($thismask,$timestamp );
+        if ($daysdue>0) {
             $retval['class']='overdue';
-            $retval['title']='Overdue';
-        } elseif($dateToShow===date("Y-m-d")) {
+            $retval['title']="$daysdue day(s) overdue";
+        } elseif(!$daysdue) {
             $retval['class']='due';
             $retval['title']='Due today';
+        } elseif ($daysdue==-1) {
+            $retval['title']='Due tomorrow';
+            $retval['class']='comingdue';
+        } elseif ($daysdue>-8) {
+            $retval['title']='Due in '.-$daysdue.' days';
+            $retval['class']='comingdue';
+        } else {
+            $retval['title']='Due in '.-$daysdue.' days';
+        }
+        if ($_SESSION['config']['showRelativeDeadlines']) {
+            $dateOrig = $retval['date'];
+            $retval['date'] = $retval['title'];
+            $retval['title'] = $dateOrig;
         }
     } else
         $retval['date'] ='&nbsp;';
@@ -568,6 +583,8 @@ function importOldConfig() {
     foreach ($acckey as $link=>$key)
         if (!empty($key)) $_SESSION['keys'][$link]=$key;
     $_SESSION['config']['contextsummary']=($config['contextsummary']==='nextaction'); // force to boolean
+    if (!array_key_exists('showRelativeDeadlines',$_SESSION['config']))
+        $_SESSION['config']['showRelativeDeadlines']=false; // new value that may not be present in config.php
     resetHierarchy();
     $alltypes=getTypes();
 

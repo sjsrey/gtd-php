@@ -103,7 +103,8 @@ $array=array(
     array('contextsummary','checkbox','In the space contexts report, show only <b>next</b> actions'),
     array('useLiveEnhancements','checkbox','Use Live enhancements'),
     array('reviewProjectsWithoutOutcomes','checkbox','In the weekly review, identify projects without outcomes'),
-    array('storeRecurrences','checkbox','When recurring items are completed, store each occurrence as a completed item')
+    array('storeRecurrences','checkbox','When recurring items are completed, store each occurrence as a completed item'),
+    array('showRelativeDeadlines','checkbox','Show deadlines as relative days (e.g. "due in 5 days") rather than as dates')
 );
 makeOptionsTab($array,$config,'Options');
 /* ------------------------------------------------------------------------

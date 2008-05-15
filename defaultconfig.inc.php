@@ -13,6 +13,7 @@ $config["trimLengthInReport"] = 0;     // max visible length of descriptions whe
 $config["firstDayOfWeek"] = 0; // 0=Sunday, 1=Monday, ... 6=Saturday
 $config['ReportMaxCompleteChildren']=0;  // maximum number of child items of any one type shown in itemReport
 $config['useLiveEnhancements']=true; // javascript productivity aids: tested on PC/IE7, PC/Firefox2, Linux/Firefox2, Linux/Epiphany, Linux/Konqueror3
+$config['showRelativeDeadlines']=false; // Show deadlines as relative days (e.g. "due in 5 days") rather than as dates
 
 // These are the shortcut settings for menu options.  Add a key for any page or page view in the main menus.
 // Note IE only allows 26 access keys (a-z).

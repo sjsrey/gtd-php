@@ -333,7 +333,7 @@ td.overdue, span.overdue,.warnresult {
 	color: red;
 	font-weight: bolder;
 }
-span.comingdue {
+.comingdue {
 	color: #AA7200;
 	font-weight: bolder;
 }

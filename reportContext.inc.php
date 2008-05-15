@@ -6,7 +6,7 @@ function makeContextRow($row) {
 	$rowout['description']=$row['description'];
 	$rowout['recurdesc'] = ($row['recurdesc']=="0")?'&nbsp;':$row['recurdesc'];
     if($row['deadline']) {
-        $deadline=prettyDueDate($row['deadline'],$_SESSION['config']['datemask']);
+        $deadline=prettyDueDate($row['deadline'],$row['daysdue']);
         $rowout['deadline'] =$deadline['date'];
         $rowout['deadline.class']=$deadline['class'];
         $rowout['deadline.title']=$deadline['title'];

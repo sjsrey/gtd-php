@@ -197,7 +197,9 @@ function getsql($querylabel,$values,$sort) {
 		case "getchildren":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`,
 					i.`desiredOutcome`, its.`type`,
-					IF(ia.`isSomeday`='y','y','n') AS isSomeday, ia.`deadline`, i.`recurdesc`,i.`recur`,
+					IF(ia.`isSomeday`='y','y','n') AS isSomeday, ia.`deadline`,
+                    DATEDIFF(CURDATE(),ia.`deadline`) AS `daysdue`,
+                    i.`recurdesc`,i.`recur`,
 					ia.`tickledate`,ia.`nextaction`,
 					its.`dateCreated`, its.`dateCompleted`,
 					its.`lastModified`, its.`categoryId`,
@@ -222,7 +224,8 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
 		case "getitems":
-			$sql="SELECT i.`itemId`, i.`title`, i.`description`, ia.`deadline`
+			$sql="SELECT i.`itemId`, i.`title`, i.`description`, ia.`deadline`,
+                    DATEDIFF(CURDATE(),ia.`deadline`) AS `daysdue`
 				FROM `{$prefix}items` AS i
 					JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
 					LEFT OUTER JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
@@ -241,6 +244,7 @@ function getsql($querylabel,$values,$sort) {
     				x.`itemId`, x.`title`, x.`description`,
     				x.`desiredOutcome`, x.`type`, x.`isSomeday`,
     				x.`deadline`, x.`recurdesc`, x.`recur`,
+    				DATEDIFF(CURDATE(),x.`deadline`) AS `daysdue`,
     				x.`tickledate`, x.`dateCreated`, x.`dateCompleted`,
     				x.`lastModified`, x.`categoryId`, x.`category`,
     				x.`contextId`, x.`cname`, x.`timeframeId`,

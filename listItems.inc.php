@@ -387,7 +387,7 @@ if ($result) {
         if (count($childType)) $maintable[$thisrow]['childtype'] =$childType[0];
         
         if($row['deadline']) {
-            $deadline=prettyDueDate($row['deadline'],$_SESSION['config']['datemask']);
+            $deadline=prettyDueDate($row['deadline'],$row['daysdue']);
             $maintable[$thisrow]['deadline'] =$deadline['date'];
             if (empty($row['dateCompleted'])) {
                 $maintable[$thisrow]['deadline.class']=$deadline['class'];
