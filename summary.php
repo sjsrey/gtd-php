@@ -47,8 +47,14 @@ $values['filterquery'] = $stem." AND ".sqlparts("issomeday",$values);
 $sm = query("getitems",$values);
 $numbersomeday=($sm)?count($sm):0;
 
+// count inbox items
+$result = query("counttype",array('type'=>'i'));
+$inboxcount= ($result) ? $result[0]['cnt'] : 0;
 
-//PAGE DISPLAY CODE
+gtd_handleEvent(_GTD_ON_DATA,$pagename);
+/*----------------------------------------------------------------
+    display page
+*/
 echo "<h2>GTD Summary</h2>\n";
 echo '<h4>Today is '.date($_SESSION['config']['datemask']).'. (Week '.date("W").'/52 &amp; Day '.date("z").'/'.(365+date("L")).')</h4>'."\n";
 
@@ -81,9 +87,11 @@ echo "<p>There $verb $numbernextactions"
     ,($nextactionsdue['1']==1)?"1 has its deadline":"{$nextactionsdue['1']} have deadlines"
     ,"  in the coming 7 days</span>. Altogether, there are $numberactions <a href='listItems.php?type=a'>Action"
     ,($numberactions==1)?'':'s'
-    ,"</a>$space2.</p>\n</div>\n";
+    ,"</a>$space2\n"
+    ,($inboxcount)?", and <a href='listItems.php?type=i'>$inboxcount inbox item(s)</a>":''
+    ,"</p>\n";
 
-echo "<div class='reportsection'>\n";
+echo "</div>\n<div class='reportsection'>\n";
 
 $numdue=0;
 $numoverdue=0;

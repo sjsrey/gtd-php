@@ -154,13 +154,13 @@ function getsql($querylabel,$values,$sort) {
 				{$values['filterquery']}
                 GROUP BY `duecategory`";
 			break;
-		case "countselected":
-			$sql="SELECT FOUND_ROWS()";
-			break;
 		case "countspacecontexts":
 			$sql="SELECT COUNT(*)
 				FROM `{$prefix}context`";
 			break;
+        case 'counttype':
+            $sql="SELECT COUNT(*) AS cnt FROM `{$prefix}itemstatus` WHERE `type`='{$values['type']}'";
+            break;
 		case "deletecategory":
 			$sql="DELETE FROM `{$prefix}categories`
 				WHERE `categoryId`='{$values['id']}'";
