@@ -112,6 +112,28 @@ function getsql($querylabel,$values,$sort) {
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
 
+        case 'countactionsbycontext':
+            $sql="SELECT cn.`name` AS cname,cn.`contextId`,COUNT(x.`itemId`) AS count
+            FROM `{$_SESSION['prefix']}itemattributes` as x
+            JOIN `{$_SESSION['prefix']}itemattributes` as ia USING (`itemId`)
+            JOIN `{$_SESSION['prefix']}itemstatus` as its USING (`itemId`)
+			LEFT OUTER JOIN `{$_SESSION['prefix']}context` AS cn
+				ON (ia.`contextId` = cn.`contextId`)
+            JOIN (
+                SELECT DISTINCT `itemId` FROM `{$_SESSION['prefix']}lookup` AS lu
+                    JOIN (SELECT i.`itemId` AS parentId,
+                             ia.`isSomeday` AS pisSomeday,
+                             ia.`deadline` AS pdeadline,
+				             ia.`tickledate` AS ptickledate,
+				             its.`dateCompleted` AS pdateCompleted
+    					   FROM `{$_SESSION['prefix']}itemattributes` as ia
+    					   JOIN `{$_SESSION['prefix']}items` as i USING (`itemId`)
+    					   JOIN `{$_SESSION['prefix']}itemstatus` as its USING (`itemId`)
+                        ) AS y USING (`parentId`)
+            ) AS lut ON (x.`itemId`=lut.`itemId`)
+             {$values['filterquery']}
+             GROUP BY ia.`contextId` ORDER BY cn.`name`";
+            break;
         case 'countdoneactionsbyweek':
             $sql="SELECT its.`dateCompleted`,
                         truncate(datediff(curdate(),its.`dateCompleted`)/7,0) AS `weeksago`,
