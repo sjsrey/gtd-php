@@ -38,7 +38,7 @@ $contextResults = query("getspacecontexts",$config,$values,$sort);
 $contextNames=array(0=>'none');
 if ($contextResults)
     foreach ($contextResults as $row)
-	   $contextNames[(int) $row['contextId']]=makeclean($row['name']);
+	   $contextNames[(int) $row['contextId']]=$row['name'];
 
 //obtain all timeframes
 $values['type']='a';
@@ -47,8 +47,8 @@ $timeframeResults = query("gettimecontexts",$config,$values,$sort);
 $timeframeNames=array(0=>'none');
 $timeframeDesc=array(0=>'none');
 if ($timeframeResults) foreach($timeframeResults as $row) {
-	$timeframeNames[(int) $row['timeframeId']]=makeclean($row['timeframe']);
-	$timeframeDesc[(int) $row['timeframeId']]=makeclean($row['description']);
+	$timeframeNames[(int) $row['timeframeId']]=$row['timeframe'];
+	$timeframeDesc[(int) $row['timeframeId']]=$row['description'];
 	}
 
 //obtain all active item timeframes and count instances of each

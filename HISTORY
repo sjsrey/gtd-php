@@ -1,5 +1,18 @@
-2007-00-00 Version 0.8
-Pull from milestone report
+2008-04-30 Version 0.8
+    - table prefixes, allowing more than one installation in a specific MySQL database
+    - an 'inbox' where items can be quickly created, for incorporation into actions and projects at a later time
+    - Quick find function to search all text fields for a specific string
+    - Tables can be sorted dynamically, by clicking on the column header
+    - Multiple parents for items
+    - projects can be parents of other projects
+    - dynamic javascript auto-suggest for parent-selector
+    - cleaned up xhtml and css: all pages now validate
+    - hierarchy of levels: values, visions, roles, goals, projects and actions
+    - improved security against MySQL injection
+    - API for external add-ons
+    - printable keyboard shortcuts list
+    - Many more updates, enhancements, and bugfixes...
+    - Development team: Serge, Scott, Crisses, Andrew and many contributions from our users
 
 2006-09-30 Version 0.7
     - Improved css (Josh Burnett)

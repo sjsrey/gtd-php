@@ -280,9 +280,9 @@ function retrieveFormVars() {
 	$values['suppressUntil']  = empty($_POST['suppressUntil'])?0:(int) $_POST['suppressUntil'];
 	$values['repeat']         = empty($_POST['repeat'])?0:(int) $_POST['repeat'];
 
-	// dates
-	$values['dateCompleted'] = (empty($_POST['dateCompleted'])) ? "NULL" : "'{$_POST['dateCompleted']}'";
-	$values['deadline']      = (empty($_POST['deadline']))      ? "NULL" : "'{$_POST['deadline']}'";
+	// dates - ensure that they are valid, by converting to timestamp and then back to formatted text
+	foreach (array('dateCompleted','deadline') as $field)
+        $values[$field]  = (empty($_POST[$field])) ? "NULL" : ("'".date('Y-m-d',strtotime($_POST[$field]))."'");
 
 	if ($config['debug'] & _GTD_DEBUG) {
 		echo '<hr /><pre><b>retrieved form vars</b><br />';

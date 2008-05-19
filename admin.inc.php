@@ -213,7 +213,14 @@ function fixData($prefix) {
             SELECT `itemId` FROM `{$prefix}itemstatus` WHERE dateCompleted IS NOT NULL
             )";
     send_query($q);
-    
+
+ // repair impossible dates - by default, MySQL v4.x allowed dates such as 2008-13-51
+    $q="UPDATE `{$prefix}itemstatus`     AS its
+        JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
+            SET its.`dateCompleted`=its.`dateCompleted`+'0 DAY',
+                ia.`deadline`     = ia.`deadline`     +'0 DAY'";
+    send_query($q); // TOFIX - needs checking
+
     // and finally, fix nextactions by recreating it completely
     recreateNextactions($prefix);
 }
