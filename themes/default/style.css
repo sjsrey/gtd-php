@@ -35,14 +35,6 @@ body {
 	margin: 10px;	
 }
 
-#sidebar {
-	float: left;
-	display: inline;
-	margin: 0 10px 0 0;
-	width: 150px;
-	text-align:left;
-}
-
 #main {
 	clear: left;
 }
@@ -171,8 +163,8 @@ span.nextActionMarker {
 table input[type="checkbox"]{
 	margin:0;
 	padding:0;
-	height:1.7em;
-	width:1.7em;
+	height:1.4em;
+	width:1.4em;
 }
 .formrow input[type="radio"].notfirst, .formrow input[type="checkbox"].notfirst, .formbuttons input[type="checkbox"].notfirst {
 	margin-left: 1.5em;
@@ -228,23 +220,6 @@ h4 {
 .editbar {
     padding-bottom:1em;
 }
-.hanging {
-    margin-left:10em;
-}
-
-.hanging p {
-    margin-top:0.25em;
-    margin-bottom:0.25em;
-}
-.hanging span {
-    text-indent:-10em;
-    font-size: 11px;
-	font-weight: bold;
-	display:block;
-    float:left;
-    margin-right:0.5em;
-}
-
 
 a, a:link,.fakelink {
 	color:#39c; 
@@ -412,11 +387,6 @@ input.warning {
 	/*border-bottom: 4px solid #eed;*/
 }
 
-#sidebar {
-	border-right: 1px solid #eed;
-	font: 10px "Lucida Grande", "Lucida Sans", Verdana, Helvetica, sans-serif;
-}
-
 #footer {
 	color:#666;
 	border-top: 2px solid #eed;
@@ -556,4 +526,20 @@ div#freezer {
 #recur {
     border: medium double grey;
     margin-top:0.9em;
+}
+
+/*
+ * Sorting
+ */
+a.sortheader {
+    display: block;
+    padding-right: 16px;
+    background-position: center right;
+    background-repeat: no-repeat;
+}
+a.sortup {
+    background-image: url("up.gif");
+}
+a.sortdown {
+    background-image: url("down.gif");
 }

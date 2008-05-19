@@ -1,5 +1,5 @@
 <?php
-$_SESSION['config']='NonEmptyDummyValue';
+$_SESSION['config']['title']='Updating preferences'; // force it to be non-blank to avoid unnecessary options retrieval in headerDB
 require_once 'headerDB.inc.php';
 
 if (isset($_REQUEST['restoredefaults'])) {

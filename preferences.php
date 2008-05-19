@@ -94,7 +94,7 @@ $array=array(
     array('title','text','Title'),
     array('trimLength','text','Maximum length of descriptions in lists of items (0=display all)'),
     array('trimLengthInReport','text','Maximum length of descriptions of children in item reports (0=display all)'),
-    array('ReportMaxCompleteChildren','text','Maximum number of children of each type to display in item reports (0=display all)'),
+    array('ReportMaxCompleteChildren','text','Maximum number of completed children of each type to display in item reports (0=display all)'),
     array('theme',$themes,'Theme'),
     array('firstDayOfWeek',array(0=>'Sunday',1=>'Monday',2=>'Tuesday',
             3=>'Wednesday',4=>'Thursday',5=>'Friday',6=>'Saturday'
@@ -114,9 +114,9 @@ $array=array();
 foreach ($addons as $addon)
     $array[]=array($addon,'checkbox',"$addon enabled");
 $live=array();
-foreach ($_SESSION['addons'] as $where)
-    foreach ($where as $page)
-        foreach ($page as $addonname=>$how)
+if ($_SESSION['addons']) foreach ($_SESSION['addons'] as $where)
+    if (is_array($where)) foreach ($where as $page)
+        if ($page) foreach ($page as $addonname=>$how)
             $live[$addonname]=true;
 makeOptionsTab($array,$live,'Addons','addons','50');
 /* ------------------------------------------------------------------------

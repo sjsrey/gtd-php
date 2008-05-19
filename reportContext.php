@@ -67,14 +67,14 @@ foreach ($contextNames as $cid => $cname) {
     echo "<div id='dc$cid'>\n"
         ,"<a id='c$cid'></a>\n"
         ,"<h2><a href='editCat.php?field=context&amp;id=$cid' "
-        ,"title='Edit the $cname context'>"
-        ,"Context:&nbsp;$cname</a></h2>\n";
+        ,"title='Edit the ".makeClean($cname)." context'>"
+        ,"Context:&nbsp;".makeClean($cname)."</a></h2>\n";
    foreach ($timeframeNames as $tid => $tname) {
         if (isset($matrixout[$cid][$tid])) {
             echo "<div class='t{$tid}'>\n"
                 ,"<a id='c{$cid}t{$tid}'></a>\n"
-                ,"<h3><a href='editCat.php?field=time-context&amp;id=$tid' title='$tname'>"
-                ,"Time Context:&nbsp;$tname</a></h3>\n";
+                ,"<h3><a href='editCat.php?field=time-context&amp;id=$tid' title='".makeClean($tname)."'>"
+                ,"Time Context:&nbsp;".makeClean($tname)."</a></h3>\n";
             ?>
             <form action="processItems.php" method="post">
                 <table class="datatable sortable" summary="table of actions"

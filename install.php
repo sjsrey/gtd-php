@@ -136,7 +136,7 @@ elseif (isset($_POST['install'])) {
     $toPrefix=$_POST['prefix'];
     $toDB=$_POST['db'];
     // check to see whether the prefix in config.inc.php hsa been changed between POST and now
-    include_once 'config.inc.php';
+    require 'config.inc.php';
     if ($toPrefix===$config['prefix'] && $toDB===$config['db'])
         $areUpdating=true; // ok, it's safe to update.
     else {
@@ -198,10 +198,23 @@ return;
    ======================================================================================
 */
 function checkInstall() {
-	global $config,$versions,$tablelist,$checkState,$tablesByVersion;
-
+	global $versions,$tablelist,$checkState,$tablesByVersion;
     register_shutdown_function('failDuringCheck');
 	$goodToGo=true; // assume we'll be able to upgrade, until we find something to stop us
+
+    //TOFIX - check for register globals - instruct user to turn it off in .htaccess if it's on
+	$checkState='preflight';
+    if(ini_get('register_globals')) {
+        echo "<p class='warning'>Your current PHP configuration has <tt>register globals</tt> set <tt>on</tt>.",
+            "  This creates security vulnerabilities, and may intefere with the running of gtd-php. ",
+            " You can continue with installation, but the application may behave unpredictably and unreliably. ",
+            " Running in this configuration is not supported.  ",
+            " You can switch <tt>register_globals</tt> off globally in php.ini, if you are confident ",
+            " that this will not intefere with any of the other PHP applications on this server. ",
+            " Or you can switch it off locally in the gtd-php installation directory by adding the following line ",
+            " to the <tt>.htaccess</tt> file in this directory:<br />"
+            ,"<tt>php_flag register_globals off</tt></p>";
+    }
 
     echo "<p>Read the <a href='INSTALL'>INSTALL</a> file for information on using this install/upgrade program</p>\n";
 
@@ -412,7 +425,8 @@ function checkInstall() {
    ======================================================================================
 */
 function doInstall($installType,$fromPrefix) {
-	global $config,$temp,$install_success,$versions,$tablesByVersion;
+	global $temp,$install_success,$versions,$tablesByVersion;
+	require 'config.inc.php';
     require_once "headerDB.inc.php";
     $toPrefix=$config['prefix'];
 	$temp='';

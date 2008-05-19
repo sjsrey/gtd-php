@@ -1,6 +1,6 @@
 <?php
 require_once 'ses.inc.php';
-require_once 'config.inc.php';
+require 'config.inc.php';
 $_SESSION['prefix']=$config['prefix'];
 if (!empty($_SESSION['debug']['notice']))
 		error_reporting(E_ALL);
@@ -61,9 +61,8 @@ switch ($config['dbtype']) {
 $connection = connectdb($config);
 unset($config['pass']); // don't let the database password leak out
 require_once 'gtdfuncs.inc.php';
-
 // if no options, read them in from preferences table, and then overwrite with cookie values
-if (empty($_SESSION['config'])) {
+if (!array_key_exists('title',$_SESSION['config'])) {
     $optionarray=query('getoptions',array('uid'=>0,'filterquery'=>'') );
     if ($optionarray) foreach ($optionarray as $options)
         $_SESSION[$options['option']]=unserialize($options['value']);

@@ -430,7 +430,7 @@ function getConfirmation($action,$prefix) {
    ======================================================================================
 */
 function failDuringCheck() {
-    global $checkState,$config;
+    global $checkState;
     switch ($checkState) {
         case 'ok':return; // reached end ok, so nothing to do
         case 'in': // barely started
@@ -440,20 +440,14 @@ function failDuringCheck() {
     		echo "<p class='error'>No valid config.inc.php file found.<br />"
     			,"Copy the config.sample.php file to config.inc.php, and set the MySQL parameters</p>\n";
     		// TOFIX - link to config.inc.php documentation here
-
             break;
         case 'db': // failed during attempt to open database
-            echo "<p class='error'>";
-            if (empty($config['db']))
-                echo "No database name was found in the config.inc.php file: you will need to add the "
-                    ," database name, database user name, and password, to the config.inc.php file ";
-            else
-                echo "Please check your config.inc.php file. It's currently set to use the '{$config['db']}' MySQL database."
-                ," If that is the correct name, it may be that the database is not yet created, "
+            echo "<p class='error'>"
+                ,"Please check your config.inc.php file. gtd-php has been unable to connect to your database."
+                ," It may be that the database is not yet created, "
                 ," or that the database user name or password in the config.inc.php file are incorrect."
-                ," Either create the database, adjust the user permissions, or set the username and password correctly,";
-
-            echo " (contact your administrator if you don't know how to do this)"
+                ," Either create the database, adjust the user permissions, or set the username and password correctly, "
+                ," (contact your administrator if you don't know how to do this)"
                 ," and then return to this page.</p>\n";
             break;
         case 'tables':

@@ -10,7 +10,9 @@ else{
     $_SESSION['theme'] = 'default';
     $_SESSION['version'] = '';
     $_SESSION['views'] = 1;
-    foreach ($_COOKIE as $key=>$val) if (!empty($key)) $_SESSION[$key]=$val; // retrieve cookie values
+    foreach (array('theme','useLiveEnhancements') as $key)
+        if (array_key_exists($key,$_COOKIE))
+            $_SESSION[$key]=$_COOKIE[$key]; // retrieve cookie values
 }
 
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

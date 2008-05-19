@@ -22,8 +22,7 @@ function makeContextRow($row) {
     $rowout['NA'] = $row['nextaction']==='y';
     return $rowout;
 }
-function makeContextTable($maintable) {
-    global $dispArray,$show,$trimlength;
+function makeContextTable($maintable,$dispArray,$show,$trimlength) {
     ob_start();
     require 'displayItems.inc.php';
     $out=ob_get_contents();
@@ -38,7 +37,7 @@ $contextResults = query("getspacecontexts",$values);
 $contextNames=array(0=>'none');
 if ($contextResults)
     foreach ($contextResults as $row)
-	   $contextNames[(int) $row['contextId']]=makeclean($row['name']);
+	   $contextNames[(int) $row['contextId']]=$row['name'];
 
 //obtain all timeframes
 $values['type']='a';
@@ -47,8 +46,8 @@ $timeframeResults = query("gettimecontexts",$values);
 $timeframeNames=array(0=>'none');
 $timeframeDesc=array(0=>'none');
 if ($timeframeResults) foreach($timeframeResults as $row) {
-	$timeframeNames[(int) $row['timeframeId']]=makeclean($row['timeframe']);
-	$timeframeDesc[(int) $row['timeframeId']]=makeclean($row['description']);
+	$timeframeNames[(int) $row['timeframeId']]=$row['timeframe'];
+	$timeframeDesc[(int) $row['timeframeId']]=$row['description'];
 	}
 
 $values['extravarsfilterquery'] ='';
@@ -103,7 +102,7 @@ foreach ($contextNames as $cid=>$dummy1) {
         }
 		$matrixcount[$cid][$tid]=count($maintable);
         if (count($maintable))
-            $matrixout[$cid][$tid]=makeContextTable($maintable);
+            $matrixout[$cid][$tid]=makeContextTable($maintable,$dispArray,$show,$trimlength);
     }
 }
 $_SESSION['lastfilterp']=$_SESSION['lastfiltera']=basename($thisurl['path']);
@@ -135,7 +134,8 @@ if (count($lostitems)) {
         if ($rowout['NA']) array_push($wasNAonEntry[$cid][$tid],$row['itemId']);
     }
     $matrixcount[$cid][$tid]=count($maintable);
-    $matrixout[$cid][$tid]=makeContextTable($maintable);
+    $matrixout[$cid][$tid]=makeContextTable($maintable,$dispArray,$show,$trimlength);
 }
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser
+
 

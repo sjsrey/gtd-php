@@ -114,7 +114,7 @@ function ts_makeSortable(table) {
         txt = ts_getInnerText(cell);
         cell.innerHTML = '<a href="#" class="sortheader" '+
         'onclick="GTD.resortTable(this, '+i+');return false;">' +
-        txt+'<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a>';
+        txt+'</a>';
     }
 }
 
@@ -452,17 +452,9 @@ GTD.removeParent=function (id) {
 };
 // ======================================================================================
 GTD.resortTable=function (lnk,clid) {
-    // get the span
-    var span,i,j,max,spantext,td,column,table,itm,itmh,firstRow,newRows,
-        allspans,ci,sortfn,ARROW;
+    var i,j,max,td,column,table,itm,itmh,firstRow,newRows,
+        alllnks,ci,sortfn,ARROW;
     max=lnk.childNodes.length;
-    for (ci=0;ci<max;ci++) {
-        if (lnk.childNodes[ci].tagName &&
-            lnk.childNodes[ci].tagName.toLowerCase() === 'span') {
-            span = lnk.childNodes[ci];
-        }
-    }
-    spantext = ts_getInnerText(span);
     td = lnk.parentNode;
     column = clid || td.cellIndex;
     table = getParent(td,'TABLE');
@@ -486,13 +478,13 @@ GTD.resortTable=function (lnk,clid) {
 
     newRows.sort(sortfn);
 
-    if (span.getAttribute("sortdir") === 'down') {
-        ARROW = '&nbsp;&nbsp;&uarr;';
+    if (lnk.getAttribute("sortdir") === 'down') {
+        lnk.className = "sortheader sortup";
         newRows.reverse();
-        span.setAttribute('sortdir','up');
+        lnk.setAttribute('sortdir','up');
     } else {
-        ARROW = '&nbsp;&nbsp;&darr;';
-        span.setAttribute('sortdir','down');
+        lnk.className = "sortheader sortdown";
+        lnk.setAttribute('sortdir','down');
     }
 
     // We appendChild rows that already exist to the tbody, so it moves them rather than creating new ones
@@ -503,16 +495,15 @@ GTD.resortTable=function (lnk,clid) {
     for (i=0;i<max;i++) { if (newRows[i].className && (newRows[i].className.indexOf('sortbottom') !== -1)) {table.tBodies[0].appendChild(newRows[i]);}}
 
     // Delete any other arrows there may be showing
-    allspans = document.getElementsByTagName("span");
-    max=allspans.length;
+    alllnks = document.getElementsByTagName("a");
+    max=alllnks.length;
     for (ci=0;ci<max;ci++) {
-        if (allspans[ci].className === 'sortarrow') {
-            if (getParent(allspans[ci],"table") === getParent(lnk,"table")) { // in the same table as us?
-                allspans[ci].innerHTML = '&nbsp;&nbsp;&nbsp;';
+        if (alllnks[ci].className.match(/^sortheader sort(up|down)$/)) {
+            if (alllnks[ci] !== lnk && getParent(alllnks[ci],"table") === getParent(lnk,"table")) { // in the same table as us?
+                alllnks[ci].className = 'sortheader';
             }
         }
     }
-    span.innerHTML = ARROW;
 };
 // ======================================================================================
 GTD.showrecurbox=function (what,where) {

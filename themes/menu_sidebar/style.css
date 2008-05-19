@@ -9,6 +9,8 @@
 #menudiv {
 	float: right;
 	border-left: 1px solid #eed;
+	width:11em;
+	padding-top:0.5em;
 }
 
 #main {

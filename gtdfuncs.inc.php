@@ -488,8 +488,7 @@ function columnedTable($cols,$data,$link='itemReport.php') {
    ======================================================================================
     get the next date of a recurring item
 */
-function getNextRecurrence() { // returns false if failed, else returns timestamp of next recurrence
-    global $values;
+function getNextRecurrence($values) { // returns false if failed, else returns timestamp of next recurrence
     require_once 'iCalcreator.class.inc.php';
 
     if ($_SESSION['debug']['debug']) echo "<p class='debug'>creating vcalendar to get recurrence date";
