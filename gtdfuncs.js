@@ -467,7 +467,7 @@ GTD.removeParent=function (id) {
 // ======================================================================================
 GTD.resortTable=function (lnk,clid) {
     var i,j,max,td,column,table,itm,itmh,firstRow,newRows,
-        alllnks,ci,sortfn,ARROW;
+        allth,ci,sortfn,ARROW;
     max=lnk.childNodes.length;
     td = lnk.parentNode;
     column = clid || td.cellIndex;
@@ -493,11 +493,11 @@ GTD.resortTable=function (lnk,clid) {
     newRows.sort(sortfn);
 
     if (lnk.getAttribute("sortdir") === 'down') {
-        lnk.className = "sortheader sortup";
+        td.className = td.className.replace(/ sort(up|down)/,"") + " sortup";
         newRows.reverse();
         lnk.setAttribute('sortdir','up');
     } else {
-        lnk.className = "sortheader sortdown";
+        td.className = td.className.replace(/ sort(up|down)/,"") + " sortdown";
         lnk.setAttribute('sortdir','down');
     }
 
@@ -509,12 +509,12 @@ GTD.resortTable=function (lnk,clid) {
     for (i=0;i<max;i++) { if (newRows[i].className && (newRows[i].className.indexOf('sortbottom') !== -1)) {table.tBodies[0].appendChild(newRows[i]);}}
 
     // Delete any other arrows there may be showing
-    alllnks = document.getElementsByTagName("a");
-    max=alllnks.length;
+    allth = document.getElementsByTagName("th");
+    max=allth.length;
     for (ci=0;ci<max;ci++) {
-        if (alllnks[ci].className.match(/^sortheader sort(up|down)$/)) {
-            if (alllnks[ci] !== lnk && getParent(alllnks[ci],"table") === getParent(lnk,"table")) { // in the same table as us?
-                alllnks[ci].className = 'sortheader';
+        if (allth[ci].className.match(/.* sort(up|down).*/)) {
+            if (allth[ci] !== td && getParent(allth[ci],"table") === getParent(td,"table")) { // in the same table as us?
+                allth[ci].className = allth[ci].className.replace(/ sort(up|down)/,"");
             }
         }
     }

@@ -531,15 +531,15 @@ div#freezer {
 /*
  * Sorting
  */
-a.sortheader {
-    display: block;
+a.sortheader { display: block; }
+.sortable th {
     padding-right: 16px;
     background-position: center right;
     background-repeat: no-repeat;
 }
-a.sortup {
+.sortup {
     background-image: url("up.gif");
 }
-a.sortdown {
+.sortdown {
     background-image: url("down.gif");
 }
