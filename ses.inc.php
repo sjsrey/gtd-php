@@ -5,8 +5,7 @@ if(isset($_SESSION['views']))
 else{
     $_SESSION['categoryId'] = $_SESSION['contextId'] = 0;
     $_SESSION['debug']=$_SESSION['sort']=$_SESSION['keys']=$_SESSION['config']=
-        $_SESSION['hierarchy']=$_SESSION['message']=$_SESSION['addons']=
-        $_SESSION['installedaddons']= array();
+        $_SESSION['hierarchy']=$_SESSION['message']=$_SESSION['addons']=array();
     $_SESSION['theme'] = 'default';
     $_SESSION['version'] = '';
     $_SESSION['views'] = 1;

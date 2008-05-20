@@ -556,7 +556,7 @@ function getsql($querylabel,$values,$sort) {
                            ('0','hierarchy','{$values['hierarchy']}'),
                            ('0','debug'    ,'{$values['debug']}'    ),
                            ('0','sort'     ,'{$values['sort']}'     ),
-                           ('0','installedaddons','{$values['installedaddons']}' )";
+                           ('0','addons'   ,'{$values['addons']}'   )";
             break;
 
 		case "updatedeadline":

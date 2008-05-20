@@ -1,5 +1,6 @@
 /*  Copyright Mihai Bazon, 2002, 2003  |  http://dynarch.com/mishoo/
  * ---------------------------------------------------------------------------
+ * modified for gtd-php
  *
  * The DHTML Calendar
  *
@@ -66,8 +67,8 @@ Calendar.setup = function (params) {
 	param_default("displayArea",    null);
 	param_default("button",         null);
 	param_default("eventName",      "click");
-	param_default("ifFormat",       "%Y/%m/%d");
-	param_default("daFormat",       "%Y/%m/%d");
+	param_default("ifFormat",       "%Y-%m-%d");
+	param_default("daFormat",       "%Y-%m-%d");
 	param_default("singleClick",    true);
 	param_default("disableFunc",    null);
 	param_default("dateStatusFunc", params["disableFunc"]);	// takes precedence if both are defined
@@ -85,7 +86,7 @@ Calendar.setup = function (params) {
 	param_default("showsTime",      false);
 	param_default("timeFormat",     "24");
 	param_default("electric",       true);
-	param_default("step",           2);
+	param_default("step",           1);
 	param_default("position",       null);
 	param_default("cache",          false);
 	param_default("showOthers",     false);

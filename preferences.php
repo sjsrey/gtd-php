@@ -1,5 +1,5 @@
 <?php
-/*
+/* 
    ======================================================================================
 */
 function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
@@ -52,6 +52,7 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
 */
 $menu='';
 include_once 'header.inc.php';
+retrieveConfig(); // force retrieval of preferences from db upon entering this screen, to avoid inter-session contamination
 
 $checkboxes='';
 // get a list of theme sub-directories, to go into the dropdown selector
@@ -79,9 +80,6 @@ if ($handle = opendir($dir)) {
 	closedir($handle);
 }
 $config=$_SESSION['config'];
-$cookievars=array('theme','useLiveEnhancements');
-foreach ($cookievars as $key)
-    $config[$key]=$_SESSION[$key];
 $hidden='';
 ?>
 <form action="processPreferences.php" method="post" id='optionsform'>

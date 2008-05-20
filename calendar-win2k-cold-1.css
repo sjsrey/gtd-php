@@ -93,6 +93,13 @@
   text-align: right;
   padding: 2px 4px 2px 2px;
 }
+
+.calendar .name {
+  color: #aaa;
+}
+.calendar .name:hover {
+  color: #000;
+}
 .calendar tbody .day.othermonth {
   font-size: 80%;
   color: #aaa;

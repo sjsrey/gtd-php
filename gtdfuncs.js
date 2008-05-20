@@ -292,6 +292,20 @@ GTD.freeze=function (tofreeze) {
 	gtd_freezediv.style.display=(tofreeze)?"block":"none";
 };
 // ======================================================================================
+GTD.initcalendar=function(container) {
+    var i,alldates,onedate,max,firstDayOfWeek;
+    firstDayOfWeek=parseInt((document.getElementById('firstDayOfWeek')).value);
+    alldates=container.getElementsByClassName('hasdate');
+    max=alldates.length;
+    for (i=0;i<max;i++) {
+        id=alldates[i].id;
+        Calendar.setup( { firstDay  : firstDayOfWeek,
+                          inputField: id,
+                          button    : id+'_trigger'
+        });
+    }
+};
+// ======================================================================================
 GTD.ParentSelector=function(ids,titles,types,onetype) { // constructor
     var i,line,type,typename,useTypes,max,
         box=document.getElementById('searchresults');

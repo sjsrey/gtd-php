@@ -30,7 +30,7 @@ function getEvents($addon) {
             $triggercount++;
         }
     }
-    $_SESSION['installedaddons'][$addon]=true;
+    $_SESSION['addons'][$addon]=true;
     return $triggercount;
 }
 /*
@@ -42,7 +42,7 @@ function gtd_handleEvent($event,$page) {
                                 );
     foreach ($eventhandlers as $addonid=>$handler) {
         $addon=array('id'=>$addonid,'dir'=>"./addons/$addonid/");
-        include "{$addon['dir']}$handler";
+        if ((include "{$addon['dir']}$handler")===false) break;
     }
 }
 /*
@@ -599,10 +599,12 @@ function importOldConfig() {
     $_SESION['addons']=array();
     $values=array('uid'=>0,'option'=>'addons','config'=>serialize($_SESION['addons']));
     query('updateoptions',$values);
+    
+    if (!isset($custom_review)) $custom_review='';
     $values=array('uid'=>0,'option'=>'customreview','config'=>serialize($custom_review));
     query('updateoptions',$values);
 
-    $_SESSION['installedaddons']=array();
+    $_SESSION['addons']=array();
     $result=saveConfig();
     return $result;
 }
@@ -616,10 +618,27 @@ function saveConfig() { // store config preferences in the table
             'keys'     =>serialize($_SESSION['keys']),
             'hierarchy'=>serialize($_SESSION['hierarchy']),
             'debug'    =>serialize($_SESSION['debug']),
-            'installedaddons'=>serialize($_SESSION['installedaddons'])
+            'addons'   =>serialize($_SESSION['addons'])
         )
     );
     return $tst;
+}
+/*
+   ======================================================================================
+*/
+function retrieveConfig() {
+    $optionarray=query('getoptions',array('uid'=>0,'filterquery'=>'') );
+    if ($optionarray) foreach ($optionarray as $options)
+        $_SESSION[$options['option']]=unserialize($options['value']);
+
+    // retrieve cookie values, and overlay them onto preferences
+    foreach ($_COOKIE as $key=>$val)
+        if (!empty($key) && isset($_SESSION[$key]))
+            $_SESSION['config'][$key]=$_SESSION[$key]=$val;
+
+    // go through the list of installed addons, and register them
+    foreach($_SESSION['addons'] as $addon=>$dummy)
+        getEvents($addon);
 }
 /*
    ======================================================================================

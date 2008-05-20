@@ -94,6 +94,7 @@ $hiddenvars=array(
             ,'afterCreate'=>''
             ,'type'   =>$values['type']
             ,'itemId' =>$values['itemId']
+            ,'firstDayOfWeek'=>(int) $_SESSION['config']['firstDayOfWeek']
             );
 
 if ($values['itemId']) {
@@ -224,11 +225,12 @@ if (empty($values['recur'])) {
 */
 if ($show['header']) include_once 'headerHtml.inc.php';
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
-if ($show['scriptparents']) {
-    ?>
-    <script type='text/javascript'>
-        /* <![CDATA[ */
-        GTD.addEvent(window,'load', function() {
+if ($show['header']) { ?>
+    <script type="text/javascript">
+    /* <![CDATA[ */
+    GTD.addEvent(window,'load', function() {
+        GTD.initcalendar(document);
+        <?php if ($show['scriptparents']) { ?>
             GTD.typenames={<?php
                 $sep='';
                 foreach ($alltypes as $key=>$val) {
@@ -241,14 +243,11 @@ if ($show['scriptparents']) {
                 <?php echo "$pid\n,\n$ptitle\n,\n$partt\n,\"{$values['ptype']}\" \n"; ?>
             );
             GTD.parentselect.refinesearch('<?php echo $values['ptype']; ?>');
-        });
-        /* ]]> */
-    </script><?php
-}
-
-if ($show['header']) {
-    include_once 'header.inc.php';
-    ?>
+        <?php } ?>
+    });
+    /* ]]> */
+    </script>
+    <?php include_once 'header.inc.php'; ?>
     <h2><?php
     if ($values['itemId'])
         echo "\n<a href='itemReport.php?itemId={$values['itemId']}'>"
@@ -336,18 +335,7 @@ if ($sep!=='<p>') echo "</p>\n";
                 <input type='text' size='10' name='tickledate' id='tickledate' class='hasdate' value='<?php
                     echo $values['tickledate'];
                 ?>' />
-                <button type='reset' id='tickledate_trigger'>&hellip;</button>
-                <script type='text/javascript'>
-                    Calendar.setup({
-						firstDay    :   <?php echo (int) $_SESSION['config']['firstDayOfWeek']; ?>,
-                        inputField  :	'tickledate',	  // id of the input field
-                        ifFormat	:	'%Y-%m-%d',	   // format of the input field
-                        showsTime	:	false,			// will display a time selector
-                        button		:	'tickledate_trigger',   // trigger for the calendar (button ID)
-                        singleClick	:	true,		   // single-click mode
-                        step		:	1				// show all years in drop-down boxes (instead of every other year as default)
-                    });
-                </script>
+                <button id='tickledate_trigger'>&hellip;</button>
             <?php
             } else
                 $hiddenvars['tickledate']=$values['tickledate'];
@@ -356,18 +344,7 @@ if ($sep!=='<p>') echo "</p>\n";
                     echo $class;$class='';
                 ?>'>Deadline:</label>
                 <input type='text' size='10' name='deadline' id='deadline' class='hasdate' value='<?php echo $values['deadline']; ?>'/>
-                <button type='reset' id='deadline_trigger'>&hellip;</button>
-                    <script type='text/javascript'>
-                        Calendar.setup({
-							firstDay    :   <?php echo (int) $_SESSION['config']['firstDayOfWeek']; ?>,
-                            inputField  :	'deadline',	  // id of the input field
-                            ifFormat	:	'%Y-%m-%d',	   // format of the input field
-                            showsTime	:	false,			// will display a time selector
-                            button		:	'deadline_trigger',   // trigger for the calendar (button ID)
-                            singleClick	:	true,		   // single-click mode
-                            step		:	1				// show all years in drop-down boxes (instead of every other year as default)
-                        });
-                    </script>
+                <button id='deadline_trigger'>&hellip;</button>
             <?php } else $hiddenvars['deadline']=$values['deadline'];
             if ($show['dateCompleted']) { ?>
                 <label for='dateCompleted' class='left<?php
@@ -376,18 +353,7 @@ if ($sep!=='<p>') echo "</p>\n";
                 <input type='text' size='10' class='hasdate' name='dateCompleted' id='dateCompleted' value='<?php
                     echo $values['dateCompleted'];
                 ?>'/>
-                <button type='reset' id='dateCompleted_trigger'>&hellip;</button>
-                    <script type='text/javascript'>
-                        Calendar.setup({
-							firstDay    :    <?php echo (int) $_SESSION['config']['firstDayOfWeek']; ?>,
-                            inputField	:	'dateCompleted',	  // id of the input field
-                            ifFormat	:	'%Y-%m-%d',	   // format of the input field
-                            showsTime	:	false,			// will display a time selector
-                            button		:	'dateCompleted_trigger',   // trigger for the calendar (button ID)
-                            singleClick	:	true,		   // single-click mode
-                            step		:	1				// show all years in drop-down boxes (instead of every other year as default)
-                        });
-                    </script>
+                <button id='dateCompleted_trigger'>&hellip;</button>
 				<button type='button' id='dateCompleted_today' onclick="javascript:GTD.completeToday('dateCompleted');">Today</button>
             <?php } else $hiddenvars['dateCompleted']=$values['dateCompleted']; ?>
         </div>
@@ -731,18 +697,7 @@ if ($show['recurdesc']) {
         <input type='text' size='10' class='hasdate' name='UNTIL' id='UNTIL' value='<?php
             if (!empty($recur['UNTIL'])) echo $recur['UNTIL'];
         ?>' />
-        <button type='reset' id='UNTIL_trigger'>&hellip;</button>
-        <script type='text/javascript'>
-            Calendar.setup({
-				firstDay    :    <?php echo (int) $_SESSION['config']['firstDayOfWeek']; ?>,
-                inputField	:	'UNTIL',	  // id of the input field
-                ifFormat	:	'%Y-%m-%d',	   // format of the input field
-                showsTime	:	false,			// will display a time selector
-                button		:	'UNTIL_trigger',   // trigger for the calendar (button ID)
-                singleClick	:	true,		   // single-click mode
-                step		:	1				// show all years in drop-down boxes (instead of every other year as default)
-            });
-        </script>
+        <button id='UNTIL_trigger'>&hellip;</button>
         <span>
             <input type='radio' name='FREQtype' value='NORECUR' id='NORECUR' <?php
                 if ($recur['FREQtype']==='NORECUR') echo " checked='checked' ";
@@ -764,6 +719,6 @@ if ($show['scriptparents']) include_once 'searcher.inc.php';
 if ($show['footer']) include_once 'footer.inc.php';
 function hidePostVar($name,$val) {
     $val=makeclean($val);
-    return "<input type='hidden' name='$name' value='$val' />\n";
+    return "<input type='hidden' id='$name' name='$name' value='$val' />\n";
 }
 ?>

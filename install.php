@@ -37,7 +37,7 @@ define("_DRY_RUN",false);
 /* _USEFULLTEXT = false | true - use FULLTEXT indexes, which take up a lot of
 space, but allow you to use MATCH ... AGAINST NB GTD-php does not currently use this */
 define("_USEFULLTEXT",false); 
-
+include_once 'ses.inc.php';
 require_once 'admin.inc.php';
 require_once 'gtd_constants.inc.php';
 define("_DEFAULTDATE","1990-01-01");
@@ -433,7 +433,7 @@ function doInstall($installType,$fromPrefix) {
 	register_shutdown_function('cleanup');
 	if (_DEBUG) echo "<pre>Install type is: $installType<br />Source database has prefix $fromPrefix</pre>";
 	echo "<p>Installing ... please wait</p>\n";
-	if (version_compare(PHP_VERSION, "4.2.0",'>=')) ob_flush();
+	@ob_flush();
 	flush();
     switch($installType){
 	  case '0': // new install =============================================================================

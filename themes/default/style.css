@@ -235,12 +235,12 @@ a:hover,.fakelink:hover{
 	color:#039; 
 }
 a img {
-	border:0;
+	border:none;
 }
 
 img {
-        border: 0;
-        margin-right: 2px;
+    border: none;
+    margin-right: 2px;
 }
 
 select, input, textarea,button {
