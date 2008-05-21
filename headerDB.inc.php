@@ -1,7 +1,7 @@
 <?php
 require_once 'ses.inc.php';
 require 'config.inc.php';
-$_SESSION['prefix']=$config['prefix'];
+$_SESSION['prefix']=$config['prefix']; // TOFIX - this bit needs revision for multi-user setups
 if (!empty($_SESSION['debug']['notice']))
 		error_reporting(E_ALL);
     else

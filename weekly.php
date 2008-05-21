@@ -34,7 +34,7 @@ include_once 'header.inc.php';
 	$orphancnt=($orph_maintable)?count($orph_maintable):0;
 
     // get custom list of weekly tasks
-    $tmpval=array('uid'=>0);
+    $tmpval=array('uid'=>$_SESSION['uid']);
     $tmpval['filterquery']=' AND '.sqlparts('singleoption',array('option'=>'customreview'));
     $result=query('getoptions',$tmpval);
     if ($result) $custom_review=unserialize($result[0]['value']);

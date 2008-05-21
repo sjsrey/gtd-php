@@ -596,15 +596,17 @@ function importOldConfig() {
                 : 'item';
         unset($config['afterCreate'][$type]);
     }
-    $_SESION['addons']=array();
-    $values=array('uid'=>0,'option'=>'addons','config'=>serialize($_SESION['addons']));
+    $_SESSION['addons']=array();
+    $_SESSION['uid']=0;
+    
+    $values=array('uid'=>$_SESSION['uid'],'option'=>'addons','config'=>serialize($_SESSION['addons']));
     query('updateoptions',$values);
     
     if (!isset($custom_review)) $custom_review='';
-    $values=array('uid'=>0,'option'=>'customreview','config'=>serialize($custom_review));
+    $values['option']='customreview';
+    $values['config']=serialize($custom_review);
     query('updateoptions',$values);
 
-    $_SESSION['addons']=array();
     $result=saveConfig();
     return $result;
 }
@@ -618,7 +620,8 @@ function saveConfig() { // store config preferences in the table
             'keys'     =>serialize($_SESSION['keys']),
             'hierarchy'=>serialize($_SESSION['hierarchy']),
             'debug'    =>serialize($_SESSION['debug']),
-            'addons'   =>serialize($_SESSION['addons'])
+            'addons'   =>serialize($_SESSION['addons']),
+            'uid'      =>$_SESSION['uid']
         )
     );
     return $tst;
@@ -627,7 +630,7 @@ function saveConfig() { // store config preferences in the table
    ======================================================================================
 */
 function retrieveConfig() {
-    $optionarray=query('getoptions',array('uid'=>0,'filterquery'=>'') );
+    $optionarray=query('getoptions',array('uid'=>$_SESSION['uid'],'filterquery'=>'') );
     if ($optionarray) foreach ($optionarray as $options)
         $_SESSION[$options['option']]=unserialize($options['value']);
 

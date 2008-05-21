@@ -9,6 +9,7 @@ else{
     $_SESSION['theme'] = 'default';
     $_SESSION['version'] = '';
     $_SESSION['views'] = 1;
+    $_SESSION['uid']   = 0;
     foreach (array('theme','useLiveEnhancements') as $key)
         if (array_key_exists($key,$_COOKIE))
             $_SESSION[$key]=$_COOKIE[$key]; // retrieve cookie values

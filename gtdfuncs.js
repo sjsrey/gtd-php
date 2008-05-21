@@ -521,17 +521,16 @@ GTD.resortTable=function (lnk,clid) {
 };
 // ======================================================================================
 GTD.showrecurbox=function (what,where) {
-    var freqtype,startdate,t,mth,wk,dte,day,daynum,startday,form,days,recurbox,newhome;
+    var startdate,t,mth,wk,dte,day,daynum,startday,form,days,recurbox,newhome;
     recurbox=document.getElementById(what);
     newhome=where.parentNode;
     while(newhome.hasChildNodes()) {newhome.removeChild(newhome.lastChild);}
     newhome.appendChild(recurbox);
     recurbox.style.display='block';
     form=getParent(recurbox,'form');
-    freqtype=form.elements.FREQtype.value;
     // if there's already a recurrence value, then we can now end
-    if (typeof freqtype!=='undefined' && freqtype!=='NORECUR') {return false;}
-    //    otherwise, populate the recurrence form with useful defaults based on existing deadline/tickler/today
+    if (form.elements.icstext.value!=='') {return false;}
+    //  otherwise, populate the recurrence form with useful defaults based on existing deadline/tickler/today
     startdate = form.elements.deadline.value || form.elements.tickledate.value || form.elements.dateCompleted.value;
     startday=new Date();
     if (startdate) {

@@ -551,12 +551,12 @@ function getsql($querylabel,$values,$sort) {
 
         case "updateconfig":
             $sql="REPLACE INTO `{$prefix}preferences` (`uid`,`option`,`value`)
-                    VALUES ('0','config'   ,'{$values['config']}'   ),
-                           ('0','keys'     ,'{$values['keys']}'     ),
-                           ('0','hierarchy','{$values['hierarchy']}'),
-                           ('0','debug'    ,'{$values['debug']}'    ),
-                           ('0','sort'     ,'{$values['sort']}'     ),
-                           ('0','addons'   ,'{$values['addons']}'   )";
+                    VALUES ('{$values['uid']}','config'   ,'{$values['config']}'   ),
+                           ('{$values['uid']}','keys'     ,'{$values['keys']}'     ),
+                           ('{$values['uid']}','hierarchy','{$values['hierarchy']}'),
+                           ('{$values['uid']}','debug'    ,'{$values['debug']}'    ),
+                           ('{$values['uid']}','sort'     ,'{$values['sort']}'     ),
+                           ('{$values['uid']}','addons'   ,'{$values['addons']}'   )";
             break;
 
 		case "updatedeadline":
