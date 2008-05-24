@@ -757,16 +757,6 @@ function sqlparts($part,$values) {
 	case "nottimeframefilter":
 		$sqlpart = " ia.`timeframeId` !='{$values['timeframeId']}' ";
 		break;
-    case 'orphantypes':
-        $sqlpart='';
-        $sep='';
-        if (preg_match_all('/[a-zA-Z0-9]/',$values['suppressAsOrphans'],$tst)) {
-            foreach ($tst[0] as $type) {
-                $sqlpart .= "$sep'$type'";
-                $sep=',';
-            }
-        }
-        break;
 	case "pendingitems":
 		$sqlpart = " its.`dateCompleted` IS NULL ";
 		break;
@@ -791,6 +781,17 @@ function sqlparts($part,$values) {
 	case "typefilter":
 		$sqlpart = " its.`type` IN ('{$values['type']}') ";
 		break;
+    case 'typeinlist':
+        $sqlpart='its.`type` IN (';
+        $sep='';
+        if (preg_match_all('/[a-zA-Z0-9]/',$values['types'],$tst)) {
+            foreach ($tst[0] as $type) {
+                $sqlpart .= "$sep'$type'";
+                $sep=',';
+            }
+        }
+        $sqlpart .=')';
+        break;
     default:
         if ($_SESSION['debug']['debug']) echo "<p class='error'>Failed to find sql component '$part'</p>'";
         $sqlpart=$part;

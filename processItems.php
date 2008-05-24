@@ -448,7 +448,7 @@ function processRecurrence() {
         && ( empty($values['deadline'])   || $values['deadline']==='NULL'   )
         && ( empty($values['tickledate']) || $values['tickledate']==='NULL' ) ) {
         // haven't got a startdate, so use what the next recurrence date would be
-        $nextdue=getNextRecurrence();
+        $nextdue=getNextRecurrence($values);
         if ($nextdue) $values['deadline']="'$nextdue'";
         if ($_SESSION['debug']['debug']) echo "<p class='debug'>Forcing deadline where none given - $nextdue</p>";
     }
@@ -463,7 +463,7 @@ function recurItem() {
 	global $values,$updateGlobals;
 	require_once 'iCalcreator.class.inc.php';
 
-    $nextdue=getNextRecurrence();
+    $nextdue=getNextRecurrence($values);
 
     // before processing the next due date, do some house-cleaning and preparation
     $values['oldDateCompleted']=$values['dateCompleted'];

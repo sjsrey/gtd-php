@@ -94,7 +94,8 @@ $values['parentId']=$values['itemId'];
 $AcreateItemId=$AnoEntries=$Athistableid=$AwasNAonEntry=$Afootertext=$AdispArray
     =$Amaintable=array();
 $childtype=getChildType($item['type']); // array of item types that can be children of this item
-
+if (false!==($ndx=array_search('p',$childtype,true)))
+    array_splice($childtype,$ndx+1,0,'s');
 // loop to build tables of children, by completion status and type
 if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as $thistype) {
     // reset arrays for each table

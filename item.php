@@ -44,7 +44,11 @@ if ($values['itemId']) { // editing an item
 }
 $canchangetypesafely=array('a','r','w');
 $ptypes=getParentType($values['type']);
-if (count($ptypes)) $values['ptype']=$ptypes[0];
+if (count($ptypes)) {
+    $values['ptype']=$ptypes[0];
+    if (false!==($ndx=array_search('p',$ptypes,true)))
+        array_splice($ptypes,$ndx+1,0,'s');
+}
 $show=getShow($where,$values['type']);
 $show['tags']=$show['header']=$show['footer']=$show['submitbuttons']=true;
 $show['scriptparents']= $_SESSION['useLiveEnhancements'] && !empty($values['ptype']) && $show['ptitle'];
@@ -102,17 +106,20 @@ if ($values['itemId']) {
 } else
     $hiddenvars['action']='create';
 
-if ($_SESSION['useLiveEnhancements']) {
+if (!count($ptypes))
+    $potentialparents=array();
+elseif ($_SESSION['useLiveEnhancements']) {
     $alltypes=getTypes();
     $allowedSearchTypes=array();
     if (count($ptypes)>1) $allowedSearchTypes[0]='All';
     foreach($ptypes as $ptype)
         $allowedSearchTypes[$ptype]=$alltypes[$ptype].'s';
-    $values['ptypefilterquery']=" AND its.`type` IN ('".implode("','",$ptypes)."') ";
+    $values['ptypefilterquery']=' AND '.sqlparts('typeinlist',
+                                                 array('types'=>implode('',$ptypes)));
     $potentialparents = query("parentselectbox",$values);
     if (!$potentialparents) $potentialparents=array();
-} elseif (count($ptypes))
-    $values['ptypefilterquery']=" AND ia.`type`='{$ptypes[0]}' ";
+} else
+    $values['ptypefilterquery']=' AND '.sqlparts('typefilter',array('type'=>$ptypes[0]));
 
 if ($show['scriptparents']) {
 

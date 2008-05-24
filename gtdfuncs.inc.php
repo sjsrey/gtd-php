@@ -370,6 +370,18 @@ function mirrorParentTypes() {
         if (!empty($children))
             foreach ($children as $child)
                 $_SESSION['hierarchy']['parents'][$child][]=$parent;
+    /* now we need to make the first child in the list, the primary one
+      Take the last one in the list, unless it's the same as the type itself,
+      in which case take the penultimate one, if it exists
+    */
+    foreach ($_SESSION['hierarchy']['parents'] as $child=>$parents) {
+        $last=count($parents)-1;
+        if ($last<=0) continue;
+        $slicer= ($parents[$last]===$child) ? $last-1 : $last;
+        $mainparent=array_splice($parents,$slicer,1);
+        array_unshift($parents,$mainparent[0]);
+        $_SESSION['hierarchy']['parents'][$child]=$parents;
+    }
 }
 //----------------------------------------------------------------
 function resetHierarchy() {
@@ -443,9 +455,9 @@ function parentselectbox($values) {
 function getOrphans() { // retrieve all orphans - items without a parent assigned
     // we only want orphans of specific types, as specified by the user in the preferences screen
     $values=array('orphansfilterquery'
-            =>sqlparts(
-                'orphantypes',
-                array('suppressAsOrphans'=>$_SESSION['hierarchy']['suppressAsOrphans'])
+            =>'NOT '.sqlparts(
+                'typeinlist',
+                array('types'=>$_SESSION['hierarchy']['suppressAsOrphans'])
             )
         );
     $maintable = query("getorphaneditems",$values);
