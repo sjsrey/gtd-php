@@ -202,7 +202,7 @@ function checkInstall() {
     register_shutdown_function('failDuringCheck');
 	$goodToGo=true; // assume we'll be able to upgrade, until we find something to stop us
 
-    //TOFIX - check for register globals - instruct user to turn it off in .htaccess if it's on
+    // check for register globals - instruct user to turn it off in .htaccess if it's on
 	$checkState='preflight';
     if(ini_get('register_globals')) {
         echo "<p class='warning'>Your current PHP configuration has <tt>register globals</tt> set <tt>on</tt>.",

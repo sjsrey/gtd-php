@@ -22,7 +22,6 @@ function getEvents($addon) {
         foreach ($what as $page=>$handler) {
             if (is_array($handler) && array_key_exists('options',$handler)) {
                 // options are present, so store them in the session global, indexed by addon name, event trigger, and page name
-                // TOFIX - does not get saved to db.  Should we redo this at the start of each session?
                 $_SESSION["addons-$addon"]["$trigger-$page"]=$handler['options']; 
                 unset($handler['options']);
             }

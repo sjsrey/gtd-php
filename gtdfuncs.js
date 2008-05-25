@@ -1,5 +1,5 @@
 /*jslint browser: true, eqeqeq: true, nomen: true, undef: true */
-/*global unescape */
+/*global unescape,Calendar */
 /*
     NB we need unescape, because decodeURIcomponent corrupts some characters in AJAX
     - but this will change when we get proper i18n/utf8/mbcs handling in gtd-php
@@ -125,7 +125,7 @@ function sortables_init() {
     tbls = document.getElementsByTagName("table");
     for (ti=0;ti<tbls.length;ti++) {
         thisTbl = tbls[ti];
-        if (((' '+thisTbl.className+' ').indexOf("sortable") !== -1) && (thisTbl.id)) {
+        if (((' '+thisTbl.className+' ').indexOf("sortable") !== -1) && thisTbl.id) {
             //initTable(thisTbl.id);
             ts_makeSortable(thisTbl);
         }
@@ -293,16 +293,19 @@ GTD.freeze=function (tofreeze) {
 };
 // ======================================================================================
 GTD.initcalendar=function(container) {
-    var i,alldates,onedate,max,firstDayOfWeek;
-    firstDayOfWeek=parseInt((document.getElementById('firstDayOfWeek')).value);
-    alldates=container.getElementsByClassName('hasdate');
-    max=alldates.length;
+    var i,id,alldates,alllbuttons,onedate,max,firstDayOfWeek,classRegExp;
+    firstDayOfWeek=parseInt((document.getElementById('firstDayOfWeek')).value,10);
+    alllbuttons=document.getElementsByTagName('input');
+    classRegExp=new RegExp("(^|\\s)hasdate(\\s|$)");
+    max=alllbuttons.length;
     for (i=0;i<max;i++) {
-        id=alldates[i].id;
-        Calendar.setup( { firstDay  : firstDayOfWeek,
-                          inputField: id,
-                          button    : id+'_trigger'
-        });
+        if (classRegExp.test(alllbuttons[i].className) ) {
+            id=alllbuttons[i].id;
+            Calendar.setup( { firstDay  : firstDayOfWeek,
+                              inputField: id,
+                              button    : id+'_trigger'
+            });
+        }
     }
 };
 // ======================================================================================
