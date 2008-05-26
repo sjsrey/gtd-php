@@ -69,20 +69,12 @@ $config['show7']=false; // false | true - show the Seven Habits of Highly Effect
 $sort = array(
     "spacecontextselectbox" => "cn.`name` ASC",
     "categoryselectbox"     => "c.`category` ASC",
-    "checklistselectbox"    => "cl.`title` ASC",
-    "listselectbox"         => "l.`title` ASC",
     "parentselectbox"       => "i.`title` ASC",
     "timecontextselectbox"  => "ti.`timeframe` DESC",
-    "getlistitems"          => "li.`item` ASC",
     "getitemsandparent"     => "type ASC, ptitle ASC, title ASC, deadline ASC, dateCreated DESC",
-    "getorphaneditems"      => "ia.`type` ASC, i.`title` ASC",
-    "selectchecklist"       => "cl.`title` ASC",
-    "getchecklists"         => "c.`category` ASC",
-    "getlists"              => "c.`category` ASC",
-    "getchecklistitems"     => "cli.`checked` DESC, cli.`item` ASC",
+    "getorphaneditems"      => "`type` ASC, `title` ASC",
     "getchildren"           => "its.`dateCompleted` DESC, ia.`deadline` DESC, i.`title` ASC",
-    "getitems"              => "i.`title` ASC",
-    "getnotes"              => "tk.`date` DESC",
+    "getitems"              => "i.`title` ASC"
 );
 
 $config["storeRecurrences"] = true; // false | true - when recurring items are completed, store each occurrence as a completed item
@@ -90,8 +82,11 @@ $config['useTypesForTimeContexts'] = false; // false | true - Time Contexts will
 $config['separator'] = '^&*#@#%&*%^@$^*$$&%#@#@^^'; // should be an arbitrary string that you'll never use in titles of items; used to separate titles in mysql queries
 $config['forceAllFields'] = false; // false | true - all fields will always be displayed on item.php
 $config['allowChangingTypes'] = false; // false | true - allows the user to change the types of any item (false=change only inbox items)
-$config['showAdmin'] = true; // false | true - adds the Admin option to the menu items
+$config['suppressAdmin'] = false; // false | true - suppresses the Admin option from the menu
+$config['suppressCustomRecurrences']=true; // false | true - prevents user entering recurrence patterns as plain text
 $config['charset'] = 'ISO8859-15'; // character-encoding for pages: utf-8 IS NOT YET SUPPORTED, nor is any other multi-byte character set
 $config['withholdVersionInfo']=false; // true | false - if false, will send the version numbers of your installations of gtd-php, PHP and MySQL when you report a bug
 
+$config['debugKey']='h';
+$config['debug']=0;
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

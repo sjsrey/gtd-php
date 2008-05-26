@@ -85,7 +85,9 @@ echo "<p>There $verb $numbernextactions"
     ," now overdue</span>, and <span"
     ,($nextactionsdue['1']==0)?'>' : " class='comingdue'>"
     ,($nextactionsdue['1']==1)?"1 has its deadline":"{$nextactionsdue['1']} have deadlines"
-    ,"  in the coming 7 days</span>. Altogether, there are $numberactions <a href='listItems.php?type=a'>Action"
+    ,"  in the coming 7 days</span>. Altogether, there "
+    ,($numberactions==1)?'is 1':"are $numberactions"
+    ," <a href='listItems.php?type=a'>Action"
     ,($numberactions==1)?'':'s'
     ,"</a>$space2, \n"
     ,($inboxcount)?"and <a href='listItems.php?type=i'>$inboxcount inbox item(s)</a>":'and no inbox items'

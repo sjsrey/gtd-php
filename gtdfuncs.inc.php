@@ -3,12 +3,10 @@ include_once 'gtd_constants.inc.php';
 /*
    ======================================================================================
 */
-function escapeforjavascript($in) {
-    $out=str_replace(
-        array('\\'   , '"'  , '/'   ),
-        array('\\\\' , '\\"', '\\/' )
-        ,$in);
-    return $out;
+function escapeforjavascript($txt) {
+    foreach (array('/\\/'=>'\\\\' , '"'=>'\\"' , '/'=>'\\/') as $from=>$to)
+        $txt=ereg_replace($from,$to,$txt);
+    return $txt;
 }
 /*
    ======================================================================================
@@ -93,19 +91,19 @@ function makeClean($textIn) {
 function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the visible part of a string, excluding html tags, is no longer than specified) 	// TOFIX -  we don't handle "%XX" strings yet.
 	// constants - might move permittedTags to config file
 	// TOFIX - doesn't handle MBCS!
-	$permittedTags=array(
-		 array('/^<a ((href)|(file))=[^>]+>/i','</a>')
-		,array('/^<b>/i','</b>')
-		,array('/^<i>/i','</i>')
-		,array('/^<ul>/i','</ul>')
-		,array('/^<ol>/i','</ol>')
-		,array('/^<li>/i','</li>')
+    $permittedTags=array(
+		 '/^<a ((href)|(file))=[^>]+>/i'=>'</a>'
+		,'/^<b>/i'=>'</b>'
+		,'/^<i>/i'=>'</i>'
+		,'/^<ul>/i'=>'</ul>'
+		,'/^<ol>/i'=>'</ol>'
+		,'/^<li>/i'=>'</li>'
 		);
 	$ellipsis='&hellip;';
 	$ampStrings='/^&[#a-zA-Z0-9]+;/';
 	
 	// initialise variables
-	if ($inLength==0) $inLength=strlen($inStr)+1;
+	if ($inLength==0) $inLength=strlen($inStr)*4+1;
 	$outStr='';
 	$visibleLength=0;
 	$thisChar=0;
@@ -119,18 +117,18 @@ function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the vis
 			$stillHere=FALSE;
 			$thisChar+=strlen($tagToClose);
 			if ($keepTags) $outStr.=array_pop($tagsOpen);
-		} else foreach ($permittedTags as $thisTag) {
-			if ($stillHere && ($inStr{$thisChar}==='<') && (preg_match($thisTag[0],substr($inStr,$thisChar),$matches)>0)) {
+		} else foreach ($permittedTags as $thisTag=>$thisClosingTag) {
+			if ($stillHere && (substr($inStr,$thisChar,1)==='<') && (preg_match($thisTag,substr($inStr,$thisChar),$matches)>0)) {
 				$thisChar+=strlen($matches[0]);
 				$stillHere=FALSE;
 				if ($keepTags) {
-					array_push($tagsOpen,$thisTag[1]);
+					array_push($tagsOpen,$thisClosingTag);
 					$outStr.=$matches[0];
 				}
 			} // end of if
 		} // end of else foreach
 		// now check for & ... control characters
-		if ($stillHere && ($inStr{$thisChar}==='&') && (preg_match($ampStrings,substr($inStr,$thisChar),$matches)>0)) {
+		if ($stillHere && (substr($inStr,$thisChar,1)==='&') && (preg_match($ampStrings,substr($inStr,$thisChar),$matches)>0)) {
 			if (strlen(html_entity_decode($matches[0]))==1) {
 				$visibleLength++;
 				$outStr.=$matches[0];
@@ -141,7 +139,7 @@ function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the vis
 		// just a normal character, so add it to the string
 		if ($stillHere) {
 			$visibleLength++;
-			$outStr.=$inStr{$thisChar};
+			$outStr.=substr($inStr,$thisChar,1);
 			$thisChar++;
 		} // end of if
 		$keepGoing= (($thisChar<strlen($inStr)) && ($visibleLength<$inLength));
@@ -454,7 +452,7 @@ function parentselectbox($values) {
 function getOrphans() { // retrieve all orphans - items without a parent assigned
     // we only want orphans of specific types, as specified by the user in the preferences screen
     $values=array('orphansfilterquery'
-            =>'NOT '.sqlparts(
+            =>'AND NOT '.sqlparts(
                 'typeinlist',
                 array('types'=>$_SESSION['hierarchy']['suppressAsOrphans'])
             )
@@ -467,9 +465,9 @@ function getOrphans() { // retrieve all orphans - items without a parent assigne
     =======================================================================
 */
 function escapeChars($str) {  // TOFIX consider internationalization issues with charset coding
-    $outStr=str_replace(array('&','…'),array('&amp;','&hellip'),$str);
-    $outStr=str_replace(array('&amp;amp;','&amp;hellip;'),array('&amp;','&hellip;'),$outStr);
-	return $outStr;
+    foreach (array('/\&/u'=>'&amp;','/&amp;hellip;/'=>'&hellip;') as $from=>$to)
+        $str=preg_replace($from,$to,$str);
+	return $str;
 }
 /*
    ======================================================================================
@@ -559,18 +557,33 @@ function getNextRecurrence($values) { // returns false if failed, else returns t
 /*
    ======================================================================================
 */
-function importOldConfig() {
-    // get preferences from old config.php file
+function overlayConfig(&$baseconfig,&$baseacckey,&$basesort) {
+    if (false===(@include 'config.php') || !isset($config) ) return;
+    // successfully loaded config.php too, so merge values over top of defaults, where available
+    unset($config['pass']); // stop the password leaking anywhere
+    array_merge($baseconfig,$config);
+    array_merge($baseacckey,$acckey);
+    foreach ($sort as $key=>$val)
+        if (array_key_exists($key,$basesort))
+            $basesort[$key]=str_replace(
+                array('ia.`type`'),
+                array('its.`type`'),
+                $val);
+}
+/*
+   ======================================================================================
+*/
+function importOldConfig() { // get preferences from old config.php file
     define('_GTD_WAIT'    ,1);
     define('_GTD_DEBUG'   ,2);
     define('_GTD_FREEZEDB',4);
     define('_GTD_NOTICE'  ,8);
-    if (    (false===(@include 'config.php') || !isset($config) )
-         && (false===(@include 'defaultconfig.inc.php')  || !isset($config) )
-       ) {
+    //TOFIX - we want to import the two sets of arrays, then merge them
+    if ( false===(@include 'defaultconfig.inc.php')  || !isset($config) ) {
+        $_SESSION['message'][]='Unable to find default configuration in defaultconfig.inc.php';
         return false;
     }
-    unset($config['pass']); // stop the password leaking anywhere
+    overlayConfig($config,$acckey,$sort);
     $_SESSION['theme']=$config['theme'];
     $_SESSION['useLiveEnhancements']=(true && $config['useLiveEnhancements']); // force to boolean
 
@@ -592,12 +605,20 @@ function importOldConfig() {
     $_SESSION['keys']=array();
     foreach ($acckey as $link=>$key)
         if (!empty($key)) $_SESSION['keys'][$link]=$key;
-    $_SESSION['config']['contextsummary']=($config['contextsummary']==='nextaction'); // force to boolean
-    if (!array_key_exists('showRelativeDeadlines',$_SESSION['config']))
-        $_SESSION['config']['showRelativeDeadlines']=false; // new value that may not be present in config.php
+
     resetHierarchy();
     $alltypes=getTypes();
 
+    /*------------------------------------------
+        tweaksome config entries which have changed name, or type of data held
+    */
+    $_SESSION['config']['contextsummary']=($config['contextsummary']==='nextaction'); // force to boolean
+    if (!array_key_exists('showRelativeDeadlines',$_SESSION['config']))
+        $_SESSION['config']['showRelativeDeadlines']=false; // new value that may not be present in config.php
+
+    $_SESSION['config']['suppressAdmin'] = empty($config['showAsAdmin']);
+    $_SESSION['config']['suppressCustomRecurrences'] = empty($config['allowCustomRecurrences']);
+    
     preg_match_all('/[mvogsparwi]/',$config['suppressAsOrphans'],$tst);
     $_SESSION['hierarchy']['suppressAsOrphans']=implode('',$tst[0]).'LC';
         
@@ -607,16 +628,19 @@ function importOldConfig() {
                 : 'item';
         unset($config['afterCreate'][$type]);
     }
+    /*
+        end of tweaking new entries
+    --------------------------------------*/
     $_SESSION['addons']=array();
     $_SESSION['uid']=0;
     
     $values=array('uid'=>$_SESSION['uid'],'option'=>'addons','config'=>serialize($_SESSION['addons']));
     query('updateoptions',$values);
     
-    if (!isset($custom_review)) $custom_review='';
+    if (!isset($custom_review)) $custom_review=array();
     $values['option']='customreview';
     $values['config']=serialize($custom_review);
-    query('updateoptions',$values);
+    //query('updateoptions',$values); // TOFIX this is the line that's causing the trouble
 
     $result=saveConfig();
     return $result;
@@ -636,6 +660,36 @@ function saveConfig() { // store config preferences in the table
         )
     );
     return $tst;
+}
+/*
+   ======================================================================================
+*/
+function checkUTF8() { // check php ini values are ok for utf-8
+
+    $passed=true;
+    $_SESSION['message'][]='Enabling experimental UTF-8 support';
+    
+    if (stristr(ini_get('mbstring.http_input'  ),'UTF-8')===false) {
+        $_SESSION['message'][]='In php.ini, set mbstring.http_input=UTF-8,ASCII';
+        $passed=false;
+    }
+        
+    if (stristr(ini_get('mbstring.detect_order'),'UTF-8')===false) {
+        $_SESSION['message'][]='In php.ini, set mbstring.detect_order=UTF-8,ASCII';
+        $passed=false;
+    }
+
+    if (!(ini_get('mbstring.func_overload') & 6)) {
+        $_SESSION['message'][]='In php.ini, set mbstring.func_overload=6';
+        $passed=false;
+    }
+
+    include 'config.inc.php';
+    if (!array_key_exists('charset',$config) ||  strtoupper($config["charset"]) !=='UTF8') {
+        $_SESSION['message'][]="In config.inc.php, set \$config['charset']='UTF8'";
+        $passed=false;
+    }
+    unset($config);
 }
 /*
    ======================================================================================

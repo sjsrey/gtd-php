@@ -62,6 +62,8 @@ foreach (getTypes() as $ctype=>$ctypename) {
     <input type='submit' value='Apply changes' name='submit' />
     <input type='reset'  value='Reset form' name='reset'  />
     <input type='submit' value='Revert to original (pre-v0.9) level names and relationships' name='L0p8' />
+    <input type='hidden' name='suppressAsOrphan[]' value='m' />
+    <input type='hidden' name='suppressAsOrphan[]' value='i' />
     <?php foreach (array('pL','pC','pa','pr','pw','pp','LT','CT') as $PCpair) { ?>
         <input type='hidden' name='parentchild[]' value='<?php
             echo $PCpair;

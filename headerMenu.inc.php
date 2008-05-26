@@ -71,7 +71,7 @@ $menu[] = array("link"=>"editCat.php?field=context", 'title'=>"Edit spatial cont
 $menu[] = array("link"=>"editCat.php?field=time-context", 'title'=>"Edit time contexts", 'label' => "Time Contexts");
 $menu[] = array("link"=>'','label'=>'separator');
 $menu[] = array("link"=>"preferences.php", 'title'=>"User preferences", 'label' => "User Preferences");
-if ($_SESSION['config']['showAdmin']) {
+if (!$_SESSION['config']['suppressAdmin']) {
     $menu[] = array("link"=>"types1.php", 'title'=>"Change names in the hierarchy", 'label' => "Edit Level names");
     $menu[] = array("link"=>"types2.php", 'title'=>"Change relationships between the levels", 'label' => "Edit Levels");
     $menu[] = array("link"=>"admin.php", 'title'=>"Administration", 'label' => "Admin");

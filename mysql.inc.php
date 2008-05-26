@@ -12,6 +12,11 @@ function connectdb($config) {
     mysql_select_db($config['db'])
         or die ("Unable to select database '{$config['db']}' - check your db setting in config.inc.php!");
         
+    if (!empty($config['charset'])) {
+        $charset=preg_replace('/\W/u','',$config['charset']);
+        mysql_query('SET NAMES '.$charset);
+    }
+
     return $connection;
 }
 /*
@@ -338,12 +343,12 @@ function getsql($querylabel,$values,$sort) {
 				FROM `{$prefix}items` AS i   
 				JOIN `{$prefix}itemstatus` AS its USING (itemId)
 				LEFT OUTER JOIN `{$prefix}itemattributes` AS ia USING (itemId)
-				WHERE (its.`dateCompleted` IS NULL)
-					AND (its.`type` NOT IN ({$values['orphansfilterquery']})
-					       AND (its.`itemId` NOT IN
-						(SELECT lu.`itemId` FROM `{$prefix}lookup` as lu)
-                           ) OR its.`type` IS NULL OR its.`type`='')
-				ORDER BY {$sort['getorphaneditems']}";
+				WHERE its.`dateCompleted` IS NULL
+				AND ( ( its.`itemId` NOT IN
+						  (SELECT lu.`itemId` FROM `{$prefix}lookup` as lu)
+					    {$values['orphansfilterquery']}
+                       ) OR its.`type` IS NULL OR its.`type`=''
+                ) ORDER BY {$sort['getorphaneditems']}";
 			break;
 
 		case "getspacecontexts":

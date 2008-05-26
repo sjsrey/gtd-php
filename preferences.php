@@ -101,8 +101,7 @@ $array=array(
     array('contextsummary','checkbox','In the space contexts report, show only <b>next</b> actions'),
     array('useLiveEnhancements','checkbox','Use Live enhancements'),
     array('reviewProjectsWithoutOutcomes','checkbox','In the weekly review, identify projects without outcomes'),
-    array('storeRecurrences','checkbox','When recurring items are completed, store each occurrence as a completed item'),
-    array('showRelativeDeadlines','checkbox','Show deadlines as relative days (e.g. "due in 5 days") rather than as dates')
+    array('storeRecurrences','checkbox','When recurring items are completed, store each occurrence as a completed item')
 );
 makeOptionsTab($array,$config,'Options');
 /* ------------------------------------------------------------------------
@@ -130,16 +129,17 @@ makeOptionsTab($array,$config,'Workflow');
 */
 $array=array(
     array('datemask','text','PHP mask for date format'),
-    array('charset','text','PHP name of character set (codepage) to use'),
+    array('charset','text','PHP name of character set (codepage) to use (WARNING: UTF-8 support is experimental)'),
     array('radioButtonsForNextPage','checkbox','When editing an item, display choice of next page as a radio group rather than as submit buttons'),
     array('useTypesForTimeContexts','checkbox','Bind each time-context to a particular item type (action, project, etc'),
     array('forceAllFields','checkbox','Display all possible fields, when editing any item'),
     array('allowChangingTypes','checkbox','Enable option of changing the types of <b>any</b> item (rather than just inbox items)'),
     array('withholdVersionInfo','checkbox','When you file a bug report, withhold information about the versions of PHP and database software you are using'),
-    array('showAdmin','checkbox','Show administrator options in menus'),
-    array('allowCustomRecurrences','checkbox','Enable entry of rfc2445 text directly to specify item recurrence patterns'),
+    array('suppressAdmin','checkbox','Suppress administrator options in menus'),
+    array('suppressCustomRecurrences','checkbox','Suppress entry of rfc2445 text directly to specify item recurrence patterns'),
     array('show7','checkbox','Show the Seven Habits of Highly Effective People and Sharpening the Saw in Weekly Review'),
-    array('separator','text','Separator string for MySQL GROUP queries'),
+    array('showRelativeDeadlines','checkbox','Show deadlines as relative days (e.g. "due in 5 days") rather than as dates'),
+    array('separator','text','Separator string for MySQL GROUP queries')
 );
 makeOptionsTab($array,$config,'Advanced','',15);
 /* ------------------------------------------------------------------------

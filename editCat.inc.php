@@ -57,7 +57,7 @@ if ($result) {
     	$newcat=array();
     	$i=0;
         foreach ($checkcat as $item)
-        	$newcat[$keys[$i++]]=$item;
+        	$newcat[$keys[$i++]]=makeclean($item);
         if (!$firstcat) $firstcat=$newcat['id'];
         if (!$nextcat) $nextcat=$newcat['id'];
         if ($newcat['id']==$id) {
@@ -75,4 +75,3 @@ if ($thiscat)
     $title.=': '.$thiscat['name'];
 else if ($id)
     $title=makeClean("Failed to find $field with id=$id");
-

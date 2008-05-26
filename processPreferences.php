@@ -70,6 +70,8 @@ foreach ($newPrefs as $key=>$val) {
     }
 }
 
+if  (strtolower($_SESSION['config']['charset'])==='utf-8') checkUTF8();
+
 if ($_SESSION['debug']['debug'])
     echo '<pre>Changed preferences stored in session: ',print_r($_SESSION,true),'</pre>';
 

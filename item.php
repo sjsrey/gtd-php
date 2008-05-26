@@ -577,12 +577,12 @@ if ($show['recurdesc']) {
             <label class='left first' for='freqtext'>Repeat:</label>
             <input type='radio' id='freqtext' name='FREQtype' value='TEXT' <?php
                 if ($recur['FREQ']==='TEXT') echo "checked='checked'";
-                if  (!$_SESSION['config']['allowCustomRecurrences']) echo " disabled='disabled' ";
+                if  ($_SESSION['config']['suppressCustomRecurrences']) echo " disabled='disabled' ";
             ?> />in .ics format
             <label>RRULE: <input type='text' name='icstext' size='70' <?php
                 if (!empty($values['recur']))
                     echo " value='{$values['recur']}' ";
-                if  (!$_SESSION['config']['allowCustomRecurrences'])
+                if  ($_SESSION['config']['suppressCustomRecurrences'])
                     echo " disabled='disabled' ";
             ?> /></label>
         </span>

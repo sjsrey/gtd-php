@@ -293,14 +293,14 @@ GTD.freeze=function (tofreeze) {
 };
 // ======================================================================================
 GTD.initcalendar=function(container) {
-    var i,id,alldates,alllbuttons,onedate,max,firstDayOfWeek,classRegExp;
+    var i,id,allinputs,max,firstDayOfWeek,classRegExp;
     firstDayOfWeek=parseInt((document.getElementById('firstDayOfWeek')).value,10);
-    alllbuttons=document.getElementsByTagName('input');
+    allinputs=document.getElementsByTagName('input');
     classRegExp=new RegExp("(^|\\s)hasdate(\\s|$)");
-    max=alllbuttons.length;
+    max=allinputs.length;
     for (i=0;i<max;i++) {
-        if (classRegExp.test(alllbuttons[i].className) ) {
-            id=alllbuttons[i].id;
+        if (classRegExp.test(allinputs[i].className) ) {
+            id=allinputs[i].id;
             Calendar.setup( { firstDay  : firstDayOfWeek,
                               inputField: id,
                               button    : id+'_trigger'
@@ -469,8 +469,7 @@ GTD.removeParent=function (id) {
 };
 // ======================================================================================
 GTD.resortTable=function (lnk,clid) {
-    var i,j,max,td,column,table,itm,itmh,firstRow,newRows,
-        allth,ci,sortfn,ARROW;
+    var i,j,max,td,column,table,itm,itmh,firstRow,newRows,allth,ci,sortfn;
     max=lnk.childNodes.length;
     td = lnk.parentNode;
     column = clid || td.cellIndex;
@@ -511,7 +510,7 @@ GTD.resortTable=function (lnk,clid) {
     // do sortbottom rows only
     for (i=0;i<max;i++) { if (newRows[i].className && (newRows[i].className.indexOf('sortbottom') !== -1)) {table.tBodies[0].appendChild(newRows[i]);}}
 
-    // Delete any other arrows there may be showing
+    // Delete any other arrows there may be showing - TOFIX create pre-compiled regexp to optimise
     allth = document.getElementsByTagName("th");
     max=allth.length;
     for (ci=0;ci<max;ci++) {
