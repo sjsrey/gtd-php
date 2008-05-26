@@ -11,6 +11,14 @@ if (isset($_REQUEST['restoredefaults'])) {
 }
 
 $newPrefs=$_POST;
+unset($newPrefs['submit']);
+// for each checkbox: if value is set at all, set to TRUE, otherwise set to FALSE
+$checkboxes=explode(',',$newPrefs['checkboxes']);
+unset($newPrefs['checkboxes']);
+array_pop($checkboxes);
+foreach ($checkboxes as $val)
+    $newPrefs[$val]=(isset($newPrefs[$val]));
+
 // some variables are stored as cookies locally, rather than in the db
 $cookievars=array('theme','useLiveEnhancements');
 foreach ($cookievars as $key) {
@@ -25,15 +33,6 @@ if ($_SESSION['debug']['debug']) {
         '<br/>',
         'session pre-update: ',print_r($_SESSION,true),'</pre>';
 }
-
-unset($newPrefs['submit']);
-
-// for each checkbox: if value is set at all, set to TRUE, otherwise set to FALSE
-$checkboxes=explode(',',$newPrefs['checkboxes']);
-unset($newPrefs['checkboxes']);
-array_pop($checkboxes);
-foreach ($checkboxes as $val)
-    $newPrefs[$val]=(isset($newPrefs[$val]));
 
 $_SESSION['addons']=$_SESSION['debug']=$_SESSION['sort']=$_SESSION['keys']=
     $_SESSION['config']=array();

@@ -220,20 +220,6 @@ function timecontextselectbox($values) {
 /*
    ======================================================================================
 */
-function makeOption($row,$selected) {
-    $cleandesc=makeclean($row['description']);
-    $cleantitle=makeclean($row['title']);
-    if ($row['isSomeday']==="y") {
-        $cleandesc.=' (Someday)';
-        $cleantitle.=' (S)';
-    }
-    $seltext = ($selected[$row['itemId']])?' selected="selected"':'';
-    $out = "<option value='{$row['itemId']}' title='$cleandesc' $seltext>$cleantitle</option>";
-    return $out;
-}
-/*
-   ======================================================================================
-*/
 function prettyDueDate($dateToShow,$daysdue,$thismask=null) {
     if (is_null($thismask)) $thismask=$_SESSION['config']['datemask'];
 	$retval=array('class'=>'','title'=>'');
@@ -422,7 +408,19 @@ function resetHierarchyNames() {
 }
 //----------------------------------------------------------------
 function parentselectbox($values) {
-    $result = query("parentselectbox",$values);
+    //----------------------------------------
+    function makeOption($row,$selected) {
+        $cleandesc=makeclean($row['description']);
+        $cleantitle=makeclean($row['title']);
+        if ($row['isSomeday']==="y") {
+            $cleandesc.=' (Someday)';
+            $cleantitle.=' (S)';
+        }
+        $seltext = ($selected)?' selected="selected"':'';
+        $out = "<option value='{$row['itemId']}' title='$cleandesc' $seltext>$cleantitle</option>";
+        return $out;
+    }
+    //----------------------------------------
     $pshtml='';
     $parents=array();
     if (is_array($values['parentId']))
@@ -430,14 +428,16 @@ function parentselectbox($values) {
     else
         $parents[$values['parentId']]=true;
     if ($_SESSION['debug']['debug']) echo '<pre>parents:',print_r($parents,true),'</pre>';
+
+    $result = query("parentselectbox",$values);
     if ($result)
         foreach($result as $row) {
-            $thisOpt= makeOption($row,$parents)."\n";
-            if($parents[$row['itemId']]) {
-                $pshtml =$thisOpt.$pshtml;
+            if(empty($parents[$row['itemId']])) {
+                $pshtml .=makeOption($row,false)."\n";
+            } else {
+                $pshtml =makeOption($row,true)."\n".$pshtml;
                 $parents[$row['itemId']]=false;
-            } else
-                $pshtml .=$thisOpt;
+            }
         }
     foreach ($parents as $key=>$val) if ($val) {
         // $key is a parentId which wasn't found for the drop-down box, so need to add it in
