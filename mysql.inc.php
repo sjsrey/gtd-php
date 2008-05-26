@@ -784,7 +784,7 @@ function sqlparts($part,$values) {
 		$sqlpart = " ti.`type` = '{$values['type']}' ";
 		break;
 	case "typefilter":
-		$sqlpart = " its.`type` IN ('{$values['type']}') ";
+		$sqlpart = " its.`type` = '{$values['type']}' ";
 		break;
     case 'typeinlist':
         $sqlpart='its.`type` IN (';

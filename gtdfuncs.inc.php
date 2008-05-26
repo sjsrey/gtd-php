@@ -451,13 +451,15 @@ function parentselectbox($values) {
 //----------------------------------------------------------------
 function getOrphans() { // retrieve all orphans - items without a parent assigned
     // we only want orphans of specific types, as specified by the user in the preferences screen
-    $values=array('orphansfilterquery'
-            =>'AND NOT '.sqlparts(
-                'typeinlist',
-                array('types'=>$_SESSION['hierarchy']['suppressAsOrphans'])
-            )
-        );
-    $maintable = query("getorphaneditems",$values);
+    if (empty($_SESSION['hierarchy']['suppressAsOrphans']))
+        $orphanfilter='';
+    else
+        $orphanfilter='AND NOT ('
+            .sqlparts('typeinlist',
+                        array('types'=>$_SESSION['hierarchy']['suppressAsOrphans'])
+                     )
+            .')';
+    $maintable = query("getorphaneditems",array('orphansfilterquery'=>$orphanfilter));
     return $maintable;
 }
 /*
