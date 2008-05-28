@@ -142,7 +142,11 @@ foreach ($eventhandlers as $addonid=>$thisaddon) {
 */
 ?>
 <div id="header">
-	<h1 id='sitename'><a href='index.php'><?php echo $_SESSION['config']['title'];?></a></h1>
+	<h1 id='sitename'><a href='index.php'><?php
+        echo $_SESSION['config']['title'];
+    ?></a><?php
+        echo ' ',(isset($titlefull))?$titlefull:$title;
+    ?></h1>
 </div>
 <div id="menudiv">
 	<ul id="menulist">

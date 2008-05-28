@@ -1,5 +1,5 @@
 <?php
-//INCLUDES
+$title='Summary';
 include_once 'header.inc.php';
 
 $values=array();
@@ -55,7 +55,6 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
 /*----------------------------------------------------------------
     display page
 */
-echo "<h2>GTD Summary</h2>\n";
 echo '<h4>Today is '.date($_SESSION['config']['datemask']).'. (Week '.date("W").'/52 &amp; Day '.date("z").'/'.(365+date("L")).')</h4>'."\n";
 
 echo "<div class='reportsection'>\n";

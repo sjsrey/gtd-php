@@ -671,6 +671,11 @@ function checkUTF8() { // check php ini values are ok for utf-8
     $passed=true;
     $_SESSION['message'][]='Enabling experimental UTF-8 support';
     
+    if (!extension_loaded('mbstring')) {
+        $_SESSION['message'][]='In php.ini, enable the mbstring extension';
+        $passed=false;
+    }
+
     if (stristr(ini_get('mbstring.http_input'  ),'UTF-8')===false) {
         $_SESSION['message'][]='In php.ini, set mbstring.http_input=UTF-8,ASCII';
         $passed=false;

@@ -20,8 +20,6 @@ $item=$result[0]; // $item will store the values for the item being viewed
 
 $values['isSomeday']=($item['isSomeday']=="y")?'y':'n';
 $values['type']=$item['type'];
-$title="View ".makeclean($item['title']);
-include_once 'header.inc.php';
 
 /* -------------------------------------------
     Find previous and next projects
@@ -315,24 +313,30 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
     ============================================================================
     got all data - now display page
 */
-gtd_handleEvent(_GTD_ON_DATA,$pagename);
-?>
-<h1><span class='noprint hoverbox'><?php
+$title="View ".makeclean($item['title']);
+
+$titlefull="<span class='noprint hoverbox'>";
 if(isset($previousId))
-    echo "<a href='itemReport.php?itemId=$previousId' title='Previous: ",makeclean($previoustitle),"'> &lt; </a> \n";
-    
-echo " <a href='item.php?itemId={$values['itemId']}'>"
-        ," <img src='themes/{$_SESSION['theme']}/edit.gif' alt='Edit ' title='Edit' /> "
-     ,"</a> ";
+    $titlefull.= "<a href='itemReport.php?itemId=$previousId' title='Previous: "
+        .makeclean($previoustitle)."'> &lt; </a>";
+
+$titlefull.= " <a href='item.php?itemId={$values['itemId']}'>"
+        ." <img src='themes/{$_SESSION['theme']}/edit.gif' alt='Edit ' title='Edit' /> "
+        ."</a> ";
 
 if(isset($nextId))
-    echo " <a href='itemReport.php?itemId=$nextId' title='Next: ",makeclean($nexttitle),"'> &gt; </a> \n";
+    $titlefull.= " <a href='itemReport.php?itemId=$nextId' title='Next: "
+        .makeclean($nexttitle)."'> &gt; </a> \n";
 
-echo "</span>",$typename[$item['type']]." Report: "
-    ,makeclean($item['title'])
-    ,(($item['isSomeday']=="y")?" (Someday) ":"");
-?></h1>
-<?php
+$titlefull.= "</span>".$typename[$item['type']]." Report: "
+    .makeclean($item['title']);
+
+if ($item['isSomeday']==='y')
+    $titlefull.= ' (Someday) ';
+
+include_once 'header.inc.php';
+
+gtd_handleEvent(_GTD_ON_DATA,$pagename);
 if ($item['type']==='i')
     echo "<div class='editbar'>"
         ,"[<a href='assignType.php?itemId={$values['itemId']}&amp;referrer=$afterTypeChange'>Set type</a>] \n"

@@ -108,8 +108,11 @@ makeOptionsTab($array,$config,'Options');
     Addons: scan for add-ons, grab auto-config file, and offer option of enabling / disabling
 */
 $array=array();
-foreach ($addons as $addon)
-    $array[]=array($addon,'checkbox',"$addon enabled");
+foreach ($addons as $addon) {
+    $desc=makeClean(@file_get_contents("./addons/$addon/description"));
+    if (!empty($desc)) $desc="($desc)";
+    $array[]=array($addon,'checkbox',"<b>$addon</b> $desc"); // TOFIX add extra text from the addons description file, where available
+}
 $live=array();
 if ($_SESSION['addons']) foreach ($_SESSION['addons'] as $where)
     if (is_array($where)) foreach ($where as $page)

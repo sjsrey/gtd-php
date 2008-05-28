@@ -12,7 +12,7 @@ GTD.addEvent(window,'load',function() {
 require_once 'header.inc.php';
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
 ?>
-<div id="filter">
+<div class='form' id="filter">
     <form action="listItems.php" method="post">
         <div class="formrow">
 

@@ -1,4 +1,5 @@
 <?php
+$title='The Weekly Review';
 include_once 'header.inc.php';
 
     $values=array();
@@ -39,7 +40,6 @@ include_once 'header.inc.php';
     $result=query('getoptions',$tmpval);
     if ($result) $custom_review=unserialize($result[0]['value']);
 ?>
-<h2>The Weekly Review</h2>
 <table class='weeklytable' summary='Table of weekly actions'>
 	<thead><tr><td>Step</td><td>Description</td></tr></thead>
 	<tbody>

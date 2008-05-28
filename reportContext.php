@@ -1,9 +1,9 @@
 <?php
+$title='Contexts Summary';
 include_once 'reportContext.inc.php';
 include_once 'header.inc.php';
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
 ?>
-<h2>Contexts Summary</h2>
 <h3>Spatial Context (row), Temporal Context (column)</h3>
 <table class="datatable" summary="table of contexts" id="contexttable">
     <thead><tr>

@@ -3,7 +3,6 @@ require_once 'editCat.inc.php';
 require_once 'header.inc.php';
 if ($_SESSION['debug']['debug']) echo "<pre>catlist:",print_r($catlist,true),'</pre>';
 ?>
-<h2><?php echo $title; ?></h2>
 <?php if ($thiscat || !$id) {
 ?><form action="processCat.php" method="post" onsubmit="return GTD.validate(this);">
 <div class='formrow'><span class="error" id='errorMessage'></span></div>

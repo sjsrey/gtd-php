@@ -254,14 +254,14 @@ if ($show['header']) { ?>
     });
     /* ]]> */
     </script>
-    <?php include_once 'header.inc.php'; ?>
-    <h2><?php
+    <?php
     if ($values['itemId'])
-        echo "\n<a href='itemReport.php?itemId={$values['itemId']}'>"
-            ,"<img src='themes/{$_SESSION['theme']}/report.gif' class='noprint' "
-            ,"alt='Report' title='View Report' /></a>\n";
-    echo $title;
-    ?></h2><?php
+        // don't want this appearing in TITLE, but do want it in H1
+        $titlefull= "<a href='itemReport.php?itemId={$values['itemId']}'>"
+            ."<img src='themes/{$_SESSION['theme']}/report.gif' class='noprint' "
+            ."alt='Report' title='View Report' /></a>"
+            .$title;
+    include_once 'header.inc.php';
 }
 if ($_SESSION['debug']['debug'])
     echo '<pre>$_POST: ',print_r($_POST,true),

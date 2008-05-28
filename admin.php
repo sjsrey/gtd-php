@@ -97,16 +97,12 @@ switch ($action) {
         $action=($toterrs)?'repair':'backup';
         break;
 }
+$title='gtd-php Admin Tasks';
 /* ------------------------------------------------------------------------
     output begins here
  ------------------------------------------------------------------------*/
-?>
-<?php require_once 'headerHtml.inc.php'; ?>
-</head><body><div id='container'>
-<?php require_once 'headerMenu.inc.php'; ?>
-<div id='main'>
-<h1>gtd-php Admin Tasks</h1>
-<?php if ($action==='delete') { ?>
+require_once 'header.inc.php';
+if ($action==='delete') { ?>
     <h2>Delete installation</h2>
 <?php }
 if (!empty($validate)) echo $validate;
