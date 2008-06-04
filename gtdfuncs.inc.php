@@ -12,7 +12,7 @@ function escapeforjavascript($txt) {
    ======================================================================================
 */
 function getEvents($addon) {
-    if (   (@include "./addons/$addon/setup.inc.php")===false
+    if (   (@include $_SESSION['addonsdir'].$addon.'/setup.inc.php')===false
         || !isset($events)) return false;
     $_SESSION["addons-$addon"]=array(); // this array will store the options for the addon
     $triggercount=0;
@@ -38,7 +38,7 @@ function gtd_handleEvent($event,$page) {
                                 (array)$_SESSION['addons'][$event][$page]
                                 );
     foreach ($eventhandlers as $addonid=>$handler) {
-        $addon=array('id'=>$addonid,'dir'=>"./addons/$addonid/");
+        $addon=array('id'=>$addonid,'dir'=>$_SESSION['addonsdir'].$addonid.'/');
         if ((include "{$addon['dir']}$handler")===false) break;
     }
 }
@@ -95,6 +95,7 @@ function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the vis
 		 '/^<a ((href)|(file))=[^>]+>/i'=>'</a>'
 		,'/^<b>/i'=>'</b>'
 		,'/^<i>/i'=>'</i>'
+		,'/^<span [^>]*>/i'=>'</span>'
 		,'/^<ul>/i'=>'</ul>'
 		,'/^<ol>/i'=>'</ol>'
 		,'/^<li>/i'=>'</li>'
@@ -365,6 +366,12 @@ function mirrorParentTypes() {
         array_unshift($parents,$mainparent[0]);
         $_SESSION['hierarchy']['parents'][$child]=$parents;
     }
+    // now make a sane order for children: the order below will determine the order in itemReport
+    $baseorder=array('a','w','m','v','o','g','p','r','i','C','L','T');
+     foreach ($_SESSION['hierarchy']['children'] as $parent=>$children)
+        if (!empty($children)) {
+            $_SESSION['hierarchy']['children'][$parent]=array_intersect($baseorder,$children);
+        }
 }
 //----------------------------------------------------------------
 function resetHierarchy() {

@@ -4,7 +4,7 @@ $html=false;
 if ($_SESSION['debug']['debug']) {
     $html=true;
     include_once 'headerHtml.inc.php';
-    echo "</head><body><div id='container'><pre>\n",print_r($_POST,true),"</pre>\n";
+    echo "</head><body><pre>\n",print_r($_POST,true),"</pre>\n";
 }
 
 $values=array();

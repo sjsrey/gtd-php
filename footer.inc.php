@@ -11,6 +11,5 @@ include 'showMessage.inc.php'; ?>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	gtd-php version <?php echo _GTDPHP_VERSION,' rev',_GTD_REVISION; ?>
 </div>
-</div> <!-- Container-->
 </body>
 </html>

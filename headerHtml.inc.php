@@ -62,31 +62,49 @@ $headertext=<<<HTML1
 <meta http-equiv="Content-Type" content="text/html;charset={$_SESSION['config']['charset']}" />
 <title>{$_SESSION['config']['title']} $title</title>
 {$debugstyle}
-<!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all" href="calendar-win2k-cold-1.css" title="win2k-cold-1" />
-<!-- theme main stylesheet -->
 <link rel="stylesheet" href="themes/{$_SESSION['theme']}/style.css" type="text/css"/>
-<!-- theme screen stylesheet (should check to see if this actually exists) -->
 <link rel="stylesheet" href="themes/{$_SESSION['theme']}/style_screen.css" type="text/css" media="screen" />
-<!-- printing stylesheet -->
 <link rel="stylesheet" href="print.css" type="text/css" media="print" />
-
 <link rel="shortcut icon" href="./favicon.ico" />
-
-<!-- main calendar program -->
+<script type="text/javascript" src="gtdfuncs.js"></script>
 <script type="text/javascript" src="calendar.js"></script>
-<!-- language for the calendar -->
 <script type="text/javascript" src="lang/calendar-en.js"></script>
-<!-- the following script defines the Calendar.setup helper function, which makes
-	  adding a calendar a matter of 1 or 2 lines of code. -->
 <script type="text/javascript" src="calendar-setup.js"></script>
 
-<!-- sort tables, and other utilities -->
-<script type="text/javascript" src="gtdfuncs.js"></script>
 {$extrajavascript}
 HTML1;
 //-----------------------------------------------------------
 gtd_handleEvent(_GTD_ON_HEADER,$pagename);
 
 echo $headertext;
+/*
+Documentation for included files:
+
+calendar stylesheet
+<link rel="stylesheet" type="text/css" media="all" href="calendar-win2k-cold-1.css" title="win2k-cold-1" />
+
+theme main stylesheet
+<link rel="stylesheet" href="themes/{$_SESSION['theme']}/style.css" type="text/css"/>
+
+theme screen stylesheet (should check to see if this actually exists)
+<link rel="stylesheet" href="themes/{$_SESSION['theme']}/style_screen.css" type="text/css" media="screen" />
+
+printing stylesheet
+<link rel="stylesheet" href="print.css" type="text/css" media="print" />
+
+sort tables, and other utilities
+<script type="text/javascript" src="gtdfuncs.js"></script>
+
+main calendar program
+<script type="text/javascript" src="calendar.js"></script>
+
+language for the calendar
+<script type="text/javascript" src="lang/calendar-en.js"></script>
+
+the following script defines the Calendar.setup helper function, which makes
+	  adding a calendar a matter of 1 or 2 lines of code.
+<script type="text/javascript" src="calendar-setup.js"></script>
+
+*/
 ?>

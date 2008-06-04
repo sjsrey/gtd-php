@@ -121,7 +121,6 @@ $areDeleting=false;
 <link rel="stylesheet" href="themes/default/style_screen.css" type="text/css" media="screen" />
 </head>
 <body>
-<div id='container'>
 <?php include 'showMessage.inc.php'; ?>
 <h2>This is the gtd-php v0.8 installer</h2>
 <?php
@@ -183,7 +182,6 @@ else {
 	checkInstall();
 }
 ?>
-</div>
 </div>
 </body>
 </html>

@@ -1,6 +1,7 @@
 <?php
 require_once 'ses.inc.php';
 require 'config.inc.php';
+
 $_SESSION['prefix']=$config['prefix']; // TOFIX - this bit needs revision for multi-user setups
 if (!empty($_SESSION['debug']['notice']))
 		error_reporting(E_ALL);
@@ -61,8 +62,9 @@ switch ($config['dbtype']) {
 $connection = connectdb($config);
 unset($config['pass']); // don't let the database password leak out
 require_once 'gtdfuncs.inc.php';
-// if no options, read them in from preferences table, and then overwrite with cookie values
-if (!is_array($_SESSION['config']) || !array_key_exists('title',$_SESSION['config']))
+if (!is_array($_SESSION['config']) || !array_key_exists('title',$_SESSION['config'])) {
+    // if no options are in the session variable, read them in
     retrieveConfig();
+}
 
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

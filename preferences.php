@@ -8,7 +8,8 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
     <h2><?php echo $tabname; ?></h2>
     <div class='tabsheet' id='<?php echo $tabname; ?>'>
     <?php
-    //echo '<pre>values=',print_r($values,true),' array=',print_r($array,true),'</pre>'; // debugging line
+     if ($_SESSION['debug']['debug'])
+        echo '<pre>values=',print_r($values,true),' array=',print_r($array,true),'</pre>';
     foreach ($array as $option) {
         $name=$varprefix.$option[0];
         $val=(isset($values[$option[0]])) ? $values[$option[0]] : null;
@@ -53,7 +54,8 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
 $menu='';
 include_once 'header.inc.php';
 retrieveConfig(); // force retrieval of preferences from db upon entering this screen, to avoid inter-session contamination
-
+if (ini_get('register_globals'))
+    echo "<p class='warning'>Please turn register_globals off in php.ini or in .htaccess</p>";
 $checkboxes='';
 // get a list of theme sub-directories, to go into the dropdown selector
 $themes=array();
@@ -69,10 +71,9 @@ if ($handle = opendir($dir)) {
 }
 // get a list of addons present
 $addons=array();
-$dir = "./addons";
-if ($handle = opendir($dir)) {
+if ($handle = opendir($_SESSION['addonsdir'])) {
 	while (false !== ($file = readdir($handle))) {
-		if ($file[0] !== "." && is_dir($dir. "/" . $file)) {
+		if ($file[0] !== "." && is_dir($_SESSION['addonsdir'] . $file)) {
             $file=makeclean($file);
 			$addons[$file] = $file;
 		}
@@ -109,7 +110,7 @@ makeOptionsTab($array,$config,'Options');
 */
 $array=array();
 foreach ($addons as $addon) {
-    $desc=makeClean(@file_get_contents("./addons/$addon/description"));
+    $desc=makeClean(@file_get_contents($_SESSION['addonsdir'].$addon.'/description'));
     if (!empty($desc)) $desc="($desc)";
     $array[]=array($addon,'checkbox',"<b>$addon</b> $desc"); // TOFIX add extra text from the addons description file, where available
 }

@@ -28,11 +28,7 @@ fieldset {
 /*===================================================================================*/
 body {
 	text-align: left;
-}
-
-#container {
-	width: auto;
-	margin: 10px;	
+	margin: 10px;
 }
 
 #main {
@@ -379,9 +375,6 @@ input.warning,th.warning {
 
 input.warning {
     font-size:0.9em;
-}
-#container {
-	background: none;
 }
 
 #header {

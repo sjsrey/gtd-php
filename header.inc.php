@@ -1,6 +1,6 @@
 <?php
 require_once 'headerHtml.inc.php';
-echo "</head><body><div id='container'>\n";
+echo "</head><body>\n";
 require_once 'headerMenu.inc.php';
 echo "<div id='main'>\n";
 if ($_SESSION['debug']['debug'])
