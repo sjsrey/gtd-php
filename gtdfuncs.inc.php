@@ -38,7 +38,10 @@ function gtd_handleEvent($event,$page) {
                                 (array)$_SESSION['addons'][$event][$page]
                                 );
     foreach ($eventhandlers as $addonid=>$handler) {
-        $addon=array('id'=>$addonid,'dir'=>$_SESSION['addonsdir'].$addonid.'/');
+        $addon=array('id'=>$addonid,
+                     'dir'=>$_SESSION['addonsdir'].$addonid.'/',
+                     'urlprefix'=>"addon.php?addonid=$addonid&url="
+                     );
         if ((include "{$addon['dir']}$handler")===false) break;
     }
 }

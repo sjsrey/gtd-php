@@ -31,8 +31,8 @@ if ($values['itemId']) { // editing an item
     $values['type']=$_REQUEST['type'];
     $values['isSomeday']=(isset($_GET['someday']) &&  $_GET['someday']=='true')?'y':'n';
     $nextaction=isset($_REQUEST['nextonly']) && ($_REQUEST['nextonly']=='true' || $_REQUEST['nextonly']==='y');
-    foreach ( array('category','context','timeframe') as $cat)
-        $values[$cat.'Id']= (isset($_REQUEST[$cat.'Id']))?(int) $_REQUEST[$cat.'Id']:0;
+    foreach ( array('categoryId','contextId','timeframeId') as $cat)
+        $values[$cat]= (isset($_REQUEST[$cat]))?(int) $_REQUEST[$cat]:0;
 
     if ($values['type']==='s') {
         $values['isSomeday']='y';
@@ -313,20 +313,20 @@ if ($sep!=='<p>') echo "</p>\n";
                 echo hidePostVar('parentId[]',$pid);
         ?><div class='formrow'>
             <?php if ($show['category']) { ?>
-                <label for='category' class='left first'>Category:</label>
-                <select name='categoryId' id='category'>
+                <label for='categoryId' class='left first'>Category:</label>
+                <select name='categoryId' id='categoryId'>
                 <?php echo $cashtml; ?>
                 </select>
             <?php } else $hiddenvars['categoryId']=$values['categoryId'];
             if ($show['context']) { ?>
-                <label for='context' class='left'>Context:</label>
-                <select name='contextId' id='context'>
+                <label for='contextId' class='left'>Context:</label>
+                <select name='contextId' id='contextId'>
                 <?php echo $cshtml; ?>
                 </select>
             <?php } else $hiddenvars['contextId']=$values['contextId'];
             if ($show['timeframe']) { ?>
-                <label for='timeframe' class='left'>Time:</label>
-                <select name='timeframeId' id='timeframe'>
+                <label for='timeframeId' class='left'>Time:</label>
+                <select name='timeframeId' id='timeframeId'>
                 <?php echo $tshtml; ?>
                 </select>
             <?php } else $hiddenvars['timeframeId']=$values['timeframeId']; ?>
