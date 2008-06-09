@@ -2,7 +2,7 @@
 require_once 'ses.inc.php';
 require 'config.inc.php';
 
-$_SESSION['prefix']=$config['prefix']; // TOFIX - this bit needs revision for multi-user setups
+$_SESSION['prefix']=$config['prefix']; // TODO this bit needs revision for multi-user setups
 if (!empty($_SESSION['debug']['notice']))
 		error_reporting(E_ALL);
     else
@@ -67,9 +67,4 @@ if (!is_array($_SESSION['config']) || !array_key_exists('title',$_SESSION['confi
     retrieveConfig();
 }
 
-global $pagename;
-if (!isset($pagename)) {
-    $thisurl=parse_url($_SERVER['PHP_SELF']);
-    $pagename=makeclean(basename($thisurl['path'],".php"));
-}
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

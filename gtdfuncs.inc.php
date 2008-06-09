@@ -590,7 +590,6 @@ function importOldConfig() { // get preferences from old config.php file
     define('_GTD_DEBUG'   ,2);
     define('_GTD_FREEZEDB',4);
     define('_GTD_NOTICE'  ,8);
-    //TOFIX - we want to import the two sets of arrays, then merge them
     if ( false===(@include 'defaultconfig.inc.php')  || !isset($config) ) {
         $_SESSION['message'][]='Unable to find default configuration in defaultconfig.inc.php';
         return false;

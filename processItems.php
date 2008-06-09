@@ -207,21 +207,21 @@ function doAction($localAction) { // do the current action on the current item; 
 function doChecklist() {
 	global $values,$updateGlobals,$title;
 	if (empty($_REQUEST['clearchecklist']))
-        $todo=$updateGlobals['isMarked'];
+        $markeditems=$updateGlobals['isMarked'];
     else
-        $todo=array();
+        $markeditems=array();
     $values['parentId']=$updateGlobals['parents'][0];
     if (!isset($values['dateCompleted']))
         $values['dateCompleted']="'".date('Y-m-d')."'";
     $sep='';
     $ids='';
-    foreach ($todo as $id) {
+    foreach ($markeditems as $id) {
         $ids.=$sep.(int) $id;
         $sep="','";
     }
     $values['itemfilterquery']="$ids";
     query("updatechecklist",$values);
-    $msg  = ($cnt=count($todo))." checklist item"
+    $msg  = ($cnt=count($markeditems))." checklist item"
             .( ($cnt===1) ? '' : 's' )
             .' marked complete';
     return $msg;
@@ -332,8 +332,6 @@ function addAsParent() {
 function retrieveFormVars() {
 	global $updateGlobals,$values;
 
-    // TOFIX - what we should really do here is retrieve the item, and then over-write with $_POST variables if and only if they are available
-    // although we'd need to check that unticked checkboxes came through ok - that could be tricky
 	// key variables
 	$values['oldtype'] = (empty($_POST['oldtype'])) ? $values['type'] : $_POST['oldtype'];
 

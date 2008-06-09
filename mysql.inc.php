@@ -338,6 +338,12 @@ function getsql($querylabel,$values,$sort) {
                     WHERE `uid`='{$values['uid']}' {$values['filterquery']}";
             break;
 
+        case 'getorphansquick':
+			$sql="SELECT `itemId` FROM `{$prefix}itemstatus`
+				    WHERE `itemId` NOT IN
+					   (SELECT lu.`itemId` FROM `{$prefix}lookup` as lu)";
+            break;
+            
 		case "getorphaneditems":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`, its.`type`, ia.`isSomeday`
 				FROM `{$prefix}items` AS i   

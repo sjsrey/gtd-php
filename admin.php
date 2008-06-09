@@ -12,12 +12,12 @@ require_once 'admin.inc.php';
 define("_DEBUG",true && ($_SESSION['debug']['debug']));
 
 /*
-TOFIX: scan for available installations
-TOFIX: Use a javascript onsubmit for the delete verification, and fallback to POST if no javascript
-TOFIX: move DELETE from install.php to here
+TODO: scan for available installations
+TODO: Use a javascript onsubmit for the delete verification, and fallback to POST if no javascript
+TODO: move DELETE from install.php to here
 
 ------------------------------------------------------------
-TOFIX: LOCK TABLES if possible, while doing admin.
+TODO: LOCK TABLES if possible, while doing admin.
 NB: you cannot use a locked table multiple times in a single query.
 Use aliases instead, in which case you must obtain a lock for each alias separately.
 mysql> LOCK TABLE t WRITE, t AS t1 WRITE;

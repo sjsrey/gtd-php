@@ -148,8 +148,6 @@ function fixData($prefix) {
            OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)";
     send_query($q);
 
-    // TOFIX - if any itemIds in tagmap but not in items, remove
-    // TOFIX - if any itemstatus type is null, make it 'i'
 }
 /*
    ======================================================================================
@@ -439,7 +437,7 @@ function failDuringCheck() {
         case 'config': // no valid config.inc.php
     		echo "<p class='error'>No valid config.inc.php file found.<br />"
     			,"Copy the config.sample.php file to config.inc.php, and set the MySQL parameters</p>\n";
-    		// TOFIX - link to config.inc.php documentation here
+    		// TODO link to config.inc.php documentation here
             break;
         case 'db': // failed during attempt to open database
             echo "<p class='error'>"

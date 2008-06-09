@@ -112,7 +112,7 @@ $array=array();
 foreach ($addons as $addon) {
     $desc=makeClean(@file_get_contents($_SESSION['addonsdir'].$addon.'/description'));
     if (!empty($desc)) $desc="($desc)";
-    $array[]=array($addon,'checkbox',"<b>$addon</b> $desc"); // TOFIX add extra text from the addons description file, where available
+    $array[]=array($addon,'checkbox',"<b>$addon</b> $desc");
 }
 $live=array();
 if ($_SESSION['addons']) foreach ($_SESSION['addons'] as $where)

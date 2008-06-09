@@ -13,7 +13,7 @@ if ($taglisttemp) foreach ($taglisttemp as $tag) $taglist[]=$tag['tagname'];
 if ($values['itemId']) { // editing an item
     $where='edit';
     $values['filterquery']=sqlparts('singleitem',$values);
-    $result = query("selectitem",$values);
+    $result = query("selectitem",$values); // TOFIX seems to be giving an error sporadically
     if ($result) {
         $values = $result[0];
         $nextaction= ($result[0]['nextaction']==='y');
@@ -215,13 +215,6 @@ if (empty($values['recur'])) {
         if (isset($recur['BYDAY'][0])) $recur['week']=$recur['BYDAY'][0];
     }
     if($_SESSION['debug']['debug']) echo '<pre>',print_r($recur,true),'</pre>';
-    /* TOFIX - identify when it's a TEXT type of recurrence, by
-        processing the form in the same way as if it had been submitted to processItems,
-        and then comparing the resulting rfc2445 text with that in the db.
-        OR
-        do some clever regexp matching - might actually be easier!
-    */
-    
     // get the date of the next recurrence, after the current one has been completed, for the user's information
     $nextdate=getNextRecurrence($values);
 }

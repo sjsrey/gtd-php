@@ -15,5 +15,7 @@ else{
         if (array_key_exists($key,$_COOKIE))
             $_SESSION[$key]=$_COOKIE[$key]; // retrieve cookie values
 }
-
+global $pagename;
+$thisurl=parse_url($_SERVER['PHP_SELF']);
+$pagename=basename($thisurl['path'],".php");
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser
