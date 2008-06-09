@@ -1,6 +1,4 @@
 <?php
-global $pagename;
-
 list($usec, $sec) = explode(" ", microtime());
 $starttime=(float)$usec + (float)$sec;
 if (!isset($areUpdating)) require_once 'headerDB.inc.php';
@@ -20,9 +18,6 @@ if ($_SESSION['version']!==_GTD_VERSION && !isset($areUpdating) ) {
 }
 
 if (!headers_sent()) header("Content-Type: text/html; charset={$_SESSION['config']['charset']}");
-
-$thisurl=parse_url($_SERVER['PHP_SELF']);
-$pagename=makeclean(basename($thisurl['path'],".php"));
 
 if (empty($title)) $title= ($_SESSION['config']['title_suffix']) ? $pagename : '';
 

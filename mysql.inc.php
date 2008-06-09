@@ -480,7 +480,7 @@ function getsql($querylabel,$values,$sort) {
 					ON (cn.`contextId` = ia.`contextId`)
 				LEFT OUTER JOIN `{$prefix}timeitems` as ti
 					ON (ti.`timeframeId` = ia.`timeframeId`)
-                WHERE i.`itemId` = '{$values['itemId']}'
+                WHERE {$values['filterquery']}
                 GROUP BY i.`itemId` ";
 			break;
 
@@ -736,6 +736,17 @@ function sqlparts($part,$values) {
 	case "issomeday":
 		$sqlpart = " IF(ia.`isSomeday`='y','y','n') = '{$values['isSomeday']}' ";
 		break;
+    case "iteminlist":
+        $sqlpart='i.`itemId` IN (';
+        $sep='';
+        if (preg_match_all('/[0-9]+/',$values['itemId'],$tst)) {
+            foreach ($tst[0] as $id) {
+                $sqlpart .= "$sep'$id'";
+                $sep=',';
+            }
+        }
+        $sqlpart .=')';
+        break;
 	case "limit":
 		$sqlpart = " LIMIT {$values['maxItemsToSelect']} ";
 		break;

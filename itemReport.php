@@ -334,9 +334,10 @@ $titlefull.= "</span>".$typename[$item['type']]." Report: "
 if ($item['isSomeday']==='y')
     $titlefull.= ' (Someday) ';
 
+include_once 'headerHtml.inc.php';
+gtd_handleEvent(_GTD_ON_DATA,$pagename);
 include_once 'header.inc.php';
 
-gtd_handleEvent(_GTD_ON_DATA,$pagename);
 if ($item['type']==='i')
     echo "<div class='editbar'>"
         ,"[<a href='assignType.php?itemId={$values['itemId']}&amp;referrer=$afterTypeChange'>Set type</a>] \n"

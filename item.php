@@ -12,6 +12,7 @@ if ($taglisttemp) foreach ($taglisttemp as $tag) $taglist[]=$tag['tagname'];
 //SQL CODE
 if ($values['itemId']) { // editing an item
     $where='edit';
+    $values['filterquery']=sqlparts('singleitem',$values);
     $result = query("selectitem",$values);
     if ($result) {
         $values = $result[0];

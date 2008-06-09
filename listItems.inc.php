@@ -73,11 +73,9 @@ $cshtml =str_replace('--','(any)',contextselectbox    ($values));
 $tshtml =str_replace('--','(any)',timecontextselectbox($values));
 
 // pass filters in referrer
-$thisurl=parse_url($_SERVER['PHP_SELF']);
-$referrer = basename($thisurl['path']).'?';
+$referrer = "{$pagename}.php?";
 foreach($filter as $filterkey=>$filtervalue)
     if ($filtervalue!='') $referrer .= "{$filterkey}={$filtervalue}&amp;";
-
 
 //Select items
 $trimlength=$_SESSION['config']['trimLength'];

@@ -52,7 +52,6 @@ if ($timeframeResults) foreach($timeframeResults as $row) {
 
 $values['extravarsfilterquery'] ='';
 
-$thisurl=parse_url($_SERVER['PHP_SELF']);
 $dispArray=array('parent'=>'Project'
     ,'NA'=>'NA'
     ,'title'=>'Action'
@@ -105,7 +104,7 @@ foreach ($contextNames as $cid=>$dummy1) {
             $matrixout[$cid][$tid]=makeContextTable($maintable,$dispArray,$show,$trimlength);
     }
 }
-$_SESSION['lastfilterp']=$_SESSION['lastfiltera']=basename($thisurl['path']);
+$_SESSION['lastfilterp']=$_SESSION['lastfiltera']="{$pagename}.php";
 if (count($lostitems)) {
     $cid='-1';
     $tid=0;

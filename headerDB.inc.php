@@ -67,4 +67,9 @@ if (!is_array($_SESSION['config']) || !array_key_exists('title',$_SESSION['confi
     retrieveConfig();
 }
 
+global $pagename;
+if (!isset($pagename)) {
+    $thisurl=parse_url($_SERVER['PHP_SELF']);
+    $pagename=makeclean(basename($thisurl['path'],".php"));
+}
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

@@ -511,6 +511,7 @@ function recurItem() {
 //===========================================================================
 function getItemCopy() { // retrieve values for the current item, and store in the $values array
 	global $values,$updateGlobals;
+	$values['filterquery']=sqlparts('singleitem',$values);
 	$result = query("selectitem",$values,array());
 	$copy=($result) ? $result[0] : array();
 	// now get parents

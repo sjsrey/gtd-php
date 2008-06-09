@@ -136,9 +136,10 @@ elseif (isset($_POST['install'])) {
     $toDB=$_POST['db'];
     // check to see whether the prefix in config.inc.php hsa been changed between POST and now
     require 'config.inc.php';
-    if ($toPrefix===$config['prefix'] && $toDB===$config['db'])
+    if ($toPrefix===$config['prefix'] && $toDB===$config['db']) {
         $areUpdating=true; // ok, it's safe to update.
-    else {
+        $pagename='install';
+    } else {
         echo "<p class='error warning'>config.inc.php has changed during the installation process. "
             ," The upgrade cannot continue. Please select your upgrade option again.";
     }

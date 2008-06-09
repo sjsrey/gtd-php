@@ -113,7 +113,7 @@ function ts_makeSortable(table) {
         cell = firstRow.cells[i];
         txt = ts_getInnerText(cell);
         cell.innerHTML = '<a href="#" class="sortheader" '+
-        'onclick="GTD.resortTable(this, '+i+');return false;">' +
+        'onclick="GTD.resortTable(this);return false;">' +
         txt+'</a>';
     }
 }
@@ -468,11 +468,11 @@ GTD.removeParent=function (id) {
     row.parentNode.removeChild(row);
 };
 // ======================================================================================
-GTD.resortTable=function (lnk,clid) {
+GTD.resortTable=function (lnk) {
     var i,j,max,td,column,table,itm,itmh,firstRow,newRows,allth,ci,sortfn;
     max=lnk.childNodes.length;
-    td = lnk.parentNode;
-    column = clid || td.cellIndex;
+    td = getParent(lnk,'TD') || getParent(lnk,'TH');
+    column = td.cellIndex;
     table = getParent(td,'TABLE');
 
     // Work out a type for the column
