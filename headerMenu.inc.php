@@ -100,8 +100,7 @@ if ($_SESSION['debug']['debug']) {
 }
 $menu[] = array("link"=>'','label'=>'separator');
 $menu[] = array("link"=>"donate.php", 'title'=>"Help us defray our costs", 'label' => "Donate");
-$menu[] = array("link"=>"credits.php", 'title'=>"The GTD-PHP development team", 'label' => "Credits");
-$menu[] = array("link"=>"license.php", 'title'=>"The GTD-PHP license", 'label' => "License");
+$menu[] = array("link"=>"license.php", 'title'=>"The GTD-PHP license and credits", 'label' => "License &amp; Credits");
 $menu[] = array("link"=>"version.php", 'title'=>"Version information", 'label' => "Version");
 /*
    ----------------------------------------------

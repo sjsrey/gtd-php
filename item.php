@@ -12,8 +12,8 @@ if ($taglisttemp) foreach ($taglisttemp as $tag) $taglist[]=$tag['tagname'];
 //SQL CODE
 if ($values['itemId']) { // editing an item
     $where='edit';
-    $values['filterquery']=sqlparts('singleitem',$values);
-    $result = query("selectitem",$values); // TOFIX seems to be giving an error sporadically
+    $values['filterquery']=' WHERE '.sqlparts('singleitem',$values);
+    $result = query("selectitem",$values);
     if ($result) {
         $values = $result[0];
         $nextaction= ($result[0]['nextaction']==='y');
