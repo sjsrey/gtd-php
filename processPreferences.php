@@ -1,6 +1,7 @@
 <?php
 $_SESSION['config']['title']='Updating preferences'; // force it to be non-blank to avoid unnecessary options retrieval in headerDB
 require_once 'headerDB.inc.php';
+ignore_user_abort(true);
 
 if (isset($_REQUEST['restoredefaults'])) {
     $_SESSION['message'][]= (importOldConfig())

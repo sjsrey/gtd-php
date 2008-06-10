@@ -373,7 +373,7 @@ function mirrorParentTypes() {
     $baseorder=array('a','w','m','v','o','g','p','r','i','C','L','T');
      foreach ($_SESSION['hierarchy']['children'] as $parent=>$children)
         if (!empty($children)) {
-            $_SESSION['hierarchy']['children'][$parent]=array_intersect($baseorder,$children);
+            $_SESSION['hierarchy']['children'][$parent]=array_values(array_intersect($baseorder,$children));
         }
 }
 //----------------------------------------------------------------

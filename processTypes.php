@@ -1,5 +1,6 @@
 <?php
 require_once 'headerDB.inc.php';
+ignore_user_abort(true);
 $docapture= (isset($_POST['output']) && $_POST['output']==='xml');
 if ($docapture) ob_start();
 

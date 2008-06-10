@@ -338,12 +338,6 @@ function getsql($querylabel,$values,$sort) {
                     WHERE `uid`='{$values['uid']}' {$values['filterquery']}";
             break;
 
-        case 'getorphansquick':
-			$sql="SELECT `itemId` FROM `{$prefix}itemstatus`
-				    WHERE `itemId` NOT IN
-					   (SELECT lu.`itemId` FROM `{$prefix}lookup` as lu)";
-            break;
-            
 		case "getorphaneditems":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`, its.`type`, ia.`isSomeday`
 				FROM `{$prefix}items` AS i   
@@ -486,8 +480,9 @@ function getsql($querylabel,$values,$sort) {
 					ON (cn.`contextId` = ia.`contextId`)
 				LEFT OUTER JOIN `{$prefix}timeitems` as ti
 					ON (ti.`timeframeId` = ia.`timeframeId`)
-                WHERE {$values['filterquery']}
-                GROUP BY i.`itemId` ";
+                {$values['filterquery']}
+                GROUP BY i.`itemId`
+                ";
 			break;
 
 		case "selectitemshort":

@@ -1,6 +1,6 @@
 <?php
-//INCLUDES
 require_once 'headerDB.inc.php';
+ignore_user_abort(true);
 
 $updateGlobals=array();
 $html=false; // indicates if we are outputting html

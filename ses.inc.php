@@ -15,6 +15,7 @@ else{
         if (array_key_exists($key,$_COOKIE))
             $_SESSION[$key]=$_COOKIE[$key]; // retrieve cookie values
 }
+ignore_user_abort(false);
 global $pagename;
 $thisurl=parse_url($_SERVER['PHP_SELF']);
 $pagename=basename($thisurl['path'],".php");

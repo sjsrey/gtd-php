@@ -1,5 +1,6 @@
 <?php
 require_once 'headerDB.inc.php';
+ignore_user_abort(true);
 $html=false;
 if ($_SESSION['debug']['debug']) {
     $html=true;
