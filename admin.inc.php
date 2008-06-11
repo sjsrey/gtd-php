@@ -56,6 +56,14 @@ function checkErrors($prefix) {
         $errors["IDs are in $t1, but not in $t2"]=$val[0];
     }
 
+    $errors['Parent loops']='';
+    $loops=scanforcircularparents();
+    $sep='';
+    if (count($loops)) foreach ($loops as $id) {
+        $errors['Parent loops'].="$sep<a href='itemReport.php?itemId=$id'>$id</a>";
+        $sep=', ';
+    }
+
     return array('totals'=>$totals,'errors'=>$errors);
 }
 /*

@@ -3,6 +3,64 @@ include_once 'gtd_constants.inc.php';
 /*
    ======================================================================================
 */
+function scanforcircular1tree($map,&$loops,$item,$stack=array() ) { // recursive function used by scanforcircularparents
+    if (array_key_exists($item,$loops)) // we've processed this item before, so don't do it again
+        return $loops[$item];
+    if (in_array($item,$stack,true)) {
+        //we've already seen this item in this tree, so it's circular
+        // TOFIX - all of the items in the stack from previous occurence of $item are loopers - not just $item itself
+        $loops[$item]=true;
+        while($item!==$alsobad=array_pop($stack))
+            $loops[$alsobad]=true;
+        return false;
+    }
+    $stack[]=$item;
+    if (array_key_exists($item,$map))
+        foreach ($map[$item] as $child)
+            scanforcircular1tree($map,$loops,$child,$stack);
+    if (!array_key_exists($item,$loops)) $loops[$item]=false;
+    return true;
+} // end of scan1tree recursive function
+//-------------------------------------------------
+function scanforcircularandmap($parents,&$map,&$ids,$seeds=null) { // get the map of all parent->child relationships
+    if ($_SESSION['debug']['debug']) {
+        echo "<pre>Calling scanforcircularandmap with arguments:"
+            ,"<br />seeds=",print_r($seeds,true)
+            ,"<br />parents=",print_r($parents,true)
+            ,"</pre>";
+    }
+    $map=$bad=$looplist=array();
+    if ($parents) foreach ($parents as $pair)
+        $children[]=$map[$pair['parentId']][] = $pair['itemId'];
+    if (empty($seeds)) {
+        // if we are not given a parent seed, make a list of all items which might be
+        // part of a loop:an item can only be in a loop if it's both a parent and a child
+        $seeds=array_intersect(array_keys($map),$children);
+    }
+    // check the descendants of each of those seeds
+    foreach ($seeds as $test) {
+        if ($_SESSION['debug']['debug']) {
+            echo "<pre>Calling scanforcircular1tree with arguments:"
+                ,"<br />seed=",print_r($test,true)
+                ,"<br />looplist=",print_r($looplist,true)
+                ,"</pre>";
+        }
+        scanforcircular1tree($map,$looplist,$test);
+    }
+    //return the list of bad items
+    $ids=array_keys($looplist);
+    $bad=array_keys($looplist,true);
+    return $bad;
+}
+//-------------------------------------------------
+function scanforcircularparents() {
+    $parents=query('getparents');
+    $children=$map=array();
+    return scanforcircularandmap($parents,$map,$children);
+}
+/*
+   ======================================================================================
+*/
 function escapeforjavascript($txt) {
     foreach (array('/\\/'=>'\\\\' , '"'=>'\\"' , '/'=>'\\/') as $from=>$to)
         $txt=ereg_replace($from,$to,$txt);
@@ -331,7 +389,7 @@ function getShow($where,$type) {
 
         // fields only shown for certain types
         'timeframe'     =>($type==='i' || $type==='a' || $type==='p' || $type==='g'  || $type==='o' || $type==='v'),
-        'context'       =>($type==='i' || $type==='a' || $type==='w' || $type==='r'),
+        'context'       =>($type==='i' || $type==='a' || $type==='w' || $type==='r'  || $type==='p' ),
         'deadline'      =>($type==='p' || $type==='a' || $type==='w' || $type==='i'),
         'tickledate'    =>($type==='p' || $type==='a' || $type==='w'),
         'recurdesc'     =>($type==='p' || $type==='a' || $type==='g'),

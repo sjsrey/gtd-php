@@ -351,6 +351,10 @@ function getsql($querylabel,$values,$sort) {
                 ) ORDER BY {$sort['getorphaneditems']}";
 			break;
 
+        case 'getparents':
+            $sql="SELECT * FROM `{$prefix}lookup`";
+            break;
+            
 		case "getspacecontexts":
 			$sql="SELECT `contextId`, `name`
 				FROM `{$prefix}context` ORDER BY `name` ASC";
