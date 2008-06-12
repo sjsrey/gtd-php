@@ -1,5 +1,14 @@
-<?php include_once 'header.inc.php'; ?>
-<h2>GTD-PHP Version Information</h2>
+<?php
+$title='GTD-PHP Version Information';
+include_once 'header.inc.php';
+$addons=array();
+if (array_key_exists('addons',$_SESSION)) {
+    foreach ($_SESSION['addons'] as $key=>$val) if ($val===true) {
+        $ver=@file_get_contents($_SESSION['addonsdir'].$key.'/version');
+        $addons[makeclean($key)]=makeClean($ver);
+    }
+}
+?>
 <table summary='version information'>
     <tbody>
         <tr><th>GTD-PHP revision</th>
@@ -20,6 +29,15 @@
         <tr><th>Database</th>
             <td><?php echo getDBVersion(); ?></td>
         </tr>
+        <?php if (count($addons)) { ?>
+            <tr><th colspan='2'>Addons</th></tr>
+            <?php foreach ($addons as $name=>$ver) { ?>
+                <tr><th><?php echo $name; ?></th>
+                    <td><?php echo $ver; ?></td>
+                </tr>
+            <?php
+            }
+        } ?>
     </tbody>
 </table>
 <?php include_once 'footer.inc.php'; ?>

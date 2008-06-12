@@ -7,7 +7,7 @@
 var GTD; // object for holding public functions and public variables
 (function() {
 // ======================================================================================
-var gtd_freezediv,focusOn,grabKey,oldTablePosition,SORT_COLUMN_INDEX;
+var freezediv,focusOn,grabKey,oldTablePosition,SORT_COLUMN_INDEX;
 // ======================================================================================
 function checkForNull(field) {
     switch (field.type) {
@@ -282,14 +282,14 @@ GTD.focusOnForm=function (id) {
 };
 // ======================================================================================
 GTD.freeze=function (tofreeze) {
-	if (typeof gtd_freezediv==='undefined') {
-    	gtd_freezediv=document.createElement('div');
-    	gtd_freezediv.id="freezer";
-        gtd_freezediv.style.display="none";
-    	//gtd_freezediv.appendChild(document.createElement('span')); // necessary for problem with addevent betweeen Opera and Safari
-    	document.body.appendChild(gtd_freezediv);
+	if (typeof freezediv==='undefined') {
+    	freezediv=document.createElement('div');
+    	freezediv.id="freezer";
+        freezediv.style.display="none";
+    	//freezediv.appendChild(document.createElement('span')); // necessary for problem with addevent betweeen Opera and Safari
+    	document.body.appendChild(freezediv);
     }
-	gtd_freezediv.style.display=(tofreeze)?"block":"none";
+	freezediv.style.display=(tofreeze)?"block":"none";
 };
 // ======================================================================================
 GTD.initcalendar=function(container) {
@@ -469,7 +469,8 @@ GTD.removeParent=function (id) {
 };
 // ======================================================================================
 GTD.resortTable=function (lnk) {
-    var i,j,max,td,column,table,itm,itmh,firstRow,newRows,allth,ci,sortfn;
+    var i,j,max,td,column,table,itm,itmh,firstRow,newRows,allth,ci,sortfn,
+        re=/ sort(up|down)/;
     max=lnk.childNodes.length;
     td = getParent(lnk,'TD') || getParent(lnk,'TH');
     column = td.cellIndex;
@@ -495,11 +496,11 @@ GTD.resortTable=function (lnk) {
     newRows.sort(sortfn);
 
     if (lnk.getAttribute("sortdir") === 'down') {
-        td.className = td.className.replace(/ sort(up|down)/,"") + " sortup";
+        td.className = td.className.replace(re,"") + " sortup";
         newRows.reverse();
         lnk.setAttribute('sortdir','up');
     } else {
-        td.className = td.className.replace(/ sort(up|down)/,"") + " sortdown";
+        td.className = td.className.replace(re,"") + " sortdown";
         lnk.setAttribute('sortdir','down');
     }
 
@@ -514,9 +515,9 @@ GTD.resortTable=function (lnk) {
     allth = document.getElementsByTagName("th");
     max=allth.length;
     for (ci=0;ci<max;ci++) {
-        if (allth[ci].className.match(/.* sort(up|down).*/)) {
+        if (allth[ci].className.match(re)) {
             if (allth[ci] !== td && getParent(allth[ci],"table") === getParent(td,"table")) { // in the same table as us?
-                allth[ci].className = allth[ci].className.replace(/ sort(up|down)/,"");
+                allth[ci].className = allth[ci].className.replace(re,"");
             }
         }
     }
