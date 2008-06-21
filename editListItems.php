@@ -44,6 +44,7 @@ $lshtml = listselectbox($config,$values,$sort,$check);
                 <a href='reportLists.php?id=<?php
                     echo "{$values['id']}&amp;{$urlSuffix}'>{$values['listTitle']}";
                     ?></a>
+                    <input type='hidden' name='id' value='<?php echo $values['id']; ?>' />
             <?php } else { ?>
                 <select name='id' id='id'>
                     <?php echo $lshtml; ?>
@@ -92,7 +93,6 @@ $lshtml = listselectbox($config,$values,$sort,$check);
         <?php } ?>
         <input type='hidden' name='type'       value='<?php echo $type;             ?>' />
         <input type='hidden' name='itemId'     value='<?php echo $values['itemId']; ?>' />
-        <input type='hidden' name='id'         value='<?php echo $values['id'];     ?>' />
         <input type='hidden' name='action'     value='<?php echo $action;           ?>' />
     	<input type='hidden' name='dateformat' value='ccyy-mm-dd'                       />
     </div>

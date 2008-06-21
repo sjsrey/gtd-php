@@ -251,12 +251,12 @@ a:hover{
 	color:#039; 
 }
 a img {
-	border:0;
+	border:none;
 }
 
 img {
-        border: 0;
-        margin-right: 2px;
+    border: none;
+    margin-right: 2px;
 }
 
 select, input, textarea,button {
@@ -501,4 +501,20 @@ div#freezer {
 	opacity:0.20;
 	filter:alpha(opacity=20);
 	-Moz-Opacity:0.20;
+}
+
+/*
+ * Sorting
+ */
+a.sortheader { display: block;}
+.sortable th {
+    padding-right: 16px;
+    background-position: center right;
+    background-repeat: no-repeat;
+}
+.sortup {
+    background-image: url("up.gif");
+}
+.sortdown {
+    background-image: url("down.gif");
 }

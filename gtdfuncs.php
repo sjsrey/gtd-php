@@ -326,7 +326,7 @@ return $out;
 
 
 function escapeChars($str) {  // TOFIX consider internationalization issues with charset coding
-    $outStr=str_replace(array('&','…'),array('&amp;','&hellip'),$str);
+    $outStr=str_replace(array('&','…'),array('&amp;','&hellip;'),$str);
     $outStr=str_replace(array('&amp;amp;','&amp;hellip;'),array('&amp;','&hellip;'),$outStr);
 	return $outStr;
 }

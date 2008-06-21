@@ -81,7 +81,7 @@
 	color: #eed;
 	font-weight: normal;
 	/*text-decoration: none;*/
-	border: 0 none;
+	border: none;
 }
 #menudiv li a:hover, #menudiv li a:focus {
 	background: #39c;

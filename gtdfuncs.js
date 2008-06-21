@@ -184,7 +184,7 @@ function ts_makeSortable(table) {
         var txt = ts_getInnerText(cell);
         cell.innerHTML = '<a href="#" class="sortheader" '+ 
         'onclick="ts_resortTable(this, '+i+');return false;">' + 
-        txt+'<span class="sortarrow">&nbsp;&nbsp;&nbsp;</span></a>';
+        txt+'</a>';
     }
 }
 
@@ -210,60 +210,58 @@ function ts_getInnerText(el) {
 }
 
 function ts_resortTable(lnk,clid) {
-    // get the span
-    var span;
-    for (var ci=0;ci<lnk.childNodes.length;ci++) {
-        if (lnk.childNodes[ci].tagName && lnk.childNodes[ci].tagName.toLowerCase() == 'span') span = lnk.childNodes[ci];
-    }
-    var spantext = ts_getInnerText(span);
-    var td = lnk.parentNode;
-    var column = clid || td.cellIndex;
-    var table = getParent(td,'TABLE');
-    
+    var i,j,max,td,column,table,itm,itmh,firstRow,newRows,
+        allth,ci,sortfn,ARROW;
+    max=lnk.childNodes.length;
+    td = lnk.parentNode;
+    column = clid || td.cellIndex;
+    table = getParent(td,'TABLE');
+
     // Work out a type for the column
-    if (table.rows.length <= 1) return;
-    var itm = ts_getInnerText(table.tBodies[0].rows[0].cells[column]);
-    var itmh = table.tBodies[0].rows[0].cells[column].innerHTML;
+    if (table.rows.length <= 1) {return;}
+    itm = ts_getInnerText(table.tBodies[0].rows[0].cells[column]);
+    itmh = table.tBodies[0].rows[0].cells[column].innerHTML;
     sortfn = ts_sort_caseinsensitive;
-    if (itmh.match(/^<input.*(radio|checkbox).*>$/)) sortfn = ts_sort_checkbox;
-    else if (itm.match(/^\d\d[\/-]\d\d[\/-]\d\d\d\d$/)) sortfn = ts_sort_date;
-    else if (itm.match(/^\d\d[\/-]\d\d[\/-]\d\d$/)) sortfn = ts_sort_date;
-    else if (itm.match(/^[£$]/)) sortfn = ts_sort_currency;
-    else if (itm.match(/^[\d\.]+$/)) sortfn = ts_sort_numeric;
+    if (itmh.match(/^<input.*(radio|checkbox).*>$/)) {sortfn = ts_sort_checkbox;}
+    else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d\d\d$/)) {sortfn = ts_sort_date;}
+    else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d$/)) {sortfn = ts_sort_date;}
+    else if (itm.match(/^[Â£$]/)) {sortfn = ts_sort_currency;}
+    else if (itm.match(/^[\d\.]+$/)) {sortfn = ts_sort_numeric;}
     SORT_COLUMN_INDEX = column;
-    var firstRow = new Array();
-    var newRows = new Array();
-    for (i=0;i<table.rows[0].length;i++) { firstRow[i] = table.rows[0][i]; }
-    for (j=0;j<table.tBodies[0].rows.length;j++) { newRows[j] = table.tBodies[0].rows[j]; }
+    firstRow = newRows = [];
+    max=table.rows[0].length;
+    for (i=0;i<max;i++) { firstRow[i] = table.rows[0][i]; }
+    max=table.tBodies[0].rows.length;
+    for (j=0;j<max;j++) { newRows[j] = table.tBodies[0].rows[j]; }
 
     newRows.sort(sortfn);
 
-    if (span.getAttribute("sortdir") == 'down') {
-        ARROW = '&nbsp;&nbsp;&uarr;';
+    if (lnk.getAttribute("sortdir") === 'down') {
+        td.className = td.className.replace(/ sort(up|down)/,"") + " sortup";
         newRows.reverse();
-        span.setAttribute('sortdir','up');
+        lnk.setAttribute('sortdir','up');
     } else {
-        ARROW = '&nbsp;&nbsp;&darr;';
-        span.setAttribute('sortdir','down');
+        td.className = td.className.replace(/ sort(up|down)/,"") + " sortdown";
+        lnk.setAttribute('sortdir','down');
     }
-    
+
     // We appendChild rows that already exist to the tbody, so it moves them rather than creating new ones
     // don't do sortbottom rows
-    for (i=0;i<newRows.length;i++) { if (!newRows[i].className || (newRows[i].className && (newRows[i].className.indexOf('sortbottom') == -1))) table.tBodies[0].appendChild(newRows[i]);}
+    max=newRows.length;
+    for (i=0;i<max;i++) { if (!newRows[i].className || (newRows[i].className && (newRows[i].className.indexOf('sortbottom') === -1))) {table.tBodies[0].appendChild(newRows[i]);}}
     // do sortbottom rows only
-    for (i=0;i<newRows.length;i++) { if (newRows[i].className && (newRows[i].className.indexOf('sortbottom') != -1)) table.tBodies[0].appendChild(newRows[i]);}
-    
+    for (i=0;i<max;i++) { if (newRows[i].className && (newRows[i].className.indexOf('sortbottom') !== -1)) {table.tBodies[0].appendChild(newRows[i]);}}
+
     // Delete any other arrows there may be showing
-    var allspans = document.getElementsByTagName("span");
-    for (var ci=0;ci<allspans.length;ci++) {
-        if (allspans[ci].className == 'sortarrow') {
-            if (getParent(allspans[ci],"table") == getParent(lnk,"table")) { // in the same table as us?
-                allspans[ci].innerHTML = '&nbsp;&nbsp;&nbsp;';
+    allth = document.getElementsByTagName("th");
+    max=allth.length;
+    for (ci=0;ci<max;ci++) {
+        if (allth[ci].className.match(/.* sort(up|down).*/)) {
+            if (allth[ci] !== td && getParent(allth[ci],"table") === getParent(td,"table")) { // in the same table as us?
+                allth[ci].className = allth[ci].className.replace(/ sort(up|down)/,"");
             }
         }
     }
-        
-    span.innerHTML = ARROW;
 }
 
 function getParent(el, pTagName) {
