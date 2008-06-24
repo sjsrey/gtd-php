@@ -530,6 +530,9 @@ installation for use and familiarize yourself with the system.</p>\n
 		create_table("goals");
 		$q="INSERT INTO ".$config['prefix']. $temp . "goals  SELECT * FROM `goals`";
 		send_query($q);
+		// remove unwanted line breaks from title field - allowed in 0.7, but not in 0.8 or later
+        $q="UPDATE `{$config['prefix']}{$temp}goals` SET `goal`=replace(replace(`goal`,'\r',' '),'\n',' ')";
+        send_query($q);
 
        // itemattributes
        $q="create table `{$config['prefix']}{$temp}itemattributes` (";
@@ -550,7 +553,8 @@ installation for use and familiarize yourself with the system.</p>\n
        send_query($q);
        $q="INSERT INTO ".$config['prefix']. $temp . "itemattributes  SELECT * FROM `itemattributes`";
        send_query($q);
-
+       @set_time_limit(120); // upgrades can take a long time!
+       
        // items
 		create_table("items");
 
@@ -709,6 +713,8 @@ installation for use and familiarize yourself with the system.</p>\n
        `itemId` INT( 10 ) UNSIGNED NOT NULL";
        send_query($q);
 
+        @set_time_limit(120); // upgrades can take a long time!
+        
        $q="ALTER TABLE ".$config['prefix'].$temp."itemstatus CHANGE `itemId`
        `itemId` INT( 10 ) UNSIGNED NOT NULL";
        send_query($q);
@@ -768,6 +774,8 @@ $maxnum = " +(
 
        $q="UPDATE `".$config['prefix'].$temp."nextactions` SET `nextaction`=`nextaction`" . $maxnum;
        send_query($q);
+
+        @set_time_limit(120); // upgrades can take a long time!
 
        $q="ALTER TABLE ".$config['prefix'].$temp."lookup ADD `prikey` INT UNSIGNED
        NOT NULL";
@@ -926,7 +934,7 @@ $maxnum = "+(
        createVersion();
        foreach (array('projectattributes','projects','projectstatus','goals') as $temptable)
             drop_table($config['prefix'].$temp.$temptable);
-
+        @set_time_limit(120); // upgrades can take a long time!
        // this is the point of no return - if anything goes wrong after here, the database will be really badly broken!
 
        if ($config['prefix']=='') {

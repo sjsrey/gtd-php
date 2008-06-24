@@ -180,6 +180,10 @@ function fixData($prefix) {
     $q="DROP TABLE `{$prefix}versiontemp`";
     send_query($q);
 
+	// remove unwanted line breaks from title field - allowed in 0.7 for goals, but not in 0.8 or later
+    $q="UPDATE `{$prefix}items` SET `title`=replace(replace(`title`,'\r',' '),'\n',' ')";
+    send_query($q);
+
     // it's possible that some legacy items might have no itemstatus: fix that now
     $q="INSERT INTO `{$prefix}itemstatus` (`itemId`)
             SELECT `itemId` from `{$prefix}items` WHERE `itemId` NOT IN

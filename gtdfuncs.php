@@ -255,14 +255,17 @@ function nextScreen($url) {
         echo "<META HTTP-EQUIV='Refresh' CONTENT='0;url=$cleanurl' />\n"
             ,"<script type='text/javascript'>window.location.replace('$cleanurl');</script>\n"
             ,"</head><body><a href='$cleanurl'>Click here to continue on to $cleanurl</a>\n";
-    }else{
+    }elseif (empty($config['basepath'])) {
         $header="Location: http"
-                .((empty($_SERVER['HTTPS']))?'':'s')
+            .((empty($_SERVER['HTTPS']) || $_SERVER['HTTPS']==='off')?'':'s')
                 ."://"
                 .$_SERVER['HTTP_HOST']
                 .rtrim(dirname($_SERVER['PHP_SELF']), '/\\')
                 .'/'.$url;
         header($header);
+        exit;
+    }else{
+        header("Location: {$config['basepath']}$url");
         exit;
     }
 }

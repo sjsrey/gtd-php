@@ -170,6 +170,8 @@ $config['allowChangingTypes'] = false; // false | true - allows the user to chan
 $config['showAdmin'] = true; // false | true - adds the Admin option to the menu items
 $config['charset'] = 'ISO8859-15'; // character-encoding for pages: utf-8 IS NOT YET SUPPORTED, nor is any other multi-byte character set
 $config['withholdVersionInfo']=false; // true | false - if false, will send the version numbers of your installations of gtd-php, PHP and MySQL when you report a bug
+$config['basepath']=''; // If the auto-forwarding is not working, hardcode the path to the directory of your gtd-php installation here, with a slash at the end: e.g. http://localhost/gtd/
+
 $config['addons']=array();
 /*
     addons go below this line.  For example:
