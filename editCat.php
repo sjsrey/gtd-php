@@ -63,7 +63,7 @@ if ($_SESSION['debug']['debug']) echo "<pre>catlist:",print_r($catlist,true),'</
     <?php foreach ($catlist as $row) { ?>
         <tr>
             <td><a href=<?php
-                echo "'{$_SERVER['PHP_SELF']}?field=$field&amp;id={$row['id']}' title='Edit {$row['name']} {$field}'>{$row['name']}";
+                echo "'$pagename.php?field=$field&amp;id={$row['id']}' title='Edit {$row['name']} {$field}'>{$row['name']}";
             ?></a></td>
             <td><?php echo $row['description']; ?></td>
             <?php if ($showTypes) { ?><td><?php echo getTypes($row['type']); ?></td><?php } ?>

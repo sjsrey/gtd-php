@@ -8,8 +8,8 @@ function scanforcircular1tree($map,&$loops,$item,$stack=array() ) { // recursive
         return $loops[$item];
     if (in_array($item,$stack,true)) {
         //we've already seen this item in this tree, so it's circular
-        // TOFIX - all of the items in the stack from previous occurence of $item are loopers - not just $item itself
         $loops[$item]=true;
+        //and all of the items in the stack from previous occurence of $item are loopers too
         while($item!==$alsobad=array_pop($stack))
             $loops[$alsobad]=true;
         return false;
@@ -151,7 +151,6 @@ function makeClean($textIn) {
 */
 function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the visible part of a string, excluding html tags, is no longer than specified) 	// TOFIX -  we don't handle "%XX" strings yet.
 	// constants - might move permittedTags to config file
-	// TOFIX - doesn't handle MBCS!
     $permittedTags=array(
 		 '/^<a ((href)|(file))=[^>]+>/i'=>'</a>'
 		,'/^<b>/i'=>'</b>'
@@ -322,7 +321,27 @@ function getVarFromGetPost($varName,$default='') {
 /*
    ======================================================================================
 */
+function getAbsolutePath() {
+    global $thisurl;
+    $out='http'
+        .((empty($_SERVER['HTTPS']) || $_SERVER['HTTPS']==='off')?'':'s')
+                ."://"
+                .$_SERVER['HTTP_HOST']
+                .rtrim(dirname($thisurl['path']), '/\\').'/';
+    return $out;
+}
+/*
+   ======================================================================================
+*/
 function nextScreen($url) {
+    /* TOFIX Session ID is not passed with Location header
+            even if session.use_trans_sid is enabled.
+            It must by passed manually using SID constant: strip_tags(SID);
+            Need to check whether it's stored in cookie (preferable).
+            OR
+            we could just insist that session cookies are enabled: that's not
+            too unreasonable. (note by Andrew)
+    */
     $cleanurl=htmlspecialchars($url);
     if ($_SESSION['debug']['wait']) {
         echo "<p>Next screen is <a href='$cleanurl'>$cleanurl</a> - would be auto-refresh in non-debug mode</p>";
@@ -330,14 +349,12 @@ function nextScreen($url) {
         echo "<META HTTP-EQUIV='Refresh' CONTENT='0;url=$cleanurl' />\n"
             ,"<script type='text/javascript'>window.location.replace('$cleanurl');</script>\n"
             ,"</head><body><a href='$cleanurl'>Click here to continue on to $cleanurl</a>\n";
-    }else{
-        $header="Location: http"
-                .((empty($_SERVER['HTTPS']))?'':'s')
-                ."://"
-                .$_SERVER['HTTP_HOST']
-                .rtrim(dirname($_SERVER['PHP_SELF']), '/\\')
-                .'/'.$url;
+    }elseif (empty($_SESSION['config']['basepath'])) {
+        $header="Location: ".getAbsolutePath().$url;
         header($header);
+        exit;
+    } else {
+        header("Location: {$_SESSION['config']['basepath']}$url");
         exit;
     }
 }
@@ -665,7 +682,7 @@ function importOldConfig() { // get preferences from old config.php file
     );
 
     // we don't want to import the database login variables - they live in config.inc.php
-    foreach (array('db','user','host','prefix','dbtype','theme','useLiveEnhancements','debug','debugKey') as $key)
+    foreach (array('db','user','host','prefix','dbtype','debug','debugKey') as $key)
         unset($config[$key]);
 
     // save preferences in session variables
@@ -685,7 +702,7 @@ function importOldConfig() { // get preferences from old config.php file
     if (!array_key_exists('showRelativeDeadlines',$_SESSION['config']))
         $_SESSION['config']['showRelativeDeadlines']=false; // new value that may not be present in config.php
 
-    $_SESSION['config']['suppressAdmin'] = empty($config['showAsAdmin']);
+    $_SESSION['config']['suppressAdmin'] = isset($config['showAsAdmin']) && !$config['showAsAdmin'];
     $_SESSION['config']['suppressCustomRecurrences'] = empty($config['allowCustomRecurrences']);
     
     preg_match_all('/[mvogsparwi]/',$config['suppressAsOrphans'],$tst);
@@ -707,9 +724,8 @@ function importOldConfig() { // get preferences from old config.php file
     query('updateoptions',$values);
     
     if (!isset($custom_review)) $custom_review=array();
-    $values['option']='customreview';
-    $values['config']=serialize($custom_review);
-    //query('updateoptions',$values); // TOFIX this is the line that's causing the trouble
+    $values=array('uid'=>$_SESSION['uid'],'option'=>'customreview','config'=>serialize($custom_review));
+    //query('updateoptions',$values); // TOFIX this is causing trouble when saving custom review - don't know why
 
     $result=saveConfig();
     return $result;
@@ -775,8 +791,15 @@ function retrieveConfig() {
 
     // retrieve cookie values, and overlay them onto preferences
     foreach ($_COOKIE as $key=>$val)
-        if (!empty($key) && isset($_SESSION[$key]))
-            $_SESSION['config'][$key]=$_SESSION[$key]=$val;
+        if (!empty($key) && isset($_SESSION['config'][$key]))
+            
+
+    foreach (array('theme'=>'default','useLiveEnhancements'=>false) as $key=>$val) {
+        if (array_key_exists($key,$_COOKIE))
+            $_SESSION['config'][$key]=$_SESSION[$key]=$_COOKIE[$key];
+        if (empty($_SESSION[$key]))
+            $_SESSION['config'][$key] =$_SESSION[$key] = $val;
+    }
 
     // go through the list of installed addons, and register them
     foreach($_SESSION['addons'] as $addon=>$dummy)

@@ -21,8 +21,8 @@ if (!headers_sent()) header("Content-Type: text/html; charset={$_SESSION['config
 
 if (empty($title)) $title= ($_SESSION['config']['title_suffix']) ? $pagename : '';
 
-if (!empty($_SESSION['theme']))
-    $_SESSION['theme']=$_SESSION['theme'];
+if (empty($_SESSION['theme']))
+    $_SESSION['theme']=$_SESSION['config']['theme'];
 
 if (!isset($_SESSION['useLiveEnhancements']))
     $_SESSION['useLiveEnhancements']=$_SESSION['config']['useLiveEnhancements'];

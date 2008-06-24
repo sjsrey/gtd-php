@@ -143,9 +143,10 @@ $array=array(
     array('suppressCustomRecurrences','checkbox','Suppress entry of rfc2445 text directly to specify item recurrence patterns'),
     array('show7','checkbox','Show the Seven Habits of Highly Effective People and Sharpening the Saw in Weekly Review'),
     array('showRelativeDeadlines','checkbox','Show deadlines as relative days (e.g. "due in 5 days") rather than as dates'),
-    array('separator','text','Separator string for MySQL GROUP queries')
+    array('separator','text','Separator string for MySQL GROUP queries'),
+    array('basepath','text','Base path for installation (default is: '.getAbsolutePath().')')
 );
-makeOptionsTab($array,$config,'Advanced','',15);
+makeOptionsTab($array,$config,'Advanced','',25);
 /* ------------------------------------------------------------------------
     sort options
 */

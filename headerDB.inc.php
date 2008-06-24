@@ -39,7 +39,6 @@ switch ($config['dbtype']) {
         break;
     /*
        only mysql is supported, at present! - all of the others are here as placeholders for later development
-    */
     case "frontbase":
         require_once 'frontbase.inc.php';
         break;
@@ -55,6 +54,7 @@ switch ($config['dbtype']) {
     case "sqlite":
         require 'sqlite.inc.php';
         break;
+    */
     default:
         die("Database type not configured.  Please edit the config.inc.php file.");
 }
@@ -62,8 +62,12 @@ switch ($config['dbtype']) {
 $connection = connectdb($config);
 unset($config['pass']); // don't let the database password leak out
 require_once 'gtdfuncs.inc.php';
-if (!is_array($_SESSION['config']) || !array_key_exists('title',$_SESSION['config'])) {
-    // if no options are in the session variable, read them in
+global $onInstall;
+if (empty($onInstall) &&
+        (!is_array($_SESSION['config'])
+         || !array_key_exists('title',$_SESSION['config'])
+    ) ) {
+    // if no options are in the session variable, and we're not in the installer, read options from db
     retrieveConfig();
 }
 

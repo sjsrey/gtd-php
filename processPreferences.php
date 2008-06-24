@@ -24,8 +24,7 @@ foreach ($checkboxes as $val)
 $cookievars=array('theme','useLiveEnhancements');
 foreach ($cookievars as $key) {
     $val=$_SESSION[$key]=$newPrefs[$key];
-    setcookie($key,$val,time()+31536000);  // = 60*60*24*365 = 365 days to cookie expiry
-    unset($newPrefs[$key]);
+    setcookie($key,$val,time()+160000000);  // = roughly 4 years to cookie expiry
 }
 
 if ($_SESSION['debug']['debug']) {

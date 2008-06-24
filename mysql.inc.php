@@ -14,7 +14,7 @@ function connectdb($config) {
         
     if (!empty($config['charset'])) {
         $charset=preg_replace('/\W/u','',$config['charset']);
-        mysql_query('SET NAMES '.$charset);
+        rawQuery('SET NAMES '.$charset);
     }
 
     return $connection;
@@ -40,7 +40,7 @@ function getDBtables($db) {
 */
 function doQuery($query,$label=NULL) {
     // parse result into multitdimensional array $result[row#][field name] = field value
-    $reply = mysql_query($query);
+    $reply = rawQuery($query);
     if ($reply===false) {                       // failed query - return FALSE
         $result=false;
     } elseif ($reply===true) {                  // query was not a SELECT OR SHOW, so return number of rows affected
@@ -69,6 +69,13 @@ function doQuery($query,$label=NULL) {
 /*
   ===============================================================
 */
+function rawQuery($query) {
+    $reply = mysql_query($query);
+    return $reply;
+}
+/*
+  ===============================================================
+*/
 function safeIntoDB($value,$key=NULL) {
 	// don't clean arrays - clean individual strings/values. TOFIX: this looks very inefficient, and gets called A LOT
 	if (is_array($value)) {
@@ -89,6 +96,176 @@ function safeIntoDB($value,$key=NULL) {
 		return $value;
 	}
 }
+
+/*
+   ======================================================================================
+   data cleaning functions
+   ======================================================================================
+*/
+function checkErrors($prefix) {
+
+    $q="SELECT COUNT(*) FROM `{$prefix}items`";
+    $items=@mysql_fetch_row(rawQuery($q));
+    if (empty($items)) return false;
+
+    $q="SELECT COUNT(*) FROM `{$prefix}itemattributes` AS `ia`
+            JOIN `{$prefix}itemstatus`     AS `its` USING (`itemId`)
+            WHERE `its`.`dateCompleted` IS NULL
+                AND ia.`nextaction`='y'";
+    $na=@mysql_fetch_row(rawQuery($q));
+
+    $q="SELECT COUNT(*) FROM `{$prefix}itemstatus`
+            WHERE `dateCompleted` IS NULL AND
+            (
+                (`type` NOT IN ('i','m','L','C')
+                    AND `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}lookup`)
+                )
+            OR `type`='' OR `type` IS NULL
+            )";
+    $orphans=@mysql_fetch_row(rawQuery($q));
+
+    $totals=array(
+                     'items'=>$items[0]
+                    ,'next actions'=>$na[0]
+                    ,'orphans'=>$orphans[0]
+                );
+
+    $q="SELECT COUNT(*) FROM `{$prefix}items` where `title`=NULL OR `title`=''";
+    $noTitle=@mysql_fetch_row(rawQuery($q));
+
+    $q="SELECT COUNT(*) FROM `{$prefix}lookup` WHERE
+            `parentId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)
+           OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)";
+    $redundantparent=@mysql_fetch_row(rawQuery($q));
+
+    $q="SELECT COUNT(version) FROM `{$prefix}version`";
+    $excessVersions=@mysql_fetch_row(rawQuery($q));
+
+    $errors=array(   'missing titles'=>$noTitle[0]
+                    ,'redundant parent entries'=>$redundantparent[0]
+                    ,'redundant version tags'=>-1+(int) $excessVersions[0]
+                );
+
+    // remove partial items from database
+    $items1=array('itemstatus'=>'items','items'=>'itemstatus','itemattributes'=>'itemstatus','itemattributes'=>'items');
+    foreach ($items1 as $t1=>$t2) {
+        $q="SELECT COUNT(DISTINCT `itemId`) FROM `{$prefix}$t1` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}$t2`)";
+        $val=@mysql_fetch_row(rawQuery($q));
+        $errors["IDs are in $t1, but not in $t2"]=$val[0];
+    }
+
+    $errors['Parent loops']='';
+    $loops=scanforcircularparents();
+    $sep='';
+    if (count($loops)) foreach ($loops as $id) {
+        $errors['Parent loops'].="$sep<a href='itemReport.php?itemId=$id'>$id</a>";
+        $sep=', ';
+    }
+
+    return array('totals'=>$totals,'errors'=>$errors);
+}
+/*
+   ======================================================================================
+*/
+function backupData($prefix) {
+    $sep="-- *******************************\n";
+    $tables=array('categories','context','itemattributes','items','itemstatus','lookup','preferences','tagmap','timeitems','version');
+    $data='';
+    $header='';
+    $creators='';
+    foreach ($tables as $tab) {
+        $table=$prefix.$tab;
+        $data .=$sep;
+        $header .="TRUNCATE TABLE `$table`;\n";
+		$tableStructure = @mysql_fetch_assoc(rawQuery("SHOW CREATE TABLE $table"));
+        $creators .= "DROP TABLE IF EXISTS `{$table}`; \n".$tableStructure['Create Table'].";\n";
+        $rows = rawQuery("SELECT * FROM `$table`",false);
+        while ($rec = @mysql_fetch_assoc($rows) ) {
+        	$thisdata='';
+        	foreach ($rec as $key => $value)
+        		$thisdata .= ( ($value===NULL) ? 'NULL' : ("'".safeIntoDB($value)."'") ) . ',';
+        	$thisdata = substr($thisdata,0,-1);
+            $data .= "INSERT INTO `$table` VALUES ($thisdata);\n";
+        }
+    }
+    //$data=htmlspecialchars($creators.$sep.$header.$sep.$data,ENT_NOQUOTES);
+    $data=htmlspecialchars($header.$sep.$data,ENT_NOQUOTES,$_SESSION['config']['charset']);
+    return $data;
+}
+/*
+   ======================================================================================
+*/
+function fixData($prefix) {
+
+    foreach ( array( 'deadline'=>'itemattributes'
+                    ,'tickledate'=>'itemattributes'
+                    ,'dateCompleted'=>'itemstatus'
+                    ,'dateCreated'=>'itemstatus'
+                    ,'lastModified'=>'itemstatus'
+             ) as $field=>$table) {
+        // change dates of "0000-00-00" to NULL
+        $q="UPDATE `$prefix{$table}` SET `$field`=NULL where `$field`='0000-00-00'";
+        rawQuery($q);
+    }
+    
+    // remove duplicate version tags
+    $q="CREATE TABLE `{$prefix}versiontemp`
+            SELECT * FROM `{$prefix}version` WHERE `updated` >= ALL
+                (SELECT `updated` FROM `{$prefix}version`)";
+    rawQuery($q);
+    
+    $q="TRUNCATE `{$prefix}version`";
+    rawQuery($q);
+
+    $q="INSERT INTO `{$prefix}version` SELECT * FROM `{$prefix}versiontemp`";
+    rawQuery($q);
+
+    $q="DROP TABLE `{$prefix}versiontemp`";
+    rawQuery($q);
+
+	// remove unwanted line breaks from title field - allowed in 0.7 for goals, but not in 0.8 or later
+    $q="UPDATE `{$prefix}items` SET `title`=replace(replace(`title`,'\r',' '),'\n',' ')";
+    rawQuery($q);
+
+    // it's possible that some legacy items might have no itemstatus: fix that now
+    $q="INSERT INTO `{$prefix}itemstatus` (`itemId`)
+            SELECT `itemId` from `{$prefix}items` WHERE `itemId` NOT IN
+                (SELECT `itemId` FROM `{$prefix}itemstatus`)";
+    rawQuery($q);
+
+    // remove partial items from database
+    $items1=array('itemstatus'=>'items','items'=>'itemstatus','itemattributes'=>'itemstatus','itemattributes'=>'items');
+    foreach ($items1 as $t1=>$t2) {
+        $q="DELETE FROM `{$prefix}$t1` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}$t2`)";
+        rawQuery($q);
+    }
+
+    // repair empty dates for fields where date should not be null
+    $q="update `{$prefix}itemstatus` set `lastModified`=CURDATE() where `lastModified` IS NULL";
+    rawQuery($q);
+    
+    $q="update `{$prefix}itemstatus` set `dateCreated`=CURDATE() where `dateCreated` IS NULL";
+    rawQuery($q);
+
+    // repair impossible dates - by default, MySQL v4.x allowed dates such as 2008-13-51
+    $q="UPDATE `{$prefix}itemstatus`     AS its
+          JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
+             SET its.`dateCompleted`=its.`dateCompleted`+'0 DAY',
+                  ia.`deadline`     = ia.`deadline`     +'0 DAY',
+                  ia.`tickledate`   = ia.`tickledate`   +'0 DAY' ";
+    rawQuery($q);
+
+    // if any titles are blank, call them 'untitled'
+    $q="update `{$prefix}items` set `title`='untitled' where `title`=NULL OR `title`=''";
+    rawQuery($q);
+
+    // now fix lookup
+    $q="DELETE FROM `{$prefix}lookup` WHERE
+            `parentId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)
+           OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)";
+    rawQuery($q);
+
+}
 /*
   ===============================================================
 GENERAL RULES:
@@ -104,7 +281,9 @@ function getsql($querylabel,$values,$sort) {
 
     $values = safeIntoDB($values);
     $prefix=$_SESSION['prefix'];
-	switch ($querylabel) {
+
+    switch ($querylabel) {
+	
 		case "categoryselectbox":
 			$sql="SELECT c.`categoryId`, c.`category`, c.`description`
 				FROM `{$prefix}categories` as c
@@ -119,26 +298,27 @@ function getsql($querylabel,$values,$sort) {
 
         case 'countactionsbycontext':
             $sql="SELECT cn.`name` AS cname,cn.`contextId`,COUNT(x.`itemId`) AS count
-            FROM `{$_SESSION['prefix']}itemattributes` as x
-            JOIN `{$_SESSION['prefix']}itemattributes` as ia USING (`itemId`)
-            JOIN `{$_SESSION['prefix']}itemstatus` as its USING (`itemId`)
-			LEFT OUTER JOIN `{$_SESSION['prefix']}context` AS cn
+            FROM `{$prefix}itemattributes` as x
+            JOIN `{$prefix}itemattributes` as ia USING (`itemId`)
+            JOIN `{$prefix}itemstatus` as its USING (`itemId`)
+			LEFT OUTER JOIN `{$prefix}context` AS cn
 				ON (ia.`contextId` = cn.`contextId`)
             JOIN (
-                SELECT DISTINCT `itemId` FROM `{$_SESSION['prefix']}lookup` AS lu
+                SELECT DISTINCT `itemId` FROM `{$prefix}lookup` AS lu
                     JOIN (SELECT i.`itemId` AS parentId,
                              ia.`isSomeday` AS pisSomeday,
                              ia.`deadline` AS pdeadline,
 				             ia.`tickledate` AS ptickledate,
 				             its.`dateCompleted` AS pdateCompleted
-    					   FROM `{$_SESSION['prefix']}itemattributes` as ia
-    					   JOIN `{$_SESSION['prefix']}items` as i USING (`itemId`)
-    					   JOIN `{$_SESSION['prefix']}itemstatus` as its USING (`itemId`)
+    					   FROM `{$prefix}itemattributes` as ia
+    					   JOIN `{$prefix}items` as i USING (`itemId`)
+    					   JOIN `{$prefix}itemstatus` as its USING (`itemId`)
                         ) AS y USING (`parentId`)
             ) AS lut ON (x.`itemId`=lut.`itemId`)
              {$values['filterquery']}
              GROUP BY ia.`contextId` ORDER BY cn.`name`";
             break;
+            
         case 'countdoneactionsbyweek':
             $sql="SELECT its.`dateCompleted`,
                         truncate(datediff(curdate(),its.`dateCompleted`)/7,0) AS `weeksago`,
@@ -181,41 +361,51 @@ function getsql($querylabel,$values,$sort) {
 				{$values['filterquery']}
                 GROUP BY `duecategory`";
 			break;
+
 		case "countspacecontexts":
 			$sql="SELECT COUNT(*)
 				FROM `{$prefix}context`";
 			break;
+
         case 'counttype':
-            $sql="SELECT COUNT(*) AS cnt FROM `{$prefix}itemstatus` WHERE `type`='{$values['type']}'";
+            $sql="SELECT COUNT(*) AS cnt FROM `{$prefix}itemstatus` AS its {$values['filterquery']}";
             break;
+
 		case "deletecategory":
 			$sql="DELETE FROM `{$prefix}categories`
 				WHERE `categoryId`='{$values['id']}'";
 			break;
+
 		case "deleteitem":
 			$sql="DELETE FROM `{$prefix}items`
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
+			
 		case "deleteitemattributes":
 			$sql="DELETE FROM `{$prefix}itemattributes`
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
+			
 		case "deleteitemstatus":
 			$sql="DELETE FROM `{$prefix}itemstatus`
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
+			
 		case "deletelookup":
 			$sql="DELETE FROM `{$prefix}lookup`
 				WHERE `itemId` ='{$values['itemId']}'";
 			break;
+			
 		case "deletelookupparents":
 			$sql="DELETE FROM `{$prefix}lookup`
 				WHERE `parentId` ='{$values['itemId']}'";
 			break;
+			
 		case "deletespacecontext":
 			$sql="DELETE FROM `{$prefix}context`
 				WHERE `contextId`='{$values['id']}'";
 			break;
+			
 		case "deletetimecontext":
 			$sql="DELETE FROM `{$prefix}timeitems`
 				WHERE `timeframeId`='{$values['id']}'";
@@ -325,7 +515,6 @@ function getsql($querylabel,$values,$sort) {
 				{$values['filterquery']} GROUP BY x.`itemId`
 				ORDER BY {$sort['getitemsandparent']}";
 			break;
-
 
 		case "getitembrief":
 			$sql="SELECT `title`, `description`, `desiredOutcome`

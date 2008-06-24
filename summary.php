@@ -48,7 +48,10 @@ $sm = query("getitems",$values);
 $numbersomeday=($sm)?count($sm):0;
 
 // count inbox items
-$result = query("counttype",array('type'=>'i'));
+$values=array('type'=>'i');
+$values['filterquery']=' WHERE '.sqlparts('typefilter',$values)
+                       .' AND '.sqlparts('pendingitems',$values);
+$result = query("counttype",$values);
 $inboxcount= ($result) ? $result[0]['cnt'] : 0;
 
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
