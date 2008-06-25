@@ -24,20 +24,20 @@ include_once 'header.inc.php';
 	</thead>
 	<tbody>
         <tr><td><a href='http://www.bazon.net/mishoo'>javascript calendar</a></td>
-            <td>&copy; 2002-2005 Mihai Bazon, and released under the <a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>
+            <td>Released under the <a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>, and &copy; 2002-2005 Mihai Bazon
         </td></tr>
         <tr><td><a href='http://kryogenix.org/code/browser/sorttable/'>javascript table-sorter</a></td>
-            <td>A modified version of the free open-source sorter &copy; 1997-2007 Stuart Langridge
+            <td>A modified version of the free open-source sorter, <a href='http://www.kryogenix.org/code/browser/licence.html'>X11/MIT licence</a>, and &copy; 1997-2007 Stuart Langridge
         </td></tr>
         <tr><td><a href='http://www.famfamfam.com/lab/icons/silk/'>Some icons</a></td>
             <td>are from the lovely famfamfam silk series,
-    Creative Commons Attribution 2.5 <a href='http://creativecommons.org/licenses/by/2.5/'>licence</a>
+    Creative Commons Attribution 2.5 <a href='http://creativecommons.org/licenses/by/2.5/'>licence</a> and &copy; 2006 Mark James
         </td></tr>
         <tr><td><a href='http://www.kigkonsult.se/iCalcreator/'>iCalCreator</a></td>
-            <td>creation and processing of iCal files and fancy recurrence handling, &copy; kigkonsult 2007
+            <td>creation and processing of iCal files and fancy recurrence handling, <a href='http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html'>LGPL 2.1</a> and &copy; kigkonsult 2007
         </td></tr>
         <tr><td><a href='http://jquery.com/'>jQuery</a></td>
-            <td>javascript library used by many of the addons, dual MIT/GPL <a href='http://docs.jquery.com/Licensing'>licences</a>
+            <td>javascript library used by many of the addons, dual MIT/GPL <a href='http://docs.jquery.com/Licensing'>licences</a>, and &copy; 2008 John Resig and the jQuery team
         </td></tr>
     </tbody>
 </table>

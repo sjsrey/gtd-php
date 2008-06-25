@@ -96,74 +96,6 @@ function safeIntoDB($value,$key=NULL) {
 		return $value;
 	}
 }
-
-/*
-   ======================================================================================
-   data cleaning functions
-   ======================================================================================
-*/
-function checkErrors($prefix) {
-
-    $q="SELECT COUNT(*) FROM `{$prefix}items`";
-    $items=@mysql_fetch_row(rawQuery($q));
-    if (empty($items)) return false;
-
-    $q="SELECT COUNT(*) FROM `{$prefix}itemattributes` AS `ia`
-            JOIN `{$prefix}itemstatus`     AS `its` USING (`itemId`)
-            WHERE `its`.`dateCompleted` IS NULL
-                AND ia.`nextaction`='y'";
-    $na=@mysql_fetch_row(rawQuery($q));
-
-    $q="SELECT COUNT(*) FROM `{$prefix}itemstatus`
-            WHERE `dateCompleted` IS NULL AND
-            (
-                (`type` NOT IN ('i','m','L','C')
-                    AND `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}lookup`)
-                )
-            OR `type`='' OR `type` IS NULL
-            )";
-    $orphans=@mysql_fetch_row(rawQuery($q));
-
-    $totals=array(
-                     'items'=>$items[0]
-                    ,'next actions'=>$na[0]
-                    ,'orphans'=>$orphans[0]
-                );
-
-    $q="SELECT COUNT(*) FROM `{$prefix}items` where `title`=NULL OR `title`=''";
-    $noTitle=@mysql_fetch_row(rawQuery($q));
-
-    $q="SELECT COUNT(*) FROM `{$prefix}lookup` WHERE
-            `parentId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)
-           OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)";
-    $redundantparent=@mysql_fetch_row(rawQuery($q));
-
-    $q="SELECT COUNT(version) FROM `{$prefix}version`";
-    $excessVersions=@mysql_fetch_row(rawQuery($q));
-
-    $errors=array(   'missing titles'=>$noTitle[0]
-                    ,'redundant parent entries'=>$redundantparent[0]
-                    ,'redundant version tags'=>-1+(int) $excessVersions[0]
-                );
-
-    // remove partial items from database
-    $items1=array('itemstatus'=>'items','items'=>'itemstatus','itemattributes'=>'itemstatus','itemattributes'=>'items');
-    foreach ($items1 as $t1=>$t2) {
-        $q="SELECT COUNT(DISTINCT `itemId`) FROM `{$prefix}$t1` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}$t2`)";
-        $val=@mysql_fetch_row(rawQuery($q));
-        $errors["IDs are in $t1, but not in $t2"]=$val[0];
-    }
-
-    $errors['Parent loops']='';
-    $loops=scanforcircularparents();
-    $sep='';
-    if (count($loops)) foreach ($loops as $id) {
-        $errors['Parent loops'].="$sep<a href='itemReport.php?itemId=$id'>$id</a>";
-        $sep=', ';
-    }
-
-    return array('totals'=>$totals,'errors'=>$errors);
-}
 /*
    ======================================================================================
 */
@@ -194,9 +126,85 @@ function backupData($prefix) {
 }
 /*
    ======================================================================================
+   data cleaning functions
+   ======================================================================================
+*/
+function checkErrors($prefix) {
+
+    $errors=$totals=array();
+    
+    $q="SELECT COUNT(*) FROM `{$prefix}items`";
+    $val=@mysql_fetch_row(rawQuery($q));
+    if (empty($val)) return false;
+    $totals['items']=(int) $val[0];
+    
+    $q="SELECT COUNT(*) FROM `{$prefix}itemattributes` AS `ia`
+            JOIN `{$prefix}itemstatus`     AS `its` USING (`itemId`)
+            WHERE `its`.`dateCompleted` IS NULL
+                AND ia.`nextaction`='y'";
+    $val=@mysql_fetch_row(rawQuery($q));
+    $totals['next actions']=(int) $val[0];
+    
+    $q="SELECT COUNT(*) FROM `{$prefix}itemstatus`
+            WHERE `dateCompleted` IS NULL AND
+            (
+                (`type` NOT IN ('i','m','L','C')
+                    AND `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}lookup`)
+                )
+            OR `type`='' OR `type` IS NULL
+            )";
+    $val=@mysql_fetch_row(rawQuery($q));
+    $totals['orphans']=(int) $val[0];
+
+    /* -----------------------------------------------------
+            count errors
+    */
+    $q="SELECT COUNT(*) FROM `{$prefix}items` where `title`=NULL OR `title`=''";
+    $val=@mysql_fetch_row(rawQuery($q));
+    $errors['missing titles']=(int) $val[0];
+    
+    $q="SELECT COUNT(*) FROM `{$prefix}lookup` WHERE
+            `parentId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)
+           OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)";
+    $val=@mysql_fetch_row(rawQuery($q));
+    $errors['redundant parent entries']=(int) $val[0];
+    
+    $q="SELECT COUNT(version) FROM `{$prefix}version`";
+    $val=@mysql_fetch_row(rawQuery($q));
+    $errors['redundant version tags']=-1+(int) $val[0];
+
+    $q="SELECT COUNT(`itemId`) FROM `{$prefix}itemstatus` WHERE `type` IS NULL OR `type`=''";
+    $val=@mysql_fetch_row(rawQuery($q));
+    $errors['items with no type']=(int) $val[0];
+
+    $q="SELECT COUNT(*) FROM `{$prefix}tagmap` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}itemstatus`)";
+    $val=@mysql_fetch_row(rawQuery($q));
+    $errors['orphaned tags']=(int) $val[0];
+    
+    // partial items, missing from one or more item tables
+    $items1=array('itemstatus'=>'items','items'=>'itemstatus','itemattributes'=>'itemstatus','itemattributes'=>'items');
+    foreach ($items1 as $t1=>$t2) {
+        $q="SELECT COUNT(DISTINCT `itemId`) FROM `{$prefix}$t1` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}$t2`)";
+        $val=@mysql_fetch_row(rawQuery($q));
+        $errors["IDs are in $t1, but not in $t2"]=(int) $val[0];
+    }
+
+    // look for items that are ancestors of themselves
+    $errors['Parent loops']='';
+    $loops=scanforcircularparents();
+    $sep='';
+    if (count($loops)) foreach ($loops as $id) {
+        $errors['Parent loops'].="$sep<a href='itemReport.php?itemId=$id'>$id</a>";
+        $sep=', ';
+    }
+    if ($errors['Parent loops']==='') $errors['Parent loops']=0;
+    
+    return array('totals'=>$totals,'errors'=>$errors);
+}
+/*
+   ======================================================================================
 */
 function fixData($prefix) {
-
     foreach ( array( 'deadline'=>'itemattributes'
                     ,'tickledate'=>'itemattributes'
                     ,'dateCompleted'=>'itemstatus'
@@ -240,11 +248,19 @@ function fixData($prefix) {
         rawQuery($q);
     }
 
-    // repair empty dates for fields where date should not be null
-    $q="update `{$prefix}itemstatus` set `lastModified`=CURDATE() where `lastModified` IS NULL";
+    // repair empty types - make inbox items by default
+    $q="UPDATE `{$prefix}itemstatus` SET `type`='i' WHERE `type` IS NULL OR `type`=''";
     rawQuery($q);
     
-    $q="update `{$prefix}itemstatus` set `dateCreated`=CURDATE() where `dateCreated` IS NULL";
+    // remove orphaned tags
+    $q="DELETE FROM `{$prefix}tagmap` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}itemstatus`)";
+    rawQuery($q);
+
+    // repair empty dates for fields where date should not be null
+    $q="UPDATE `{$prefix}itemstatus` SET `lastModified`=CURDATE() WHERE `lastModified` IS NULL";
+    rawQuery($q);
+    
+    $q="UPDATE `{$prefix}itemstatus` SET `dateCreated`=CURDATE() WHERE `dateCreated` IS NULL";
     rawQuery($q);
 
     // repair impossible dates - by default, MySQL v4.x allowed dates such as 2008-13-51
@@ -256,7 +272,7 @@ function fixData($prefix) {
     rawQuery($q);
 
     // if any titles are blank, call them 'untitled'
-    $q="update `{$prefix}items` set `title`='untitled' where `title`=NULL OR `title`=''";
+    $q="UPDATE `{$prefix}items` SET `title`='untitled' WHERE `title` IS NULL OR `title`=''";
     rawQuery($q);
 
     // now fix lookup
@@ -264,7 +280,6 @@ function fixData($prefix) {
             `parentId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)
            OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)";
     rawQuery($q);
-
 }
 /*
   ===============================================================

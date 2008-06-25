@@ -552,7 +552,7 @@ function getOrphans() { // retrieve all orphans - items without a parent assigne
     =======================================================================
 */
 function escapeChars($str) {  // TOFIX consider internationalization issues with charset coding
-    foreach (array('/\&/u'=>'&amp;','/&amp;hellip;/'=>'&hellip;') as $from=>$to)
+    foreach (array('/\&/u'=>'&amp;','/\& /'=>'&amp; ','/&amp;hellip;/'=>'&hellip;') as $from=>$to)
         $str=preg_replace($from,$to,$str);
 	return $str;
 }
