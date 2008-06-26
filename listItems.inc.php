@@ -128,8 +128,8 @@ switch ($values['type']) {
     case "w" : $show['parent']=TRUE; $show['NA']=TRUE; $checkchildren=FALSE; break;
     case "r" : $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $checkchildren=FALSE; break;
     case "i" : $show['parent']=FALSE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['recurdesc']=FALSE; $show['assignType']=TRUE; $afterTypeChange='listItems.php?type=i';$checkchildren=FALSE; break;
-    case "L" : // as case 'C'
-    case "C" : $show['parent']=TRUE; $show['category']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=FALSE; $show['recurdesc']=FALSE; $show['assignType']=FALSE; $show['checkbox']=FALSE; $checkchildren=TRUE; break;
+    case "L" : // as case 'C', so deliberately flows through
+    case "C" : $show['parent']=TRUE; $show['category']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=FALSE; $show['recurdesc']=FALSE; $show['checkbox']=FALSE; $checkchildren=TRUE; break;
     case "T" : $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['recurdesc']=FALSE; $checkchildren=FALSE; break;
     default  : $typename="Item"; $parentname=$values['ptype']=""; $checkchildren=FALSE;
 }
@@ -415,10 +415,11 @@ if ($result) {
         ,'dateCreated'=>'Date Created'
         ,'lastModified'=>'Last Modified'
         ,'dateCompleted'=>'Date Completed'
-        ,'assignType'=>'Assign'
         ,'checkbox'=>'Complete'
         ,'tags'=>'Tags'
         );
+    if ($show['assignType']) $dispArray['assignType']='Assign';
+    
     if ($_SESSION['debug']['debug']) echo '<pre>values to print:',print_r($maintable,true),'</pre>';
 } // end of: if($result)
 /*

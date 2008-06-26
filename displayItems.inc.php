@@ -1,6 +1,10 @@
 <thead>
     <tr>
-    <?php foreach ($dispArray as $key=>$val) if ($show[$key]) echo "<th class='col-$key'>$val</th>"; ?>
+    <?php foreach ($dispArray as $key=>$val)
+        echo '<th class="col-',$key
+            ,($show[$key])?'':' hidden'
+            ,'">',$val,'</th>';
+    ?>
     </tr>
 </thead>
 <?php if (!empty($tfoot)) echo $tfoot; ?>
@@ -11,9 +15,10 @@ foreach ($maintable as $row) {
         ,(!empty($row['row.class']))?" class='{$row['row.class']}' ":''
         ,">\n";
     $idval="<input type='hidden' name='id' value='{$row['itemId']}' />";
-    foreach ($dispArray as $key=>$val) if ($show[$key]) {
+    foreach ($dispArray as $key=>$val) {
         echo "<td class='col-$key"
             ,(isset($row["$key.class"]))?" ".$row["$key.class"]:''
+            ,($show[$key])?'':' hidden'
             ,"'"
             ,(isset($row["$key.title"]))?(' title="'.$row["$key.title"].'"'):''
             ,">$idval";
