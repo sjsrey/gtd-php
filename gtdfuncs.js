@@ -67,6 +67,19 @@ function keyUpHandler(e) {
 	}
 	return false;
 }
+function manualcellindex(cell) {
+    // IE7 calculates cellIndex incorrectly when some cells are hidden, so a manual cellIndex is required
+    // this won't handle COLSPAN gracefully.  I expect.
+    var i,row,max,testcell,j=0;
+    row=cell.parentNode;
+    max=row.childNodes.length;
+    for (i=0;i<max;i++) {
+        testcell=row.childNodes[i];
+        if (cell===row.childNodes[i]) {return j;}
+        if ((testcell.tagName==='TH') || (testcell.tagName==='TD')) {j++;}
+    }
+    return false;
+}
 // ======================================================================================
 /*
 sortTable amended for GTD-PHP
@@ -473,7 +486,7 @@ GTD.resortTable=function (lnk) {
         re=/ sort(up|down)/;
     max=lnk.childNodes.length;
     td = getParent(lnk,'TD') || getParent(lnk,'TH');
-    column = td.cellIndex;
+    column = manualcellindex(td);
     table = getParent(td,'TABLE');
 
     // Work out a type for the column

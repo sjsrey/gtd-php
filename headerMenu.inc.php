@@ -140,6 +140,7 @@ foreach ($eventhandlers as $addonid=>$thisaddon) {
         finally, echo out the menus
 */
 ?>
+<div id='container'>
 <div id="header">
 	<h1 id='sitename'><a href='index.php'><?php
         echo $_SESSION['config']['title'];

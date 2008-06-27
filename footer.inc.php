@@ -2,6 +2,7 @@
 gtd_handleEvent(_GTD_ON_FOOTER,$pagename);
 include 'showMessage.inc.php'; ?>
 </div><!-- main -->
+</div><!-- container -->
 <?php if(isset($starttime)) {
     list($usec, $sec) = explode(" ", microtime());
     $tottime=(int) (((float)$usec + (float)$sec - $starttime)*1000);
