@@ -1,4 +1,7 @@
 <?php
+function cleanpref($field) {
+    return str_replace(array("\x00","\n","\r","'",'"',"\x1a"),'', stripslashes($field));
+}
 $_SESSION['config']['title']='Updating preferences'; // force it to be non-blank to avoid unnecessary options retrieval in headerDB
 require_once 'headerDB.inc.php';
 ignore_user_abort(true);
@@ -13,6 +16,7 @@ if (isset($_REQUEST['restoredefaults'])) {
 
 $newPrefs=$_POST;
 unset($newPrefs['submit']);
+
 // for each checkbox: if value is set at all, set to TRUE, otherwise set to FALSE
 $checkboxes=explode(',',$newPrefs['checkboxes']);
 unset($newPrefs['checkboxes']);
@@ -60,7 +64,7 @@ foreach ($newPrefs as $key=>$val) {
             break;
             
         case 'sort': // sorting tables in listItems, reportContext, etc
-            $_SESSION['sort'][substr($key,4)]=$val;
+            $_SESSION['sort'][substr($key,4)]=cleanpref($val);
             break;
             
         default: // standard config item
@@ -68,6 +72,8 @@ foreach ($newPrefs as $key=>$val) {
             break;
     }
 }
+
+$config['separator']=cleanpref($config['separator']);
 
 if  (strtolower($_SESSION['config']['charset'])==='utf-8') checkUTF8();
 
