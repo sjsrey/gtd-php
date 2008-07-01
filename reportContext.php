@@ -4,28 +4,29 @@ include_once 'reportContext.inc.php';
 include_once 'header.inc.php';
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
 ?>
-<h3>Spatial Context (row), Temporal Context (column)</h3>
+<p>To move to a particular space-time context, select the number or the context name.</p>
 <table class="datatable" summary="table of contexts" id="contexttable">
+    <caption>Spatial Context (row), Temporal Context (column)</caption>
     <thead><tr>
-        <td>Context</td>
+        <th>Context</th>
         <?php
         $runningtotals=array();
         foreach ($timeframeNames as $tcId => $tname) {
             $runningtotals["t$tcId"]=0;
             ?>
-            <td><a href='editCat.php?field=time-context&amp;id=<?php echo $tcId; ?>'
-                    title='Edit time context'><?php echo makeclean($tname); ?>
-                </a>
-            </td>
+            <th id='thtc<?php
+            echo $tcId;
+            ?>'><?php
+                echo makeclean($tname);
+            ?></th>
         <?php } ?>
-        <td>Total</td>
+        <th>Total</th>
     </tr></thead>
     <tbody><?php foreach ($contextNames as $cid => $cname) {
         $runningtotals["c$cid"]=0;
         ?>
         <tr>
-	       <td><a href='editCat.php?field=context&amp;id=<?php echo $cid; ?>'
-                title='Edit context'><?php echo makeclean($cname); ?></a>
+	       <td><a href='#c<?php echo $cid; ?>' ><?php echo makeclean($cname); ?></a>
            </td>
            <?php foreach ($timeframeNames as $tid => $tname) {
         		if ($count=$matrixcount[$cid][$tid]) {
@@ -59,8 +60,6 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
         </tr>
     </tbody>
 </table>
-<p>To move to a particular space-time context, select the number.<br />
-To edit a context select the context name.</p>
 <?php
 foreach ($contextNames as $cid => $cname) {
     if (!$runningtotals["c$cid"]) continue;

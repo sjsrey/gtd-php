@@ -418,7 +418,7 @@ if ($result) {
         ,'checkbox'=>'Complete'
         ,'tags'=>'Tags'
         );
-    if ($show['assignType']) $dispArray['assignType']='Assign';
+    if ($show['assignType']) $dispArray['assignType']='Process inbox';
     
     if ($_SESSION['debug']['debug']) echo '<pre>values to print:',print_r($maintable,true),'</pre>';
 } // end of: if($result)

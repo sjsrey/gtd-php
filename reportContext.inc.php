@@ -3,6 +3,7 @@ include_once 'headerDB.inc.php';
 function makeContextRow($row) {
     $rowout=array();
     $rowout['itemId']=$row['itemId'];
+    $rowout['type']='a';
 	$rowout['description']=$row['description'];
 	$rowout['recurdesc'] = ($row['recurdesc']=="0")?'&nbsp;':$row['recurdesc'];
     if($row['deadline']) {

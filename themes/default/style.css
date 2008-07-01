@@ -269,7 +269,9 @@ table.submitbuttons tbody,table.submitbuttons td {
     padding:0;
     margin:0;
 }
-
+#contexttable {
+    text-align:center;
+}
 table.submitbuttons input {
     padding:0;
     margin:2px;
@@ -537,4 +539,7 @@ a.sortheader { display: block; }
 }
 .sortdown {
     background-image: url("down.gif");
+}
+.col-checkbox,.col-NA,.col-flags {
+    text-align:center;
 }

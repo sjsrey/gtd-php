@@ -124,6 +124,7 @@ function ts_makeSortable(table) {
     max=firstRow.cells.length;
     for (i=0;i<max;i++) {
         cell = firstRow.cells[i];
+        if (cell.className.match('nosort')) {continue;}
         txt = ts_getInnerText(cell);
         cell.innerHTML = '<a href="#" class="sortheader" '+
         'onclick="GTD.resortTable(this);return false;">' +

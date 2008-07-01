@@ -1,6 +1,6 @@
 <?php
 function cleanpref($field) {
-    return str_replace(array("\x00","\n","\r","'",'"',"\x1a"),'', stripslashes($field));
+    return str_replace(array("\\","\x00","\n","\r","'",'"',"\x1a"),'',$field);
 }
 $_SESSION['config']['title']='Updating preferences'; // force it to be non-blank to avoid unnecessary options retrieval in headerDB
 require_once 'headerDB.inc.php';

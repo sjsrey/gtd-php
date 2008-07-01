@@ -216,6 +216,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
         }
         $maintable[$i]['itemId']=$row['itemId'];
         $maintable[$i]['title']=$row['title'];
+        $maintable[$i]['type']=$childtype;
         $maintable[$i][$descriptionField]=$row['description'];
         $maintable[$i][$outcomeField]=$row['desiredOutcome'];
         $maintable[$i]['recurdesc']=$row['recurdesc'];

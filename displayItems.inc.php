@@ -30,7 +30,7 @@ foreach ($maintable as $row) {
                     echo "&amp;referrer=$afterTypeChange";
                 elseif (!empty($referrer))
                     echo "&amp;referrer=$referrer";
-                echo "'>Set type</a>";
+                echo "'>Process</a>";
                 break;
             case 'category':
                 if (!empty($row[$key.'Id']))
@@ -106,10 +106,9 @@ foreach ($maintable as $row) {
                 break;
             case 'title':
                 $cleaned=makeclean($row[$key]);
-                if ($row['itemId']===null) {
+                if ($row['itemId']===null || (isset($row['type']) && $row['type']==='i')) {
                     echo $cleaned;
                 } else {
-
                     if ($row['itemId'][0]!=='0')
                         echo "<a href='itemReport.php?itemId={$row['itemId']}'>"
                             ,"<img src='themes/{$_SESSION['theme']}/report.gif' class='noprint' alt='Report' title='View Report' /></a>";

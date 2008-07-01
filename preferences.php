@@ -98,7 +98,6 @@ $array=array(
     array('firstDayOfWeek',array(0=>'Sunday',1=>'Monday',2=>'Tuesday',
             3=>'Wednesday',4=>'Thursday',5=>'Friday',6=>'Saturday'
             ),'First day of week'),
-    array('title_suffix','checkbox','Add filename to page title'),
     array('contextsummary','checkbox','In the space contexts report, show only <b>next</b> actions'),
     array('useLiveEnhancements','checkbox','Use Live enhancements'),
     array('reviewProjectsWithoutOutcomes','checkbox','In the weekly review, identify projects without outcomes'),
@@ -134,6 +133,7 @@ makeOptionsTab($array,$config,'Workflow');
 $array=array(
     array('datemask','text','PHP mask for date format'),
     array('charset','text','PHP name of character set (codepage) to use (WARNING: UTF-8 support is experimental)'),
+    array('title_suffix','checkbox','Add filename to page title'),
     array('radioButtonsForNextPage','checkbox','When editing an item, display choice of next page as a radio group rather than as submit buttons'),
     array('useTypesForTimeContexts','checkbox','Bind each time-context to a particular item type (action, project, etc'),
     array('forceAllFields','checkbox','Display all possible fields, when editing any item'),

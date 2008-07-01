@@ -47,10 +47,10 @@ $menu[] = array("link"=>"weekly.php", 'title'=>"Steps in the Weekly Review", 'la
 $menu[] = array("link"=>"orphans.php", 'title'=>"List items without a parent item", 'label' => "Orphaned Items");
 $menu[] = array("link"=>"listItems.php?type=*&amp;tickler=true&amp;liveparents=*", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
 $menu[] = array("link"=>'','label'=>'separator');
-$menu[] = array("link"=>"listItems.php?type=g", 'title'=>"Review {$alltypes['g']}", 'label' => "{$alltypes['g']}");
-$menu[] = array("link"=>"listItems.php?type=o", 'title'=>"Review {$alltypes['o']}", 'label' => "{$alltypes['o']}");
-$menu[] = array("link"=>"listItems.php?type=v", 'title'=>"Review {$alltypes['v']}", 'label' => "{$alltypes['v']}");
-$menu[] = array("link"=>"listItems.php?type=m", 'title'=>"Review {$alltypes['m']}", 'label' => "{$alltypes['m']}");
+$menu[] = array("link"=>"listItems.php?type=g", 'title'=>"Review {$alltypes['g']}s", 'label' => "{$alltypes['g']}s");
+$menu[] = array("link"=>"listItems.php?type=o", 'title'=>"Review {$alltypes['o']}s", 'label' => "{$alltypes['o']}s");
+$menu[] = array("link"=>"listItems.php?type=v", 'title'=>"Review {$alltypes['v']}s", 'label' => "{$alltypes['v']}s");
+$menu[] = array("link"=>"listItems.php?type=m", 'title'=>"Review {$alltypes['m']}s", 'label' => "{$alltypes['m']}s");
 /*
    ----------------------------------------------
 */
@@ -87,7 +87,7 @@ if (!$_SESSION['config']['withholdVersionInfo']) $newbuglink.='?milestone='._GTD
     .' , PHP='.PHP_VERSION.' , Database='.getDBVersion()
     );
 $menu[] = array("link"=>"http://www.gtd-php.com/Users/Documentation", 'title'=>"Documentation", 'label' => "Helpfile Wiki");
-$menu[] = array("link"=>$newbuglink, 'title'=>"Report a bug on the gtd-php trac system", 'label' => "Report a bug");
+$menu[] = array("link"=>$newbuglink, 'title'=>"Report a bug", 'label' => "Report a bug");
 $menu[] = array("link"=>"listkeys.php", 'title'=>"List the shortcut keys", 'label' => "Show shortcut keys");
 $menu[] = array("link"=>"http://toae.org/boards", 'title'=>"Help and development discussions", 'label' => "Support Forum");
 $menu[] = array('link'=>'http://www.gtd-php.com/Developers/Contrib','title'=>'User-contributed enhancements','label'=>'Themes and add-ons');
