@@ -406,7 +406,7 @@ if ($sep!=='<p>') echo "</p>\n";
                             ? " there will be no further recurrence"
                             : " the next recurrence would be $nextdate"
                         ,"</label>";
-                ?><br /><a href='#recurform' <?php
+                ?> <a href='#recurform' <?php
                     if ($_SESSION['useLiveEnhancements'])
                         echo " onclick='return GTD.showrecurbox(\"recur\",this)' ";
                 ?>>Change ...</a>
@@ -422,17 +422,28 @@ if ($sep!=='<p>') echo "</p>\n";
         if ($show['tags']) { ?>
             <div class='formrow'>
                 <label class='left first'>Tags:</label>
-                <input type='text' id='tags' name='tags' size='70' value='<?php echo $values['tagname']; ?>'  onkeypress='return GTD.tagKeypress(event);' /> <a href='#' onclick='return GTD.tagShow(this);'>Show all</a>
-                <br />
-                <span id='taglist'>
-                    <?php foreach ($taglist as $tag)
+                <input type='text' id='tags' name='tags' size='60' value=<?php
+                    echo "'{$values['tagname']}'";
+                    if (empty($taglist)) { 
+                        ?> /><br />
+                        You have no tags yet. You can create some, separated with commas, in the box above.
+                        <?php
+                    } else { 
+                    ?> /> (use commas to separate)
+                    <a href='#' onclick='return GTD.tagShow(this);'>Show all</a>
+                    <br />
+                    <span id='taglist'>
+                        <?php
+                        foreach ($taglist as $tag) {
                             echo "<a class='add' href='#'"
                                 ,($_SESSION['config']['useLiveEnhancements']) ?
                                     " onclick='return GTD.tagAdd(this)'"
                                     : ''
                                 ,">$tag</a>, \n";
-                    ?>
-                </span>
+                        }
+                        ?>
+                    </span>
+                <?php } ?>
             </div>
         <?php } ?>
         

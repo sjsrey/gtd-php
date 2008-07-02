@@ -176,6 +176,7 @@ function doAction($localAction) { // do the current action on the current item; 
             $msg="Tagged '$title' with '{$values['tagname']}'";
             break;
         //-----------------------------------------------------------------------------------
+        case 'time': // deliberately flows through to synonym timecontext
         case 'timecontext':
             $values['timeframeId']=$_POST['timeframeId'];
             query('updateitemtimecontext',$values);

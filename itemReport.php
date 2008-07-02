@@ -140,7 +140,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
         && $item['type']!=='L' && $item['type']!=='C' ) {
         $limit=$_SESSION['config']['ReportMaxCompleteChildren'];
         $footertext[]="<a href='listItems.php?type=$thistype&amp;parentId={$values['parentId']}&amp;completed=true'".
-            (($_SESSION['useLiveEnhancements'])?" onclick='return GTD.toggleHidden(\"$thistableid\",\"table-row\",\"f$thistableid\");'":'').
+            (($_SESSION['useLiveEnhancements'])?" onclick='return GTD.toggleHidden(\"$thistableid\",\"f$thistableid\",\"table-row\");'":'').
             ">".(count($result)-$limit)." more... (".count($result)." items in total)</a>";
     } else {
         $limit=count($result);
@@ -288,7 +288,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
         $plural=($suppressed===1)?'':'s';
 		array_unshift($footertext,
             "<a href='listItems.php?tickler=true&amp;type={$thistype}&amp;parentId={$values['parentId']}'".
-            (($_SESSION['useLiveEnhancements'])?" onclick='return GTD.toggleHidden(\"$thistableid\",\"table-row\",\"f$thistableid\");'":'').
+            (($_SESSION['useLiveEnhancements'])?" onclick='return GTD.toggleHidden(\"$thistableid\",\"f$thistableid\",\"table-row\");'":'').
             ">There $is $also $suppressed tickler ".$typename[$thistype].$plural." not yet due for action</a>"
         );
 	}

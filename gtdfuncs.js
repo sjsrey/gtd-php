@@ -1,50 +1,30 @@
 /*jslint browser: true, eqeqeq: true, nomen: true, undef: true */
-/*global unescape,Calendar */
-/*
-    NB we need unescape, because decodeURIcomponent corrupts some characters in AJAX
-    - but this will change when we get proper i18n/utf8/mbcs handling in gtd-php
+/*global GTD,unescape,Calendar */
+/* global unescape: because decodeURIcomponent corrupts some characters in AJAX
+                    but this will change when we get proper i18n/utf8/mbcs handling in gtd-php
+    
+   global GTD:      object for holding public functions and public variables
+   global Calendar: javascript routine for handling calendar UI, in calendar.js
+   ======================================================================================
 */
-var GTD; // object for holding public functions and public variables
 (function() {
-// ======================================================================================
 var freezediv,focusOn,grabKey,oldTablePosition,SORT_COLUMN_INDEX;
 // ======================================================================================
-function checkForNull(field) {
-    switch (field.type) {
-    	case "text":
-    		var tst=field.value;
-			tst.replace(" ","");
-		    var isblank=(tst === '');
-		    return isblank;
-		case "checkbox":
-			return !field.checked;
-		default:
-			return false;
-	}
-}
-// ======================================================================================
-function checkDate(field,dateFormat) {
-    if (checkForNull(field)) {return true;}
-    // The validity of the format itself should be checked when set in user preferences.  This function assumes that the format passed in is valid.
-
-    // Build the regular expression
-    var format = dateFormat;
-    format = format.replace(/([^mcyd])/,'[$1]');         // Any char that is not m, c, y, or d is a literal
-    format = format.replace(/dd/,'[0-3][0-9]');          // First char of a day can be 0-3, second 0-9
-    format = format.replace(/mm/,'[0-1][0-9]');          // First char of a month can be 0 or 1, second 0-9
-    format = format.replace(/yy/,'[0-9][0-9]');          // Year must be two chars
-    format = format.replace(/cc/,'[0-9][0-9]');          // Century must be two chars
-
-    var dateRegEx = new RegExp(format);
-    var tst=field.value;
-    return (tst.match(dateRegEx));
-}
-// ======================================================================================
 function toggleVis (thisRule) {
+/*
+ * toggle the display value in a particular CSS rule
+ *
+ * thisRule: the DOM object of the CSS rule
+ */
 	thisRule.style.display=(thisRule.style.display==="none")?"block":"none";
 }
 // ======================================================================================
-function keyUpHandler(e) {
+function keyPressHandler(e) {
+/*
+ * event-handler for key presses, for when we are toggling the display of debug-log text
+ *
+ *  e: DOM event object
+ */
     var character,targetNodeName,code;
 	if (!e) {e = window.event;}
 	if (e.target && e.target.nodeName) {
@@ -67,9 +47,15 @@ function keyUpHandler(e) {
 	}
 	return false;
 }
+// ======================================================================================
 function manualcellindex(cell) {
-    // IE7 calculates cellIndex incorrectly when some cells are hidden, so a manual cellIndex is required
-    // this won't handle COLSPAN gracefully.  I expect.
+/*
+ * IE7 calculates cellIndex incorrectly when some cells are hidden,
+ *  so a manual cellIndex is required.
+ * This won't handle COLSPAN gracefully.  I expect.
+ *
+ * cell: the DOM object of the cell we want the index of
+ */
     var i,row,max,testcell,j=0;
     row=cell.parentNode;
     max=row.childNodes.length;
@@ -82,14 +68,11 @@ function manualcellindex(cell) {
 }
 // ======================================================================================
 /*
-sortTable amended for GTD-PHP
-
-Based on code from: http://kryogenix.org/code/browser/sorttable/
-Copyright (c) 1997-2007 Stuart Langridge
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * sortTable amended for GTD-PHP
+ * Based on code from: http://kryogenix.org/code/browser/sorttable/
+ * Copyright (c) 1997-2007 Stuart Langridge
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 function ts_getInnerText(el) {
     var str,cs,l,i;
@@ -210,12 +193,22 @@ function ts_sort_checkbox(a,b) {
     if (aa) {return -100;}
     return 100;
 }
-/* ======================================================================================
+/*
+    end of sorting functions
+    ======================================================================================
     start of declarations of public functions
 */
 if (typeof window.GTD==='undefined') {window.GTD={};}
 GTD=window.GTD;
-GTD.addEvent=function ( obj, type, fn ) { // (c) John Resig - open source
+// ======================================================================================
+GTD.addEvent=function ( obj, type, fn ) {
+/* (c) John Resig - open source
+ * a cross-browser function to attach events to DOM objects
+ *
+ * obj:  the DOM object of the event we are attaching to
+ * type: string containing the name of the event to handle
+ * fn:   the function to be triggered when the event occurs
+ */
     if ( obj.attachEvent ) {
         obj['e'+type+fn] = fn;
         obj[type+fn] = function(){obj['e'+type+fn]( window.event );};
@@ -224,6 +217,11 @@ GTD.addEvent=function ( obj, type, fn ) { // (c) John Resig - open source
 };
 // ======================================================================================
 GTD.completeToday=function (datefield) {
+/*
+ * enter today's date into the completion date field
+ *
+ * datefield: string of the id of the date field
+ */
     var now,m,d,y,newdate;
 	now=new Date();
 	m  = now.getMonth()+1;
@@ -236,7 +234,11 @@ GTD.completeToday=function (datefield) {
     //	return true;
 };
 // ======================================================================================
-GTD.confirmDelete=function(elem) { // confirm that the user wishes to delete the current item in item.php
+GTD.confirmDelete=function(elem) {
+/*
+ * confirm that the user wishes to delete the current item in item.php
+ * elem: 
+ */
    var myform;
    if (confirm("Delete this item?")) {
        myform=document.getElementById('itemform');
@@ -247,11 +249,21 @@ GTD.confirmDelete=function(elem) { // confirm that the user wishes to delete the
 };
 // ======================================================================================
 GTD.debugInit=function (keyToCatch) {
+/*
+ * initialise the key-handler, passing through the user-specified key that will toggle display of debug-logs
+ *
+ * keyToCatch: key to toggle, e.g. 'h'
+ */
 	grabKey=keyToCatch;
-	GTD.addEvent(document,'keypress',keyUpHandler);
+	GTD.addEvent(document,'keypress',keyPressHandler);
 };
 // ======================================================================================
 GTD.filtertoggle=function (which) {
+/*
+ * toggle the enabled/disabled status of form elements in the filter form in listItems
+ *
+ * which:
+ */
     var box,max,isOn,i;
     box=document.getElementById('everything');
     if (which==='all') {
@@ -263,6 +275,7 @@ GTD.filtertoggle=function (which) {
             box.form.elements[i].disabled=isOn;
         }
     }
+    // always force the core filter items to be enabled:
     document.getElementById('type').disabled=
         document.getElementById('needle').disabled=
         document.getElementById('filtersubmit').disabled=
@@ -273,6 +286,14 @@ GTD.filtertoggle=function (which) {
 };
 // ======================================================================================
 GTD.focusOnForm=function (id) {
+/*
+ * pass the focus to a specific item on a form
+ *
+ * id: if present, this will specify the id of the form element to be focussed.
+ *     In its absence, if we've previously called this function, then recall which
+ *     element was focussed then (stored in global variable focusOn), and focus on that again.
+ *     If there is no id, and no focusOn, then the first active form element will receive focus
+ */
     var tst,i;
     if (typeof(id)==='string') {
         document.getElementById(id).focus();
@@ -296,7 +317,12 @@ GTD.focusOnForm=function (id) {
 };
 // ======================================================================================
 GTD.freeze=function (tofreeze) {
-	if (typeof freezediv==='undefined') {
+/*
+ * hide all on-screen elements with a blanket DIV laid over everything
+ *
+ * tofreeze: boolean - true if overlaying blanket, false if removing it
+ */
+	if (typeof freezediv==='undefined') { // blanket DIV doesn't exist yet, so create it
     	freezediv=document.createElement('div');
     	freezediv.id="freezer";
         freezediv.style.display="none";
@@ -307,8 +333,13 @@ GTD.freeze=function (tofreeze) {
 };
 // ======================================================================================
 GTD.initcalendar=function(container) {
+/*
+ * initialise the calendars
+ *
+ * container:
+ */
     var i,id,allinputs,max,firstDayOfWeek,classRegExp;
-    firstDayOfWeek=parseInt((document.getElementById('firstDayOfWeek')).value,10);
+    firstDayOfWeek=parseInt(document.getElementById('firstDayOfWeek').value,10);
     allinputs=document.getElementsByTagName('input');
     classRegExp=new RegExp("(^|\\s)hasdate(\\s|$)");
     max=allinputs.length;
@@ -323,7 +354,15 @@ GTD.initcalendar=function(container) {
     }
 };
 // ======================================================================================
-GTD.ParentSelector=function(ids,titles,types,onetype) { // constructor
+GTD.ParentSelector=function(ids,titles,types,onetype) {
+/*
+ * constructor for the dynamic parent-selector in item.php
+ *
+ * ids:
+ * titles:
+ * types:
+ * onetype:
+ */
     var i,line,type,typename,useTypes,max,
         box=document.getElementById('searchresults');
     this.inSearch=false;
@@ -352,9 +391,12 @@ GTD.ParentSelector=function(ids,titles,types,onetype) { // constructor
         line=this.makeline(this.parentIds[i],this.ptitles[i],type,typename,i,useTypes,onetype);
         box.appendChild(line);
     }
-}; // end of ParentSelector constructor
-// ======================================================================================
+}; 
+// -------------------------------------------------------------------------
 GTD.ParentSelector.prototype.close=function() {
+/*
+ * close the parent-selector
+ */
     document.onkeypress=null;
     document.getElementById('searcher').style.display='none';
     GTD.freeze(false);
@@ -362,16 +404,34 @@ GTD.ParentSelector.prototype.close=function() {
     GTD.focusOnForm(0);
     this.inSearch=false;
 };
-// ======================================================================================
+// -------------------------------------------------------------------------
 GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rownum) {
+/*
+ * user has requested to create a new item, which will become the parent of the current item
+ *
+ * id:
+ * title:
+ * type:
+ * typename:
+ * rownum:
+ */
     document.forms[0].afterCreate.value=
         document.forms[0].referrer.value=
         'item.php?nextId=0&amp;type='+type;
     document.forms[0].submit();
     return false;
 };
-// ======================================================================================
-GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) { // add the clicked parent to the list of the item's parents
+// -------------------------------------------------------------------------
+GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) {
+/*
+ * add the clicked parent to the list of the item's parents
+ *
+ * id:
+ * title:
+ * type:
+ * typename:
+ * rownum:
+ */
     var newrow,anchor,cell,cell1,cell2;
     if (id==='0') {
         this.gocreateparent(id,title,type,typename,rownum);
@@ -412,8 +472,19 @@ GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) 
     document.getElementById("parentlist").appendChild(newrow);
     return true;
 };
-// ======================================================================================
-GTD.ParentSelector.prototype.makeline=function(id,title,type,typename,i,useTypes,onetype) { // display a specific parent, to go into the list of parents
+// -------------------------------------------------------------------------
+GTD.ParentSelector.prototype.makeline=function(id,title,type,typename,i,useTypes,onetype) {
+/*
+ * create a line to go into the list of parents, displaying a specific parent
+ *
+ * id:
+ * title:
+ * type:
+ * typename:
+ * i:
+ * useTypes:
+ * onetype:
+ */
     var line=document.createElement('p'),
         thisi='',
         that=this,
@@ -431,8 +502,13 @@ GTD.ParentSelector.prototype.makeline=function(id,title,type,typename,i,useTypes
     line.style.display=(!useTypes || typename===onetype)?'block':'none';
     return line;
 };
-// ======================================================================================
+// -------------------------------------------------------------------------
 GTD.ParentSelector.prototype.refinesearch=function(needle) {
+/*
+ * refine the list of parents displayed, based on a partial string entered by the user
+ *
+ * needle:
+ */
     var i,max,ok,box,skiptype,skipsearch,
         searchstring=document.getElementById('searcherneedle').value.toLowerCase();
         box=document.getElementById('searchresults');
@@ -454,8 +530,12 @@ GTD.ParentSelector.prototype.refinesearch=function(needle) {
         box.childNodes[i].style.display=(ok)?'block':'none';
     }
 };
-// ======================================================================================
+// -------------------------------------------------------------------------
 GTD.ParentSelector.prototype.search=function() {
+/*
+ * something to do with setting up the auto-search in the parent box
+ *
+ */
     var parenttable,that=this;
     if (this.inSearch) {return false;}
     this.inSearch=true;
@@ -476,13 +556,26 @@ GTD.ParentSelector.prototype.search=function() {
     parenttable.style.position='fixed';
     parenttable.style.left=0;
 };
-// ======================================================================================
+// -------------------------------------------------------------------------
 GTD.removeParent=function (id) {
+/*
+ * remove a parent from the displayed list of parents for this item
+ *
+ * id: string or integer- the itemId of the parent being removed
+ */
     var row=document.getElementById('parentrow'+id);
     row.parentNode.removeChild(row);
 };
-// ======================================================================================
+/*
+    // end of ParentSelector constructor
+    ======================================================================================
+*/
 GTD.resortTable=function (lnk) {
+/*
+ * user has clicked on a column-heading: sort the table by that column
+ *
+ * lnk: the element that the user clicked
+ */
     var i,j,max,td,column,table,itm,itmh,firstRow,newRows,allth,ci,sortfn,
         re=/ sort(up|down)/;
     max=lnk.childNodes.length;
@@ -538,6 +631,12 @@ GTD.resortTable=function (lnk) {
 };
 // ======================================================================================
 GTD.showrecurbox=function (what,where) {
+/*
+ * populates and displayes the custom recurrence box on item.php
+ *
+ * what:
+ * where:
+ */
     var startdate,t,mth,wk,dte,day,daynum,startday,form,days,recurbox,newhome;
     recurbox=document.getElementById(what);
     newhome=where.parentNode;
@@ -575,6 +674,11 @@ GTD.showrecurbox=function (what,where) {
 };
 // ======================================================================================
 GTD.tagAdd=function(newtaglink) {
+/*
+ * in item.php, user has clicked on one of the tag names: add it to the list of tags for this object
+ *
+ * newtaglink: DOM object of tag being clicked
+ */
     var tagfield,currentTags,newtag,testtags,rawval;
     tagfield=document.getElementById('tags');
     rawval=tagfield.value;
@@ -590,35 +694,11 @@ GTD.tagAdd=function(newtaglink) {
     return false;
 };
 // ======================================================================================
-GTD.tagKeypress=function(e) {
-    var pressed,key;
-    if (window.event) {pressed=window.event.keyCode;} else {pressed=e.charCode;}
-    key = String.fromCharCode(pressed);
-
-    /* if we're currently offering a tag in a tooltip,
-        check to see if enter or tab was pressed, and if so, add the tooltip tag
-        to the field, and return false
-        if esc pressed, then dismiss the tooltip
-    */
-        
-    
-    if (key!==' ' && key!==',') {
-        // get everything in field after last comma
-
-        // trim it
-        
-        // prepend comma
-        
-        // seek match in GTD.tags
-
-        // if found, offer labels in tooltip, with first one highlighted
-        
-        // need to grab mouse events on tooltip too
-    }
-    return true;
-};
-// ======================================================================================
 GTD.tagShow=function(anchor) {
+/*
+ * user is toggling the display of all tags in item.php
+ * anchor: the DOM object of the link being clicked
+ */
     var taglist=document.getElementById("taglist");
     if (taglist.style.display==="inline") {
         document.getElementById("taglist").style.display="none";
@@ -630,7 +710,15 @@ GTD.tagShow=function(anchor) {
     return false;
 };
 // ======================================================================================
-GTD.toggleHidden=function (parent,show,link) {
+GTD.toggleHidden=function (parent,link,show) {
+/*
+ * Reveals contents of a hidden section of an itemReport table,
+ *  e.g. tickled items, or all completed items
+ *
+ * parent: id of table
+ * link:  the id of the element that the user pressed to reveal the section - we can dispose of that element, now
+ * show: string indicating whether revealed item is a block, table-row, inline, block-inline, etc.
+ */
     var tab=document.getElementById(parent).getElementsByTagName("*");
     for (var i=0;i<tab.length;i++) {
         if (tab[i].className==='togglehidden') {tab[i].style.display=show;}
@@ -640,11 +728,53 @@ GTD.toggleHidden=function (parent,show,link) {
 };
 // ======================================================================================
 GTD.validate=function (form) {
+/*
+ * validate entries on a form, when it is submitted
+ *
+ * form: DOM object of the form to be validated
+ */
+    //------------------------------------------------------------------------
+    function checkForNull(field) {
+    /*
+     * utility function for validate to check whether a field is empty
+     */
+        switch (field.type) {
+        	case "text":
+        		var tst=field.value;
+    			tst.replace(" ","");
+    		    var isblank=(tst === '');
+    		    return isblank;
+    		case "checkbox":
+    			return !field.checked;
+    		default:
+    			return false;
+    	}
+    }
+    //------------------------------------------------------------------------
+    function checkDate(field,dateFormat) {
+    /*
+     * utility function for validate to check a date is valid
+     */
+        if (checkForNull(field)) {return true;}
+        // The validity of the format itself should be checked when set in user preferences.  This function assumes that the format passed in is valid.
+
+        // Build the regular expression
+        var format = dateFormat;
+        format = format.replace(/([^mcyd])/,'[$1]');         // Any char that is not m, c, y, or d is a literal
+        format = format.replace(/dd/,'[0-3][0-9]');          // First char of a day can be 0-3, second 0-9
+        format = format.replace(/mm/,'[0-1][0-9]');          // First char of a month can be 0 or 1, second 0-9
+        format = format.replace(/yy/,'[0-9][0-9]');          // Year must be two chars
+        format = format.replace(/cc/,'[0-9][0-9]');          // Century must be two chars
+
+        var dateRegEx = new RegExp(format);
+        var tst=field.value;
+        return tst.match(dateRegEx);
+    }
+    //------------------------------------------------------------------------
     var thisfield,checkType,itemErrorMessage,itemValue,passed,i,formValid,
         formErrorMessage,requiredList,requiredItem,max,dateFormat,fieldRequires;
 
     // Ensure validate is being used correctly
-
     if(typeof form.elements.required === 'undefined') {
         document.getElementById("errorMessage").innerHTML="Error: Validate function needs 'required' form field.";
         return false;
@@ -706,6 +836,9 @@ GTD.validate=function (form) {
 };
 // ======================================================================================
 GTD.addEvent(window,'load', function() {
+/*
+ * functions to be called when everything is loaded
+ */
     GTD.focusOnForm();
     sortables_init();
     if (typeof GTD.debugKey!=='undefined') {GTD.debugInit(GTD.debugKey);}
