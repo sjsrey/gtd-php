@@ -6,7 +6,6 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
 ?>
 <p>To move to a particular space-time context, select the number or the context name.</p>
 <table class="datatable" summary="table of contexts" id="contexttable">
-    <caption>Spatial Context (row), Temporal Context (column)</caption>
     <thead><tr>
         <th>Context</th>
         <?php

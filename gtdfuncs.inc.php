@@ -362,14 +362,21 @@ function nextScreen($url) {
   ==============================================================================
         functions for handling levels of the hierarchy
 */
-function getTypes($type=false) {
+function getTypes($type=false,$ptype=null) {
     if ($type===false)
         $out=$_SESSION['hierarchy']['names'];
     elseif (empty($type))
         $out='item without a type assigned';
     elseif ($type==='*')
         $out='item';
-    else
+    elseif ($type==='T') {               // ugly, but at least puts a plaster on the wound
+        if ($ptype==='C')
+            $out='checklist item';
+        elseif ($ptype==='L')
+            $out='list item';
+        else
+            $out = '(check)list item';
+    } else
         $out=$_SESSION['hierarchy']['names'][$type];
     return $out;
 }

@@ -56,9 +56,6 @@ $show['scriptparents']= $_SESSION['useLiveEnhancements'] && !empty($values['ptyp
 $show['dateCreated']=!empty($values['itemId']);
 $show['changetypes']=    in_array($values['type'],$canchangetypesafely)
                       && $values['itemId'] ;
-$typename=   ( $nextaction ? 'Next ' : '')
-           . ( ($values['isSomeday']==="y") ? "Someday/Maybe" : getTypes($values['type']) );
-$title=($values['itemId']>0)?("Edit $typename: ".makeclean($values['title'])):"New $typename";
 
 if (!$values['itemId']) {
     $values['tickledate']= ($show['tickledate'] && !empty($_REQUEST['tickledate']))
@@ -81,6 +78,13 @@ if (!$values['itemId']) {
         }
     }
 }
+$typename=   ( $nextaction ? 'Next ' : '')
+           . ( ($values['isSomeday']==="y")
+                ? "Someday/Maybe"
+                : getTypes($values['type'],(count($parents) ? $parents[0]['ptype'] : null) )
+            );
+$title=($values['itemId']>0)?("Edit $typename: ".makeclean($values['title'])):"New $typename";
+
 if ($parents)
     foreach ($parents as $parent)
         $values['parentId'][]=$parent['parentId'];

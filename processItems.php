@@ -131,6 +131,7 @@ function doAction($localAction) { // do the current action on the current item; 
 			break;
         //-----------------------------------------------------------------------------------
         case 'context':
+        case 'space':
             $values['contextId']=$_POST['contextId'];
             query('updateitemcontext',$values);
             query("touchitem",$values);
@@ -643,8 +644,8 @@ function nextPage() { // set up the forwarding to the next page
             $header="Content-Type: text/xml; charset=".$_SESSION['config']['charset'];
             header($header);
         }
-        echo '<?xml version="1.0" ?',">\n<gtdphp>\n"; // encoding="{$_SESSION['config']['charset']}"
-        echo "<values>\n";
+        echo '<?xml version="1.0" ?',"><gtdphp>"; // encoding="{$_SESSION['config']['charset']}"
+        echo "<values>";
         foreach ($values as $key=>$val) {
             echo "<$key>";
             switch ($key) {
@@ -662,7 +663,7 @@ function nextPage() { // set up the forwarding to the next page
                     echo '<![CDATA[',makeclean($val),']]>';
                     break;
             }
-            echo "</$key>\n";
+            echo "</$key>";
         }
         echo '</values>';
 

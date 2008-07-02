@@ -73,7 +73,6 @@ if($cnt>1) {
 /*
     Got previous and next projects
 ----------------------------------------------------------*/
-$typename=getTypes(); //set item labels
 
 $afterTypeChange="itemReport.php?itemId={$values['itemId']}";
 if (empty($item['parentId'])) {
@@ -100,7 +99,8 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
     $wasNAonEntry=$footertext=$dispArray=$maintable=array();
 
     $thistableid="i$comp$thistype"; // set the unique id for each table
-    $sectiontitle=(($comp==="y")?'Completed ':'').$typename[$thistype].'s';
+    $thischildtype=getTypes($thistype,$item['type']);
+    $sectiontitle=(($comp==="y")?'Completed ':'').$thischildtype.'s';
     /* -------------------------------------
         Query: select children for this type
     */
@@ -289,7 +289,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
 		array_unshift($footertext,
             "<a href='listItems.php?tickler=true&amp;type={$thistype}&amp;parentId={$values['parentId']}'".
             (($_SESSION['useLiveEnhancements'])?" onclick='return GTD.toggleHidden(\"$thistableid\",\"f$thistableid\",\"table-row\");'":'').
-            ">There $is $also $suppressed tickler ".$typename[$thistype].$plural." not yet due for action</a>"
+            ">There $is $also $suppressed tickler $thischildtype$plural not yet due for action</a>"
         );
 	}
     /*  finished table footer
@@ -329,7 +329,7 @@ if(isset($nextId))
     $titlefull.= " <a href='itemReport.php?itemId=$nextId' title='Next: "
         .makeclean($nexttitle)."'> &gt; </a> \n";
 
-$titlefull.= "</span>".$typename[$item['type']]." Report: "
+$titlefull.= "</span>".getTypes($item['type'])." Report: "
     .makeclean($item['title']);
 
 if ($item['isSomeday']==='y')
@@ -408,7 +408,8 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
     $footertext  =$Afootertext[$comp][$thistype]  ;
     $dispArray   =$AdispArray[$comp][$thistype]   ;
     $maintable   =$Amaintable[$comp][$thistype]   ;
-    $noEntries   =$AnoEntries[$comp][$thistype]    ;
+    $noEntries   =$AnoEntries[$comp][$thistype]   ;
+
 
     if (count($maintable)) {
         ?>
@@ -444,7 +445,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
 	   ?>
 <p>
 <input type="reset" class="button" />
-<input type="submit" class="button" value="Update marked <?php echo $typename[$thistype]; ?>s" name="submit" />
+<input type="submit" class="button" value="Update marked <?php echo getTypes($thistype,$item['type']); ?>s" name="submit" />
 <input type='hidden' name='referrer' value='<?php echo "{$pagename}.php?itemId={$values['itemId']}"; ?>' />
         <?php if ($item['type']==='C') { ?>
 <button type='submit' name='clearchecklist' value='y'>Clear Checklist</button>
