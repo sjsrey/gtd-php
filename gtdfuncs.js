@@ -67,6 +67,10 @@ function manualcellindex(cell) {
     return false;
 }
 // ======================================================================================
+function getDocPath(){
+    return window.location.pathname.replace(/^(.*\/)[^\/]*$/,"$1");
+}
+// ======================================================================================
 /*
  * sortTable amended for GTD-PHP
  * Based on code from: http://kryogenix.org/code/browser/sorttable/
@@ -246,6 +250,57 @@ GTD.confirmDelete=function(elem) {
        myform.submit();
    }
    return false;
+};
+// ======================================================================================
+GTD.cookieGet=function (name,path) {
+/* TODO - confirm path
+ * get a cookie
+ * returns: value of the cookie
+ *
+ * name: name of the cookie
+ */
+    if (!document.cookie) {return null;}
+    var i,max,cookies,
+        testval=name+'=',
+        namelen=testval.length;
+
+    cookies = document.cookie.split(';');
+    max=cookies.length;
+    for (i=0; i<max; i++) {
+        var cookie = cookies[i].replace(/^ *(.*) *$/,"$1");
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, namelen)===testval) {
+            return decodeURIComponent(cookie.substring(namelen));
+        }
+    }
+    return null;
+};
+//--------------------------------------------------
+GTD.cookieSet=function (name,value,path,maxagedays) {
+/*
+ * Set a cookie
+ *
+ * name: name of the cookie
+ * value: value of the cookie
+ * path: path of the cookie (defaults to current path)
+ * maxagedays: number of days until cookie should expire (defaults to 1 year)
+ */
+    var maxage,expires;
+    if (path===undefined) {path=getDocPath();}
+    if (maxagedays===undefined) {maxagedays=365;}
+    expires=new Date();
+    maxage=maxagedays * 24 * 60 * 60;
+    if (value === null) {
+        value = '';
+        maxage = -1;
+        expires.setTime(expires.getTime() - 1);
+    } else {
+        expires.setTime(expires.getTime() + maxage*1000);
+    }
+    document.cookie = name+'='+encodeURIComponent(value)+
+        '; max-age='+maxage+
+        '; expires='+expires.toGMTString()+
+        '; path='+path;
 };
 // ======================================================================================
 GTD.debugInit=function (keyToCatch) {
