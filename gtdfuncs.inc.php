@@ -2,6 +2,55 @@
 include_once 'gtd_constants.inc.php';
 /*
    ======================================================================================
+   functions for logging debug text in a secure, HTML-valid form
+*/
+if (empty($_SESSION['debug']['debug'])) {
+    function log_value(){}
+    function log_text(){}
+    function log_array(){}
+} else {
+    function log_array($varlist) { // dump a variable name and its contents
+        global $log_count;
+        if (!isset($log_count)) $log_count=0;
+
+    	if (!is_array($varlist)) $varlist=func_get_args();
+
+        if(array_key_exists('tag',$varlist)) {
+            $tag=$varlist['tag'];
+            unset($varlist['tag']);
+        } else $tag='pre'; // default tag to wrap debug-log is PRE
+
+        foreach ($varlist as $pretext=>$varname) {
+            echo "<$tag class='debug'>"
+                ,"<a name='log$log_count' id='log$log_count'></a>"
+                ,($log_count) ? '<a href="#log'.(-1+$log_count).'">&uarr;</a>' : ''
+                ,' <a href="#log',++$log_count,'">&darr;</a> ';
+
+            if (gettype($pretext)==='string') {
+                $truevar=$varname;
+                echo htmlentities($pretext,ENT_NOQUOTES);
+            } else {
+                $pretext=$varname;
+                eval("\$truevar=(isset($varname))?$varname:\$GLOBALS['".substr($varname,1)."'];");
+            }
+            echo '<b>',htmlentities($pretext,ENT_NOQUOTES),'</b> '
+                ,htmlentities(print_r($truevar,true),ENT_NOQUOTES)  //,$_SESSION['config']['charset'])
+        	    ,"</$tag>";
+        }
+    }
+    //-------------------------------------------------
+    function log_value($name,$value){
+        log_array(array($name=>$value));
+    }
+    //-------------------------------------------------
+    function log_text($text){
+        log_array(array('tag'=>'p',$text=>''));
+    }
+}
+/*
+    end of functions for logging debug text
+   ======================================================================================
+   functions to identify loops in the lookup table: items that are ancestors of themselves
 */
 function scanforcircular1tree($map,&$loops,$item,$stack=array() ) { // recursive function used by scanforcircularparents
     if (array_key_exists($item,$loops)) // we've processed this item before, so don't do it again
@@ -20,15 +69,12 @@ function scanforcircular1tree($map,&$loops,$item,$stack=array() ) { // recursive
             scanforcircular1tree($map,$loops,$child,$stack);
     if (!array_key_exists($item,$loops)) $loops[$item]=false;
     return true;
-} // end of scan1tree recursive function
+}
 //-------------------------------------------------
 function scanforcircularandmap($parents,&$map,&$ids,$seeds=null) { // get the map of all parent->child relationships
-    if ($_SESSION['debug']['debug']) {
-        echo "<pre>Calling scanforcircularandmap with arguments:"
-            ,"<br />seeds=",print_r($seeds,true)
-            ,"<br />parents=",print_r($parents,true)
-            ,"</pre>";
-    }
+    log_array(array(
+        'Calling scanforcircularandmap with seeds'=>$seeds
+        ,'and parents'=>$parents));
     $map=$bad=$looplist=array();
     if ($parents) foreach ($parents as $pair)
         $children[]=$map[$pair['parentId']][] = $pair['itemId'];
@@ -39,12 +85,9 @@ function scanforcircularandmap($parents,&$map,&$ids,$seeds=null) { // get the ma
     }
     // check the descendants of each of those seeds
     foreach ($seeds as $test) {
-        if ($_SESSION['debug']['debug']) {
-            echo "<pre>Calling scanforcircular1tree with arguments:"
-                ,"<br />seed=",print_r($test,true)
-                ,"<br />looplist=",print_r($looplist,true)
-                ,"</pre>";
-        }
+        log_array(array(
+            "Calling scanforcircular1tree with arguments: seed="=>$test
+            ,'and looplist'=>$looplist));
         scanforcircular1tree($map,$looplist,$test);
     }
     //return the list of bad items
@@ -59,15 +102,9 @@ function scanforcircularparents() {
     return scanforcircularandmap($parents,$map,$children);
 }
 /*
+    end of functions to identify loops in the lookup table: items that are ancestors of themselves
    ======================================================================================
-*/
-function escapeforjavascript($txt) {
-    foreach (array('/\\/'=>'\\\\' , '"'=>'\\"' , '/'=>'\\/') as $from=>$to)
-        $txt=ereg_replace($from,$to,$txt);
-    return $txt;
-}
-/*
-   ======================================================================================
+   event-handling functions
 */
 function getEvents($addon) {
     if (   (@include $_SESSION['addonsdir'].$addon.'/setup.inc.php')===false
@@ -88,9 +125,7 @@ function getEvents($addon) {
     $_SESSION['addons'][$addon]=true;
     return $triggercount;
 }
-/*
-   ======================================================================================
-*/
+//-------------------------------------------------
 function gtd_handleEvent($event,$page) {
     $eventhandlers=@array_merge((array)$_SESSION['addons'][$event]['*'],
                                 (array)$_SESSION['addons'][$event][$page]
@@ -104,39 +139,22 @@ function gtd_handleEvent($event,$page) {
     }
 }
 /*
+    end of event-handling functions
    ======================================================================================
+    functions to prettify text, and remove possibly-harmful elements
 */
-function query($querylabel,$values=NULL,$sort=NULL) {
-    if (!empty($_SESSION['debug']['debug'])) {
-        echo "<p class='debug'><b>Query label: ".$querylabel."</b></p>"
-            ,"<pre>Values: ",print_r($values,true)
-            ,"<br />Sort: ",print_r($sort,true),"</pre>";
-    }
-
-    if (empty($sort)) {
-        $sort=$_SESSION['sort'];
-    }
-    //grab correct query string from query library array
-    //values automatically inserted into array
-    $query=getsql($querylabel,$values,$sort);
-
-    // for testing only: display fully-formed query
-    if ($_SESSION['debug']['debug']) echo "<p class='debug'>Query: $query</p>";
-
-    //perform query
-	$result=doQuery($query,$querylabel);
-
-    //for developer testing only, print result array
-    if ($_SESSION['debug']['debug']) {
-        echo "<pre>Result: ";
-        print_r($result);
-        echo "</pre>";
-        }
-    return $result;
+function escapeforjavascript($txt) {
+    foreach (array('/\\/'=>'\\\\' , '"'=>'\\"' , '/'=>'\\/') as $from=>$to)
+        $txt=ereg_replace($from,$to,$txt);
+    return $txt;
 }
-/*
-   ======================================================================================
-*/
+//-------------------------------------------------
+function escapeChars($str) {  // TOFIX consider internationalization issues with charset coding
+    foreach (array('/\&/u'=>'&amp;','/\& /'=>'&amp; ','/&amp;hellip;/'=>'&hellip;') as $from=>$to)
+        $str=preg_replace($from,$to,$str);
+	return $str;
+}
+//-------------------------------------------------
 function makeClean($textIn) {
     if (is_array($textIn)) {
         $cleaned=array();
@@ -146,9 +164,7 @@ function makeClean($textIn) {
     }
 	return $cleaned;
 }
-/*
-   ======================================================================================
-*/
+//-------------------------------------------------
 function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the visible part of a string, excluding html tags, is no longer than specified) 	// TOFIX -  we don't handle "%XX" strings yet.
 	// constants - might move permittedTags to config file
     $permittedTags=array(
@@ -213,74 +229,7 @@ function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the vis
 	$outStr=nl2br(escapeChars($outStr));
 	return($outStr);
 }
-/*
-   ======================================================================================
-*/
-function getTickleDate($deadline,$days) { // returns unix timestamp of date when tickle becomes active
-	$dm=(int)substr($deadline,5,2);
-	$dd=(int)substr($deadline,8,2);
-	$dy=(int)substr($deadline,0,4);
-	// relies on PHP to sanely and clevery handle dates like "the -5th of March" or "the 50th of April"
-	$remind=mktime(0,0,0,$dm,($dd-$days),$dy);
-	return $remind;
-}
-/*
-   ======================================================================================
-*/
-function nothingFound($message, $prompt=NULL, $yeslink=NULL, $nolink="index.php"){
-        //Give user ability to create a new entry, or go back to the index.
-        echo "<h4>$message</h4>";
-        if($prompt)
-            echo "<p>$prompt;<a href='$yeslink'> Yes </a><a href='$nolink'>No</a></p>\n";
-}
-/*
-   ======================================================================================
-*/
-function categoryselectbox($values) {
-    $result = query("categoryselectbox",$values);
-    $cashtml='<option value="0">--</option>'."\n";
-    if ($result) {
-        foreach($result as $row) {
-            $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.makeclean($row['description']).'"';
-            if($row['categoryId']==$values['categoryId']) $cashtml .= ' selected="selected"';
-            $cashtml .= '>'.makeclean($row['category'])."</option>\n";
-            }
-        }
-    return $cashtml;
-    }
-/*
-   ======================================================================================
-*/
-function contextselectbox($values) {
-    $result = query("spacecontextselectbox",$values);
-    $cshtml='<option value="0">--</option>'."\n";
-    if ($result) {
-            foreach($result as $row) {
-            $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.makeclean($row['description']).'"';
-            if($row['contextId']==$values['contextId']) $cshtml .= ' selected="selected"';
-            $cshtml .= '>'.makeclean($row['name'])."</option>\n";
-            }
-        }
-    return $cshtml;
-    }
-/*
-   ======================================================================================
-*/
-function timecontextselectbox($values) {
-    $result = query("timecontextselectbox",$values);
-    $tshtml='<option value="0">--</option>'."\n";
-    if ($result) {
-        foreach($result as $row) {
-            $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.makeclean($row['description']).'"';
-            if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' selected="selected"';
-            $tshtml .= '>'.makeclean($row['timeframe'])."</option>\n";
-            }
-        }
-    return $tshtml;
-    }
-/*
-   ======================================================================================
-*/
+//-------------------------------------------------
 function prettyDueDate($dateToShow,$daysdue,$thismask=null) {
     if (is_null($thismask)) $thismask=$_SESSION['config']['datemask'];
 	$retval=array('class'=>'','title'=>'');
@@ -312,55 +261,94 @@ function prettyDueDate($dateToShow,$daysdue,$thismask=null) {
 	return $retval;
 }
 /*
+    end of functions to prettify text, and remove possibly-harmful elements
    ======================================================================================
+   functions to generate HTML for SELECT boxes
 */
-function getVarFromGetPost($varName,$default='') {
-	$retval=(isset($_GET[$varName]))?$_GET[$varName]:( (isset($_POST[$varName]))?$_POST[$varName]:$default );
-	return $retval;
+function categoryselectbox($values) {
+    $result = query("categoryselectbox",$values);
+    $cashtml='<option value="0">--</option>'."\n";
+    if ($result) {
+        foreach($result as $row) {
+            $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.makeclean($row['description']).'"';
+            if($row['categoryId']==$values['categoryId']) $cashtml .= ' selected="selected"';
+            $cashtml .= '>'.makeclean($row['category'])."</option>\n";
+            }
+        }
+    return $cashtml;
 }
-/*
-   ======================================================================================
-*/
-function getAbsolutePath() {
-    global $thisurl;
-    $out='http'
-        .((empty($_SERVER['HTTPS']) || $_SERVER['HTTPS']==='off')?'':'s')
-                ."://"
-                .$_SERVER['HTTP_HOST']
-                .rtrim(dirname($thisurl['path']), '/\\').'/';
-    return $out;
+//-------------------------------------------------
+function contextselectbox($values) {
+    $result = query("spacecontextselectbox",$values);
+    $cshtml='<option value="0">--</option>'."\n";
+    if ($result) {
+            foreach($result as $row) {
+            $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.makeclean($row['description']).'"';
+            if($row['contextId']==$values['contextId']) $cshtml .= ' selected="selected"';
+            $cshtml .= '>'.makeclean($row['name'])."</option>\n";
+            }
+        }
+    return $cshtml;
 }
-/*
-   ======================================================================================
-*/
-function nextScreen($url) {
-    /* TOFIX Session ID is not passed with Location header
-            even if session.use_trans_sid is enabled.
-            It must by passed manually using SID constant: strip_tags(SID);
-            Need to check whether it's stored in cookie (preferable).
-            OR
-            we could just insist that session cookies are enabled: that's not
-            too unreasonable. (note by Andrew)
-    */
-    $cleanurl=htmlspecialchars($url);
-    if ($_SESSION['debug']['wait']) {
-        echo "<p>Next screen is <a href='$cleanurl'>$cleanurl</a> - would be auto-refresh in non-debug mode</p>";
-    }elseif (headers_sent()) {
-        echo "<META HTTP-EQUIV='Refresh' CONTENT='0;url=$cleanurl' />\n"
-            ,"<script type='text/javascript'>window.location.replace('$cleanurl');</script>\n"
-            ,"</head><body><a href='$cleanurl'>Click here to continue on to $cleanurl</a>\n";
-    }elseif (empty($_SESSION['config']['basepath'])) {
-        $header="Location: ".getAbsolutePath().$url;
-        header($header);
-        exit;
-    } else {
-        header("Location: {$_SESSION['config']['basepath']}$url");
-        exit;
+//-------------------------------------------------
+function timecontextselectbox($values) {
+    $result = query("timecontextselectbox",$values);
+    $tshtml='<option value="0">--</option>'."\n";
+    if ($result) {
+        foreach($result as $row) {
+            $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.makeclean($row['description']).'"';
+            if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' selected="selected"';
+            $tshtml .= '>'.makeclean($row['timeframe'])."</option>\n";
+            }
+        }
+    return $tshtml;
+}
+//----------------------------------------------------------------
+function parentselectbox($values) {
+    //----------------------------------------
+    function makeOption($row,$selected) {
+        $cleandesc=makeclean($row['description']);
+        $cleantitle=makeclean($row['title']);
+        if ($row['isSomeday']==="y") {
+            $cleandesc.=' (Someday)';
+            $cleantitle.=' (S)';
+        }
+        $seltext = ($selected)?' selected="selected"':'';
+        $out = "<option value='{$row['itemId']}' title='$cleandesc' $seltext>$cleantitle</option>";
+        return $out;
     }
+    //----------------------------------------
+    $pshtml='';
+    $parents=array();
+    if (is_array($values['parentId']))
+        foreach ($values['parentId'] as $key) $parents[$key]=true;
+    else
+        $parents[$values['parentId']]=true;
+    log_value('parents',$parents);
+
+    $result = query("parentselectbox",$values);
+    if ($result)
+        foreach($result as $row) {
+            if(empty($parents[$row['itemId']])) {
+                $pshtml .=makeOption($row,false)."\n";
+            } else {
+                $pshtml =makeOption($row,true)."\n".$pshtml;
+                $parents[$row['itemId']]=false;
+            }
+        }
+    foreach ($parents as $key=>$val) if ($val) {
+        // $key is a parentId which wasn't found for the drop-down box, so need to add it in
+        $values['itemId']=$key;
+        $row=query('selectitemshort',$values);
+        if ($row) $pshtml = makeOption($row[0],$parents)."\n".$pshtml;
+    }
+    $pshtml="<option value='0'>--</option>\n".$pshtml;
+    return $pshtml;
 }
 /*
+    end of functions to generate HTML for SELECT boxes
   ==============================================================================
-        functions for handling levels of the hierarchy
+    functions for handling levels of the hierarchy
 */
 function getTypes($type=false,$ptype=null) {
     if ($type===false)
@@ -453,7 +441,7 @@ function mirrorParentTypes() {
     }
     // now make a sane order for children: the order below will determine the order in itemReport
     $baseorder=array('a','w','m','v','o','g','p','r','i','C','L','T');
-     foreach ($_SESSION['hierarchy']['children'] as $parent=>$children)
+    foreach ($_SESSION['hierarchy']['children'] as $parent=>$children)
         if (!empty($children)) {
             $_SESSION['hierarchy']['children'][$parent]=array_values(array_intersect($baseorder,$children));
         }
@@ -499,48 +487,6 @@ function resetHierarchyNames() {
     );
 }
 //----------------------------------------------------------------
-function parentselectbox($values) {
-    //----------------------------------------
-    function makeOption($row,$selected) {
-        $cleandesc=makeclean($row['description']);
-        $cleantitle=makeclean($row['title']);
-        if ($row['isSomeday']==="y") {
-            $cleandesc.=' (Someday)';
-            $cleantitle.=' (S)';
-        }
-        $seltext = ($selected)?' selected="selected"':'';
-        $out = "<option value='{$row['itemId']}' title='$cleandesc' $seltext>$cleantitle</option>";
-        return $out;
-    }
-    //----------------------------------------
-    $pshtml='';
-    $parents=array();
-    if (is_array($values['parentId']))
-        foreach ($values['parentId'] as $key) $parents[$key]=true;
-    else
-        $parents[$values['parentId']]=true;
-    if ($_SESSION['debug']['debug']) echo '<pre>parents:',print_r($parents,true),'</pre>';
-
-    $result = query("parentselectbox",$values);
-    if ($result)
-        foreach($result as $row) {
-            if(empty($parents[$row['itemId']])) {
-                $pshtml .=makeOption($row,false)."\n";
-            } else {
-                $pshtml =makeOption($row,true)."\n".$pshtml;
-                $parents[$row['itemId']]=false;
-            }
-        }
-    foreach ($parents as $key=>$val) if ($val) {
-        // $key is a parentId which wasn't found for the drop-down box, so need to add it in
-        $values['itemId']=$key;
-        $row=query('selectitemshort',$values);
-        if ($row) $pshtml = makeOption($row[0],$parents)."\n".$pshtml;
-    }
-    $pshtml="<option value='0'>--</option>\n".$pshtml;
-    return $pshtml;
-}
-//----------------------------------------------------------------
 function getOrphans() { // retrieve all orphans - items without a parent assigned
     // we only want orphans of specific types, as specified by the user in the preferences screen
     if (empty($_SESSION['hierarchy']['suppressAsOrphans']))
@@ -555,101 +501,9 @@ function getOrphans() { // retrieve all orphans - items without a parent assigne
     return $maintable;
 }
 /*
-        end of hierarchy handling
+    end of hierarchy handling
     =======================================================================
-*/
-function escapeChars($str) {  // TOFIX consider internationalization issues with charset coding
-    foreach (array('/\&/u'=>'&amp;','/\& /'=>'&amp; ','/&amp;hellip;/'=>'&hellip;') as $from=>$to)
-        $str=preg_replace($from,$to,$str);
-	return $str;
-}
-/*
-   ======================================================================================
-*/
-function columnedTable($cols,$data,$link='itemReport.php') {
-    $nrows=count($data);
-    $displace=round($nrows/$cols+0.499,0);
-    for ($i=0;$i<$nrows;) {
-        echo "<tr>\n";
-        for ($j=0;$j<$cols;$j++) {
-            $ndx=$i/$cols+$j*$displace;
-            if ($ndx<$nrows) {
-                $row=$data[$ndx];
-                echo "<td"
-                    ,(empty($row['td.class'])) ? '' : " class='{$row['td.class']}' "
-                    ,(empty($row['td.title'])) ? '' : " title='{$row['td.title']}' "
-                    ,"><a href='$link?itemId={$row['itemId']}' title='"
-                    ,makeclean($row['description']),"'>"
-                    ,makeclean($row['title']),"</a></td>\n";
-            }
-        }
-        echo "</tr>\n";
-        $i+=$cols;
-    }
-}
-/*
-   ======================================================================================
-    get the next date of a recurring item
-*/
-function getNextRecurrence($values) { // returns false if failed, else returns timestamp of next recurrence
-    require_once 'iCalcreator.class.inc.php';
-
-    if ($_SESSION['debug']['debug']) echo "<p class='debug'>creating vcalendar to get recurrence date";
-    $vcal = new vcalendar();
-    $vevent = new vevent();
-    $vevent->parse(array('RRULE:'.$values['recur']));
-    $rrule=$vevent->getProperty('rrule');
-
-    if (preg_match("/^FREQ=(YEARLY|MONTHLY|WEEKLY|DAILY);INTERVAL=[0-9]+$/",$values['recur'])) {
-        // very simple recurrence, so recur from dateCompleted
-        if ($_SESSION['debug']['debug']) echo "<br />recur from date completed - simple recurrence";
-        $startdate=$values['dateCompleted'];
-    } else if (empty($values['deadline']) || $values['deadline']==='NULL') {
-        //no deadline, so recur from tickler if available, and fall back to date completed
-        $startdate=(empty($values['tickledate']))
-            ? $values['dateCompleted']
-            : $values['tickledate'];
-    } else {
-        // recur from deadline
-        $startdate=$values['deadline'];
-    }
-    
-    if (empty($startdate) || $startdate==='NULL') {
-        // if we still haven't got a start date, use today
-        $startdate=date('Y-m-d');
-    } else
-        $startdate=str_replace("'",'',$startdate);
-        
-    if ($_SESSION['debug']['debug'])
-        echo "<br />recur='{$values['recur']}'<br />rrule=",print_r($rrule,true)
-            ,"<br />start date (dirty)=",print_r($startdate,true);
-    $startdate=$vcal->validDate($startdate);
-    if ($_SESSION['debug']['debug']) echo "<br />",print_r($startdate,true);
-    $vevent->setProperty( "dtstart",$startdate);
-
-    if (empty($rrule['UNTIL'])) {
-        $enddate=strtotime('+10 years');
-        $enddate=date('Y-m-d',$enddate);
-    } else
-        $enddate=$rrule['UNTIL'];
-    $enddate=$vcal->validDate($enddate);
-    $rrule['COUNT']=2; // 2 = start date + next recurrence
-    if (isset($rrule['UNTIL'])) unset($rrule['UNTIL']);
-    $vevent->_recur2Date($recurlist,$rrule,
-        $startdate,    // start date of item
-        $startdate,    // start date of interval we're interested in
-        $enddate       // end date
-    );
-    if (empty($recurlist)) {
-        $nextdue=false;
-    } else {
-        $nextdue=date('Y-m-d',array_shift(array_keys($recurlist))); // get first key in returned array - that's the date
-    }
-    if ($_SESSION['debug']['debug']) echo "<br />next date=$nextdue</p>";
-    return $nextdue;
-}
-/*
-   ======================================================================================
+    functions to handle the user-preferences and configuration
 */
 function overlayConfig(&$baseconfig,&$baseacckey,&$basesort) {
     if (false===(@include 'config.php') || !isset($config) ) return;
@@ -664,9 +518,7 @@ function overlayConfig(&$baseconfig,&$baseacckey,&$basesort) {
                 array('its.`type`'),
                 $val);
 }
-/*
-   ======================================================================================
-*/
+//----------------------------------------------------------------
 function importOldConfig() { // get preferences from old config.php file
     define('_GTD_WAIT'    ,1);
     define('_GTD_DEBUG'   ,2);
@@ -737,9 +589,7 @@ function importOldConfig() { // get preferences from old config.php file
     $result=saveConfig();
     return $result;
 }
-/*
-   ======================================================================================
-*/
+//----------------------------------------------------------------
 function saveConfig() { // store config preferences in the table
     $tst=query('updateconfig',
         array('config' =>serialize($_SESSION['config']),
@@ -753,9 +603,7 @@ function saveConfig() { // store config preferences in the table
     );
     return $tst;
 }
-/*
-   ======================================================================================
-*/
+//----------------------------------------------------------------
 function checkUTF8() { // check php ini values are ok for utf-8
 
     $passed=true;
@@ -788,9 +636,7 @@ function checkUTF8() { // check php ini values are ok for utf-8
     }
     unset($config);
 }
-/*
-   ======================================================================================
-*/
+//----------------------------------------------------------------
 function retrieveConfig() {
     $optionarray=query('getoptions',array('uid'=>$_SESSION['uid'],'filterquery'=>'') );
     if ($optionarray) foreach ($optionarray as $options)
@@ -813,6 +659,187 @@ function retrieveConfig() {
         getEvents($addon);
 }
 /*
+    end of functions to handle the user-preferences and configuration
    ======================================================================================
 */
+function getVarFromGetPost($varName,$default='') {
+	$retval=(isset($_GET[$varName]))?$_GET[$varName]:( (isset($_POST[$varName]))?$_POST[$varName]:$default );
+	return $retval;
+}
+/*
+   ======================================================================================
+*/
+function getTickleDate($deadline,$days) { // returns unix timestamp of date when tickle becomes active
+	$dm=(int)substr($deadline,5,2);
+	$dd=(int)substr($deadline,8,2);
+	$dy=(int)substr($deadline,0,4);
+	// relies on PHP to sanely and clevery handle dates like "the -5th of March" or "the 50th of April"
+	$remind=mktime(0,0,0,$dm,($dd-$days),$dy);
+	return $remind;
+}
+/*
+   ======================================================================================
+*/
+function nothingFound($message, $prompt=NULL, $yeslink=NULL, $nolink="index.php"){
+    //Give user ability to create a new entry, or go back to the index.
+    echo "<h4>$message</h4>";
+    if($prompt)
+        echo "<p>$prompt;<a href='$yeslink'> Yes </a><a href='$nolink'>No</a></p>\n";
+}
+/*
+   ======================================================================================
+*/
+function getAbsolutePath() {
+    global $thisurl;
+    $out='http'
+        .((empty($_SERVER['HTTPS']) || $_SERVER['HTTPS']==='off')?'':'s')
+                ."://"
+                .$_SERVER['HTTP_HOST']
+                .rtrim(dirname($thisurl['path']), '/\\').'/';
+    return $out;
+}
+/*
+   ======================================================================================
+*/
+function nextScreen($url) {
+    /* TOFIX Session ID is not passed with Location header
+            even if session.use_trans_sid is enabled.
+            It must by passed manually using SID constant: strip_tags(SID);
+            Need to check whether it's stored in cookie (preferable).
+        OR
+            we could just insist that session cookies are enabled: that's not
+            too unreasonable. (note by Andrew)
+    */
+    $cleanurl=htmlspecialchars($url);
+    if ($_SESSION['debug']['wait']) {
+        echo "<p>Next screen is <a href='$cleanurl'>$cleanurl</a> - would be auto-refresh in non-debug mode</p>";
+    }elseif (headers_sent()) {
+        echo "<META HTTP-EQUIV='Refresh' CONTENT='0;url=$cleanurl' />\n"
+            ,"<script type='text/javascript'>window.location.replace('$cleanurl');</script>\n"
+            ,"</head><body><a href='$cleanurl'>Click here to continue on to $cleanurl</a>\n";
+    }elseif (empty($_SESSION['config']['basepath'])) {
+        $header="Location: ".getAbsolutePath().$url;
+        header($header);
+        exit;
+    } else {
+        header("Location: {$_SESSION['config']['basepath']}$url");
+        exit;
+    }
+}
+/*
+   ======================================================================================
+*/
+function columnedTable($cols,$data,$link='itemReport.php') {
+    $nrows=count($data);
+    $displace=round($nrows/$cols+0.499,0);
+    for ($i=0;$i<$nrows;) {
+        echo "<tr>\n";
+        for ($j=0;$j<$cols;$j++) {
+            $ndx=$i/$cols+$j*$displace;
+            if ($ndx<$nrows) {
+                $row=$data[$ndx];
+                echo "<td"
+                    ,(empty($row['td.class'])) ? '' : " class='{$row['td.class']}' "
+                    ,(empty($row['td.title'])) ? '' : " title='{$row['td.title']}' "
+                    ,"><a href='$link?itemId={$row['itemId']}' title='"
+                    ,makeclean($row['description']),"'>"
+                    ,makeclean($row['title']),"</a></td>\n";
+            }
+        }
+        echo "</tr>\n";
+        $i+=$cols;
+    }
+}
+/*
+   ======================================================================================
+*/
+function query($querylabel,$values=NULL,$sort=NULL) {
+    log_array(array(
+        'Query Label:'=>$querylabel
+        ,'Values to be made safe:'=>$values
+        ,'Sort array'=>$sort));
+
+    if (empty($sort)) $sort=$_SESSION['sort'];
+
+    //grab correct query string from query library array
+    //values automatically inserted into array
+    $query=getsql($querylabel,$values,$sort);
+
+    // for testing only: display fully-formed query
+    log_value('Query: ',$query);
+
+    //perform query
+	$result=doQuery($query,$querylabel);
+
+    //for developer testing only, print result array
+    log_value('Query Result:',$result);
+
+    return $result;
+}
+/*
+   ======================================================================================
+*/
+function getNextRecurrence($values) {
+/*
+ *  get the next date of a recurring item
+ *  returns false if failed, else returns timestamp of next recurrence
+ */
+    require_once 'iCalcreator.class.inc.php';
+
+    log_text("creating vcalendar to get recurrence date");
+    $vcal = new vcalendar();
+    $vevent = new vevent();
+    $vevent->parse(array('RRULE:'.$values['recur']));
+    $rrule=$vevent->getProperty('rrule');
+
+    if (preg_match("/^FREQ=(YEARLY|MONTHLY|WEEKLY|DAILY);INTERVAL=[0-9]+$/",$values['recur'])) {
+        // very simple recurrence, so recur from dateCompleted
+        log_text("recur from date completed - simple recurrence");
+        $startdate=$values['dateCompleted'];
+    } else if (empty($values['deadline']) || $values['deadline']==='NULL') {
+        //no deadline, so recur from tickler if available, and fall back to date completed
+        $startdate=(empty($values['tickledate']))
+            ? $values['dateCompleted']
+            : $values['tickledate'];
+    } else {
+        // recur from deadline
+        $startdate=$values['deadline'];
+    }
+
+    if (empty($startdate) || $startdate==='NULL') {
+        // if we still haven't got a start date, use today
+        $startdate=date('Y-m-d');
+    } else
+        $startdate=str_replace("'",'',$startdate);
+
+    log_array(array(
+        'recur='=>$values['recur']
+        ,'$rrule'
+        ,'start date (dirty)='=>$startdate));
+            
+    $startdate=$vcal->validDate($startdate);
+    log_value('start date (normalised)',$startdate);
+    $vevent->setProperty( "dtstart",$startdate);
+
+    if (empty($rrule['UNTIL'])) {
+        $enddate=strtotime('+10 years');
+        $enddate=date('Y-m-d',$enddate);
+    } else
+        $enddate=$rrule['UNTIL'];
+    $enddate=$vcal->validDate($enddate);
+    $rrule['COUNT']=2; // 2 = start date + next recurrence
+    if (isset($rrule['UNTIL'])) unset($rrule['UNTIL']);
+    $vevent->_recur2Date($recurlist,$rrule,
+        $startdate,    // start date of item
+        $startdate,    // start date of interval we're interested in
+        $enddate       // end date
+    );
+    if (empty($recurlist)) {
+        $nextdue=false;
+    } else {
+        $nextdue=date('Y-m-d',array_shift(array_keys($recurlist))); // get first key in returned array - that's the date
+    }
+    log_value('next due date',$nextdue);
+    return $nextdue;
+}
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

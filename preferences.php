@@ -8,8 +8,7 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
     <h2><?php echo $tabname; ?></h2>
     <div class='tabsheet' id='<?php echo $tabname; ?>'>
     <?php
-     if ($_SESSION['debug']['debug'])
-        echo '<pre>values=',print_r($values,true),' array=',print_r($array,true),'</pre>';
+    log_array(array('values'=>$values,'array'=>$array));
     foreach ($array as $option) {
         $name=$varprefix.$option[0];
         $val=(isset($values[$option[0]])) ? $values[$option[0]] : null;

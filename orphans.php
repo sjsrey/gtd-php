@@ -17,7 +17,7 @@ foreach ($dispArray as $key=>$val)
 $title=$cnt.' Orphaned Item'.(($cnt===1)?'':'s');
 include_once 'header.inc.php';
 
-if ($_SESSION['debug']['debug']) echo '<pre>Orphans:',print_r($maintable,true),'</pre>';
+log_array('$maintable');
 if ($cnt) {
     $trimlength=$_SESSION['config']['trimLength'];
 ?>  <table class="datatable sortable" id="typetable" summary='table of orphans'>

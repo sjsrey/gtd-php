@@ -543,3 +543,13 @@ a.sortheader { display: block; }
 .col-checkbox,.col-NA,.col-flags {
     text-align:center;
 }
+.debug {
+    margin:0;
+    padding:0;
+    border-top:1px solid blue;
+    border-bottom:1px solid blue;
+}
+.debug a {
+    font-size: large;
+    font-weight: bold;
+}

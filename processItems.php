@@ -39,18 +39,10 @@ if ($_SESSION['debug']['debug']) {
     echo "<html><head><title>Process Item</title></head><body>\n";
     $html=true;
 	// debugging text - simply dump the variables, and quit, without processing anything
-	literaldump('$_GET');
-    literaldump('$_POST');
-    literaldump('$_SESSION');
-	literaldump('$action');
-	literaldump('$values');
-	literaldump('$updateGlobals');
+	log_array('$_GET','$_POST','$_SESSION','$action','$values','$updateGlobals');
 	if (isset($updateGlobals['isNA'])) {
-		echo '<hr /><pre>array_diff(wasNAonEntry,isNA)';
-		print_r(array_diff($updateGlobals['wasNAonEntry'],$updateGlobals['isNA']));
-		echo '<br /><hr />array_diff(isNA,wasNAonEntry)';
-		print_r(array_diff($updateGlobals['isNA'],$updateGlobals['wasNAonEntry']));
-		echo '</pre>';
+        log_value('array_diff(wasNAonEntry,isNA)',array_diff($updateGlobals['wasNAonEntry'],$updateGlobals['isNA']));
+		log_value('array_diff(isNA,wasNAonEntry)',array_diff($updateGlobals['isNA'],$updateGlobals['wasNAonEntry']));
 	}
 } // END OF debugging text
 
@@ -95,7 +87,7 @@ function doAction($localAction) { // do the current action on the current item; 
     } else
         $title=(empty($_POST['title']))?'':$_POST['title'];
 
-	if ($_SESSION['debug']['debug']) echo "<p><b>Action here is: $localAction item {$values['itemId']} - $title</b></p>";
+    log_text("Action here is: $localAction item {$values['itemId']} - $title");
     if ($title=='') $title='item '.$values['itemId'];
 	if ($_SESSION['debug']['freeze']) return TRUE;
 
@@ -349,9 +341,7 @@ function retrieveFormVars() {
         }
     }
     $tags=(isset($_POST['tags']))?strtolower($_POST['tags']):'';
-    $tags=array_unique(explode(',',$tags));
-    if ($_SESSION['debug']['debug']) echo "<p class='debug'>tags=",print_r($tags,true),"</p>\n";
-    $values['alltags']=$tags;
+    $values['alltags']=array_unique(explode(',',$tags));
     
 	// binary yes/no
 	foreach (array('nextaction','isSomeday') as $field)
@@ -361,7 +351,7 @@ function retrieveFormVars() {
 	foreach ( array('tickledate','dateCompleted','deadline') as $field)
 	   $values[$field]  = (empty($_POST[$field])) ? "NULL" : ("'".date('Y-m-d',strtotime($_POST[$field]))."'");
 
-    if (    empty($_POST['FREQtype']) 
+    if (    empty($_POST['FREQtype'])
         || $_POST['FREQtype']==='NORECUR' 
         || ($_POST['FREQtype']==='TEXT' && empty($_POST['icstext']))) {
         $values['recur']=null;
@@ -370,11 +360,7 @@ function retrieveFormVars() {
         processRecurrence();
     }
 
-	if ($_SESSION['debug']['debug']) {
-		echo '<hr /><pre><b>retrieved form vars</b><br />';
-		literaldump('$values');
-		echo '</pre>';
-	}
+	log_value('retrieved form vars',$values);
 }
 //===========================================================================
 function processRecurrence() {
@@ -435,13 +421,14 @@ function processRecurrence() {
     /*  got all the data from the form
         --------------------------------------------------------------------
     */
-    if ($_POST['FREQtype']!=='TEXT')
+    if ($_POST['FREQtype']!=='TEXT') {
         $vevent->setProperty( "rrule",$rrule);
-    if ($_SESSION['debug']['debug']) echo "<p class='debug'>RRULE: ",print_r($rrule,true),"</p>";
+        log_value('RRULE form values=',$rrule);
+    }
     
     $rrule=$vevent->getProperty('rrule');
     $rruletext=$vevent->_format_recur('',array(array('value'=>$rrule)));
-    if ($_SESSION['debug']['debug']) echo "<p class='debug'>RRULEtext: $rruletext =",print_r($rrule,true),"</p>";
+    log_value("RRULEtext: $rruletext ; calculated rule=",$rrule);
     // now we've done the round trip, we can be confident that it's a valid recurrence string, so store it
     $values['recur']=$rruletext;
     if (  !empty($rruletext)
@@ -450,7 +437,7 @@ function processRecurrence() {
         // haven't got a startdate, so use what the next recurrence date would be
         $nextdue=getNextRecurrence($values);
         if ($nextdue) $values['deadline']="'$nextdue'";
-        if ($_SESSION['debug']['debug']) echo "<p class='debug'>Forcing deadline where none given - $nextdue</p>";
+        log_text("Forcing deadline where none given - $nextdue");
     }
     if (empty($_POST['recurdesc'])) {
         // set desc based on intelligent description
@@ -482,9 +469,11 @@ function recurItem() {
     // now process the next due date
     if (empty($nextdue)) {
         $msg="There are no further occurrences of item {$values['itemId']} - {$values['title']}";
-        if ($_SESSION['debug']['debug']) echo "<p class='debug'>$msg</p>";
+        log_text($msg);
         $_SESSION['message'][] = $msg;
     } else {
+        $values['dateCreated']=date('Y-m-d');
+        $values['lastModified']=date('Y-m-d H:G:s');
         // now need to set tickle date (either to NULL, or to date in quotes)
     	if (empty($values['deadline']) || $values['deadline']==='NULL') {
             $values['tickledate']="'$nextdue'";
@@ -499,8 +488,11 @@ function recurItem() {
                 );
             $values['deadline']="'$nextdue'";
     	}
-        if ($_SESSION['debug']['debug']) echo "<p class='debug'>new deadline={$values['deadline']}, new tickler={$values['tickledate']}</p>";
-    	if ($_SESSION['config']['storeRecurrences']) createItem();
+        log_text("new deadline={$values['deadline']}, new tickler={$values['tickledate']}");
+        if ($_SESSION['config']['storeRecurrences']) {
+            $values['alltags']=explode(',',$values['tagname']);
+            createItem();
+        }
     } // end of processing next due date
     
 	if (!$_SESSION['config']['storeRecurrences']) {
@@ -517,21 +509,16 @@ function getItemCopy() { // retrieve values for the current item, and store in t
 	// now get parents
 	$result=query("selectparents",$values,array());
 	$copy['parents']=array();
-	if ($result) {
+	if ($result)
         foreach ($result as $parent)
             $copy['parents'][]=$parent['parentId'];
-    }
-	if ($_SESSION['debug']['debug']) {
-		echo '<pre>Retrieved record for copying: </pre>';
-		literaldump('$values');
-		echo '<pre>Parents:',print_r($copy['parents'],true),'</pre>';
-	}
+	log_array(array('Retrieved record for copying:'=>$values,"Parents:"=>$copy['parents']));
 	return $copy;
 }
 //===========================================================================
 function setParents($new) {
     global $values,$updateGlobals;
-	if($_SESSION['debug']['debug']) echo '<pre>',print_r($updateGlobals['parents'],true),'</pre>';
+    log_value('parents',$updateGlobals['parents']);
     foreach ($updateGlobals['parents'] as $values['parentId'])
         if ($values['parentId'])
     	   $result = query($new."parent",$values);
@@ -620,12 +607,7 @@ function nextPage() { // set up the forwarding to the next page
             $nextURL=$tst;
             break;
 	}
-	if ($_SESSION['debug']['debug']) {
-        echo '<pre>$referrer=',print_r($updateGlobals['referrer'],true),'<br />'
-            ,((empty($values['type']))?'':"type={$values['type']}<br />")
-            ,'session=',print_r($_SESSION,true),'<br />'
-            ,'</pre>';
-    }
+    log_value('referrer',$updateGlobals['referrer']);
     if ($nextURL=='')
         $nextURL="listItems.php?type=$t";
     else if (strpos($nextURL,'nextId=0')!==false) {
@@ -644,26 +626,59 @@ function nextPage() { // set up the forwarding to the next page
             $header="Content-Type: text/xml; charset=".$_SESSION['config']['charset'];
             header($header);
         }
+        // TODO - would be nice to always return lastModified
         echo '<?xml version="1.0" ?',"><gtdphp>"; // encoding="{$_SESSION['config']['charset']}"
         echo "<values>";
         foreach ($values as $key=>$val) {
-            echo "<$key>";
             switch ($key) {
-                case 'description':     
-                case 'desiredOutcome':  // deliberately flows through
-                    $val=nl2br($val);
-                case 'title':           // deliberately flows through
-                    echo "<![CDATA[$val]]>";
+                //------------------------------------------------
+                case 'categoryId':       // deliberately flows through
+                case 'contextId':        // deliberately flows through
+                case 'isSomeday':        // deliberately flows through
+                case 'itemId':           // deliberately flows through
+                case 'newitemId':        // deliberately flows through
+                case 'nextaction':       // deliberately flows through
+                case 'oldid':            // deliberately flows through
+                case 'timeframeId':      // deliberately flows through
+                case 'type':
+                    echo "<$key>",makeclean($val),"</$key>";
                     break;
-                case 'deadline':        // deliberately flows through
-                case 'tickledate':
-                    echo str_replace("'",'',$val);
+                //-------------------------------------------------------
+                case 'childfilterquery': // deliberately flows through
+                case 'filterquery':      // deliberately flows through
+                case 'parentfilterquery':// deliberately flows through
+                case 'parents':
+                    // suppress reporting these values
                     break;
+                //-------------------------------------------------------
+                case 'dateCompleted':    // deliberately flows through
+                case 'dateCreated':      // deliberately flows through 
+                case 'deadline':         // deliberately flows through
+                case 'lastModified':     // deliberately flows through
+                case 'oldDateCompleted': // deliberately flows through
+                case 'tickledate':       // deliberately flows through
+                    echo "<$key>",str_replace(array('NULL',"'"),'',$val),"</$key>";
+                    break;
+                //-------------------------------------------------------
+                case 'description':      // deliberately flows through
+                case 'desiredOutcome':   
+                    $val=nl2br($val);    // deliberately flows through
                 default:
-                    echo '<![CDATA[',makeclean($val),']]>';
+                    echo "<$key><![CDATA[$val]]></$key>";
                     break;
+                //-------------------------------------------------------
+                case 'tagname':
+                case 'alltags':
+                    echo "<$key><![CDATA[";
+                    if (array_key_exists('alltags',$values)) {
+                        echo implode(',',$values['alltags']);
+                    } else if (is_array($values['tagname']))
+                        echo implode(',',$values['tagname']);
+                    else echo $values['tagname'];
+                    echo "]]></$key>";
+                    break;
+                //-------------------------------------------------------
             }
-            echo "</$key>";
         }
         echo '</values>';
 
@@ -676,15 +691,6 @@ function nextPage() { // set up the forwarding to the next page
         echo "</gtdphp>";
         exit;
     } else nextScreen($nextURL);
-}
-//===========================================================================
-function literaldump($varname) { // dump a variable name, and its contents
-	echo "<pre><b>$varname</b>=";
-	$tst="print_r((isset($varname))?($varname):(\$GLOBALS['".substr($varname,1)."']));return 1;";
-	if (eval($tst))
-		echo '</pre>';
-	else
-		echo "<br />Failed to display variable value: $tst <br />";
 }
 //===========================================================================
 

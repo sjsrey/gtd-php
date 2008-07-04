@@ -8,7 +8,8 @@ if ($docapture) ob_start();
 if ($_SESSION['debug']['debug']) {
     $title='Process changes to hierarchy';
     include_once 'headerHtml.inc.php';
-    echo "</head><body><div><pre>POST=",print_r($_POST,true),"</pre><div>\n";
+    echo "</head><body>";
+    log_array('$_POST','$_SESSION');
     $html=true; // indicates if we are outputting html
 } else {
     $html=false;

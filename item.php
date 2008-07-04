@@ -218,7 +218,7 @@ if (empty($values['recur'])) {
         $recur['day']=$recur['BYDAY']['DAY'];
         if (isset($recur['BYDAY'][0])) $recur['week']=$recur['BYDAY'][0];
     }
-    if($_SESSION['debug']['debug']) echo '<pre>',print_r($recur,true),'</pre>';
+    log_value('Recurrence values going into form',$recur);
     // get the date of the next recurrence, after the current one has been completed, for the user's information
     $nextdate=getNextRecurrence($values);
 }
@@ -261,11 +261,6 @@ if ($show['header']) { ?>
             .$title;
     include_once 'header.inc.php';
 }
-if ($_SESSION['debug']['debug'])
-    echo '<pre>$_POST: ',print_r($_POST,true),
-         '<br />$_GET: ',print_r($_GET,true),
-         '</pre>';
-
 $sep='<p>';
 if ($show['changetypes']) foreach ($canchangetypesafely as $totype)
     if ($totype!==$values['type']) {

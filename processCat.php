@@ -1,11 +1,13 @@
 <?php
 require_once 'headerDB.inc.php';
 ignore_user_abort(true);
-$html=false;
 if ($_SESSION['debug']['debug']) {
     $html=true;
     include_once 'headerHtml.inc.php';
-    echo "</head><body><pre>\n",print_r($_POST,true),"</pre>\n";
+    echo "</head><body>";
+    log_array('$_POST');
+} else {
+    $html=false;
 }
 
 $values=array();
@@ -55,9 +57,6 @@ if (isset($_POST['next']))
     $nexturl.='&id='.$_POST['next'];
 nextScreen($nexturl);
 
-if ($html)
-    include_once 'footer.inc.php';
-else
-    echo '</head></html>';
+if ($html) include_once 'footer.inc.php';
 
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

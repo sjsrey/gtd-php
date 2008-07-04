@@ -27,7 +27,7 @@ if (empty($_SESSION['theme']))
 if (!isset($_SESSION['useLiveEnhancements']))
     $_SESSION['useLiveEnhancements']=$_SESSION['config']['useLiveEnhancements'];
 
-$debugstyle=($_SESSION['debug']['debug'] || defined('_DEBUG')) ? "<style type='text/css'>pre,.debug {}</style>" : '';
+$debugstyle=($_SESSION['debug']['debug'] || defined('_DEBUG')) ? "<style type='text/css'>.debug {}</style>" : '';
 
 $extrajavascript = '';
 

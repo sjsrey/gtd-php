@@ -33,10 +33,10 @@ foreach ($cookievars as $key) {
 
 if ($_SESSION['debug']['debug']) {
     include 'headerHtml.inc.php';
-    echo '</head><body><pre>POST: ',print_r($_POST,true),
-        '<br/>',
-        'session pre-update: ',print_r($_SESSION,true),'</pre>';
-}
+    echo '</head><body>';
+    log_array('$_POST','$_SESSION');
+    $html=true;
+} else $html=false;
 
 $_SESSION['addons']=$_SESSION['debug']=$_SESSION['sort']=$_SESSION['keys']=
     $_SESSION['config']=array();
@@ -73,15 +73,15 @@ foreach ($newPrefs as $key=>$val) {
     }
 }
 
-$config['separator']=cleanpref($config['separator']);
+$_SESSION['config']['separator']=cleanpref($_SESSION['config']['separator']);
 
 if  (strtolower($_SESSION['config']['charset'])==='utf-8') checkUTF8();
 
-if ($_SESSION['debug']['debug'])
-    echo '<pre>Changed preferences stored in session: ',print_r($_SESSION,true),'</pre>';
+log_value('Changed preferences stored in session:',$_SESSION);
 
 $result=saveConfig(); // store preferences in the table
 $_SESSION['message'][]= ($result) ? 'Preferences updated' : 'No changes made to preferences stored in database';
 
 nextScreen('index.php');
+if ($html) echo '</body></html>';
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

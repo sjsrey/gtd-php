@@ -182,12 +182,14 @@ function checkErrors($prefix) {
     $errors['orphaned tags']=(int) $val[0];
     
     // partial items, missing from one or more item tables
+    $partialitems=0;
     $items1=array('itemstatus'=>'items','items'=>'itemstatus','itemattributes'=>'itemstatus','itemattributes'=>'items');
     foreach ($items1 as $t1=>$t2) {
         $q="SELECT COUNT(DISTINCT `itemId`) FROM `{$prefix}$t1` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}$t2`)";
         $val=@mysql_fetch_row(rawQuery($q));
-        $errors["IDs are in $t1, but not in $t2"]=(int) $val[0];
+        $partialitems+=(int) $val[0];
     }
+    $errors["Item IDs are missing from some tables "]=$partialitems;
 
     // look for items that are ancestors of themselves
     $errors['Parent loops']='';
@@ -1018,13 +1020,13 @@ function sqlparts($part,$values) {
         $sqlpart .=')';
         break;
     default:
-        if ($_SESSION['debug']['debug']) echo "<p class='error'>Failed to find sql component '$part'</p>'";
+        log_array(array('tag'=>'p',"Failed to find sql component with that name; will use that as query string"=>$part));
         $sqlpart=$part;
         break;
   }
 
-  if ($_SESSION['debug']['debug'])
-      echo "<pre>Sqlparts '$part': Result $sqlpart<br />Sanitised values in sqlparts: ",print_r($values,true),'</pre>';
+  log_array(array("Sqlparts '$part': Result"=>$sqlpart
+            ,"Sanitised values in sqlparts"=>$values));
 
   return $sqlpart;
 }

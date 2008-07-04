@@ -1,9 +1,7 @@
 <?php
 require_once 'headerDB.inc.php';
-if ($_SESSION['debug']['debug']) {
-    include_once 'header.inc.php';
-    echo '<pre>POST: ',var_dump($_POST),'</pre>';
-}
+if ($_SESSION['debug']['debug']) include_once 'header.inc.php';
+
 //page display options array--- can put defaults in preferences table/config/session and load into $show array as defaults...
 $show=array();
 
@@ -47,7 +45,7 @@ if ($quickfind) {
 
 /* end of setting $filter
  --------------------------------------*/
-if ($_SESSION['debug']['debug']) echo '<pre>Filter:',print_r($filter,true),'</pre>';
+log_value('listitems filter',$filter);
 
 $values['type']           =$filter['type'];
 $values['parentId']       =$filter['parentId'];
@@ -420,7 +418,7 @@ if ($result) {
         );
     if ($show['assignType']) $dispArray['assignType']='Process inbox';
     
-    if ($_SESSION['debug']['debug']) echo '<pre>values to print:',print_r($maintable,true),'</pre>';
+    log_value('values to print:',$maintable);
 } // end of: if($result)
 /*
     ===================================================================

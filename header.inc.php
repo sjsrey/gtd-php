@@ -3,8 +3,6 @@ require_once 'headerHtml.inc.php';
 echo "</head><body>\n";
 require_once 'headerMenu.inc.php';
 echo "<div id='main'>\n";
-if ($_SESSION['debug']['debug'])
-    echo '<br /><hr /><pre>Session:',print_r($_SESSION,true)
-        ,'<br />Post:',print_r($_POST,true),'</pre><hr />';
+log_array('$_SESSION','$_POST');
 include_once 'showMessage.inc.php';
 ?>

@@ -1,7 +1,7 @@
 <?php
 require_once 'editCat.inc.php';
 require_once 'header.inc.php';
-if ($_SESSION['debug']['debug']) echo "<pre>catlist:",print_r($catlist,true),'</pre>';
+log_array('$catlist');
 ?>
 <?php if ($thiscat || !$id) {
 ?><form action="processCat.php" method="post" onsubmit="return GTD.validate(this);">
