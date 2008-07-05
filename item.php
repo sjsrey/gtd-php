@@ -335,7 +335,7 @@ if ($sep!=='<p>') echo "</p>\n";
                 <input type='text' size='10' name='tickledate' id='tickledate' class='hasdate' value='<?php
                     echo $values['tickledate'];
                 ?>' />
-                <button id='tickledate_trigger'>&hellip;</button>
+                <button id='tickledate_trigger' type='button'>&hellip;</button>
             <?php
             } else
                 $hiddenvars['tickledate']=$values['tickledate'];
@@ -344,8 +344,9 @@ if ($sep!=='<p>') echo "</p>\n";
                     echo $class;$class='';
                 ?>'>Deadline:</label>
                 <input type='text' size='10' name='deadline' id='deadline' class='hasdate' value='<?php echo $values['deadline']; ?>'/>
-                <button id='deadline_trigger'>&hellip;</button>
+                <button id='deadline_trigger' type='button'>&hellip;</button>
             <?php } else $hiddenvars['deadline']=$values['deadline'];
+            
             if ($show['dateCompleted']) { ?>
                 <label for='dateCompleted' class='left<?php
                     echo $class;$class='';
@@ -353,7 +354,7 @@ if ($sep!=='<p>') echo "</p>\n";
                 <input type='text' size='10' class='hasdate' name='dateCompleted' id='dateCompleted' value='<?php
                     echo $values['dateCompleted'];
                 ?>'/>
-                <button id='dateCompleted_trigger'>&hellip;</button>
+                <button id='dateCompleted_trigger' type='button'>&hellip;</button>
 				<button type='button' id='dateCompleted_today' onclick="javascript:GTD.completeToday('dateCompleted');">Today</button>
             <?php } else $hiddenvars['dateCompleted']=$values['dateCompleted']; ?>
         </div>
