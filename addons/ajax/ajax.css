@@ -1,0 +1,105 @@
+#searcher .creator {
+    background-color:#FF8;
+}
+.ajaxform {
+    position:absolute;
+    left:1em;
+    border: groove 6px blue;
+    z-index:1000;
+}
+.ajaxform * {
+    padding:1px;
+    margin:1px;
+}
+.ajaxform,.ajaxform form, .ajaxform div.form {
+    padding:0;
+    margin:0;
+}
+.ajaxcancel {
+    background-color:red;
+    color:white;
+    font-size:1.5em;
+}
+#ajaxexpand {
+    background-color:blue;
+    color:white;
+    font-size:1.5em;
+}
+#ajaxsave:hover,.ajaxcancel:hover,#ajaxexpand:hover {
+    cursor: pointer;
+}
+.ajaxupdated,.ajaxupdated * {
+	background-color:#afa !important;
+}
+div.ontop#freezer {
+    z-Index:1000;
+    cursor: wait;
+}
+tr.ajaxselected * {
+    background-color:#DAFADA !important;
+}
+ul.tabbar li {
+    float:left;
+    display:inline;
+    border:1px solid #dafada;
+    margin: 0;
+    padding:0 1em;
+    margin-bottom:1em;
+    color:black;
+    background-color:white;
+    
+}
+ul.tabbar li.selectedtab {
+    background-color:#ccf;
+    font-weight: bolder;
+}
+ul.tabbar li:hover {
+    cursor:pointer;
+    background-color:#aac;
+    text-decoration:underline;
+}
+.onajaxcall * {
+    cursor: wait;
+}
+#colselector {
+    position:absolute;
+    z-index: 2000;
+    border: 3px red groove;
+    width:10em;
+    background: white url(cross.png) no-repeat right top;
+}
+#colselector li {
+    list-style: none inside;
+    padding: 2px 2px 2px 20px;
+    margin:0 2px;
+    cursor:pointer;
+}
+#colselector li:hover,#colselector li.colshown:hover {
+    background-color:#BBF;
+}
+#colselector li.colshown {
+    background: url(eye.png) no-repeat left center;
+}
+th.ajaxeye {
+    background: url(eye.png) no-repeat center;
+    cursor:pointer;
+}
+th.col-checkbox,th.col-checkbox select {
+    padding:0px;
+    margin:0px;
+}
+#multicontainer {
+    white-space: nowrap;
+}
+#multicontainer select {
+    margin:1px;
+    padding:1px;
+    z-index: 1;
+}
+#ajaxmessages {
+    z-index: 100;
+}
+#multidummy {
+    visibility:hidden;
+    width:1px;
+}

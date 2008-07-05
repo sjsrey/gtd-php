@@ -1,0 +1,88 @@
+ul>li>span.treedone { /* completed items */
+    text-decoration: line-through;
+    color:grey;
+}
+#trees li.treeexpand { /* don't show a bullet icon for expandable items */
+    list-style: none;
+}
+li.treecollapse>span { /* when an item is collapsed, show the plus icon to indicate hidden items */
+    padding-left:20px;
+    background: url(plus.gif) no-repeat left center;
+}
+li.treeexpand>span { /* show the pointer cursor for items that can be expanded/contracted */
+    cursor:pointer;
+}
+#trees li { /* items with no children - aka leaf nodes */
+    list-style: circle inside;
+}
+li.treea>span{ /* action titles */
+    color:blue;
+}
+li.treep>span {  /* project titles */
+    background-color:#FFD;
+}
+li.treeg>span{  /* goal titles */
+    color:green;
+}
+li.treeo>span{  /* role titles */
+    color:red;
+}
+#trees ul {  /* all collections of children */
+    margin:0;
+    padding:0;
+    clear:left;
+}
+#trees img {
+    cursor: pointer;
+}
+#trees .activated {
+    background-color:yellow;
+}
+#trees .activated li {
+    display:block !important;
+}
+li.badloop>span  { /* items that are ancestors of themselves */
+    background-color:red !important;
+    color: white !important;
+    font-weight: bolder;
+}
+ul.clickabletree>:first-child { /* first item in a tree */
+    border-top: black 1px solid;
+}
+#legend li { /* legend box */
+    float:left;
+    list-style:none;
+    display:inline-block;
+    margin: 0 0.5em;
+}
+#trees .donehid,#trees .treehid { /* do not change this: used to toggle display of items */
+    display:none;
+}
+#treepopup {
+    position:absolute;
+    z-index: 2000;
+    border: 3px red groove;
+    width:6em;
+    background-color:white;
+}
+#treepopup a {
+    display:block;
+    padding:0;
+    margin: 0 1em;
+}
+#treepopup li:hover {
+    background-color:#BBF;
+}
+li.treeL {
+background-color:#CCF;
+}
+li.treeC {
+background-color:#CFC;
+}
+li.treeL>span,li.treeC>span {
+color:black;
+font-weight: bold;
+}
+li.treeT>span {
+color:#00F;
+}
