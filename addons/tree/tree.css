@@ -79,3 +79,17 @@ ul.clickabletree>:first-child { /* first item in a tree */
 #treepopup li:hover {
     background-color:#BBF;
 }
+
+li.treeL { 
+	background-color:#CCF; 
+ 	} 
+li.treeC { 
+	background-color:#CFC; 
+	} 
+li.treeL>span,li.treeC>span { 
+	color:black; 
+	font-weight: bold; 
+	} 
+li.treeT>span { 
+	color:#00F; 
+	} 
