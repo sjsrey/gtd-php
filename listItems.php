@@ -13,7 +13,7 @@ require_once 'header.inc.php';
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
 ?>
 <div class='form' id="filter">
-    <form action="listItems.php" method="post">
+    <form action="listItems.php" method="get">
         <div class="formrow">
 
             <label for='categoryId' class='left nomargin'>Category:</label>
@@ -119,6 +119,5 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
 if (isset($endmsg['header'])) echo "<h4>{$endmsg['header']}</h4>\n";
 if (isset($endmsg['link'])) echo "<a href='{$endmsg['link']}'>{$endmsg['prompt']}</a>\n";
 ?>
-<p class='noprint'>To bookmark this filtered list, bookmark <a href='<?php echo $referrer; ?>'>this link</a></p>
 <div id='debuglog'></div>
 <?php include_once 'footer.inc.php'; ?>
