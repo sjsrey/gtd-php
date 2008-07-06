@@ -124,7 +124,7 @@ $areDeleting=false;
 </head>
 <body>
 <?php include 'showMessage.inc.php'; ?>
-<h2>This is the gtd-php v0.8 installer</h2>
+<h2>This is the gtd-php v0.9 installer</h2>
 <?php
 
 if (_DEBUG) echo '<pre>'
