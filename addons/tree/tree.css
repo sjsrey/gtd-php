@@ -16,16 +16,22 @@ li.treeexpand>span { /* show the pointer cursor for items that can be expanded/c
     list-style: circle inside;
 }
 li.treea>span{ /* action titles */
-    color:blue;
+    color:#003399;
 }
 li.treep>span {  /* project titles */
-    background-color:#FFD;
+    color:#3399cc;
 }
 li.treeg>span{  /* goal titles */
-    color:green;
+    color:#f20000;
 }
 li.treeo>span{  /* role titles */
-    color:red;
+    color:#9c0000;
+}
+li.treev>span{  /* vision titles */
+    color:#008000;
+}
+li.treem>span{  /* value titles */
+    color:#000000;
 }
 #trees ul {  /* all collections of children */
     margin:0;
@@ -36,7 +42,7 @@ li.treeo>span{  /* role titles */
     cursor: pointer;
 }
 #trees .activated {
-    background-color:yellow;
+    background-color:#eeeedd;
 }
 #trees .activated li {
     display:block !important;
@@ -72,17 +78,4 @@ ul.clickabletree>:first-child { /* first item in a tree */
 }
 #treepopup li:hover {
     background-color:#BBF;
-}
-li.treeL {
-background-color:#CCF;
-}
-li.treeC {
-background-color:#CFC;
-}
-li.treeL>span,li.treeC>span {
-color:black;
-font-weight: bold;
-}
-li.treeT>span {
-color:#00F;
 }
