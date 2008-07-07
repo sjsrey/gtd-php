@@ -23,9 +23,9 @@ foreach ($values as $key=>$val) {
         $sep2='';
         echo '[';
         foreach ($val as $nestedval)
-            echo $sep2,'"',escapeforjavascript($nestedval),'"';  // TOFIX escape value
+            echo $sep2,'"',escapeforjavascript($nestedval),'"';
         echo ']';
-    } else echo '"',escapeforjavascript($val),'"';  // TOFIX escape value
+    } else echo '"',escapeforjavascript($val),'"';
     $sep=',';
 }
 exit('}'); // finished, so send closing tag

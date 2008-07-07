@@ -22,6 +22,33 @@ $.fn.animateShow=function() {
     // always return the jQuery item we came in with, to allow chaining
     return that;
 };
+
+// ======================================================================================
+function messagepopup(text,xmldata,top,left) {
+    var sep='',msgbox;
+    if (typeof text==='object') {
+        msgbox=text;
+    } else {
+        msgbox=$(document.createElement('div')). // message box for message(s) returned via AJAX
+            addClass('success').
+            appendTo($('body')).
+            text(text).
+            css({
+                display:'none',                         
+                position:'absolute',
+                top:top,
+                left:left,
+                zIndex:2000
+            });
+    }
+    $('gtdphp result line',xmldata).
+        each(function() {
+            msgbox.append(sep+$(this).text());
+            sep='<br/>';
+        });
+    msgbox.animateShow();
+    return msgbox;
+}
 // ======================================================================================
 function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
 /*
@@ -257,43 +284,18 @@ function doAJAXupdate(thisnode,overlay) {
             $(row).removeClass('inajax onajaxcall');
         },
         success:function (xmldata, textStatus) {
-            var sep,msgbox,rowpos;
-            
-            // dump debug data if present
-            $('#debuglog').empty().append($('gtdphp log',xmldata).text());
-            
-            
+            $('#debuglog').
+                empty().
+                append($('gtdphp log',xmldata).text());     // dump debug data if present
             updateItem(row,xmldata);                        // update the row with the new data
-            // highlight the row to show that we've returned from AJAX, and record its screen position
-            rowpos=$(row).position();
-                
-            // show success message
-            msgbox=$(document.createElement('div')).        // message box for success message(s) returned via AJAX
-                addClass('success').
-                appendTo($('body')).
-                css({
-                    display:'none',                         // position the message box over the row
-                    position:'absolute',                    
-                    top:rowpos.top,
-                    left:rowpos.left,
-                    zIndex:2000
-                });
-                
-            sep='';
-            $('gtdphp result line',xmldata).
-                each(function() {
-                    msgbox.append(sep+$(this).text());
-                    sep='<br/>';
-                });
-
-            // message box shows itself, waits for 3 seconds, and then self-deletes
-            msgbox.animateShow().                                    
-                animate({left:rowpos.left},5000);
-                msgbox.queue(function(){
-                    if (data.action==='delete') { // if we were deleting, remove the rows from the table
-                        $(row).remove();
+            var rowpos=$(row).position();                   // get the screen position of the row we operated on
+            messagepopup('',xmldata,rowpos.top,rowpos.left).// show success message over that row
+                animate({left:rowpos.left},5000).           // wait for 5 seconds
+                queue(function(){
+                    if (data.action==='delete') {           // if we were deleting, 
+                        $(row).remove();                    // remove the rows from the table
                     }
-                    $(this).remove().dequeue();
+                    $(this).remove().dequeue();             // and then disappear
                 });
         },
         type:'POST',
@@ -951,11 +953,11 @@ function reordercolumns() {
 function colselectorclicked(e) {
 /*
  * Event handler for when the user has toggled the display of a column
- *
+ * TOFIX something odd happens when hiding the checkbox column
  * e: jQuery event
  */
     var target=$(e.target);
-    if (!target.parents('#colselector').length) {
+    if (!target.parents().andSelf().filter('#colselector').length) {
         // clicked outside the box, so remove it
         colselectorclose();
         return true;
@@ -997,6 +999,75 @@ function columnpreviewtoggle(e) {
     return true;     // and allow checkbox to be ticked
 }
 // -------------------------------------------------------------------------
+function saveperspective(e) {
+/*
+ * Event handler for the user requesting to save the perspective
+ *
+ * e: jQuery event
+ */
+    var data,sortcol,msgbox,pos;
+    // build the variables to send in the AJAX request
+    data={output:'xml','show[]':[],'columns[]':[]};
+    data.uri=$('#uri').val();
+
+    // get visible columns from classes in #colselector
+    $('#colselector li').each(function() {
+        var thisli=$(this),
+            thisname=thisli.data('selectclass').replace(/^col-/,'');
+        data['columns[]'].push(thisname);
+        if (thisli.hasClass('colshown')) {
+            data['show[]'].push(thisname);
+        }
+    });
+
+    // get current sort order, if any
+    sortcol=$('th.sortup,th.sortdown');
+    if (sortcol.length) {
+        data.sort=sortcol.data('selectclass').replace(/^col-/,'');
+        data.sort+=sortcol.hasClass('sortup') ? ' DESC' : ' ASC';
+    }
+
+    // TODO get name - popup an item box getting the name. For now, just use the page title as generated, stripping out any numbers
+    data.name=$('#pagetitle').text().replace(/[0-9]* /g,'');
+
+    pos=$('#colselector').position();
+    msgbox=messagepopup('Saving view','',pos.top,pos.left); // show success message over the popup box
+    colselectorclose();                                     // close the popup box, 
+    $.ajax({                                                // and make the AJAX call
+        cache:false,
+        data:data,
+        dataType:'xml',
+        error:function (arg1,arg2,arg3) {
+            $('#debuglog').empty().text(arg1.responseText);
+            msgbox.empty().
+                text('Failed to save this view').
+                animateShow().
+                animate({left:pos.left},5000).              // wait for 5 seconds
+                queue(function(){
+                    $(this).remove().dequeue();             // and then disappear
+                });
+        },
+        success:function(xmldata) {
+            // TODO functions to handle errors, and successful returns, from AJAX call
+            $('#debuglog').
+                empty().
+                append($('gtdphp log',xmldata).text());
+            msgbox.empty().
+                text($('gtdphp values success',xmldata).text() ?
+                        'Saved this view' : 'Failed to save this view');
+            messagepopup(msgbox,xmldata);
+            msgbox.
+                animateShow().
+                animate({left:pos.left},5000).              // wait for 5 seconds
+                queue(function(){
+                    $(this).remove().dequeue();             // and then disappear
+                });
+        },
+        type:'POST',
+        url:'processViews.php'
+    });
+}
+// -------------------------------------------------------------------------
 function showcolumnselector(e) {
 /*
  * Event handler for when the user has activated the column selecter/orderer UI
@@ -1027,6 +1098,20 @@ function showcolumnselector(e) {
                         text('preview')
                 ).
                 click(columnpreviewtoggle)                      // when the CHECKBOX is clicked, run columnpreviewtoggle
+        ).
+        append(
+            $(document.createElement('span')).         // and the SPAN also contains a LABEL
+                attr({id:'saveperspective',
+                    title:'Save this perspective as the default display for this page'}
+                ).
+                click(saveperspective)                      // when the save icon is clicked, do an AJAX save
+        ).
+        append(
+            $(document.createElement('span')).         // and the SPAN also contains a LABEL
+                attr({id:'closeselector',
+                    title:'close this column-selector box'}
+                ).
+                click(colselectorclose)                      // when the save icon is clicked, do an AJAX save
         );
 
     collist=$(document.createElement('ul')).                    // insert a UL into the popup DIV
@@ -1207,23 +1292,23 @@ GTD.ajax.setTabs=function() {
             remove();
     $('#footer').before('<p>Note that Apply will save changes on all tabs; Reset will reset all tabs</p>');
 };
-// ======================================================================================
+/* ======================================================================================
 GTD.ajax.tagKeypress=function(e) {
-/*
+ *
  * event handler to auto-suggest existing tags, when the user is typing in the 'tags' box
  * !!! TODO - this is only the skeleton - not yet functional !!!
  *
  * e: event object
- */
+ *
     var pressed,key;
     if (window.event) {pressed=window.event.keyCode;} else {pressed=e.charCode;}
     key = String.fromCharCode(pressed);
 
-    /* if we're currently offering a tag in a tooltip,
+     * if we're currently offering a tag in a tooltip,
         check to see if enter or tab was pressed, and if so, add the tooltip tag
         to the field, and return false
         if esc pressed, then dismiss the tooltip
-    */
+    *
 
 
     if (key!==' ' && key!==',') {
@@ -1241,7 +1326,9 @@ GTD.ajax.tagKeypress=function(e) {
     }
     return true;
 };
-// ======================================================================================
+*
+    ======================================================================================
+*/
 GTD.ParentSelector.prototype.creatorlines=[];
 GTD.ParentSelector.prototype.saverow='';
 GTD.ParentSelector.prototype.onAjax=false;

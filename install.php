@@ -58,41 +58,46 @@ if (_USEFULLTEXT) {
 */
 $tablesByVersion=array( // NB the order of tables in these arrays is CRITICAL. they must be consistent across the 0.8 sub-versions
     // we don't offer an upgrade path from 0.5.  Any 0.5 installations should first upgrade to 0.7, then run this routine
-    '0.5'     => array('context','goals','maybe','maybesomeday','nextactions','projects','reference','waitingon'),
+    '0.5'     => array('context','goals','maybe','maybesomeday','nextactions','projects','reference','waitingon')
     // 0.7 is the earliest version that we can upgrade from, here
-    '0.7'     => array('categories','checklist','checklistItems','context','goals','itemattributes','items','itemstatus','list','listItems','nextactions','projectattributes','projects','projectstatus','tickler','timeitems'),
+    ,'0.7'     => array('categories','checklist','checklistItems','context','goals','itemattributes','items','itemstatus','list','listItems','nextactions','projectattributes','projects','projectstatus','tickler','timeitems')
     // 0.8rc-1 was a major change, with goals, actions and projects all being merged into the items files
-    '0.8rc-1' => array('categories','checklist','checklistItems','context','itemattributes','items','itemstatus','list','listItems','lookup','nextactions','tickler','timeitems','version'),
+    ,'0.8rc-1' => array('categories','checklist','checklistItems','context','itemattributes','items','itemstatus','list','listItems','lookup','nextactions','tickler','timeitems','version')
     // 0.8rc-2 added the preferences table
-    '0.8rc-3' => array('categories','checklist','checklistItems','context','itemattributes','items','itemstatus','list','listItems','lookup','nextactions','tickler','timeitems','version','preferences'),
+    ,'0.8rc-3' => array('categories','checklist','checklistItems','context','itemattributes','items','itemstatus','list','listItems','lookup','nextactions','tickler','timeitems','version','preferences')
     // 0.8rc-4 saw all table names being standardised to lower case:
-    '0.8rc-4' => array('categories','checklist','checklistitems','context','itemattributes','items','itemstatus','list','listitems','lookup','nextactions','tickler','timeitems','version','preferences'),
+    ,'0.8rc-4' => array('categories','checklist','checklistitems','context','itemattributes','items','itemstatus','list','listitems','lookup','nextactions','tickler','timeitems','version','preferences')
     // 0.8z.04 - tagmap table introduced;     checklist,checklistitems,list,listitems,nextactions tables removed;   items,itemstatus,itemattributes reworked
-    '0.8z.04'   => array('categories','context','itemattributes','items','itemstatus','lookup','tagmap','timeitems','version','preferences')
+    ,'0.8z.04'   => array('categories','context','itemattributes','items','itemstatus','lookup','tagmap','timeitems','version','preferences')
     // 0.8z.05 - preferences table revised, no change to list of tables
+    // 0.8z.06 - perspectives and perspectivemap tables added
+    ,'0.8z.06'   => array('categories','context','itemattributes','items','itemstatus','lookup','perspectivemap','perspectives','tagmap','timeitems','version','preferences')
     );
 
 $versions=array(
     '0.5'=>     array(  'tables'=>'0.5',
                         'database'=>'0.5',
-                        'upgradepath'=>'X'),
-    '0.7'=>     array(  'tables'=>'0.7',
+                        'upgradepath'=>'X')
+    ,'0.7'=>     array(  'tables'=>'0.7',
                         'database'=>'0.7',
-                        'upgradepath'=>'0.7'),
-    '0.8rc-1'=> array(  'tables'=>'0.8rc-1',
+                        'upgradepath'=>'0.7')
+    ,'0.8rc-1'=> array(  'tables'=>'0.8rc-1',
                         'database'=>'0.8rc-1',
-                        'upgradepath'=>'0.8rc-1'),
-    '0.8rc-3'=> array(  'tables'=>'0.8rc-3',
+                        'upgradepath'=>'0.8rc-1')
+    ,'0.8rc-3'=> array(  'tables'=>'0.8rc-3',
                         'database'=>'0.8rc-3',
-                        'upgradepath'=>'0.8rc-3'),
-    '0.8rc-4'=> array(  'tables'=>'0.8rc-4',
+                        'upgradepath'=>'0.8rc-3')
+    ,'0.8rc-4'=> array(  'tables'=>'0.8rc-4',
                         'database'=>'0.8rc-4',
-                        'upgradepath'=>'0.8rc-4'),
-    '0.8z.04'  => array(  'tables'=>'0.8z.04',
+                        'upgradepath'=>'0.8rc-4')
+    ,'0.8z.04'  => array(  'tables'=>'0.8z.04',
                         'database'=>'0.8z.04',
-                        'upgradepath'=>'0.8z.04'),
-    '0.8z.05'  => array(  'tables'=>'0.8z.04',
+                        'upgradepath'=>'0.8z.04')
+    ,'0.8z.05'  => array(  'tables'=>'0.8z.04',
                         'database'=>'0.8z.05',
+                        'upgradepath'=>'0.8z.05')
+    ,'0.8z.06'  => array(  'tables'=>'0.8z.06',
+                        'database'=>'0.8z.06',
                         'upgradepath'=>'copy')
     );
 /*
@@ -124,7 +129,7 @@ $areDeleting=false;
 </head>
 <body>
 <?php include 'showMessage.inc.php'; ?>
-<h2>This is the gtd-php v0.9 installer</h2>
+<h2>This is the gtd-php installer</h2>
 <?php
 
 if (_DEBUG) echo '<pre>'
@@ -184,6 +189,7 @@ else {
 	checkInstall();
 }
 ?>
+</div>
 </div>
 </body>
 </html>
@@ -514,11 +520,19 @@ installation for use and familiarize yourself with the system.</p>\n
 		// deliberately flows through to next case
 		//---------------------------------------------------
 
+	 case '0.8z.05': // ugprade from 0.8z.05
+        echo '<h2>Upgrading database from 0.8z.05 to 0.8z.06</h2>';
+        copyToNewPrefix('0.8z.05',$fromPrefix,$toPrefix);
+		$fromPrefix=$toPrefix; // must only copy to new prefix ONCE, so prevent it happening again
+        up08z05TO08z06($fromPrefix,$toPrefix);
+		// deliberately flows through to next case
+		//---------------------------------------------------
+
 		//---------------------------------------------------
         // end of chained upgrade process
         updateVersion($toPrefix);
         fixData($toPrefix);
-        $endMsg="<p>GTD-PHP database upgraded to 0.8z.05 - gosh, you're brave</p>";
+        $endMsg="<p>GTD-PHP database upgraded to "._GTD_VERSION." - gosh, you're brave</p>";
         $install_success=true;
         break;
 		//---------------------------------------------------
@@ -1514,6 +1528,15 @@ function up08z04TO08z05($toPrefix) {
 }
 /*
    ======================================================================================
+*/
+function up08z05TO08z06($toPrefix) {
+    flushAndResetTimer();
+	create_table($toPrefix,"perspectives");
+	create_table($toPrefix,"perspectivemap");
+    return true;
+}
+/*
+   ======================================================================================
      Table Creation Queries
    ======================================================================================
 */
@@ -1533,7 +1556,7 @@ function create_table ($prefix,$name) {
        $q.="`description` text, ";
        $q.="PRIMARY KEY  (`categoryId`), ";
        $q.=_FULLTEXT." KEY `category` (`category`"._INDEXLEN."), ";
-       $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN."))"._CREATESUFFIX;
+       $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN.")";
     break;
     case "context":
        $q.="`contextId` int(10) unsigned NOT NULL auto_increment, ";
@@ -1541,7 +1564,7 @@ function create_table ($prefix,$name) {
        $q.="`description` text, ";
        $q.="PRIMARY KEY  (`contextId`), ";
        $q.=_FULLTEXT." KEY `name` (`name`"._INDEXLEN."), ";
-       $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN."))"._CREATESUFFIX;
+       $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN.")";
 	break;
 	case "itemattributes";
        $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
@@ -1554,7 +1577,7 @@ function create_table ($prefix,$name) {
        $q.="PRIMARY KEY (`itemId`), ";
        $q.="KEY `contextId` (`contextId`), ";
        $q.="KEY `timeframeId` (`timeframeId`), ";
-       $q.="KEY `isSomeday` (`isSomeday`) ) "._CREATESUFFIX;
+       $q.="KEY `isSomeday` (`isSomeday`) ";
 	break;
 	case "items":
        $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
@@ -1566,7 +1589,7 @@ function create_table ($prefix,$name) {
        $q.="PRIMARY KEY  (`itemId`), ";
        $q.=_FULLTEXT." KEY `title` (`title`"._INDEXLEN."), ";
        $q.=_FULLTEXT." KEY `desiredOutcome` (`desiredOutcome`"._INDEXLEN."), ";
-       $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN."))"._CREATESUFFIX;
+       $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN.")";
 	break;
 	case "itemstatus":
        $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
@@ -1577,47 +1600,60 @@ function create_table ($prefix,$name) {
        $q.="`categoryId` int(11) unsigned NOT NULL default '0', ";
        $q.=" PRIMARY KEY  (`itemId`), ";
        $q.=" KEY `type` (`type`), ";
-       $q.=" KEY `categoryId` (`categoryId`) ) ";
+       $q.=" KEY `categoryId` (`categoryId`) ";
 	break;
 	case "lookup":
-       $q.="`parentId` int(11) NOT NULL default '0', ";
-       $q.="`itemId` int(10) unsigned NOT NULL default '0', ";
-       $q.="PRIMARY KEY  (`parentId`,`itemId`) )";
+       $q.="`parentId` int(11) NOT NULL DEFAULT '0', ";
+       $q.="`itemId` int(10) UNSIGNED NOT NULL DEFAULT '0', ";
+       $q.="PRIMARY KEY  (`parentId`,`itemId`) ";
     break;
+	case "perspectivemap":
+        $q.="`filter` char(40) NOT NULL,`id` char(40) NOT NULL,
+             PRIMARY KEY(`filter`),
+             KEY(`id`(40))";
+	break;
+	case "perspectives":
+        $q.="`id` char(40) NOT NULL,
+             `name` text NOT NULL,
+             `sort` text,
+             `columns` text NOT NULL,
+             `show` text NOT NULL,
+             PRIMARY KEY (`id`(40))";
+	break;
 	case "preferences":
-       $q.="`id`  int(10) unsigned NOT NULL auto_increment,
-            `uid` int(10)  NOT NULL default '0',
+       $q.="`id`  int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+            `uid` int(10)  NOT NULL DEFAULT '0',
             `option` text NOT NULL,
             `value`  text,
             PRIMARY KEY (`id`),
-            UNIQUE KEY(`uid`,`option`(10)) ) "._CREATESUFFIX;
+            UNIQUE KEY(`uid`,`option`"._INDEXLEN.") ";
 	break;
     case "tagmap":
-        $q.= "`itemId` int(10) unsigned NOT NULL,
+        $q.= "`itemId` int(10) UNSIGNED NOT NULL,
             `tagname` text NOT NULL,
-            PRIMARY KEY (`itemId`,`tagname`(20) ),"
-            ._FULLTEXT." KEY `itemId` (`itemId`),"
-            ._FULLTEXT." KEY `tagname` (`tagname`"._INDEXLEN.") ) "._CREATESUFFIX;
+            PRIMARY KEY (`itemId`,`tagname`(20) ),
+            KEY `itemId` (`itemId`),"
+            ._FULLTEXT." KEY `tagname` (`tagname`"._INDEXLEN.") ";
     break;
 	case "timeitems":
-       $q.="`timeframeId` int(10) unsigned NOT NULL auto_increment, ";
+       $q.="`timeframeId` int(10) UNSIGNED NOT NULL auto_increment, ";
        $q.="`timeframe` text NOT NULL, ";
        $q.="`description` text, ";
        $q.="`type` enum('v','o','g','p','a') NOT NULL default 'a', ";
        $q.="PRIMARY KEY  (`timeframeId`), ";
        $q.="KEY `type` (`type`), ";
        $q.=_FULLTEXT." KEY `timeframe` (`timeframe`"._INDEXLEN."), ";
-       $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN."))"._CREATESUFFIX;
+       $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN.")";
     break;
 	case "version":
-       $q.="`version` text NOT NULL, ";
-       $q.="`updated` timestamp NOT NULL default CURRENT_TIMESTAMP on update ";
-       $q.=" CURRENT_TIMESTAMP)";
+       $q.="`version` text NOT NULL,
+            `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+            ON UPDATE CURRENT_TIMESTAMP";
     break;
     default:
     break;
     }
-    send_query($q);
+    send_query($q.')'._CREATESUFFIX);
 }
 /*
    ======================================================================================

@@ -2,35 +2,41 @@
 require_once 'headerDB.inc.php';
 if ($_SESSION['debug']['debug']) include_once 'header.inc.php';
 
-//page display options array--- can put defaults in preferences table/config/session and load into $show array as defaults...
-$show=array();
-
 //GET URL VARIABLES
 $values = array();
 $filter = array();
 
-// I've used getVarFromGetPost instead of $_REQUEST, because I want $_GET to have higher priority than $_POST.
-$filter['needle']         =getVarFromGetPost('needle');            //search string (plain text)
-$filter['type']           =getVarFromGetPost('type','a');
-$filter['everything']     =getVarFromGetPost('everything');        //overrides filter:true/empty
-$filter['contextId']      =getVarFromGetPost('contextId',NULL);
-if ($filter['contextId']==='0') $filter['contextId']=NULL;
+/* --------------------------------------------------------------------------
+ * set $filter
+ *
+ * NB the values for filter are assigned in alphabetic order,
+ * to try to assure consistency, as we'll be using the filter as the index-key
+ * to link to the right Perspective
+ *
+ * I've used getVarFromGetPost instead of $_REQUEST,
+ * because I want $_GET to have higher priority than $_POST.
+ */
 $filter['categoryId']     =getVarFromGetPost('categoryId',NULL);
 if ($filter['categoryId']==='0') $filter['categoryId']=NULL;
-$filter['timeframeId']    =getVarFromGetPost('timeframeId',NULL);
-if ($filter['timeframeId']==='0') $filter['timeframeId']=NULL;
+$filter['completed']      =getVarFromGetPost('completed');         //status:true/false (completed/pending)
+$filter['contextId']      =getVarFromGetPost('contextId',NULL);
+if ($filter['contextId']==='0') $filter['contextId']=NULL;
+$filter['dueonly']        =getVarFromGetPost('dueonly');           //has due date:true/empty
+$filter['everything']     =getVarFromGetPost('everything');        //overrides filter:true/empty
+$filter['liveparents']    =getVarFromGetPost('liveparents');
+$filter['needle']         =getVarFromGetPost('needle');            //search string (plain text)
+$filter['nextonly']       =getVarFromGetPost('nextonly');          //next actions only: true/empty
 $filter['notcategory']    =getVarFromGetPost('notcategory');
 $filter['notspacecontext']=getVarFromGetPost('notspacecontext');
 $filter['nottimecontext'] =getVarFromGetPost('nottimecontext');
-$filter['tickler']        =getVarFromGetPost('tickler');           //suppressed (tickler file): true/false
-$filter['someday']        =getVarFromGetPost('someday');           //someday/maybe:true/empty
-$filter['nextonly']       =getVarFromGetPost('nextonly');          //next actions only: true/empty 
-$filter['completed']      =getVarFromGetPost('completed');         //status:true/false (completed/pending)
-$filter['dueonly']        =getVarFromGetPost('dueonly');           //has due date:true/empty
-$filter['repeatingonly']  =getVarFromGetPost('repeatingonly');     //is repeating:true/empty
 $filter['parentId']       =getVarFromGetPost('parentId');
-$filter['liveparents']    =getVarFromGetPost('liveparents');
+$filter['repeatingonly']  =getVarFromGetPost('repeatingonly');     //is repeating:true/empty
+$filter['someday']        =getVarFromGetPost('someday');           //someday/maybe:true/empty
 $filter['tags']           =strtolower(getVarFromGetPost('tags'));
+$filter['tickler']        =getVarFromGetPost('tickler');           //suppressed (tickler file): true/false
+$filter['timeframeId']    =getVarFromGetPost('timeframeId',NULL);
+if ($filter['timeframeId']==='0') $filter['timeframeId']=NULL;
+$filter['type']           =getVarFromGetPost('type','a');
 
 if ($filter['type']==='s') {
     $filter['someday']=true;
@@ -43,8 +49,14 @@ if ($quickfind) {
     $filter['type']='*';
 }
 
+// pass filters in referrer
+$referrer = "{$pagename}.php?";
+foreach($filter as $filterkey=>$filtervalue)
+    if ($filtervalue!='') $referrer .= "{$filterkey}={$filtervalue}&amp;";
+
 /* end of setting $filter
- --------------------------------------*/
+    --------------------------------------------------------------------------
+*/
 log_value('listitems filter',$filter);
 
 $values['type']           =$filter['type'];
@@ -62,20 +74,18 @@ $taglisttemp=query('gettags',$values);
 $taglist=array();
 if ($taglisttemp) foreach ($taglisttemp as $tag) $taglist[]=makeclean($tag['tagname']);
 
-//create filters for selectboxes
+//create type-filter for timecontext select boxes
 $values['timefilterquery'] = ($_SESSION['config']['useTypesForTimeContexts'] && $values['type']!=='*')?" WHERE ".sqlparts("timetype",$values):'';
 
-//create filter selectboxes
+//create select boxes for category, context, time:
 $cashtml=str_replace('--','(any)',categoryselectbox   ($values));
 $cshtml =str_replace('--','(any)',contextselectbox    ($values));
 $tshtml =str_replace('--','(any)',timecontextselectbox($values));
 
-// pass filters in referrer
-$referrer = "{$pagename}.php?";
-foreach($filter as $filterkey=>$filtervalue)
-    if ($filtervalue!='') $referrer .= "{$filterkey}={$filtervalue}&amp;";
-
-//Select items
+/*
+ *  -------------------------------------------------------------------
+ *  determine the values of those variables that influence the columns displayed
+ */
 $trimlength=$_SESSION['config']['trimLength'];
 if($trimlength) {
     $descriptionField='shortdesc';
@@ -85,28 +95,7 @@ if($trimlength) {
     $outcomeField='desiredOutcome';
 }
 
-//set default table column display options (kludge-- needs to be divided into multidimensional array for each table type and added to preferences table
-$show['parent']=TRUE;
-$show['type']=FALSE;
-$show['NA']=FALSE;
-$show['title']=TRUE;
-$show[$descriptionField]=TRUE;
-$show[$outcomeField]=FALSE;
-$show['isSomeday']=FALSE;
-$show['tickledate']=FALSE;
-$show['dateCreated']=FALSE;
-$show['lastModified']=FALSE;
-$show['category']=TRUE;
-$show['context']=TRUE;
-$show['timeframe']=TRUE;
-$show['deadline']=TRUE;
-$show['recurdesc']=TRUE;
-$show['dateCompleted']=FALSE;
-$show['checkbox']=TRUE;
-$show['tags']=FALSE;
-$show['assignType']=FALSE;
-$showalltypes=false;
-//determine item and parent labels, set a few defaults
+//determine item and parent labels,
 $typename=getTypes($values['type']);
 $parenttypes=getParentType($values['type']);
 if (empty($parenttypes)) {
@@ -115,67 +104,146 @@ if (empty($parenttypes)) {
     $values['ptype']=$parenttypes[0];
     $parentname=getTypes($values['ptype']);
 }
-switch ($values['type']) {
-    case "*" : $show['type']=TRUE; $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=FALSE; $showalltypes=TRUE; break;
-    case "m" : $show['parent']=FALSE; $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
-    case "v" : $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
-    case "o" : $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
-    case "g" : $show['desiredOutcome']=TRUE; $show['context']=FALSE; $checkchildren=TRUE; break;
-    case "p" : $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
-    case "a" : $show['parent']=TRUE; $show['NA']=TRUE; $show['category']=FALSE; $checkchildren=FALSE; break;
-    case "w" : $show['parent']=TRUE; $show['NA']=TRUE; $checkchildren=FALSE; break;
-    case "r" : $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $checkchildren=FALSE; break;
-    case "i" : $show['parent']=FALSE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['recurdesc']=FALSE; $show['assignType']=TRUE; $afterTypeChange='listItems.php?type=i';$checkchildren=FALSE; break;
-    case "L" : // as case 'C', so deliberately flows through
-    case "C" : $show['parent']=TRUE; $show['category']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=FALSE; $show['recurdesc']=FALSE; $show['checkbox']=FALSE; $checkchildren=TRUE; break;
-    case "T" : $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['recurdesc']=FALSE; $checkchildren=FALSE; break;
-    default  : $typename="Item"; $parentname=$values['ptype']=""; $checkchildren=FALSE;
-}
-$show['flags']=$checkchildren; // temporary measure; to be made user-configurable later
+/*
+    ===================================================================
+    setting $show/$dispArray values
+*/
+// default list of fields
+$dispArray=array(
+    'parent'=>'parents'
+    ,'type'=>'type'
+    ,'flags'=>'!'
+    ,'NA'=>'NA'
+    ,'title'=>$typename.'s'
+    ,$descriptionField=>'Description'
+    ,$outcomeField=>'Desired Outcome'
+    ,'category'=>'Category'
+    ,'context'=>'Space Context'
+    ,'timeframe'=>'Time Context'
+    ,'deadline'=>'Deadline'
+    ,'recurdesc'=>'Repeat'
+    ,'tickledate'=>'Suppress until'
+    ,'dateCreated'=>'Date Created'
+    ,'lastModified'=>'Last Modified'
+    ,'dateCompleted'=>'Date Completed'
+    ,'checkbox'=>'Complete'
+    ,'tags'=>'Tags'
+    ,'assignType'=>'Process inbox'
+);
+$show=array();
+foreach ($dispArray as $key=>$dummy)
+    $show[$key]=false;
+    
+$testuri=sha1($referrer);
+$perspectivefilter=' WHERE '.sqlparts('perspectiveuri',array('uri'=>$testuri));
+$displayoptions=query('selectperspective',array('filterquery'=>$perspectivefilter));
+//}
+if ($displayoptions) {
+    // we have a saved perspective setting out how pages with this filter should be displayed.
 
+    $dispCopy=$dispArray;
+    $dispArray=array();
+    foreach (explode(',',$displayoptions[0]['columns']) as $field)
+        $dispArray[$field]=$dispCopy[$field];
+        
+    $mainsort=safeIntoDB($displayoptions[0]['sort']);
+    if (!empty($mainsort))
+        $sort=array('getitemsandparent'=>$mainsort.','.$_SESSION['sort']['getitemsandparent']);
+    
+    foreach (explode(',',$displayoptions[0]['show']) as $field)
+        $show[$field]=true;
 
-if ($filter['someday']=="true") {
-    $show['dateCreated']=TRUE;
-    $show['context']=FALSE;
-    $show['recurdesc']=FALSE;
-    $show['NA']=FALSE;
-    $show['deadline']=FALSE;
-    $show['timeframe']=FALSE;
-    $checkchildren=FALSE; 
-}
-
-if ($filter['tickler']=="true") $show['tickledate']=TRUE;
-
-if ($filter['dueonly']=="true") $show['deadline']=TRUE;
-
-if ($filter['repeatingonly']=="true") {
+    $checkchildren=array_key_exists('flags',$dispArray);
+} else {
+    // manually calculating which columns to show
+    // set default table column display options
+    $sort=false;
+    $showalltypes=false;
+    //page display options array--- can put defaults in preferences table/config/session and load into $show array as defaults...
+    $show['parent']=TRUE;
+    $show['title']=TRUE;
+    $show[$descriptionField]=TRUE;
+    $show['category']=TRUE;
+    $show['context']=TRUE;
+    $show['timeframe']=TRUE;
     $show['deadline']=TRUE;
     $show['recurdesc']=TRUE;
-}
+    $show['checkbox']=TRUE;
 
-if ($filter['completed']=="true") {
-    $show['NA']=FALSE;
-    $show['flags']=FALSE;
-    $show['tickledate']=FALSE;
-    $show['dateCreated']=TRUE;
-    $show['deadline']=FALSE;
-    $show['recurdesc']=FALSE;
-    $show['dateCompleted']=TRUE;
-    $show['checkbox']=FALSE;
-    $checkchildren=FALSE; 
-}
+    switch ($values['type']) {
+        case "*" : $show['type']=TRUE; $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=FALSE; $showalltypes=TRUE; break;
+        case "m" : $show['parent']=FALSE; $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+        case "v" : $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+        case "o" : $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['deadline']=FALSE; $show['desiredOutcome']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+        case "g" : $show['desiredOutcome']=TRUE; $show['context']=FALSE; $checkchildren=TRUE; break;
+        case "p" : $show['context']=FALSE; $show['timeframe']=FALSE; $checkchildren=TRUE; break;
+        case "a" : $show['parent']=TRUE; $show['NA']=TRUE; $show['category']=FALSE; $checkchildren=FALSE; break;
+        case "w" : $show['parent']=TRUE; $show['NA']=TRUE; $checkchildren=FALSE; break;
+        case "r" : $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['checkbox']=FALSE; $show['recurdesc']=FALSE; $show['dateCreated']=TRUE; $checkchildren=FALSE; break;
+        case "i" : $show['parent']=FALSE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['recurdesc']=FALSE; $show['assignType']=TRUE; $afterTypeChange='listItems.php?type=i';$checkchildren=FALSE; break;
+        case "L" : // as case 'C', so deliberately flows through
+        case "C" : $show['parent']=TRUE; $show['category']=TRUE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=FALSE; $show['recurdesc']=FALSE; $show['checkbox']=FALSE; $checkchildren=TRUE; break;
+        case "T" : $show['parent']=TRUE; $show['category']=FALSE; $show['context']=FALSE; $show['timeframe']=FALSE; $show['deadline']=FALSE; $show['dateCreated']=TRUE; $show['recurdesc']=FALSE; $checkchildren=FALSE; break;
+        default  : $typename="Item"; $parentname=$values['ptype']=""; $checkchildren=FALSE;
+    }
+    $show['flags']=$checkchildren; // temporary measure; to be made user-configurable later
 
-if ($filter['everything']=="true") {
-    $show['type']=$showalltypes;
-    $show['isSomeday']=TRUE;
-    $show['tickledate']=TRUE;
-    $show['dateCreated']=TRUE;
-    $show['lastModified']=TRUE;
-    $show['deadline']=TRUE;
-    $show['dateCompleted']=TRUE;
-    $show['checkbox']=FALSE;
-}
-if (!$checkchildren) $show['flags']=FALSE;
+
+    if ($filter['someday']=="true") {
+        $show['dateCreated']=TRUE;
+        $show['context']=FALSE;
+        $show['recurdesc']=FALSE;
+        $show['NA']=FALSE;
+        $show['deadline']=FALSE;
+        $show['timeframe']=FALSE;
+        $checkchildren=FALSE;
+    }
+
+    if ($filter['tickler']=="true") $show['tickledate']=TRUE;
+
+    if ($filter['dueonly']=="true") $show['deadline']=TRUE;
+
+    if ($filter['repeatingonly']=="true") {
+        $show['deadline']=TRUE;
+        $show['recurdesc']=TRUE;
+    }
+
+    if ($filter['completed']=="true") {
+        $show['NA']=FALSE;
+        $show['flags']=FALSE;
+        $show['tickledate']=FALSE;
+        $show['dateCreated']=TRUE;
+        $show['deadline']=FALSE;
+        $show['recurdesc']=FALSE;
+        $show['dateCompleted']=TRUE;
+        $show['checkbox']=FALSE;
+        $checkchildren=FALSE;
+    }
+
+    if ($filter['everything']=="true") {
+        $show['type']=$showalltypes;
+        $show['isSomeday']=TRUE;
+        $show['tickledate']=TRUE;
+        $show['dateCreated']=TRUE;
+        $show['lastModified']=TRUE;
+        $show['deadline']=TRUE;
+        $show['dateCompleted']=TRUE;
+        $show['checkbox']=FALSE;
+    }
+    if ($filter['tags'] !=NULL) $show['tags']=true;
+
+    if (!$checkchildren) $show['flags']=FALSE;
+
+    if (!$show['assignType'])
+        unset($dispArray['assignType']);
+    // end of manually calculating which columns to show
+} 
+
+/*
+    end of setting $show/$dispArray values
+    ===================================================================
+    build the query
+*/
 //set query fragments based on filters
 $values['childfilterquery'] = "WHERE TRUE";
 
@@ -197,7 +265,6 @@ if ($checkchildren) {
 if ($filter['tags'] !=NULL) {
     // now put into array, to count
     $values['childfilterquery'] .= " AND " .sqlparts("hastags",$values);
-    $show['tags']=true;
 }
 
 /*  Only use filter selections if $filter['everything'] is not true;
@@ -304,7 +371,7 @@ $title .= $typename;
 if ($quickfind)
     $result=0;
 else
-    $result=query("getitemsandparent",$values);
+    $result=query("getitemsandparent",$values,$sort);
     
 $maintable=array();
 $thisrow=0;
@@ -395,28 +462,6 @@ if ($result) {
         $maintable[$thisrow]['tickledate']= $row['tickledate'];
         $thisrow++;
     } // end of: foreach ($result as $row)
-    
-    $dispArray=array(
-        'parent'=>'parents'
-        ,'type'=>'type'
-        ,'flags'=>'!'
-        ,'NA'=>'NA'
-        ,'title'=>$typename.'s'
-        ,$descriptionField=>'Description'
-        ,$outcomeField=>'Desired Outcome'
-        ,'category'=>'Category'
-        ,'context'=>'Space Context'
-        ,'timeframe'=>'Time Context'
-        ,'deadline'=>'Deadline'
-        ,'recurdesc'=>'Repeat'
-        ,'tickledate'=>'Suppress until'
-        ,'dateCreated'=>'Date Created'
-        ,'lastModified'=>'Last Modified'
-        ,'dateCompleted'=>'Date Completed'
-        ,'checkbox'=>'Complete'
-        ,'tags'=>'Tags'
-        );
-    if ($show['assignType']) $dispArray['assignType']='Process inbox';
     
     log_value('values to print:',$maintable);
 } // end of: if($result)

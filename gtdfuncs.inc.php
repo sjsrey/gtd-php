@@ -28,7 +28,6 @@ if (empty($_SESSION['debug']['debug'])) {
 
             if (gettype($pretext)==='string') {
                 $truevar=$varname;
-                echo htmlentities($pretext,ENT_NOQUOTES);
             } else {
                 $pretext=$varname;
                 eval("\$truevar=(isset($varname))?$varname:\$GLOBALS['".substr($varname,1)."'];");
@@ -658,6 +657,24 @@ function retrieveConfig() {
     foreach($_SESSION['addons'] as $addon=>$dummy)
         getEvents($addon);
 }
+//----------------------------------------------------------------
+function savePerspective($values) {
+    // first save the view to a table
+    if (query('newperspective',$values)) {
+        // and if that worked, save the map from URI to the view
+        $values['perspectiveid']=SHA1("{$values['sort']}{$values['columns']}{$values['show']}");
+        if (query('newperspectivemap',$values)) {
+            return true; // good, that worked too, so everything's ok.
+        } else {
+            $_SESSION['message'][]="Created new perspective, but failed to map it to URI: $uri";
+        }
+    } else {
+        $_SESSION['message'][]="Failed to create the perspective DB entry for the URI: $uri";
+    }
+    return false; // something failed
+}
+//----------------------------------------------------------------
+
 /*
     end of functions to handle the user-preferences and configuration
    ======================================================================================
@@ -757,7 +774,7 @@ function query($querylabel,$values=NULL,$sort=NULL) {
     log_array(array(
         'Query Label:'=>$querylabel
         ,'Values to be made safe:'=>$values
-        ,'Sort array'=>$sort));
+        ,'Sort array:'=>$sort));
 
     if (empty($sort)) $sort=$_SESSION['sort'];
 

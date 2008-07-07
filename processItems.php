@@ -680,15 +680,11 @@ function nextPage() { // set up the forwarding to the next page
                 //-------------------------------------------------------
             }
         }
-        echo '</values>';
-
-        echo '<result>';
+        echo '</values><result>';
         if (!empty($outtext)) foreach ($outtext as $line) echo "<line><![CDATA[$line]]></line>";
-        echo '</result>';
-
-        echo "<nextURL><![CDATA[$nextURL]]></nextURL>";
-        echo "<log><![CDATA[$logtext]]></log>";
-        echo "</gtdphp>";
+        echo '</result>'
+            ,"<log><![CDATA[$logtext]]></log>"
+            ,"</gtdphp>";
         exit;
     } else nextScreen($nextURL);
 }

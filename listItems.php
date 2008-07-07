@@ -1,14 +1,6 @@
 <?php
+$title='';
 require_once 'listItems.inc.php';
-require_once 'headerHtml.inc.php';
-?>
-<script type='text/javascript'>/* <![CDATA[ */
-GTD.addEvent(window,'load',function() {
-    GTD.filtertoggle();
-    <?php if ($quickfind) echo "GTD.focusOnForm('needle');\n"; ?>
-});
-/* ]]> */ </script>
-<?php
 require_once 'header.inc.php';
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
 ?>
@@ -95,7 +87,7 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
         </div>
     </form>
 </div>
-<h2><?php echo $sectiontitle; ?></h2>
+<h2 id='pagetitle'><?php echo $sectiontitle; ?></h2>
 <?php if (count($maintable)) { ?>
     <form action="processItems.php" method="post">
     <table class="datatable sortable" summary="Table of actions" id="actiontable">
@@ -109,6 +101,7 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
             echo "<input type='submit' class='button' value='Update marked {$typename}s' name='submit' />";
         ?>
         <input type="hidden" name="referrer" value="<?php echo $referrer; ?>" />
+        <input type="hidden" name="uri" id='uri' value="<?php echo $testuri; ?>" />
         <input type="hidden" name="type" value="<?php echo $values['type']; ?>" />
         <input type="hidden" name="multi" value="y" />
         <input type="hidden" name="action" value="complete" />
@@ -120,4 +113,10 @@ if (isset($endmsg['header'])) echo "<h4>{$endmsg['header']}</h4>\n";
 if (isset($endmsg['link'])) echo "<a href='{$endmsg['link']}'>{$endmsg['prompt']}</a>\n";
 ?>
 <div id='debuglog'></div>
+<script type='text/javascript'>/* <![CDATA[ */
+GTD.addEvent(window,'load',function() {
+    GTD.filtertoggle();
+    <?php if ($quickfind) echo "GTD.focusOnForm('needle');\n"; ?>
+});
+/* ]]> */ </script>
 <?php include_once 'footer.inc.php'; ?>

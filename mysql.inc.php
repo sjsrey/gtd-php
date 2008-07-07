@@ -613,6 +613,21 @@ function getsql($querylabel,$values,$sort) {
 				VALUES ('{$values['parentId']}','{$values['newitemId']}')";
 			break;
 
+        case 'newperspective':
+            $sql="INSERT INTO `{$prefix}perspectives`
+                    (`id`,`name`,`sort`,`columns`,`show`)
+                VALUES (
+                    SHA1('{$values['sort']}{$values['columns']}{$values['show']}'),
+                    '{$values['name']}','{$values['sort']}','{$values['columns']}','{$values['show']}'
+                )    ON DUPLICATE KEY UPDATE `name`='{$values['name']}' ";
+            break;
+
+        case 'newperspectivemap':
+            $sql="INSERT INTO `{$prefix}perspectivemap` (`filter`,`id`)
+                    VALUES ('{$values['uri']}','{$values['perspectiveid']}')
+                    ON DUPLICATE KEY UPDATE `id`='{$values['perspectiveid']}'";
+            break;
+
 		case "newspacecontext":
 			$sql="INSERT INTO `{$prefix}context`
 						(`name`,`description`)
@@ -718,6 +733,11 @@ function getsql($querylabel,$values,$sort) {
 				LEFT OUTER JOIN `{$prefix}itemattributes` AS ia ON (lu.`parentId` = ia.`itemId`)
 				WHERE lu.`itemId`='{$values['itemId']}'";
 			break;
+
+        case 'selectperspective':
+            $sql="SELECT `sort`,`columns`,`show` FROM `{$prefix}perspectivemap`
+                  JOIN `{$prefix}perspectives` USING (`id`) {$values['filterquery']}";
+            break;
 
 		case "selecttimecontext":
 			$sql="SELECT `timeframeId`, `timeframe`, `description`, `type`
@@ -987,6 +1007,9 @@ function sqlparts($part,$values) {
 	case "pendingitems":
 		$sqlpart = " its.`dateCompleted` IS NULL ";
 		break;
+    case "perspectiveuri":
+        $sqlpart = " `filter`='{$values['uri']}'";
+        break;
 	case "repeating":
 		$sqlpart = " i.`recur` !='' ";
 		break;

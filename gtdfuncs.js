@@ -440,7 +440,7 @@ GTD.confirmDelete=function(elem) {
 };
 // ======================================================================================
 GTD.cookieGet=function (name,path) {
-/* TODO - confirm path
+/*
  * get a cookie
  * returns: value of the cookie
  *

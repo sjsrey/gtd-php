@@ -66,7 +66,7 @@ ul.tabbar li:hover {
     z-index: 2000;
     border: 3px red groove;
     width:10em;
-    background: white url(cross.png) no-repeat right top;
+    background: white;
 }
 #colselector li {
     list-style: none inside;
@@ -79,6 +79,21 @@ ul.tabbar li:hover {
 }
 #colselector li.colshown {
     background: url(eye.png) no-repeat left center;
+}
+#saveperspective,#closeselector {
+    height:16px;
+    width:16px;
+    position:absolute;
+    top:0;
+    cursor:pointer;
+}
+#saveperspective {
+    background: url(table_save.png) no-repeat center;
+    right:24px;
+}
+#closeselector {
+    background: url(cross.png) no-repeat center;
+    right:0;
 }
 th.ajaxeye {
     background: url(eye.png) no-repeat center;
