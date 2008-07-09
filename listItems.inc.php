@@ -138,7 +138,7 @@ $testuri=sha1($referrer);
 $perspectivefilter=' WHERE '.sqlparts('perspectiveuri',array('uri'=>$testuri));
 $displayoptions=query('selectperspective',array('filterquery'=>$perspectivefilter));
 //}
-if ($displayoptions) {
+if (false && $displayoptions) { // disabling this for now
     // we have a saved perspective setting out how pages with this filter should be displayed.
 
     $dispCopy=$dispArray;
@@ -331,7 +331,7 @@ if ($filter['everything']!="true") {
     
     if ($filter['dueonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("due",$values);
 
-    if ($filter['nextonly']=='true' && !$checkchildren)
+    if ($filter['nextonly']=='true')
         $values['childfilterquery'] .= ' AND '.sqlparts("isNAonly",$values);
 
 }

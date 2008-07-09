@@ -484,6 +484,7 @@ function getsql($querylabel,$values,$sort) {
     				x.`contextId`, x.`cname`, x.`timeframeId`,
     				x.`timeframe`,x.`nextaction`,
     				GROUP_CONCAT(DISTINCT y.`parentId` ORDER BY y.`ptitle`) as `parentId`,
+    				GROUP_CONCAT(DISTINCT y.`ptype`    ORDER BY y.`ptitle`) as `ptype`,
     				GROUP_CONCAT(DISTINCT y.`ptitle` ORDER BY y.`ptitle` SEPARATOR '{$_SESSION['config']['separator']}') AS `ptitle`,
                     GROUP_CONCAT(DISTINCT tm.`tagname` ORDER BY `tagname` SEPARATOR ',') AS tags
     				{$values['extravarsfilterquery']}

@@ -1099,19 +1099,19 @@ function showcolumnselector(e) {
                 ).
                 click(columnpreviewtoggle)                      // when the CHECKBOX is clicked, run columnpreviewtoggle
         ).
-        append(
-            $(document.createElement('span')).         // and the SPAN also contains a LABEL
+/*        append(
+            $(document.createElement('span')).         
                 attr({id:'saveperspective',
                     title:'Save this perspective as the default display for this page'}
                 ).
                 click(saveperspective)                      // when the save icon is clicked, do an AJAX save
         ).
-        append(
-            $(document.createElement('span')).         // and the SPAN also contains a LABEL
+*/        append(
+            $(document.createElement('span')).         
                 attr({id:'closeselector',
                     title:'close this column-selector box'}
                 ).
-                click(colselectorclose)                      // when the save icon is clicked, do an AJAX save
+                click(colselectorclose)                      
         );
 
     collist=$(document.createElement('ul')).                    // insert a UL into the popup DIV
