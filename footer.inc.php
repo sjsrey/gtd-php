@@ -10,7 +10,7 @@ include 'showMessage.inc.php'; ?>
 <div id='footer'>
     page generated in <?php echo $tottime; ?>ms
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	gtd-php version <?php echo _GTDPHP_VERSION,' rev',_GTD_REVISION; ?>
+	gtd-php <?php echo ' database:',_GTD_VERSION,', package:',_GTDPHP_VERSION,' rev',_GTD_REVISION; ?>
 </div>
 </body>
 </html>

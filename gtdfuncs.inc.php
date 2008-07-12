@@ -74,8 +74,9 @@ function scanforcircularandmap($parents,&$map,&$ids,$seeds=null) { // get the ma
     log_array(array(
         'Calling scanforcircularandmap with seeds'=>$seeds
         ,'and parents'=>$parents));
+    if (!$parents) return array();
     $map=$bad=$looplist=array();
-    if ($parents) foreach ($parents as $pair)
+    foreach ($parents as $pair)
         $children[]=$map[$pair['parentId']][] = $pair['itemId'];
     if (empty($seeds)) {
         // if we are not given a parent seed, make a list of all items which might be
@@ -452,18 +453,18 @@ function resetHierarchy() {
     $_SESSION['hierarchy']['suppressAsOrphans']='imLC';
 
     $_SESSION['hierarchy']['children']=array(
-        'T'=>array(),
-        'L'=>array('T'),
-        'C'=>array('T'),
-        'a'=>array(),
+        'm'=>array('v','o'),
+        'v'=>array('o','g','L','C'),
+        'o'=>array('g','p','L','C'),
+        'g'=>array('p','L','C'),
+        'p'=>array('p','a','w','r','i','C','L'),
         'w'=>array(),
+        'a'=>array(),
         'r'=>array(),
         'i'=>array(),
-        'p'=>array('p','a','w','r','i','C','L'),
-        'g'=>array('p','L','C'),
-        'o'=>array('g','p','L','C'),
-        'v'=>array('o','g','L','C'),
-        'm'=>array('v','o')
+        'C'=>array('T'),
+        'L'=>array('T'),
+        'T'=>array()
     );
     mirrorParentTypes();
 }
