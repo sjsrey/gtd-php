@@ -402,7 +402,7 @@ function getShow($where,$type) {
         // fields only shown for certain types
         'timeframe'     =>($type==='i' || $type==='a' || $type==='p' || $type==='g'  || $type==='o' || $type==='v'),
         'context'       =>($type==='i' || $type==='a' || $type==='w' || $type==='r'  || $type==='p' ),
-        'deadline'      =>($type==='p' || $type==='a' || $type==='w' || $type==='i'),
+        'deadline'      =>($type==='p' || $type==='a' || $type==='w' || $type==='i' || $type==='g'),
         'tickledate'    =>($type==='p' || $type==='a' || $type==='w'),
         'recurdesc'     =>($type==='p' || $type==='a' || $type==='g'),
         'NA'            =>($type==='a' || $type==='w'),
