@@ -14,5 +14,5 @@ p.buttons, p.checkboxes, span.editbar, .button, .noprint {
 /* Now, resize larger text to make them fit better on the page */
 #main h1, #main h2 {
 	font-size: 1em;
-	border: none;
+	border: 0pt none;
 }

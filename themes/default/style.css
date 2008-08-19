@@ -251,11 +251,11 @@ a:hover{
 	color:#039; 
 }
 a img {
-	border:none;
+	border: 0pt none;
 }
 
 img {
-    border: none;
+    border: 0pt none;
     margin-right: 2px;
 }
 

@@ -684,7 +684,7 @@ function create_table ($name) {
 	case "itemstatus":
        $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
        $q.="`dateCreated` date  default NULL, ";
-       $q.="`lastModified` timestamp default '"._DEFAULTDATE."' ,";
+       $q.="`lastModified` timestamp default CURRENT_TIMESTAMP ,";
        $q.="`dateCompleted` date default NULL, ";
        $q.="PRIMARY KEY  (`itemId`))";
 	break;
