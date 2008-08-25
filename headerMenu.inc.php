@@ -139,7 +139,7 @@ if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddo
 <div id="menudiv">
 	<ul id="menulist">
     <?php
-    $class=$menuend='';
+    $accesskeys=$class=$menuend='';
     foreach ($menu as $index=>$line) {
         if (empty($line['link'])) {
             if ($line['label']==='separator') {
@@ -152,12 +152,12 @@ if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddo
             if (empty($acckey[$line['link']]))
                 $accesskey=$keypress='';
             else {
-                $menu[$index]['key']=$acckey[$line['link']];
+                $menu[$index]['key']=$key=$acckey[$line['link']];
                 $keypress=" ({$acckey[$line['link']]})";
-                $accesskey=" accesskey='{$acckey[$line['link']]}'";
+                $accesskeys.="<a href='{$line['link']}' accesskey='$key'></a>";
             }
 	        echo "<li$class>\n"
-                ,"<a href='{$line['link']}' title='{$line['title']}' $accesskey>"
+                ,"<a href='{$line['link']}' title='{$line['title']}'>"
                 ,"{$line['label']}$keypress</a></li>\n";
             $class='';
         }
@@ -165,4 +165,5 @@ if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddo
     echo $menuend;
     ?>
 	</ul>
+	<div id='accesskeys'><?php echo $accesskeys; ?></div>
 </div>

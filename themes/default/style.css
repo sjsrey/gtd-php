@@ -518,3 +518,8 @@ a.sortheader { display: block;}
 .sortdown {
     background-image: url("down.gif");
 }
+#accesskeys {
+    display:inline;
+    height:1px;
+    width:1px;
+}
