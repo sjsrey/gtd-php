@@ -114,7 +114,7 @@ if (isset($endmsg['link'])) echo "<a href='{$endmsg['link']}'>{$endmsg['prompt']
 ?>
 <div id='debuglog'></div>
 <script type='text/javascript'>/* <![CDATA[ */
-GTD.addEvent(window,'load',function() {
+$(document).ready(function() {
     GTD.filtertoggle();
     <?php if ($quickfind) echo "GTD.focusOnForm('needle');\n"; ?>
 });

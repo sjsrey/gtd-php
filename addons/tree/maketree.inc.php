@@ -107,10 +107,9 @@ if ($showingall) {
         );
 }
 // retrieve item info about all the items we are interested in
-$q="SELECT i.*,ia.*,its.*
+$q="SELECT i.*,its.*
 		FROM `{$prefix}items`      AS i
 		JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
-		LEFT OUTER JOIN `{$prefix}itemattributes` AS ia  USING (`itemId`)
 		{$values['filterquery']}";
 $result=query($q);
 

@@ -1,5 +1,5 @@
 /*
- * jQuery UI 1.5.1
+ * jQuery UI 1.6b 2008-08-25
  *
  * Copyright (c) 2008 Paul Bakaus (ui.jquery.com)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -46,15 +46,11 @@ $.ui = {
 		try { $('body').get(0).removeChild(tmp.get(0));	} catch(e){}
 		return $.ui.cssCache[name];
 	},
-	disableSelection: function(e) {
-		e.unselectable = "on";
-		e.onselectstart = function() { return false; };
-		if (e.style) { e.style.MozUserSelect = "none"; }
+	disableSelection: function(el) {
+		$(el).attr('unselectable', 'on').css('MozUserSelect', 'none');
 	},
-	enableSelection: function(e) {
-		e.unselectable = "off";
-		e.onselectstart = function() { return true; };
-		if (e.style) { e.style.MozUserSelect = ""; }
+	enableSelection: function(el) {
+		$(el).attr('unselectable', 'off').css('MozUserSelect', '');
 	},
 	hasScroll: function(e, a) {
 		var scroll = /top/.test(a||"top") ? 'scrollTop' : 'scrollLeft', has = false;
@@ -69,7 +65,7 @@ $.ui = {
 
 var _remove = $.fn.remove;
 $.fn.remove = function() {
-	$("*", this).add(this).trigger("remove");
+	$("*", this).add(this).triggerHandler("remove");
 	return _remove.apply(this, arguments );
 };
 
@@ -200,7 +196,7 @@ $.ui.mouse = {
 		
 		var self = this,
 			btnIsLeft = (e.which == 1),
-			elIsCancel = (typeof this.options.cancel == "string" ? $(e.target).is(this.options.cancel) : false);
+			elIsCancel = (typeof this.options.cancel == "string" ? $(e.target).parents().add(e.target).filter(this.options.cancel).length : false);
 		if (!btnIsLeft || elIsCancel || !this.mouseCapture(e)) {
 			return true;
 		}
@@ -307,7 +303,7 @@ $.ui.mouse.defaults = {
  */
 (function($) {
 
-$.widget("ui.draggable", $.extend($.ui.mouse, {
+$.widget("ui.draggable", $.extend({}, $.ui.mouse, {
 	init: function() {
 		
 		//Initialize needed constants
@@ -511,10 +507,11 @@ $.widget("ui.draggable", $.extend($.ui.mouse, {
 	mouseStop: function(e) {
 		
 		//If we are using droppables, inform the manager about the drop
+		var dropped = false;
 		if ($.ui.ddmanager && !this.options.dropBehaviour)
-			$.ui.ddmanager.drop(this, e);
-			
-		if(this.options.revert) {
+			var dropped = $.ui.ddmanager.drop(this, e);		
+		
+		if((this.options.revert == "invalid" && !dropped) || (this.options.revert == "valid" && dropped) || this.options.revert === true) {
 			var self = this;
 			$(this.helper).animate(this.originalPosition, parseInt(this.options.revert, 10) || 500, function() {
 				self.propagate("stop", e);
@@ -547,6 +544,7 @@ $.widget("ui.draggable", $.extend($.ui.mouse, {
 	},
 	propagate: function(n,e) {
 		$.ui.plugin.call(this, n, [e, this.uiHash()]);
+		if(n == "drag") this.positionAbs = this.convertPositionTo("absolute"); //The absolute position has to be recalculated after plugins
 		return this.element.triggerHandler(n == "drag" ? n : "drag"+n, [e, this.uiHash()], this.options[n]);
 	},
 	destroy: function() {
@@ -879,7 +877,7 @@ function contains(a, b) {
     return false; 
 };
 
-$.widget("ui.sortable", $.extend($.ui.mouse, {
+$.widget("ui.sortable", $.extend({}, $.ui.mouse, {
 	init: function() {
 
 		var o = this.options;
@@ -947,7 +945,7 @@ $.widget("ui.sortable", $.extend($.ui.mouse, {
 		var l = item.left, r = l + item.width, 
 		t = item.top, b = t + item.height;
 
-		if(this.options.tolerance == "pointer" || (this.options.tolerance == "guess" && this.helperProportions[this.floating ? 'width' : 'height'] > item[this.floating ? 'width' : 'height'])) {
+		if(this.options.tolerance == "pointer" || this.options.forcePointerForContainers || (this.options.tolerance == "guess" && this.helperProportions[this.floating ? 'width' : 'height'] > item[this.floating ? 'width' : 'height'])) {
 			return (y1 + this.offset.click.top > t && y1 + this.offset.click.top < b && x1 + this.offset.click.left > l && x1 + this.offset.click.left < r);
 		} else {
 		
@@ -1052,8 +1050,8 @@ $.widget("ui.sortable", $.extend($.ui.mouse, {
 			var t = this.options.toleranceElement ? $(this.options.toleranceElement, this.items[i].item) : this.items[i].item;
 			
 			if(!fast) {
-				this.items[i].width = t.outerWidth();
-				this.items[i].height = t.outerHeight();
+				this.items[i].width = t[0].offsetWidth;
+				this.items[i].height = t[0].offsetHeight;
 			}
 			
 			var p = t.offset();
@@ -1061,15 +1059,19 @@ $.widget("ui.sortable", $.extend($.ui.mouse, {
 			this.items[i].top = p.top;
 			
 		};
-		
-		for (var i = this.containers.length - 1; i >= 0; i--){
-			var p =this.containers[i].element.offset();
-			this.containers[i].containerCache.left = p.left;
-			this.containers[i].containerCache.top = p.top;
-			this.containers[i].containerCache.width	= this.containers[i].element.outerWidth();
-			this.containers[i].containerCache.height = this.containers[i].element.outerHeight();
-		};
-		
+
+		if(this.options.custom && this.options.custom.refreshContainers) {
+			this.options.custom.refreshContainers.call(this);
+		} else {
+			for (var i = this.containers.length - 1; i >= 0; i--){
+				var p =this.containers[i].element.offset();
+				this.containers[i].containerCache.left = p.left;
+				this.containers[i].containerCache.top = p.top;
+				this.containers[i].containerCache.width	= this.containers[i].element.outerWidth();
+				this.containers[i].containerCache.height = this.containers[i].element.outerHeight();
+			};
+		}
+
 	},
 	destroy: function() {
 		this.element
@@ -1187,7 +1189,7 @@ $.widget("ui.sortable", $.extend($.ui.mouse, {
 
 		//Create and append the visible helper			
 		this.helper = typeof o.helper == 'function' ? $(o.helper.apply(this.element[0], [e, this.currentItem])) : this.currentItem.clone();
-		if(!this.helper.parents('body').length) this.helper.appendTo((o.appendTo != 'parent' ? o.appendTo : this.currentItem[0].parentNode)); //Add the helper to the DOM if that didn't happen already
+		if (!this.helper.parents('body').length) $(o.appendTo != 'parent' ? o.appendTo : this.currentItem[0].parentNode)[0].appendChild(this.helper[0]); //Add the helper to the DOM if that didn't happen already
 		this.helper.css({ position: 'absolute', clear: 'both' }).addClass('ui-sortable-helper'); //Position it absolutely and add a helper class
 
 		/*
@@ -1349,10 +1351,19 @@ $.widget("ui.sortable", $.extend($.ui.mouse, {
 	},
 	mouseDrag: function(e) {
 
-
 		//Compute the helpers position
 		this.position = this.generatePosition(e);
 		this.positionAbs = this.convertPositionTo("absolute");
+
+		//Call the internal plugins
+		$.ui.plugin.call(this, "sort", [e, this.ui()]);
+		
+		//Regenerate the absolute position used for position checks
+		this.positionAbs = this.convertPositionTo("absolute");
+		
+		//Set the helper's position
+		this.helper[0].style.left = this.position.left+'px';
+		this.helper[0].style.top = this.position.top+'px';
 
 		//Rearrange
 		for (var i = this.items.length - 1; i >= 0; i--) {
@@ -1375,20 +1386,17 @@ $.widget("ui.sortable", $.extend($.ui.mouse, {
 		//Post events to containers
 		this.contactContainers(e);
 		
-		 //Call plugins and callbacks
-		this.propagate("sort", e);
-
-		if(!this.options.axis || this.options.axis == "x") this.helper[0].style.left = this.position.left+'px';
-		if(!this.options.axis || this.options.axis == "y") this.helper[0].style.top = this.position.top+'px';
-		
 		//Interconnect with droppables
 		if($.ui.ddmanager) $.ui.ddmanager.drag(this, e);
+
+		//Call callbacks
+		this.element.triggerHandler("sort", [e, this.ui()], this.options["sort"]);
 
 		return false;
 		
 	},
 	rearrange: function(e, i, a, hardRefresh) {
-		a ? a.append(this.currentItem) : i.item[this.direction == 'down' ? 'before' : 'after'](this.currentItem);
+		a ? a[0].appendChild(this.currentItem[0]) : i.item[0].parentNode.insertBefore(this.currentItem[0], (this.direction == 'down' ? i.item[0] : i.item[0].nextSibling));
 		
 		//Various things done here to improve the performance:
 		// 1. we create a setTimeout, that calls refreshPositions
@@ -1570,6 +1578,17 @@ $.ui.plugin.add("sortable", "scroll", {
 			if($(window).width() - (e.pageX - $(document).scrollLeft()) < o.scrollSensitivity)
 				$(document).scrollLeft($(document).scrollLeft() + o.scrollSpeed);
 		}
+		
+	}
+});
+
+$.ui.plugin.add("sortable", "axis", {
+	sort: function(e, ui) {
+		
+		var i = $(this).data("sortable");
+		
+		if(ui.options.axis == "y") i.position.left = i.originalPosition.left;
+		if(ui.options.axis == "x") i.position.top = i.originalPosition.top;
 		
 	}
 });

@@ -151,7 +151,7 @@ foreach ($eventhandlers as $addonid=>$thisaddon) {
 <div id="menudiv">
 	<ul id="menulist">
     <?php
-    $class=$menuend='';
+    $accesskeys=$class=$menuend='';
     foreach ($menu as $index=>$line) {
         if (empty($line['link'])) {
             if ($line['label']==='separator') {
@@ -162,15 +162,14 @@ foreach ($eventhandlers as $addonid=>$thisaddon) {
             }
         } else {
             if (empty($_SESSION['keys'][$line['link']]))
-                $accesskey=$keypress='';
+                $keypress='';
             else {
-                $key=$_SESSION['keys'][$line['link']];
-                $menu[$index]['key']=$key;
+                $menu[$index]['key']=$key=$_SESSION['keys'][$line['link']];
                 $keypress=" ($key)";
-                $accesskey=" accesskey='$key' ";
+                $accesskeys.="<a href='{$line['link']}' accesskey='$key'></a>";
             }
 	        echo "<li$class>\n"
-                ,"<a href='{$line['link']}' title='{$line['title']}' $accesskey>"
+                ,"<a href='{$line['link']}' title='{$line['title']}'>"
                 ,"{$line['label']}$keypress</a></li>\n";
             $class='';
         }
@@ -178,4 +177,5 @@ foreach ($eventhandlers as $addonid=>$thisaddon) {
     echo $menuend;
     ?>
 	</ul>
+	<div id='accesskeys'><?php echo $accesskeys; ?></div>
 </div>

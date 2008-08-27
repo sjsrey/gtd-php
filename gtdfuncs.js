@@ -1,5 +1,5 @@
 /*jslint browser: true, eqeqeq: true, nomen: true, undef: true */
-/*global GTD,unescape,Calendar */
+/*global GTD,unescape,Calendar,jQuery */
 /* global unescape: because decodeURIcomponent corrupts some characters in AJAX
                     but this will change when we get proper i18n/utf8/mbcs handling in gtd-php
     
@@ -7,8 +7,8 @@
    global Calendar: javascript routine for handling calendar UI, in calendar.js
    ======================================================================================
 */
-(function() {
-var freezediv,focusOn,grabKey,oldTablePosition,SORT_COLUMN_INDEX;
+(function($) {
+var freezediv,focusOn,grabKey,oldTablePosition,sort_column_index;
 // ======================================================================================
 function toggleVis (thisRule) {
 /*
@@ -62,7 +62,7 @@ function manualcellindex(cell) {
     for (i=0;i<max;i++) {
         testcell=row.childNodes[i];
         if (cell===row.childNodes[i]) {return j;}
-        if ((testcell.tagName==='TH') || (testcell.tagName==='TD')) {j++;}
+        if ((testcell.tagName.toLowerCase()==='th') || (testcell.tagName.toLowerCase()==='td')) {j++;}
     }
     return false;
 }
@@ -142,8 +142,8 @@ function getParent(el, pTagName) {
 function ts_sort_date(a,b) {
     // y2k notes: two digit years less than 50 are treated as 20XX, greater than 50 are treated as 19XX
     var aa,bb,dt1,yr,dt2;
-    aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]);
-    bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]);
+    aa = ts_getInnerText(a.cells[sort_column_index]);
+    bb = ts_getInnerText(b.cells[sort_column_index]);
     if (aa.length === 10) {
         dt1 = aa.substr(6,4)+aa.substr(3,2)+aa.substr(0,2);
     } else {
@@ -165,25 +165,25 @@ function ts_sort_date(a,b) {
 
 function ts_sort_currency(a,b) {
     var aa,bb,retval;
-    aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]).replace(/[^0-9.]/g,'');
-    bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]).replace(/[^0-9.]/g,'');
+    aa = ts_getInnerText(a.cells[sort_column_index]).replace(/[^0-9.]/g,'');
+    bb = ts_getInnerText(b.cells[sort_column_index]).replace(/[^0-9.]/g,'');
     retval = parseFloat(aa) - parseFloat(bb);
 	if (retval===0) {return (a.rowIndex-b.rowIndex);} else {return retval;}
 }
 
 function ts_sort_numeric(a,b) {
     var aa,bb;
-    aa = parseFloat(ts_getInnerText(a.cells[SORT_COLUMN_INDEX]));
+    aa = parseFloat(ts_getInnerText(a.cells[sort_column_index]));
     if (isNaN(aa)) {aa = 0;}
-    bb = parseFloat(ts_getInnerText(b.cells[SORT_COLUMN_INDEX]));
+    bb = parseFloat(ts_getInnerText(b.cells[sort_column_index]));
     if (isNaN(bb)) {bb = 0;}
     if (aa===bb) {return (a.rowIndex-b.rowIndex);} else {return aa-bb;}
 }
 
 function ts_sort_caseinsensitive(a,b) {
     var aa,bb;
-    aa = ts_getInnerText(a.cells[SORT_COLUMN_INDEX]).toLowerCase();
-    bb = ts_getInnerText(b.cells[SORT_COLUMN_INDEX]).toLowerCase();
+    aa = ts_getInnerText(a.cells[sort_column_index]).toLowerCase();
+    bb = ts_getInnerText(b.cells[sort_column_index]).toLowerCase();
     if (aa===bb) {return (a.rowIndex-b.rowIndex);}
     if (aa<bb) {return -100;}
     return 100;
@@ -191,8 +191,8 @@ function ts_sort_caseinsensitive(a,b) {
 
 function ts_sort_checkbox(a,b) {
     var aa,bb;
-    aa = a.cells[SORT_COLUMN_INDEX].firstChild.checked;
-    bb = b.cells[SORT_COLUMN_INDEX].firstChild.checked;
+    aa = a.cells[sort_column_index].firstChild.checked;
+    bb = b.cells[sort_column_index].firstChild.checked;
     if (aa===bb) {return (a.rowIndex-b.rowIndex);}
     if (aa) {return -100;}
     return 100;
@@ -379,32 +379,36 @@ if (typeof Calendar!=='undefined') {
     		return false;
         }
         //------------------------------------------------------------------------
-        /* these events to show the calendar are inclusive OR, not eXclusive OR
-         * it's possible that more than one route will be used to show the calendar.
-         * In this case, either clicking on the calendar field, or on the button next to it
+        /* these events are to show the calendar:
+         * if a button is present, it will be used as the trigger, else 
+         * the input field itself will be used
          */
-        if (params.button)      {params.button[     "on" + params.eventName]=showCal;}
+        if (params.button) {
+            params.button[     "on" + params.eventName]=showCal;
+        } else if (params.inputField) {
+            params.inputField[ "on" + params.eventName]=showCal;
+        }
         if (params.displayArea) {params.displayArea["on" + params.eventName]=showCal;}
-        if (params.inputField)  {params.inputField[ "on" + params.eventName]=showCal;}
     };
 }
 // ======================================================================================
 if (typeof window.GTD==='undefined') {window.GTD={};}
 GTD=window.GTD;
 // ======================================================================================
-GTD.addEvent=function ( obj, type, fn ) {
-/* (c) John Resig - open source
- * a cross-browser function to attach events to DOM objects
+GTD.checkRecurrence=function (dateElement) {
+/*
+ * if we have a recurrence pattern that's derived from a specific date,
+ * e.g. first Monday in September, then when the date field changes, ask the user
+ * if they want to update the recurrence pattern too
  *
- * obj:  the DOM object of the event we are attaching to
- * type: string containing the name of the event to handle
- * fn:   the function to be triggered when the event occurs
+ * dateElement: DOM element of the date form field being changed
  */
-    if ( obj.attachEvent ) {
-        obj['e'+type+fn] = fn;
-        obj[type+fn] = function(){obj['e'+type+fn]( window.event );};
-        obj.attachEvent( 'on'+type, obj[type+fn] );
-    } else { obj.addEventListener( type, fn, false ); }
+    var thisform=$(dateElement).parents('form'),
+        freqtype=$('[name=FREQtype]:checked',thisform).val();
+    if (freqtype==='text') {return true;}
+    // TODO - write this function!!!
+    alert('now check the recurrence pattern');
+    return true;
 };
 // ======================================================================================
 GTD.completeToday=function (datefield) {
@@ -497,7 +501,7 @@ GTD.debugInit=function (keyToCatch) {
  * keyToCatch: key to toggle, e.g. 'h'
  */
 	grabKey=keyToCatch;
-	GTD.addEvent(document,'keypress',keyPressHandler);
+	$(document).bind('keypress',keyPressHandler);
 };
 // ======================================================================================
 GTD.filtertoggle=function (which) {
@@ -568,7 +572,6 @@ GTD.freeze=function (tofreeze) {
     	freezediv=document.createElement('div');
     	freezediv.id="freezer";
         freezediv.style.display="none";
-    	//freezediv.appendChild(document.createElement('span')); // necessary for problem with addevent betweeen Opera and Safari
     	document.body.appendChild(freezediv);
     }
 	freezediv.style.display=(tofreeze)?"block":"none";
@@ -689,7 +692,7 @@ GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) 
 
     newrow.id='parentrow'+id;
     anchor.href='#';
-    GTD.addEvent(anchor,'click',function(){return GTD.removeParent(id);});
+    $(anchor).click(function(){return GTD.removeParent(id);});
     anchor.title='remove as parent';
     anchor.className='remove';
     anchor.appendChild(document.createTextNode('X'));
@@ -733,7 +736,7 @@ GTD.ParentSelector.prototype.makeline=function(id,title,type,typename,i,useTypes
         anchor=document.createElement('a'),
         linetext=title;
     anchor.href='#';
-    GTD.addEvent(anchor,'click',function() {
+    $(anchor).click(function() {
         that.gotparent(id,title,type,typename,thisi);
     });
     anchor.appendChild(document.createTextNode('+'));
@@ -835,7 +838,7 @@ GTD.resortTable=function (lnk) {
     else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d$/)) {sortfn = ts_sort_date;}
     else if (itm.match(/^[£$]/)) {sortfn = ts_sort_currency;}
     else if (itm.match(/^[\d\.]+$/)) {sortfn = ts_sort_numeric;}
-    SORT_COLUMN_INDEX = column;
+    sort_column_index = column;
     firstRow = newRows = [];
     max=table.rows[0].length;
     for (i=0;i<max;i++) { firstRow[i] = table.rows[0][i]; }
@@ -1077,13 +1080,10 @@ GTD.validate=function (form) {
     return formValid;
 };
 // ======================================================================================
-GTD.addEvent(window,'load', function() {
-/*
- * functions to be called when everything is loaded
- */
+$(document).ready(function() {
     GTD.focusOnForm();
     sortables_init();
     if (typeof GTD.debugKey!=='undefined') {GTD.debugInit(GTD.debugKey);}
 });
 window.GTD=GTD;
-})();
+})(jQuery);

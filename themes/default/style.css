@@ -233,11 +233,11 @@ a:hover,.fakelink:hover{
 	color:#039; 
 }
 a img {
-	border:none;
+	border: 0pt none;
 }
 
 img {
-    border: none;
+    border: 0pt none;
     margin-right: 2px;
 }
 
@@ -265,7 +265,7 @@ table {
 }
 
 table.submitbuttons tbody,table.submitbuttons td {
-    border:none;
+    border: 0pt none;
     padding:0;
     margin:0;
 }
@@ -445,6 +445,11 @@ span.detail {
 	color:red;
 	font-size:1.1em;
 }
+#accesskeys {
+    display:inline;
+    height:1px;
+    width:1px;
+}
 /*------------------------------
   live javascript effects CSS
   ----------------------------*/
@@ -570,7 +575,7 @@ a.sortheader { display: block; }
     /* Now, resize larger text to make them fit better on the page */
     #main h1, #main h2 {
     	font-size: 1em;
-    	border: none;
+    	border: 0pt none;
     }
 }
 @media screen {

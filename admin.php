@@ -114,8 +114,8 @@ if ($showInstallations || $showCommands) { ?>
         <h3>Detected installations in this database</h3>
         <p>Pick one to operate on:</p>
         <div class='formrow'>
-            <label class='left first' for='prefix'>prefix</label><input id='prefix' type='text' name='prefix'
-            value='<?php echo $prefix; ?>' />
+            <label class='left first' for='prefix'>prefix</label>
+            <input disabled='disabled' id='prefix' type='text' name='prefix' value='<?php echo $prefix; ?>' />
         </div>
     <?php } if ($showCommands) { ?>
         <h3>Action to take:</h3>

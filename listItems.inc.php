@@ -135,8 +135,8 @@ foreach ($dispArray as $key=>$dummy)
     $show[$key]=false;
     
 $testuri=sha1($referrer);
-$perspectivefilter=' WHERE '.sqlparts('perspectiveuri',array('uri'=>$testuri));
-$displayoptions=query('selectperspective',array('filterquery'=>$perspectivefilter));
+//$perspectivefilter=' WHERE '.sqlparts('perspectiveuri',array('uri'=>$testuri));
+//$displayoptions=query('selectperspective',array('filterquery'=>$perspectivefilter));
 //}
 if (false && $displayoptions) { // disabling this for now
     // we have a saved perspective setting out how pages with this filter should be displayed.

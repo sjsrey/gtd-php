@@ -10,8 +10,8 @@ ob_end_clean();
 </head><body>
 <div class='noprint'>
     <?php echo $menutext; ?>
-    <p id='main'>These keys can be changed in config.inc.php</p>
 </div>
+<div id='main'>
 <h2>Shortcut keys for gtd-php</h2>
 <table summary='Shortcut keys'>
 <thead><tr><th>key</th><th>title</th><th>description</th></tr></thead>
@@ -28,4 +28,6 @@ foreach ($menu as $line)
 </tbody>
 </table>
 </body>
+</div>
+</div>
 </html>

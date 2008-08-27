@@ -1,4 +1,7 @@
 <?php
+/*
+ * edit an item
+ */
 include_once 'headerDB.inc.php';
 $values = array();
 $values['itemId']= (empty($_REQUEST['itemId']))? 0 : (int) $_REQUEST['itemId'];
@@ -233,7 +236,7 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
 if ($show['header']) { ?>
     <script type="text/javascript">
     /* <![CDATA[ */
-    GTD.addEvent(window,'load', function() {
+    $(document).ready(function() {
         GTD.initcalendar(document);
         <?php if ($show['scriptparents']) { ?>
             GTD.typenames={<?php
@@ -332,18 +335,27 @@ if ($sep!=='<p>') echo "</p>\n";
                 <label for='tickledate' class='left<?php
                     echo $class;$class='';
                 ?>' title='Temporarily puts this into the tickler file, hiding it from the active view'>Suppress until:</label>
-                <input type='text' size='10' name='tickledate' id='tickledate' class='hasdate' value='<?php
-                    echo $values['tickledate'];
-                ?>' />
+                <input type='text' size='10' name='tickledate' id='tickledate' class='hasdate' value=<?php
+                    echo "'{$values['tickledate']}'";
+                    if ($_SESSION['useLiveEnhancements']) {
+                        ?> onchange="return GTD.checkRecurrence(this);" <?php
+                    }
+                ?> />
                 <button id='tickledate_trigger' type='button'>&hellip;</button>
             <?php
             } else
                 $hiddenvars['tickledate']=$values['tickledate'];
             if ($show['deadline']) { ?>
-                <label for='deadline' class='left<?php
-                    echo $class;$class='';
-                ?>'>Deadline:</label>
-                <input type='text' size='10' name='deadline' id='deadline' class='hasdate' value='<?php echo $values['deadline']; ?>'/>
+                <label for='deadline' class='left <?php
+                    echo "$class";
+                    $class='';
+                     ?>' >Deadline:</label>
+                <input type='text' size='10' name='deadline' id='deadline' class='hasdate' value=<?php
+                    echo "'{$values['deadline']}'";
+                    if ($_SESSION['useLiveEnhancements']) {
+                        ?> onchange="return GTD.checkRecurrence(this);" <?php
+                    }
+                    ?> />
                 <button id='deadline_trigger' type='button'>&hellip;</button>
             <?php } else $hiddenvars['deadline']=$values['deadline'];
             
@@ -528,12 +540,10 @@ if ($show['submitbuttons']) { ?>
         $buttons['item']='View item';
         $buttons['list']="List all {$typename}s";
         $buttons['another']="Create another $typename";
-        if (!$values['itemId']) {
-            if ($values['type']==='p')
-                $buttons['child']='Create a child Next Action';
-            else if ($values['type']==='C' || $values['type']==='L')
-                $buttons['child']='Create a child item';
-        }
+        if ($values['type']==='p')
+            $buttons['child']='Create a child Next Action';
+        else if ($values['type']==='C' || $values['type']==='L')
+            $buttons['child']='Create a child item';
         if (!empty($hiddenvars['referrer']) || !empty($_SESSION[$key]))
             $buttons['referrer']='Return to previous list';
 

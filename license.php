@@ -37,7 +37,7 @@ include_once 'header.inc.php';
             <td>creation and processing of iCal files and fancy recurrence handling, <a href='http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html'>LGPL 2.1</a> and &copy; kigkonsult 2007
         </td></tr>
         <tr><td><a href='http://jquery.com/'>jQuery</a></td>
-            <td>javascript library used by many of the addons, dual MIT/GPL <a href='http://docs.jquery.com/Licensing'>licences</a>, and &copy; 2008 John Resig and the jQuery team
+            <td>javascript library used by the core and many of the addons, dual MIT/GPL <a href='http://docs.jquery.com/Licensing'>licences</a>, and &copy; 2008 John Resig and the jQuery team
         </td></tr>
     </tbody>
 </table>

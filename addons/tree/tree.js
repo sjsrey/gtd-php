@@ -1,7 +1,7 @@
 /*jslint browser: true, eqeqeq: true, nomen: true, undef: true */
 /*global GTD,jQuery,escape,unescape,$NBtheseTagsAreForJSLint */
 (function($){
-    var spanclicked,dismisspopup,thisId;
+    var spanclicked=null,dismisspopup,thisId;
     /*
         ------------------------------------------------------------------------
     */
@@ -18,7 +18,7 @@
         ------------------------------------------------------------------------
     */
     dismisspopup=function () {
-        if (spanclicked!=null) {
+        if (spanclicked!==null) {
             spanclicked.removeClass('activated');
             $('#treepopup').hide();
             $(document).
@@ -34,11 +34,11 @@
         // the user has clicked somewhere on the tree - work out where, and act accordingly
         var tag,clicked;
         clicked=$(e.target);
-        tag=e.target.tagName;
-        if (spanclicked!=null) {dismisspopup();}
+        tag=e.target.tagName.toLowerCase();
+        if (spanclicked!==null) {dismisspopup();}
         switch (tag) {
             //------------------------------------------------------------------
-            case 'SPAN': // user has clicked on a title - if we can expand/contract it, do so
+            case 'span': // user has clicked on a title - if we can expand/contract it, do so
                 if (clicked.parent().hasClass('treeexpand')) {
                     clicked.
                         nextAll('ul').toggleClass('treehid'). // toggle visibility of child items
@@ -47,7 +47,7 @@
                 }
                 return false; // have dealt with click, so stop propagation
             //------------------------------------------------------------------
-            case 'IMG': // user has clicked on the action icon
+            case 'img': // user has clicked on the action icon
                 spanclicked=clicked.parent().children('span');
                 spanclicked.addClass('activated');
                 thisId=clicked.siblings('input[name=id]').val();

@@ -60,6 +60,7 @@ $headertext=<<<HTML1
 <link rel="stylesheet" href="themes/{$_SESSION['theme']}/style.css" type="text/css"/>
 <link rel="stylesheet" href="themes/{$_SESSION['theme']}/style_screen.css" type="text/css" media="screen" />
 <link rel="shortcut icon" href="./favicon.ico" />
+<script type='text/javascript' src='jquery.js'></script>
 <script type="text/javascript" src="calendar.js"></script>
 <script type="text/javascript" src="lang/calendar-en.js"></script>
 <script type="text/javascript" src="gtdfuncs.js"></script>

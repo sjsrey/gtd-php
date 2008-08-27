@@ -118,3 +118,6 @@ th.col-checkbox,th.col-checkbox select {
     visibility:hidden;
     width:1px;
 }
+.firstuse {
+    color:grey;
+}
