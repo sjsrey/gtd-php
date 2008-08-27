@@ -135,7 +135,9 @@ function gtd_handleEvent($event,$page) {
                      'dir'=>$_SESSION['addonsdir'].$addonid.'/',
                      'urlprefix'=>"addon.php?addonid=$addonid&url="
                      );
-        if ((include "{$addon['dir']}$handler")===false) break;
+        if ((@include "{$addon['dir']}$handler")===false) {
+            $_SESSION['message'][]="Failed to load addon '$addonid' - please check the addons section of the preferences screen";
+        }
     }
 }
 /*

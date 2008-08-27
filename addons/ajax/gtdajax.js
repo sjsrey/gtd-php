@@ -834,6 +834,16 @@ function movemultiselect() {
     table=$('table:has(th.col-checkbox)');
     checkbox=table.find('th.col-checkbox');
     container=$('#multicontainer');
+    
+    if ($.browser.safari) {
+      /* Hack needed for safari, because it fails to resize the checkbox column.
+       * This hack forces the column to be too wide, temporarily; it can then
+       * find the real width of the select box, and size the column to fit that.
+       */
+        $('th:has(#multiaction)').
+                width(150).
+                width($('#multiaction').width()+2);
+    }
 
     if (table.filter('th.col-checkbox').hasClass('hidden')) {
         container.hide();
@@ -1225,7 +1235,8 @@ GTD.ajax.multisetup=function() {
         before(                               // put the container of the category/context SELECT boxes just above the table
             $('#multicontainer').
                 removeClass('hidden')         // and display the container (though SELECT boxes will remain hidden for now)
-        ); 
+        );
+    movemultiselect();
     return true;
 };
 // ======================================================================================
