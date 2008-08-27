@@ -25,27 +25,23 @@ function keyPressHandler(e) {
  *
  *  e: DOM event object
  */
-    var character,targetNodeName,code;
-	if (!e) {e = window.event;}
+    if (e.which!==grabKey) {return true;}
+    var targetNodeName;
 	if (e.target && e.target.nodeName) {
 		targetNodeName = e.target.nodeName.toLowerCase();
 		if (targetNodeName === "textarea" ||
               (targetNodeName === "input" && e.target.type && e.target.type.toLowerCase() === "text")) {
-			return false;}
+			return true;
+        }
 	}
-	if (e.keyCode) {
-        code = e.keyCode;
-    } else if (e.which) {code = e.which;}
-	character = String.fromCharCode(code);
-	if (character===grabKey) {
-		if (document.styleSheets[0].cssRules) {
-			toggleVis(document.styleSheets[0].cssRules[0]);
-		} else {
-			toggleVis(document.styleSheets[0].rules[0]);
-			toggleVis(document.styleSheets[0].rules[1]);
-		}
+	if (document.styleSheets[0].cssRules) {
+		toggleVis(document.styleSheets[0].cssRules[0]);
+	} else {
+		toggleVis(document.styleSheets[0].rules[0]);
+		toggleVis(document.styleSheets[0].rules[1]);
 	}
-	return false;
+    e.stopPropagation();
+    return false;
 }
 // ======================================================================================
 function manualcellindex(cell) {
@@ -500,7 +496,7 @@ GTD.debugInit=function (keyToCatch) {
  *
  * keyToCatch: key to toggle, e.g. 'h'
  */
-	grabKey=keyToCatch;
+	grabKey=keyToCatch.charCodeAt(0);
 	$(document).bind('keypress',keyPressHandler);
 };
 // ======================================================================================

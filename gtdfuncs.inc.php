@@ -135,7 +135,10 @@ function gtd_handleEvent($event,$page) {
                      'dir'=>$_SESSION['addonsdir'].$addonid.'/',
                      'urlprefix'=>"addon.php?addonid=$addonid&url="
                      );
-        if ((@include "{$addon['dir']}$handler")===false) {
+         if (   !($fp = @fopen($fn="{$addon['dir']}$handler", 'r', 1))
+             or !fclose($fp)
+             or ((include $fn)===false)
+            ) {
             $_SESSION['message'][]="Failed to load addon '$addonid' - please check the addons section of the preferences screen";
         }
     }
