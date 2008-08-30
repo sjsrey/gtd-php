@@ -378,7 +378,11 @@ function focusOnForm(id) {
             tst=document.forms[0].elements[i].type;
             if ( (tst == "button") || (tst == "checkbox") || (tst == "radio") || (tst == "select") || (tst == "select-one") || (tst == "text") || (tst == "textarea") ) {
                 if (!document.forms[0].elements[i].disabled) {
-                  document.forms[0].elements[i].focus();
+                    try {
+                        document.forms[0].elements[i].focus();
+                    } catch (err) {
+                        continue;
+                    }
                   break;
                 }
             }

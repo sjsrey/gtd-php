@@ -2,7 +2,7 @@
 function toggleHidden(parent,show,link) {
     var tab=document.getElementById(parent).getElementsByTagName("*");
     for (var i=0;i<tab.length;i++) {
-        if (tab[i].className=='togglehidden') {tab[i].style.display=show;}
+        if (tab[i].className==='togglehidden') {tab[i].className='';}
     }
     document.getElementById(link).style.display='none';
 }
