@@ -5,5 +5,5 @@ $addon              = (array_key_exists("addons-$id",$_SESSION)) ? $_SESSION["ad
 $addon['id']        = $id;
 $addon['dir']       = $_SESSION['addonsdir'].$id.'/';
 $addon['urlprefix'] = "{$pagename}.php?addonid=$id&url=";
-include_once "{$addon['dir']}{$_REQUEST['url']}";
+include "{$addon['dir']}{$_REQUEST['url']}";
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

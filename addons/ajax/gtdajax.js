@@ -845,7 +845,7 @@ function movemultiselect() {
                 width($('#multiaction').width()+2);
     }
 
-    if (table.filter('th.col-checkbox').hasClass('hidden')) {
+    if (table.filter('th.col-checkbox').hasClass('hidden') || !checkbox.length) {
         container.hide();
     } else {
         container.show();

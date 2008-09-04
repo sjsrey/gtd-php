@@ -5,7 +5,8 @@
 global $headertext;
 $onready='';
 $loadingajax=empty($_REQUEST['ajax']);
-if (!$loadingajax) $headertext='';
+if (!$loadingajax)
+    $headertext='';
 
 switch ($page) {
         //-------------------------------------------------------------
@@ -38,6 +39,13 @@ switch ($page) {
         //-------------------------------------------------------------
     case 'reportContext':
         $onready.="GTD.ajax.initcontext();";
+        break;
+        //-------------------------------------------------------------
+    case 'index':
+        if($loadingajax)
+            $headertext.="\n<link rel='commands' href='".
+                htmlentities($addon['urlprefix']).
+                "ubiquity.inc.php' />\n";
         break;
         //-------------------------------------------------------------
     default:

@@ -401,7 +401,11 @@ GTD.checkRecurrence=function (dateElement) {
  */
     var thisform=$(dateElement).parents('form'),
         freqtype=$('[name=FREQtype]:checked',thisform).val();
-    if (freqtype==='text') {return true;}
+    if ( (dateElement.id==='tickledate' && thisform.find('#deadline').val()!=='' )
+        || ('NORECURDAILY WEEKLY MONTHLY YEARLY'.match(freqtype)!==null) ) {
+        return true;
+    }
+    GTD.showrecurbox();
     // TODO - write this function!!!
     alert('now check the recurrence pattern');
     return true;
@@ -496,8 +500,8 @@ GTD.debugInit=function (keyToCatch) {
  *
  * keyToCatch: key to toggle, e.g. 'h'
  */
-	grabKey=keyToCatch.charCodeAt(0);
-	$(document).bind('keypress',keyPressHandler);
+    grabKey=keyToCatch.charCodeAt(0);
+    $(document).keypress(keyPressHandler);
 };
 // ======================================================================================
 GTD.filtertoggle=function (which) {
@@ -550,7 +554,11 @@ GTD.focusOnForm=function (id) {
                     (tst === "select-one") || (tst === "text") ||
                     (tst === "textarea") ) {
                 if (!document.forms[0].elements[i].disabled) {
-                  document.forms[0].elements[i].focus();
+                    try {
+                        document.forms[0].elements[i].focus();
+                    } catch(err) {
+                        continue;
+                    }
                   break;
                 }
             }
@@ -940,13 +948,13 @@ GTD.tagShow=function(anchor) {
  * user is toggling the display of all tags in item.php
  * anchor: the DOM object of the link being clicked
  */
-    var taglist=document.getElementById("taglist");
-    if (taglist.style.display==="inline") {
-        document.getElementById("taglist").style.display="none";
-        anchor.firstChild.textContent='Show all';
+    var taglist=$("#taglist");
+    if (taglist.css('display')==="none") {
+        taglist.show();
+        $(anchor).text('Hide all');
     } else {
-        document.getElementById("taglist").style.display="inline";
-        anchor.firstChild.textContent='Hide all';
+        taglist.hide();
+        $(anchor).text('Show all');
     }
     return false;
 };
@@ -960,11 +968,8 @@ GTD.toggleHidden=function (parent,link,show) {
  * link:  the id of the element that the user pressed to reveal the section - we can dispose of that element, now
  * show: string indicating whether revealed item is a block, table-row, inline, block-inline, etc.
  */
-    var tab=document.getElementById(parent).getElementsByTagName("*");
-    for (var i=0;i<tab.length;i++) {
-        if (tab[i].className==='togglehidden') {tab[i].style.display=show;}
-    }
-    document.getElementById(link).style.display='none';
+    $('#'+parent+' .togglehiddden').show();
+    $('#link').hide();
     return false;
 };
 // ======================================================================================
