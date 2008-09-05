@@ -52,15 +52,16 @@ function manualcellindex(cell) {
  *
  * cell: the DOM object of the cell we want the index of
  */
-    var i,row,max,testcell,j=0;
-    row=cell.parentNode;
-    max=row.childNodes.length;
-    for (i=0;i<max;i++) {
-        testcell=row.childNodes[i];
-        if (cell===row.childNodes[i]) {return j;}
-        if ((testcell.tagName.toLowerCase()==='th') || (testcell.tagName.toLowerCase()==='td')) {j++;}
-    }
-    return false;
+    var index=false;
+    $(cell).parents('tr').
+        find('th,td').
+        each(function(id){
+            if (this===cell) {
+                index=id;
+                return false;
+            }
+        });
+    return index;
 }
 // ======================================================================================
 function getDocPath(){
@@ -401,8 +402,8 @@ GTD.checkRecurrence=function (dateElement) {
  */
     var thisform=$(dateElement).parents('form'),
         freqtype=$('[name=FREQtype]:checked',thisform).val();
-    if ( (dateElement.id==='tickledate' && thisform.find('#deadline').val()!=='' )
-        || ('NORECURDAILY WEEKLY MONTHLY YEARLY'.match(freqtype)!==null) ) {
+    if ( (dateElement.id==='tickledate' && thisform.find('#deadline').val()!=='' ) ||
+        ('NORECURDAILY WEEKLY MONTHLY YEARLY'.match(freqtype)!==null) ) {
         return true;
     }
     GTD.showrecurbox();

@@ -7,6 +7,7 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
     ?>
     <h2><?php echo $tabname; ?></h2>
     <div class='tabsheet' id='<?php echo $tabname; ?>'>
+    <a id='opt<?php echo $tabname; ?>' name='opt<?php echo $tabname; ?>'></a>
     <?php
     log_array(array('values'=>$values,'array'=>$array));
     foreach ($array as $option) {

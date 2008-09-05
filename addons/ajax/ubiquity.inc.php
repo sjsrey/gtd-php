@@ -1,17 +1,16 @@
 <?php
     if (!headers_sent()) header('Content-Type: application/javascript; charset=utf-8');
     include_once 'gtdfuncs.inc.php';
-    $ubiquityforgtdphp="200909040131";
 ?>
-var gtdbasepath="<?php echo getAbsolutePath(); ?>",
-    gtdcommandlineversion="<?php echo $ubiquityforgtdphp; ?>";
+var gtdcommandlineversion="2009091017",
+    gtdbasepath="<?php echo getAbsolutePath(); ?>";
 
 function gtdgetParents(callback) {
     callback({}); // empty the array first, to ensure we only issue the JSON request once
     CmdUtils.log('off to get parents in v'+gtdcommandlineversion);
     jQuery.getJSON(gtdbasepath+'addon.php?addonid=ajax&url=sendJSON.php&type=p',
         function(json){
-            //CmdUtils.log('back with parents');
+            CmdUtils.log('back with parents');
             callback(json);
         }
     );
