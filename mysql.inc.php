@@ -101,7 +101,7 @@ function safeIntoDB($value,$key=NULL) {
 */
 function backupData($prefix) {
     $sep="-- *******************************\n";
-    $tables=array('categories','context','itemattributes','items','itemstatus','lookup','preferences','tagmap','timeitems','version');
+    $tables=array('categories','context','items','itemstatus','lookup','preferences','tagmap','timeitems','version');
     $data='';
     $header='';
     $creators='';
@@ -138,10 +138,8 @@ function checkErrors($prefix) {
     if (empty($val)) return false;
     $totals['items']=(int) $val[0];
     
-    $q="SELECT COUNT(*) FROM `{$prefix}itemattributes` AS `ia`
-            JOIN `{$prefix}itemstatus`     AS `its` USING (`itemId`)
-            WHERE `its`.`dateCompleted` IS NULL
-                AND ia.`nextaction`='y'";
+    $q="SELECT COUNT(*) FROM `{$prefix}itemstatus`
+            WHERE `dateCompleted` IS NULL AND `nextaction`='y'";
     $val=@mysql_fetch_row(rawQuery($q));
     $totals['next actions']=(int) $val[0];
     
@@ -183,7 +181,7 @@ function checkErrors($prefix) {
     
     // partial items, missing from one or more item tables
     $partialitems=0;
-    $items1=array('itemstatus'=>'items','items'=>'itemstatus','itemattributes'=>'itemstatus','itemattributes'=>'items');
+    $items1=array('itemstatus'=>'items','items'=>'itemstatus');
     foreach ($items1 as $t1=>$t2) {
         $q="SELECT COUNT(DISTINCT `itemId`) FROM `{$prefix}$t1` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}$t2`)";
         $val=@mysql_fetch_row(rawQuery($q));
@@ -207,14 +205,10 @@ function checkErrors($prefix) {
    ======================================================================================
 */
 function fixData($prefix) {
-    foreach ( array( 'deadline'=>'itemattributes'
-                    ,'tickledate'=>'itemattributes'
-                    ,'dateCompleted'=>'itemstatus'
-                    ,'dateCreated'=>'itemstatus'
-                    ,'lastModified'=>'itemstatus'
-             ) as $field=>$table) {
+    foreach ( array( 'deadline','tickledate','dateCompleted','dateCreated',
+                'lastModified') as $field) {
         // change dates of "0000-00-00" to NULL
-        $q="UPDATE `$prefix{$table}` SET `$field`=NULL where `$field`='0000-00-00'";
+        $q="UPDATE `{$prefix}itemstatus` SET `$field`=NULL where `$field`='0000-00-00'";
         rawQuery($q);
     }
     
@@ -244,7 +238,7 @@ function fixData($prefix) {
     rawQuery($q);
 
     // remove partial items from database
-    $items1=array('itemstatus'=>'items','items'=>'itemstatus','itemattributes'=>'itemstatus','itemattributes'=>'items');
+    $items1=array('itemstatus'=>'items','items'=>'itemstatus');
     foreach ($items1 as $t1=>$t2) {
         $q="DELETE FROM `{$prefix}$t1` WHERE `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}$t2`)";
         rawQuery($q);
@@ -266,11 +260,10 @@ function fixData($prefix) {
     rawQuery($q);
 
     // repair impossible dates - by default, MySQL v4.x allowed dates such as 2008-13-51
-    $q="UPDATE `{$prefix}itemstatus`     AS its
-          JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
-             SET its.`dateCompleted`=its.`dateCompleted`+'0 DAY',
-                  ia.`deadline`     = ia.`deadline`     +'0 DAY',
-                  ia.`tickledate`   = ia.`tickledate`   +'0 DAY' ";
+    $q="UPDATE `{$prefix}itemstatus`
+             SET `dateCompleted` = `dateCompleted`+'0 DAY',
+                  `deadline`     = `deadline`     +'0 DAY',
+                  `tickledate`   = `tickledate`   +'0 DAY' ";
     rawQuery($q);
 
     // if any titles are blank, call them 'untitled'
@@ -315,42 +308,39 @@ function getsql($querylabel,$values,$sort) {
 
         case 'countactionsbycontext':
             $sql="SELECT cn.`name` AS cname,cn.`contextId`,COUNT(x.`itemId`) AS count
-            FROM `{$prefix}itemattributes` as x
-            JOIN `{$prefix}itemattributes` as ia USING (`itemId`)
-            JOIN `{$prefix}itemstatus` as its USING (`itemId`)
+            FROM `{$prefix}itemstatus` as its
 			LEFT OUTER JOIN `{$prefix}context` AS cn
-				ON (ia.`contextId` = cn.`contextId`)
+				ON (its.`contextId` = cn.`contextId`)
             JOIN (
                 SELECT DISTINCT `itemId` FROM `{$prefix}lookup` AS lu
                     JOIN (SELECT i.`itemId` AS parentId,
-                             ia.`isSomeday` AS pisSomeday,
-                             ia.`deadline` AS pdeadline,
-				             ia.`tickledate` AS ptickledate,
+                             its.`isSomeday` AS pisSomeday,
+                             its.`deadline` AS pdeadline,
+				             its.`tickledate` AS ptickledate,
 				             its.`dateCompleted` AS pdateCompleted
-    					   FROM `{$prefix}itemattributes` as ia
-    					   JOIN `{$prefix}items` as i USING (`itemId`)
-    					   JOIN `{$prefix}itemstatus` as its USING (`itemId`)
+    					   FROM `{$prefix}items` AS i
+    					   JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
                         ) AS y USING (`parentId`)
             ) AS lut ON (x.`itemId`=lut.`itemId`)
              {$values['filterquery']}
-             GROUP BY ia.`contextId` ORDER BY cn.`name`";
+             GROUP BY its.`contextId` ORDER BY cn.`name`";
             break;
             
         case 'countdoneactionsbyweek':
-            $sql="SELECT its.`dateCompleted`,
-                        truncate(datediff(curdate(),its.`dateCompleted`)/7,0) AS `weeksago`,
+            $sql="SELECT `dateCompleted`,
+                        truncate(datediff(curdate(),`dateCompleted`)/7,0) AS `weeksago`,
                         count(*) AS `numdone`
-                  FROM `{$prefix}itemstatus` AS `its`
-                  WHERE its.`dateCompleted` IS NOT NULL AND its.`type`='a'
+                  FROM `{$prefix}itemstatus`
+                  WHERE `dateCompleted` IS NOT NULL AND `type`='a'
                   GROUP BY `weeksago` ORDER BY `dateCompleted` ASC";
             break;
 
         case 'countdonebyinterval':
-            $sql="SELECT its.`type`,
-                         interval(datediff(curdate(),its.`dateCompleted`),7,30,90,365) AS `daysago`,
+            $sql="SELECT `type`,
+                         interval(datediff(curdate(),`dateCompleted`),7,30,90,365) AS `daysago`,
                          count(*) AS `numdone`
-                  FROM `{$prefix}itemstatus` AS `its` USING (`itemId`)
-                  WHERE its.`dateCompleted` IS NOT NULL
+                  FROM `{$prefix}itemstatus`
+                  WHERE `dateCompleted` IS NOT NULL
                   GROUP BY `type`,`daysago`";
             break;
             
@@ -360,20 +350,17 @@ function getsql($querylabel,$values,$sort) {
                     COUNT(DISTINCT IF(x.`nextaction`='y',x.`itemId`,NULL)) as nnextactions
                     FROM (
 						SELECT
-							ia.`itemId`,its.`type`, ia.`deadline`, ia.`nextaction`,
-                            ia.`tickledate`, its.`dateCompleted`, lu.`parentId`
-						FROM `{$prefix}itemattributes` AS ia
-                        JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+							its.`itemId`,its.`type`, its.`deadline`, its.`nextaction`,
+                            its.`tickledate`, its.`dateCompleted`, lu.`parentId`
+						FROM `{$prefix}itemstatus` AS its
 						LEFT OUTER JOIN `{$prefix}lookup` AS lu USING (`itemId`)
 						{$values['childfilterquery']}
 				    ) as x
     				LEFT OUTER JOIN (
 						SELECT
-							ia.`itemId` AS parentId, ia.`isSomeday` AS pisSomeday,
-							ia.`tickledate` AS ptickledate,
-							its.`dateCompleted` AS pdateCompleted
-						FROM `{$prefix}itemattributes` AS ia
-						JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+							`itemId` AS parentId, `isSomeday` AS pisSomeday,
+							`tickledate` AS ptickledate,`dateCompleted` AS pdateCompleted
+						FROM `{$prefix}itemstatus`
 					) as y USING(`parentId`)
 				{$values['filterquery']}
                 GROUP BY `duecategory`";
@@ -389,66 +376,53 @@ function getsql($querylabel,$values,$sort) {
             break;
 
 		case "deletecategory":
-			$sql="DELETE FROM `{$prefix}categories`
-				WHERE `categoryId`='{$values['id']}'";
+			$sql="DELETE FROM `{$prefix}categories` WHERE `categoryId`='{$values['id']}'";
 			break;
 
 		case "deleteitem":
-			$sql="DELETE FROM `{$prefix}items`
-				WHERE `itemId`='{$values['itemId']}'";
-			break;
-			
-		case "deleteitemattributes":
-			$sql="DELETE FROM `{$prefix}itemattributes`
-				WHERE `itemId`='{$values['itemId']}'";
+			$sql="DELETE FROM `{$prefix}items` WHERE `itemId`='{$values['itemId']}'";
 			break;
 			
 		case "deleteitemstatus":
-			$sql="DELETE FROM `{$prefix}itemstatus`
-				WHERE `itemId`='{$values['itemId']}'";
+			$sql="DELETE FROM `{$prefix}itemstatus` WHERE `itemId`='{$values['itemId']}'";
 			break;
 			
 		case "deletelookup":
-			$sql="DELETE FROM `{$prefix}lookup`
-				WHERE `itemId` ='{$values['itemId']}'";
+			$sql="DELETE FROM `{$prefix}lookup` WHERE `itemId` ='{$values['itemId']}'";
 			break;
 			
 		case "deletelookupparents":
-			$sql="DELETE FROM `{$prefix}lookup`
-				WHERE `parentId` ='{$values['itemId']}'";
+			$sql="DELETE FROM `{$prefix}lookup` WHERE `parentId` ='{$values['itemId']}'";
 			break;
 			
 		case "deletespacecontext":
-			$sql="DELETE FROM `{$prefix}context`
-				WHERE `contextId`='{$values['id']}'";
+			$sql="DELETE FROM `{$prefix}context` WHERE `contextId`='{$values['id']}'";
 			break;
 			
 		case "deletetimecontext":
-			$sql="DELETE FROM `{$prefix}timeitems`
-				WHERE `timeframeId`='{$values['id']}'";
+			$sql="DELETE FROM `{$prefix}timeitems` WHERE `timeframeId`='{$values['id']}'";
 			break;
 
 		case "getchildren":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`,
 					i.`desiredOutcome`, its.`type`,
-					IF(ia.`isSomeday`='y','y','n') AS isSomeday, ia.`deadline`,
-                    DATEDIFF(CURDATE(),ia.`deadline`) AS `daysdue`,
+					IF(its.`isSomeday`='y','y','n') AS isSomeday, its.`deadline`,
+                    DATEDIFF(CURDATE(),its.`deadline`) AS `daysdue`,
                     i.`recurdesc`,i.`recur`,
-					ia.`tickledate`,ia.`nextaction`,
+					its.`tickledate`,its.`nextaction`,
 					its.`dateCreated`, its.`dateCompleted`,
 					its.`lastModified`, its.`categoryId`,
-					c.`category`, ia.`contextId`,
-					cn.`name` AS cname, ia.`timeframeId`, ti.`timeframe`
+					c.`category`, its.`contextId`,
+					cn.`name` AS cname, its.`timeframeId`, ti.`timeframe`
 				FROM `{$prefix}lookup` AS lu
 					JOIN `{$prefix}items` AS i USING (`itemId`)
 					JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
-					LEFT OUTER JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
 					LEFT OUTER JOIN `{$prefix}context` AS cn
-						ON (ia.`contextId` = cn.`contextId`)
+						ON (its.`contextId` = cn.`contextId`)
 					LEFT OUTER JOIN `{$prefix}categories` AS c
 						ON (its.`categoryId` = c.`categoryId`)
 					LEFT OUTER JOIN `{$prefix}timeitems` AS ti
-						ON (ia.`timeframeId` = ti.`timeframeId`)
+						ON (its.`timeframeId` = ti.`timeframeId`)
 				WHERE lu.`parentId`= '{$values['parentId']}' {$values['filterquery']}
 				ORDER BY {$sort['getchildren']}";
 			break;
@@ -458,17 +432,16 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
 		case "getitems":
-			$sql="SELECT i.`itemId`, i.`title`, i.`description`, ia.`deadline`,
-                    DATEDIFF(CURDATE(),ia.`deadline`) AS `daysdue`
+			$sql="SELECT i.`itemId`, i.`title`, i.`description`, its.`deadline`,
+                    DATEDIFF(CURDATE(),its.`deadline`) AS `daysdue`
 				FROM `{$prefix}items` AS i
 					JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
-					LEFT OUTER JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
 					LEFT OUTER JOIN `{$prefix}context` as cn
-						ON (ia.`contextId` = cn.`contextId`)
+						ON (its.`contextId` = cn.`contextId`)
 					LEFT OUTER JOIN `{$prefix}categories` as c
 						ON (its.`categoryId` = c.`categoryId`)
 					LEFT OUTER JOIN `{$prefix}timeitems` as ti
-						ON (ia.`timeframeId` = ti.`timeframeId`) "
+						ON (its.`timeframeId` = ti.`timeframeId`) "
                 .$values['filterquery'].
 				" ORDER BY {$sort['getitems']}";
 			break;
@@ -491,26 +464,23 @@ function getsql($querylabel,$values,$sort) {
 				FROM (
 						SELECT
 							i.`itemId`, i.`title`, i.`description`,
-							i.`desiredOutcome`, its.`type`, ia.`isSomeday`,
-							ia.`deadline`, i.`recurdesc`, i.`recur`,ia.`nextaction`,
-							ia.`tickledate`, its.`dateCreated`,
+							i.`desiredOutcome`, its.`type`, its.`isSomeday`,
+							its.`deadline`, i.`recurdesc`, i.`recur`,its.`nextaction`,
+							its.`tickledate`, its.`dateCreated`,
 							its.`dateCompleted`, its.`lastModified`,
-							its.`categoryId`, c.`category`, ia.`contextId`,
-							cn.`name` AS cname, ia.`timeframeId`,
+							its.`categoryId`, c.`category`, its.`contextId`,
+							cn.`name` AS cname, its.`timeframeId`,
 							ti.`timeframe`, lu.`parentId`
-						FROM `{$prefix}items` as i
-							JOIN `{$prefix}itemstatus` as its
-								ON (i.`itemId` = its.`itemId`)
+						FROM `{$prefix}items` AS i
+							JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
 							LEFT OUTER JOIN `{$prefix}lookup` as lu
 								ON (i.`itemId` = lu.`itemId`)
-							LEFT OUTER JOIN `{$prefix}itemattributes` AS ia
-								ON (ia.`itemId` = i.`itemId`)
 							LEFT OUTER JOIN `{$prefix}context` as cn
-								ON (ia.`contextId` = cn.`contextId`)
+								ON (its.`contextId` = cn.`contextId`)
 							LEFT OUTER JOIN `{$prefix}categories` as c
 								ON (its.`categoryId` = c.`categoryId`)
 							LEFT OUTER JOIN `{$prefix}timeitems` as ti
-								ON (ia.`timeframeId` = ti.`timeframeId`)
+								ON (its.`timeframeId` = ti.`timeframeId`)
                             {$values['childfilterquery']}
 				) as x
 				LEFT OUTER JOIN `{$prefix}tagmap` as tm
@@ -520,15 +490,12 @@ function getsql($querylabel,$values,$sort) {
 							i.`itemId` AS parentId, i.`title` AS ptitle,
 							i.`description` AS pdescription,
 							i.`desiredOutcome` AS pdesiredOutcome,
-							its.`type` AS ptype, ia.`isSomeday` AS pisSomeday,
-							ia.`deadline` AS pdeadline, i.`recurdesc` AS precurdesc,
-							ia.`tickledate` AS ptickledate,
+							its.`type` AS ptype, its.`isSomeday` AS pisSomeday,
+							its.`deadline` AS pdeadline, i.`recurdesc` AS precurdesc,
+							its.`tickledate` AS ptickledate,
 							its.`dateCompleted` AS pdateCompleted
-						FROM `{$prefix}items` as i
-							JOIN `{$prefix}itemstatus` as its
-								ON (i.`itemId` = its.`itemId`)
-							LEFT OUTER JOIN `{$prefix}itemattributes` AS ia
-								ON (ia.`itemId` = i.`itemId`)
+						FROM `{$prefix}items` AS i
+						JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
 					) as y ON (y.`parentId` = x.`parentId`)
 				{$values['filterquery']} GROUP BY x.`itemId`
 				ORDER BY {$sort['getitemsandparent']}";
@@ -546,10 +513,9 @@ function getsql($querylabel,$values,$sort) {
             break;
 
 		case "getorphaneditems":
-			$sql="SELECT i.`itemId`, i.`title`, i.`description`, its.`type`, ia.`isSomeday`
+			$sql="SELECT i.`itemId`, i.`title`, i.`description`, its.`type`, its.`isSomeday`
 				FROM `{$prefix}items` AS i   
 				JOIN `{$prefix}itemstatus` AS its USING (itemId)
-				LEFT OUTER JOIN `{$prefix}itemattributes` AS ia USING (itemId)
 				WHERE its.`dateCompleted` IS NULL
 				AND ( ( its.`itemId` NOT IN
 						  (SELECT lu.`itemId` FROM `{$prefix}lookup` as lu)
@@ -591,21 +557,16 @@ function getsql($querylabel,$values,$sort) {
                         '{$values['recurdesc']}','{$values['recur']}')";
 			break;
 
-		case "newitemattributes":
-			$sql="INSERT INTO `{$prefix}itemattributes`
-						(`itemId`,`isSomeday`,`contextId`,
-						`timeframeId`,`deadline`,`tickledate`,`nextaction`)
-				VALUES ('{$values['newitemId']}','{$values['isSomeday']}',
-						'{$values['contextId']}','{$values['timeframeId']}',
-						{$values['deadline']},{$values['tickledate']},'{$values['nextaction']}')";
-			break;
-
 		case "newitemstatus":
 			$sql="INSERT INTO `{$prefix}itemstatus`
 						(`itemId`,`dateCreated`,`lastModified`,`dateCompleted`,
-                        `type`,`categoryId`)
+                        `type`,`categoryId`,`isSomeday`,`contextId`,
+						`timeframeId`,`deadline`,`tickledate`,`nextaction`)
 				VALUES ('{$values['newitemId']}',CURRENT_DATE,NULL,{$values['dateCompleted']},
-                        '{$values['type']}','{$values['categoryId']}')";
+                        '{$values['type']}','{$values['categoryId']}',
+                        '{$values['isSomeday']}','{$values['contextId']}',
+                        '{$values['timeframeId']}',{$values['deadline']},
+                        {$values['tickledate']},'{$values['nextaction']}')";
 			break;
 
 		case "newparent":
@@ -614,7 +575,7 @@ function getsql($querylabel,$values,$sort) {
 				VALUES ('{$values['parentId']}','{$values['newitemId']}')";
 			break;
 
-        case 'newperspective':
+/*        case 'newperspective':
             $sql="INSERT INTO `{$prefix}perspectives`
                     (`id`,`name`,`sort`,`columns`,`show`)
                 VALUES (
@@ -628,7 +589,7 @@ function getsql($querylabel,$values,$sort) {
                     VALUES ('{$values['uri']}','{$values['perspectiveid']}')
                     ON DUPLICATE KEY UPDATE `id`='{$values['perspectiveid']}'";
             break;
-
+*/
 		case "newspacecontext":
 			$sql="INSERT INTO `{$prefix}context`
 						(`name`,`description`)
@@ -649,10 +610,9 @@ function getsql($querylabel,$values,$sort) {
 
 		case "parentselectbox":
 			$sql="SELECT i.`itemId`, i.`title`,
-						i.`description`, ia.`isSomeday`,its.`type`
+						i.`description`, its.`isSomeday`,its.`type`
 				FROM `{$prefix}items` as i
 				JOIN `{$prefix}itemstatus` as its USING (`itemId`)
-				LEFT OUTER JOIN `{$prefix}itemattributes` as ia USING (`itemId`)
 				WHERE (its.`dateCompleted` IS NULL) {$values['ptypefilterquery']}
 				ORDER BY its.`type`,i.`title`";
 				#ORDER BY {$sort['parentselectbox']}";
@@ -665,13 +625,13 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
 		case "reassignspacecontext":
-			$sql="UPDATE `{$prefix}itemattributes`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `contextId`='{$values['newId']}'
 				WHERE `contextId`='{$values['id']}'";
 			break;
 
 		case "reassigntimecontext":
-			$sql="UPDATE `{$prefix}itemattributes`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `timeframeId`='{$values['newId']}'
 				WHERE `timeframeId`='{$values['id']}'";
 			break;
@@ -693,19 +653,18 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
 		case "selectitem":
-			$sql="SELECT i.*,ia.*,its.*,
+			$sql="SELECT i.*,its.*,
 				    c.`category`, ti.`timeframe`,cn.`name` AS `cname`,
                     GROUP_CONCAT(tm.`tagname` ORDER BY tm.`tagname` SEPARATOR ',') AS tagname
 				FROM `{$prefix}items`      AS i
 				JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
-				LEFT OUTER JOIN `{$prefix}itemattributes` AS ia  USING (`itemId`)
                 LEFT OUTER JOIN `{$prefix}tagmap` AS tm USING (`itemId`)
 				LEFT OUTER JOIN `{$prefix}categories` as c
 					ON (c.`categoryId` = its.`categoryId`)
 				LEFT OUTER JOIN `{$prefix}context` as cn
-					ON (cn.`contextId` = ia.`contextId`)
+					ON (cn.`contextId` = its.`contextId`)
 				LEFT OUTER JOIN `{$prefix}timeitems` as ti
-					ON (ti.`timeframeId` = ia.`timeframeId`)
+					ON (ti.`timeframeId` = its.`timeframeId`)
                 {$values['filterquery']}
                 GROUP BY i.`itemId`
                 ";
@@ -713,10 +672,9 @@ function getsql($querylabel,$values,$sort) {
 
 		case "selectitemshort":
 			$sql="SELECT i.`itemId`, i.`title`,
-						i.`description`, ia.`isSomeday`,its.`type`
+						i.`description`, its.`isSomeday`,its.`type`
 				FROM `{$prefix}items` as i
 				JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
-				LEFT OUTER JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
 				WHERE i.`itemId` = '{$values['itemId']}'";
 			break;
 
@@ -727,19 +685,18 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
 		case "selectparents":
-			$sql="SELECT lu.`parentId`,i.`title` AS `ptitle`,ia.`isSomeday`,its.`type` AS `ptype`
+			$sql="SELECT lu.`parentId`,i.`title` AS `ptitle`,its.`isSomeday`,its.`type` AS `ptype`
 				FROM `{$prefix}lookup` AS lu
 				JOIN `{$prefix}items` AS i ON (lu.`parentId` = i.`itemId`)
 				JOIN `{$prefix}itemstatus` AS its ON (lu.`parentId` = its.`itemId`)
-				LEFT OUTER JOIN `{$prefix}itemattributes` AS ia ON (lu.`parentId` = ia.`itemId`)
 				WHERE lu.`itemId`='{$values['itemId']}'";
 			break;
 
-        case 'selectperspective':
+/*        case 'selectperspective':
             $sql="SELECT `sort`,`columns`,`show` FROM `{$prefix}perspectivemap`
                   JOIN `{$prefix}perspectives` USING (`id`) {$values['filterquery']}";
             break;
-
+*/
 		case "selecttimecontext":
 			$sql="SELECT `timeframeId`, `timeframe`, `description`, `type`
 				FROM `{$prefix}timeitems`
@@ -753,10 +710,10 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
 		case "testitemrepeat":
-			$sql="SELECT i.`recur`,ia.`tickledate`,ia.`deadline`
-				FROM `{$prefix}itemattributes` AS ia
+			$sql="SELECT i.`recur`,its.`tickledate`,its.`deadline`
+				FROM `{$prefix}itemstatus` AS its
                 JOIN `{$prefix}items`          AS i   USING (`itemId`)
-				WHERE ia.`itemId`='{$values['itemId']}'";
+				WHERE its.`itemId`='{$values['itemId']}'";
 			break;
 
 		case "timecontextselectbox":
@@ -797,7 +754,7 @@ function getsql($querylabel,$values,$sort) {
             break;
 
 		case "updatedeadline":
-			$sql="UPDATE `{$prefix}itemattributes`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `deadline` ={$values['deadline']},
 				    `tickledate` ={$values['tickledate']}
 				WHERE `itemId` = '{$values['itemId']}'";
@@ -814,7 +771,7 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
 		case "updateitemattributes":
-			$sql="UPDATE `{$prefix}itemattributes`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `isSomeday`= '{$values['isSomeday']}',
 					`contextId` = '{$values['contextId']}',
 					`timeframeId` = '{$values['timeframeId']}',
@@ -831,7 +788,7 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
 		case "updateitemcontext":
-			$sql="UPDATE `{$prefix}itemattributes`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `contextId`='{$values['contextId']}'
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
@@ -853,25 +810,23 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
 		case "updateitemtimecontext":
-			$sql="UPDATE `{$prefix}itemattributes`
+			$sql="UPDATE `{$prefix}itemstatus`
 				SET `timeframeId`='{$values['timeframeId']}'
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
 
 		case "updateitemtype":
-			$sql="UPDATE `{$prefix}itemstatus` AS its
-                    JOIN `{$prefix}itemattributes` AS ia USING (`itemId`)
-				SET its.`type` = '{$values['type']}',
-					its.`dateCompleted`=NULL,
-					ia.`isSomeday`= '{$values['isSomeday']}'
-				WHERE its.`itemId` = '{$values['itemId']}'";
+			$sql="UPDATE `{$prefix}itemstatus`
+				SET `type` = '{$values['type']}',
+					`dateCompleted`=NULL,
+					`isSomeday`= '{$values['isSomeday']}'
+				WHERE `itemId` = '{$values['itemId']}'";
 			break;
 
 		case "updatenextaction":
-			$sql="UPDATE `{$prefix}itemattributes` AS ia
-                JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
-                SET ia.`nextaction`='{$values['nextaction']}', its.`lastModified`=NULL
-                WHERE ia.`itemId`='{$values['itemId']}'";
+			$sql="UPDATE `{$prefix}itemstatus`
+                SET `nextaction`='{$values['nextaction']}', `lastModified`=NULL
+                WHERE `itemId`='{$values['itemId']}'";
 			break;
 
         case 'updateoptions':
@@ -916,7 +871,7 @@ function sqlparts($part,$values) {
 
   switch ($part) {
 	case "activeitems":
-		$sqlpart = " (CURDATE()>=ia.`tickledate` OR ia.`tickledate` IS NULL) ";
+		$sqlpart = " (CURDATE()>=its.`tickledate` OR its.`tickledate` IS NULL) ";
 		break;
 	case "categoryfilter":
 		$sqlpart = " its.`categoryId` = '{$values['categoryId']}' ";
@@ -928,10 +883,9 @@ function sqlparts($part,$values) {
 		$sqlpart = " LEFT JOIN (
             SELECT chp.`parentId` as itemId,
                 COUNT(chp.`itemId`) AS numChildren,
-                COUNT(IF(chia.`nextaction`='y',1,NULL)) as numNA
+                COUNT(IF(chits.`nextaction`='y',1,NULL)) as numNA
             FROM       `{$prefix}lookup`         AS chp
                   JOIN `{$prefix}itemstatus`     AS chits USING (`itemId`)
-       LEFT OUTER JOIN `{$prefix}itemattributes` AS chia  USING (`itemId`)
                 WHERE chits.`dateCompleted` IS NULL AND chits.`type` <> 'r'
                 GROUP BY (chp.`parentId`)
             ) AS act ON (act.itemId=x.itemId) ";
@@ -940,13 +894,13 @@ function sqlparts($part,$values) {
 		$sqlpart = " its.`dateCompleted` IS NOT NULL ";
 		break;
 	case "contextfilter":
-		$sqlpart = " ia.`contextId` = '{$values['contextId']}' ";
+		$sqlpart = " its.`contextId` = '{$values['contextId']}' ";
 		break;
 	case "countchildren":
 		$sqlpart = " ,act.numNA, act.numChildren";
 		break;
 	case "due":
-		$sqlpart = " (CURDATE()>=ia.`deadline` AND ia.`deadline` IS NOT NULL) ";
+		$sqlpart = " (CURDATE()>=its.`deadline` AND its.`deadline` IS NOT NULL) ";
 		break;
 	case "hasparent":
 		$sqlpart = " y.`parentId` = '{$values['parentId']}' ";
@@ -957,16 +911,16 @@ function sqlparts($part,$values) {
         $tags=explode(',',$values['tags']);
         $sep='';
         foreach ($tags as $tag) {
-            $sqlpart .= "'".trim($tag)."'";
+            $sqlpart .= "$sep'".trim($tag)."'";
             $sep=',';
         }
         $sqlpart .= ") GROUP BY `itemId` HAVING COUNT(`itemId`)=".count($tags).") ";
         break;
 	case "isNAonly":
-        $sqlpart = " ia.`nextaction`='y' ";
+        $sqlpart = " its.`nextaction`='y' ";
 		break;
 	case "issomeday":
-		$sqlpart = " IF(ia.`isSomeday`='y','y','n') = '{$values['isSomeday']}' ";
+		$sqlpart = " IF(its.`isSomeday`='y','y','n') = '{$values['isSomeday']}' ";
 		break;
     case "iteminlist":
         $sqlpart='i.`itemId` IN (';
@@ -990,8 +944,8 @@ function sqlparts($part,$values) {
 		break;
 	case "matchall":
 		$sqlpart = " (i.`title` LIKE '%{$values['needle']}%'
-                                      OR i.`description` LIKE '%{$values['needle']}%'
-                                      OR i.`desiredOutcome` LIKE '%{$values['needle']}%' )";
+                      OR i.`description` LIKE '%{$values['needle']}%'
+                      OR i.`desiredOutcome` LIKE '%{$values['needle']}%' )";
 		break;
 	case "notcategoryfilter":
 		$sqlpart = " its.`categoryId` != '{$values['categoryId']}' ";
@@ -1000,17 +954,18 @@ function sqlparts($part,$values) {
 		$sqlpart = " y.`pcategoryId` != '{$values['categoryId']}' ";
 		break;
 	case "notcontextfilter":
-		$sqlpart = " ia.`contextId` != '{$values['contextId']}' ";
+		$sqlpart = " its.`contextId` != '{$values['contextId']}' ";
 		break;
 	case "nottimeframefilter":
-		$sqlpart = " ia.`timeframeId` !='{$values['timeframeId']}' ";
+		$sqlpart = " its.`timeframeId` !='{$values['timeframeId']}' ";
 		break;
 	case "pendingitems":
 		$sqlpart = " its.`dateCompleted` IS NULL ";
 		break;
-    case "perspectiveuri":
+/*    case "perspectiveuri":
         $sqlpart = " `filter`='{$values['uri']}'";
         break;
+*/
 	case "repeating":
 		$sqlpart = " i.`recur` !='' ";
 		break;
@@ -1021,10 +976,10 @@ function sqlparts($part,$values) {
         $sqlpart = " `option`='{$values['option']}' ";
         break;
 	case "suppresseditems":
-		$sqlpart = " (CURDATE()<ia.`tickledate`) ";
+		$sqlpart = " (CURDATE()<its.`tickledate`) ";
 		break;
 	case "timeframefilter":
-		$sqlpart = " ia.`timeframeId` ='{$values['timeframeId']}' ";
+		$sqlpart = " its.`timeframeId` ='{$values['timeframeId']}' ";
 		break;
 	case "timetype":
 		$sqlpart = " ti.`type` = '{$values['type']}' ";

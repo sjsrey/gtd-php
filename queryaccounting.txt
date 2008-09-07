@@ -17,7 +17,6 @@ deletecategory
 deletechecklist
 deletechecklistitem
 deleteitem
-deleteitemattributes
 deleteitemstatus
 deletelist
 deletelistitem
@@ -43,7 +42,6 @@ newcategory
 newchecklist
 newchecklistitem
 newitem
-newitemattributes
 newitemstatus
 newlist
 newlistitem
@@ -223,13 +221,11 @@ processItems
     completeitem
     copynextaction
     deleteitem
-    deleteitemattributes
     deleteitemstatus
     deletelookup
     deletenextaction
     lookupparent
     newitem
-    newitemattributes
     newitemstatus
     newparent
     selectitem

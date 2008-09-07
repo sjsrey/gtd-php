@@ -224,7 +224,6 @@ function doChecklist() {
 function deleteItem() { // delete all references to a specific item
 	global $values;
 	query("deleteitemstatus",$values);
-	query("deleteitemattributes",$values);
 	query("deleteitem",$values);
 	query("deletelookup",$values);
 	query("deletelookupparents",$values);
@@ -236,8 +235,6 @@ function createItem() { // create an item and its parent-child relationships
 	$result = query("newitem",$values);
 	$values['newitemId'] = $GLOBALS['lastinsertid'];
 	$result = query("newitemstatus",$values);
-	if ($values['type']!=='L' && $values['type']!=='C' && $values['type']!=='T')
-	   $result = query("newitemattributes",$values);
 	setParents('new');
 	$title=$values['title'];
 	$values['itemId']=$values['newitemId'];

@@ -72,6 +72,8 @@ $tablesByVersion=array( // NB the order of tables in these arrays is CRITICAL. t
     // 0.8z.05 - preferences table revised, no change to list of tables
     // 0.8z.06 - perspectives and perspectivemap tables added
     ,'0.8z.06'   => array('categories','context','itemattributes','items','itemstatus','lookup','perspectivemap','perspectives','tagmap','timeitems','version','preferences')
+    // 0.8z.07 - merged itemattributes into itemstatus, and dropped perspectives and perspectivemap
+    ,'0.8z.07'   => array('categories','context','items','itemstatus','lookup','tagmap','timeitems','version','preferences')
     );
 
 $versions=array(
@@ -98,6 +100,9 @@ $versions=array(
                         'upgradepath'=>'0.8z.05')
     ,'0.8z.06'  => array(  'tables'=>'0.8z.06',
                         'database'=>'0.8z.06',
+                        'upgradepath'=>'0.8z.06')
+    ,'0.8z.07'  => array(  'tables'=>'0.8z.07',
+                        'database'=>'0.8z.07',
                         'upgradepath'=>'copy')
     );
 /*
@@ -122,6 +127,7 @@ $areDeleting=false;
     <script type='text/javascript'>
     GTD={debugKey:'h'};
     </script>
+    <script type="text/javascript" src="jquery.js"></script>
     <script type="text/javascript" src="gtdfuncs.js"></script>
 <?php } ?>
 <link rel="stylesheet" href="themes/default/style.css" type="text/css"/>
@@ -189,7 +195,7 @@ else {
 	checkInstall();
 }
 ?>
-</div>
+
 </div>
 </body>
 </html>
@@ -436,7 +442,7 @@ function doInstall($installType,$fromPrefix) {
 	require 'config.inc.php';
     require_once "headerDB.inc.php";
     $toPrefix=$config['prefix'];
-	$temp='';
+	$endMsg=$temp='';
 	register_shutdown_function('cleanup');
 	if (_DEBUG) echo "<pre>Install type is: $installType<br />Source database has prefix $fromPrefix</pre>";
 	echo "<p>Installing ... please wait</p>\n";
@@ -499,40 +505,42 @@ installation for use and familiarize yourself with the system.</p>\n
         echo '<h2>Upgrading database from 0.7 to 0.8rc-4</h2>';
         up07TO08rc4('',$toPrefix);
         $fromPrefix=$toPrefix;
-        
         // deliberately flows through to next case
 		//---------------------------------------------------
 
 	case '0.8rc-4': // ugprade from 0.8rc-4
-        echo '<h2>Upgrading database from 0.8rc-4 to 0.8z.04</h2>';
-        copyToNewPrefix('0.8rc-4',$fromPrefix,$toPrefix);
-		$fromPrefix=$toPrefix; // must only copy to new prefix ONCE, so prevent it happening again
+        copyToNewPrefix('0.8rc-4','0.8z.04',$fromPrefix,$toPrefix);
         up08rc4TO08z04($fromPrefix,$toPrefix);
 		$fromPrefix=$toPrefix; // must only copy to new prefix ONCE, so prevent it happening again
 		// deliberately flows through to next case
 		//---------------------------------------------------
 		
 	 case '0.8z.04': // ugprade from 0.8z.04
-        echo '<h2>Upgrading database from 0.8z.04 to 0.8z.05</h2>';
-        copyToNewPrefix('0.8z.04',$fromPrefix,$toPrefix);
-		$fromPrefix=$toPrefix; // must only copy to new prefix ONCE, so prevent it happening again
+        copyToNewPrefix('0.8z.04','0.8z.05',$fromPrefix,$toPrefix);
         up08z04TO08z05($fromPrefix,$toPrefix);
 		// deliberately flows through to next case
 		//---------------------------------------------------
 
 	 case '0.8z.05': // ugprade from 0.8z.05
-        echo '<h2>Upgrading database from 0.8z.05 to 0.8z.06</h2>';
-        copyToNewPrefix('0.8z.05',$fromPrefix,$toPrefix);
-		$fromPrefix=$toPrefix; // must only copy to new prefix ONCE, so prevent it happening again
-        up08z05TO08z06($fromPrefix,$toPrefix);
+        //copyToNewPrefix('0.8z.05','0.8z.06',$fromPrefix,$toPrefix);
+		$skip08z06=true;
 		// deliberately flows through to next case
 		//---------------------------------------------------
+
+	 case '0.8z.06': // ugprade from 0.8z.06
+        copyToNewPrefix('0.8z.05','0.8z.07',$fromPrefix,$toPrefix);
+		if (!empty($skip08z06)) {
+            drop_table("{$toPrefix}perspectives");
+            drop_table("{$toPrefix}perspectivemap");
+        }
+        up08z05TO08z07($fromPrefix,$toPrefix);
+        $endMsg="<p>Now Check your <a href='preferences.php#optsort'>preferences</a> for sort order: any <b>'ia.'</b> prefixes must be removed.</p>";
 
 		//---------------------------------------------------
         // end of chained upgrade process
         updateVersion($toPrefix);
         fixData($toPrefix);
-        $endMsg="<p>GTD-PHP database upgraded to "._GTD_VERSION." - gosh, you're brave</p>";
+        $endMsg.="<p>GTD-PHP database upgraded to "._GTD_VERSION." - gosh, you're brave</p>";
         $install_success=true;
         break;
 		//---------------------------------------------------
@@ -631,17 +639,17 @@ function failDuringCheck() {
 /*
    ======================================================================================
 */
-function copyToNewPrefix($ver,$fromPrefix,$toPrefix) {
+function copyToNewPrefix($ver,$tover,&$fromPrefix,$toPrefix) {
+    echo "<h2>Upgrading database from version $ver to $tover</h2>";
+    flushAndResetTimer();
     if ($fromPrefix===$toPrefix) return false; // nothing to do!
+
     global $tablesByVersion,$versions;
 	foreach ($tablesByVersion[$versions[$ver]['tables']] as $key=>$table) {
-	
-		$q = "CREATE TABLE `{$toPrefix}$table` LIKE `$fromPrefix$table`";
-		send_query($q);
-		
-		$q = "INSERT INTO `{$toPrefix}$table` SELECT * FROM `$fromPrefix$table`";
-		send_query($q);
+		send_query("CREATE TABLE `{$toPrefix}$table` LIKE `$fromPrefix$table`");
+		send_query("INSERT INTO `{$toPrefix}$table` SELECT * FROM `$fromPrefix$table`");
 	}
+	$fromPrefix=$toPrefix; // must only copy to new prefix ONCE, so prevent it happening again
 	return true; // completed successfully
 }
 /*
@@ -1017,6 +1025,7 @@ function up07TO08rc4($fromPrefix,$toPrefix) {
     send_query($q);
 
     // -------------------------------------------------------
+
     flushAndResetTimer();
     
     $q="ALTER TABLE {$tempPrefix}itemattributes DROP `projectId`";
@@ -1078,7 +1087,9 @@ function up07TO08rc4($fromPrefix,$toPrefix) {
     send_query($q);
 
     // migrate actions---------------------------------------------
+
     flushAndResetTimer();
+
     $maxnum = " +(
         CASE  WHEN (SELECT MAX(`id`) FROM `goals`) IS NULL THEN 0
         ELSE (SELECT MAX(`id`) FROM `goals`)
@@ -1155,7 +1166,9 @@ function up07TO08rc4($fromPrefix,$toPrefix) {
     send_query($q);
 
     // Migrate Projects---------------------------------------------
+
     flushAndResetTimer();
+
     $q="INSERT INTO {$tempPrefix}items
             (`itemId`,`title`,`description`,`desiredOutcome`) SELECT
             `projectId`,`name`,`description`,`desiredOutcome` FROM `projects`";
@@ -1225,6 +1238,7 @@ function up07TO08rc4($fromPrefix,$toPrefix) {
     send_query($q);
 
     flushAndResetTimer();
+
     $q="INSERT INTO {$tempPrefix}items
             (`itemId`,`title`,`description`) SELECT `id`,`goal`,`description`
             FROM `{$tempPrefix}goals`";
@@ -1307,7 +1321,6 @@ function up07TO08rc4($fromPrefix,$toPrefix) {
    ======================================================================================
 */
 function up08rc4TO08z04($fromPrefix,$toPrefix) {
-    flushAndResetTimer();
 	create_table($toPrefix,'tagmap');
 
     $q="ALTER TABLE `{$toPrefix}itemattributes` ADD COLUMN `nextaction` ENUM('y','n') NOT NULL DEFAULT 'n';";
@@ -1520,7 +1533,6 @@ function up08rc4TO08z04($fromPrefix,$toPrefix) {
    ======================================================================================
 */
 function up08z04TO08z05($toPrefix) {
-    flushAndResetTimer();
 	drop_table("{$toPrefix}preferences");
 	create_table($toPrefix,"preferences");
     importOldConfig();
@@ -1529,10 +1541,32 @@ function up08z04TO08z05($toPrefix) {
 /*
    ======================================================================================
 */
-function up08z05TO08z06($toPrefix) {
-    flushAndResetTimer();
-	create_table($toPrefix,"perspectives");
-	create_table($toPrefix,"perspectivemap");
+function up08z05TO08z07($toPrefix) {
+    $q="ALTER TABLE `{$toPrefix}itemstatus` ADD COLUMN (
+            `isSomeday` enum('y','n') NOT NULL default 'n',
+            `contextId` int(10) unsigned NOT NULL default '0',
+            `timeframeId` int(10) unsigned NOT NULL default '0',
+            `deadline` date default NULL,`tickledate` date default NULL,
+            `nextaction` enum('y','n') NOT NULL DEFAULT 'n'
+           ) ";
+    send_query($q);
+       
+    $q="ALTER TABLE `{$toPrefix}itemstatus` ADD INDEX `contextId` (`contextId`)";
+    send_query($q);
+    $q="ALTER TABLE `{$toPrefix}itemstatus` ADD INDEX `timeframeId` (`timeframeId`)";
+    send_query($q);
+    $q="ALTER TABLE `{$toPrefix}itemstatus` ADD INDEX `isSomeday` (`isSomeday`)";
+    send_query($q);
+
+    $q="UPDATE `{$toPrefix}itemstatus` AS its
+            JOIN `{$toPrefix}itemattributes` AS ia USING (`itemId`)
+        SET its.`isSomeday`=  ia.`isSomeday`, its.`contextId`=ia.`contextId`,
+            its.`timeframeId`=  ia.`timeframeId`, its.`deadline`=ia.`deadline`,
+            its.`tickledate`=  ia.`tickledate`, its.`nextaction`=ia.`nextaction`";
+    send_query($q);
+    send_query("DROP TABLE `{$toPrefix}itemattributes`");
+    
+    //TODO - remove ia table prefixes from SORT options, and save them
     return true;
 }
 /*
@@ -1566,19 +1600,6 @@ function create_table ($prefix,$name) {
        $q.=_FULLTEXT." KEY `name` (`name`"._INDEXLEN."), ";
        $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN.")";
 	break;
-	case "itemattributes";
-       $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`isSomeday` enum('y','n') NOT NULL default 'n', ";
-       $q.="`contextId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`timeframeId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`deadline` date default NULL, ";
-       $q.="`tickledate` date default NULL, ";
-       $q.="`nextaction` enum('y','n') NOT NULL DEFAULT 'n', ";
-       $q.="PRIMARY KEY (`itemId`), ";
-       $q.="KEY `contextId` (`contextId`), ";
-       $q.="KEY `timeframeId` (`timeframeId`), ";
-       $q.="KEY `isSomeday` (`isSomeday`) ";
-	break;
 	case "items":
        $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
        $q.="`title` text NOT NULL, ";
@@ -1591,35 +1612,31 @@ function create_table ($prefix,$name) {
        $q.=_FULLTEXT." KEY `desiredOutcome` (`desiredOutcome`"._INDEXLEN."), ";
        $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN.")";
 	break;
-	case "itemstatus":
+	case "itemstatus";
        $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
        $q.="`dateCreated` date default '"._DEFAULTDATE."', ";
        $q.="`lastModified` timestamp default '"._DEFAULTDATE."' ,";
        $q.="`dateCompleted` date default NULL, ";
        $q.="`type` enum ('m','v','o','g','p','a','r','w','i','L','C','T') NOT NULL default 'i', ";
        $q.="`categoryId` int(11) unsigned NOT NULL default '0', ";
-       $q.=" PRIMARY KEY  (`itemId`), ";
+       $q.="`isSomeday` enum('y','n') NOT NULL default 'n', ";
+       $q.="`contextId` int(10) unsigned NOT NULL default '0', ";
+       $q.="`timeframeId` int(10) unsigned NOT NULL default '0', ";
+       $q.="`deadline` date default NULL, ";
+       $q.="`tickledate` date default NULL, ";
+       $q.="`nextaction` enum('y','n') NOT NULL DEFAULT 'n', ";
+       $q.=" PRIMARY KEY (`itemId`), ";
        $q.=" KEY `type` (`type`), ";
-       $q.=" KEY `categoryId` (`categoryId`) ";
+       $q.=" KEY `categoryId` (`categoryId`), ";
+       $q.=" KEY `contextId` (`contextId`), ";
+       $q.=" KEY `timeframeId` (`timeframeId`), ";
+       $q.=" KEY `isSomeday` (`isSomeday`) ";
 	break;
 	case "lookup":
        $q.="`parentId` int(11) NOT NULL DEFAULT '0', ";
        $q.="`itemId` int(10) UNSIGNED NOT NULL DEFAULT '0', ";
        $q.="PRIMARY KEY  (`parentId`,`itemId`) ";
     break;
-	case "perspectivemap":
-        $q.="`filter` char(40) NOT NULL,`id` char(40) NOT NULL,
-             PRIMARY KEY(`filter`),
-             KEY(`id`(40))";
-	break;
-	case "perspectives":
-        $q.="`id` char(40) NOT NULL,
-             `name` text NOT NULL,
-             `sort` text,
-             `columns` text NOT NULL,
-             `show` text NOT NULL,
-             PRIMARY KEY (`id`(40))";
-	break;
 	case "preferences":
        $q.="`id`  int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
             `uid` int(10)  NOT NULL DEFAULT '0',

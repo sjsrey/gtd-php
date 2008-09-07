@@ -635,7 +635,8 @@ a.sortheader { display: block; }
     .calendar thead .headrow { /* Row <TR> containing navigation buttons */
     }
 
-    .calendar thead .daynames { /* Row <TR> containing the day names */
+    .calendar thead td,.calendar thead td.name { /* Row <TR> containing the day names */
+        color: #000;
     }
 
     .calendar thead .name { /* Cells <TD> containing the day names */
