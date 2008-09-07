@@ -113,7 +113,9 @@
 .calendar tbody .rowhilite td.wn {
   background: #c8d4d0;
 }
-
+.calendar thead td,.calendar thead td.name { /* Row <TR> containing the day names */
+    color: #000;
+}
 .calendar tbody td.hilite { /* Hovered cells <TD> */
   padding: 1px 3px 1px 1px;
   border: 1px solid;
