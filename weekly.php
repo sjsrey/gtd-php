@@ -106,8 +106,8 @@ include_once 'header.inc.php';
     <?php } ?>
 	<tr><td>Review <a href="listItems.php?type=a">Actions list</a></td><td>Mark off any completed actions, review for reminders of further actions to capture.</td></tr>
 	<tr><td>Review <a href="listItems.php?type=w">WaitingOn list</a></td><td>Mark off any items which have now happened; for each such item's parent project, decide what the new next action is.</td></tr>
-	<tr><td>Review <a href="listLists.php?type=L">Lists</a></td><td>Review relevant lists for actionable items or projects.</td></tr>
-	<tr><td>Review <a href="listLists.php?type=C">Checklists</a></td><td>Review relevant Checklists for actionable items or projects.</td></tr>
+	<tr><td>Review <a href="listItems.php?type=L">Lists</a></td><td>Review relevant lists for actionable items or projects.</td></tr>
+	<tr><td>Review <a href="listItems.php?type=C">Checklists</a></td><td>Review relevant Checklists for actionable items or projects.</td></tr>
 	<tr><td>Review <a href="listItems.php?type=p&amp;someday=true">Someday/Maybe List</a></td><td>Add new fun things, move any existing items into Projects if they are ready to go</td></tr>
 	<tr><td>Review support files</td><td></td></tr>
 	<tr><td>Review <a href="listItems.php?type=g">Goals</a></td><td>Check off goals from this week. Define goals for upcoming week</td></tr>
