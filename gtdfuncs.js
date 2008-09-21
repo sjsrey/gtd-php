@@ -34,12 +34,7 @@ function keyPressHandler(e) {
 			return true;
         }
 	}
-	if (document.styleSheets[0].cssRules) {
-		toggleVis(document.styleSheets[0].cssRules[0]);
-	} else {
-		toggleVis(document.styleSheets[0].rules[0]);
-		toggleVis(document.styleSheets[0].rules[1]);
-	}
+	$('.debug').toggle();
     e.stopPropagation();
     return false;
 }

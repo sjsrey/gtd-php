@@ -307,8 +307,8 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
         case 'countactionsbycontext':
-            $sql="SELECT cn.`name` AS cname,cn.`contextId`,COUNT(x.`itemId`) AS count
-            FROM `{$prefix}itemstatus` as its
+            $sql="SELECT cn.`name` AS cname,cn.`contextId`,COUNT(its.`itemId`) AS count
+            FROM `{$prefix}itemstatus` AS its
 			LEFT OUTER JOIN `{$prefix}context` AS cn
 				ON (its.`contextId` = cn.`contextId`)
             JOIN (
@@ -321,7 +321,7 @@ function getsql($querylabel,$values,$sort) {
     					   FROM `{$prefix}items` AS i
     					   JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
                         ) AS y USING (`parentId`)
-            ) AS lut ON (x.`itemId`=lut.`itemId`)
+            ) AS lut ON (its.`itemId`=lut.`itemId`)
              {$values['filterquery']}
              GROUP BY its.`contextId` ORDER BY cn.`name`";
             break;

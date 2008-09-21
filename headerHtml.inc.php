@@ -27,18 +27,14 @@ if (empty($_SESSION['theme']))
 if (!isset($_SESSION['useLiveEnhancements']))
     $_SESSION['useLiveEnhancements']=$_SESSION['config']['useLiveEnhancements'];
 
-$debugstyle=($_SESSION['debug']['debug'] || defined('_DEBUG')) ? "<style type='text/css'>.debug {}</style>" : '';
-
 $extrajavascript = '';
 
 if ($_SESSION['debug']['debug'] || defined('_DEBUG'))
 	$extrajavascript .= "\n<script type='text/javascript'>
     /* <![CDATA[ */
-    if (typeof GTD==='undefined') {
-        GTD={debugKey:\"{$_SESSION['debug']['key']}\"};
-    } else {
+    $(document).ready(function(){
         GTD.debugInit(\"{$_SESSION['debug']['key']}\");
-    }
+    });
     /* ]]> */
     </script>";
 
@@ -56,7 +52,6 @@ $headertext=<<<HTML1
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset={$_SESSION['config']['charset']}" />
 <title>{$_SESSION['config']['title']} $title</title>
-{$debugstyle}
 <link rel="stylesheet" href="themes/{$_SESSION['theme']}/style.css" type="text/css"/>
 <link rel="stylesheet" href="themes/{$_SESSION['theme']}/style_screen.css" type="text/css" media="screen" />
 <link rel="shortcut icon" href="./favicon.ico" />
