@@ -73,6 +73,7 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
     this.Set=function(save) { // function to save or reset this particular field
         jsource.replaceWith(old);
         if (save!==false) {
+            var cleantext=save.replace(/\\/g,'');
             switch(inputtype) {
                 //--------------------------------------------------
                 case 'text':
@@ -80,12 +81,13 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
                         filter(function() {
                             return (this.textContent!=='');
                         }).
-                        text(save);
+                        empty().
+                        append(cleantext);
                     break;
                 //--------------------------------------------------
                 case 'textarea':
-                    old.html('');
-                    old.append(save);
+                    old.html('').
+                        append(cleantext);
                     break;
                 //--------------------------------------------------
             }
@@ -385,7 +387,7 @@ function itemEditor(row) {
                 results =$('gtdphp values',xmldata);
                 descback=$('description',results).text();
                 outback =$('desiredOutcome',results).text();
-                title  =$('title',results).text();
+                title   =$('title',results).text();
                 if (namefield) {
                     namefield.Set(title);
                 } else {
@@ -394,7 +396,9 @@ function itemEditor(row) {
                 if (descfield) {
                     descfield.Set(descback);
                 } else {
-                    $('.col-shortdesc',row).text(descback);
+                    $('.col-shortdesc',row).
+                        empty().
+                        append(descback.replace(/\\/g,''));
                 }
                 if (outcomefield) {
                     outcomefield.Set(outback);
@@ -1009,12 +1013,11 @@ function columnpreviewtoggle(e) {
     return true;     // and allow checkbox to be ticked
 }
 // -------------------------------------------------------------------------
+/* - currently disabled - not in use
 function saveperspective(e) {
-/*
  * Event handler for the user requesting to save the perspective
  *
  * e: jQuery event
- */
     var data,sortcol,msgbox,pos;
     // build the variables to send in the AJAX request
     data={output:'xml','show[]':[],'columns[]':[]};
@@ -1077,6 +1080,7 @@ function saveperspective(e) {
         url:'processViews.php'
     });
 }
+ */
 // -------------------------------------------------------------------------
 function showcolumnselector(e) {
 /*

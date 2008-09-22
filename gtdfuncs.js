@@ -10,15 +10,6 @@
 (function($) {
 var freezediv,focusOn,grabKey,oldTablePosition,sort_column_index;
 // ======================================================================================
-function toggleVis (thisRule) {
-/*
- * toggle the display value in a particular CSS rule
- *
- * thisRule: the DOM object of the CSS rule
- */
-	thisRule.style.display=(thisRule.style.display==="none")?"block":"none";
-}
-// ======================================================================================
 function keyPressHandler(e) {
 /*
  * event-handler for key presses, for when we are toggling the display of debug-log text

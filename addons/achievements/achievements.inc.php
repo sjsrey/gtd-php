@@ -9,6 +9,11 @@ $sql="SELECT its.`type`,
     WHERE its.`dateCompleted` > '$earliestdate'
     GROUP BY `type`,`daysago`";
 $result=query($sql);
+if(!$result) {
+    echo '<p>You havo no completed items yet</p>';
+    include_once 'footer.inc.php';
+    exit;
+}
 //echo '<pre>',print_r($result,true),'</pre>';
 
 $lastype='';
