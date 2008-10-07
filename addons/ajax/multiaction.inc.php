@@ -5,7 +5,7 @@ global $taglist,$cashtml,$cshtml,$tshtml;
     <span class='multispan'>
     <select name='multiaction' id='multiaction'>
         <option value='complete'>complete</option>
-        <option value='tag'>tag</option>
+        <!--option value='tag'>tag</option-->
         <option value='delete'>delete</option>
         <option value='category'> category</option>
         <option value='space'>space</option>
