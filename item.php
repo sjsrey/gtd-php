@@ -448,7 +448,7 @@ if ($sep!=='<p>') echo "</p>\n";
                         <?php
                         foreach ($taglist as $tag) {
                             echo "<a class='add' href='#'"
-                                ,($_SESSION['config']['useLiveEnhancements']) ?
+                                ,($_SESSION['useLiveEnhancements']) ?
                                     " onclick='return GTD.tagAdd(this)'"
                                     : ''
                                 ,">$tag</a>, \n";

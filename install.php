@@ -138,7 +138,7 @@ $areDeleting=false;
 <h2>This is the gtd-php installer</h2>
 <?php
 
-if (_DEBUG) echo '<pre>'
+if (_DEBUG) echo "<pre class='debug'>"
 	,(_DRY_RUN)?'Executing Dry run - no tables will be amended in this run':'This is a <b>live</b> run'
 	,'<br />POST variables: ',print_r($_POST,true),"</pre>\n";
 
@@ -232,7 +232,7 @@ function checkInstall() {
 
 	if (_DEBUG) {
 		$included_files = get_included_files();
-		echo '<pre>Included files:',print_r($included_files,true),'</pre>';
+		echo "<pre class='debug'>Included files:",print_r($included_files,true),'</pre>';
 	}
     // check the config file
 	$checkState='config';
@@ -240,7 +240,7 @@ function checkInstall() {
 	if (_DEBUG) {
         $configsav=$config;
         $configsav['pass']='********';
-        echo '<p class="debug">Got config.inc.php:</p><pre>',print_r($configsav,true),'</pre>';
+        echo "<p class='debug'>Got config.inc.php:</p><pre class='debug'>",print_r($configsav,true),'</pre>';
     }
 	if (empty($config['db'])) {
         echo "<p class='warning'>Fatal Error: no valid config.inc.php file has been found. "
@@ -256,7 +256,7 @@ function checkInstall() {
 	$checkState='tables';
 	$tablelist = getDBTables($config['db']);
 	$nt=count($tablelist);
-	if (_DEBUG) echo "<pre>Number of tables: $nt<br />",print_r($tablelist,true),"</pre>";
+	if (_DEBUG) echo "<pre class='debug'>Number of tables: $nt<br />",print_r($tablelist,true),"</pre>";
 
 	// validate the prefix
 	$checkState='prefix';
@@ -270,7 +270,7 @@ function checkInstall() {
 	$gotVersions=array();
 	$destInUse=false;
 	$gotPrefixes=(preg_grep("/.*version$/",$tablelist));
-	if (_DEBUG) echo '<pre>Version tables:',print_r($gotPrefixes,true),'</pre>';
+	if (_DEBUG) echo "<pre class='debug'>Version tables:",print_r($gotPrefixes,true),'</pre>';
 	foreach ($gotPrefixes as $thisVersionTable) {
 		$thisPrefix=substr($thisVersionTable,0,-7);
 		$thisVer=checkPrefixedTables($thisPrefix);
@@ -379,7 +379,7 @@ function checkInstall() {
 		$gotVersions['0.5']=true;
 	}
 
-	if (_DEBUG) echo '<pre>Versions found: ',print_r($gotVersions,true),"</pre>\n";
+	if (_DEBUG) echo "<pre class='debug'>Versions found: ",print_r($gotVersions,true),"</pre>\n";
 
 	if ($goodToGo) {
 		echo '<form action="install.php" method="post">'
@@ -444,7 +444,7 @@ function doInstall($installType,$fromPrefix) {
     $toPrefix=$config['prefix'];
 	$endMsg=$temp='';
 	register_shutdown_function('cleanup');
-	if (_DEBUG) echo "<pre>Install type is: $installType<br />Source database has prefix $fromPrefix</pre>";
+	if (_DEBUG) echo "<pre class='debug'>Install type is: $installType<br />Source database has prefix $fromPrefix</pre>";
 	echo "<p>Installing ... please wait</p>\n";
     flushAndResetTimer();
 	//---------------------------------------------------
@@ -534,7 +534,6 @@ installation for use and familiarize yourself with the system.</p>\n
             drop_table("{$toPrefix}perspectivemap");
         }
         up08z05TO08z07($fromPrefix,$toPrefix);
-        $endMsg="<p>Now Check your <a href='preferences.php#optsort'>preferences</a> for sort order: any <b>'ia.'</b> prefixes must be removed.</p>";
 
 		//---------------------------------------------------
         // end of chained upgrade process
@@ -1566,7 +1565,15 @@ function up08z05TO08z07($toPrefix) {
     send_query($q);
     send_query("DROP TABLE `{$toPrefix}itemattributes`");
     
-    //TODO - remove ia table prefixes from SORT options, and save them
+    // remove ia table prefixes from SORT options, and save them
+    if ($result=doQuery("SELECT `value` FROM `{$toPrefix}preferences` WHERE 'uid'=0 AND `option`='sort'")) {
+        $sort=serialize(safeIntoDB(str_replace(array('ia.','`ia`.'),'',unserialize($result[0]['value']))));
+        if(_DEBUG) echo "<pre class='debug'>Sort option before: ",
+            print_r($result),"<br/>and after:",print_r($sort),"</pre>";
+        send_query("REPLACE INTO `{$toPrefix}preferences`
+                        (`uid`,`option`,`value`) VALUES ('0','sort','$sort')");
+    }
+    
     return true;
 }
 /*

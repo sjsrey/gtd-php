@@ -10,7 +10,7 @@ $sql="SELECT its.`type`,
     GROUP BY `type`,`daysago`";
 $result=query($sql);
 if(!$result) {
-    echo '<p>You havo no completed items yet</p>';
+    echo '<p>You have not yet completed any items</p>';
     include_once 'footer.inc.php';
     exit;
 }

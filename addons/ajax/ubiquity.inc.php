@@ -2,19 +2,24 @@
     if (!headers_sent()) header('Content-Type: application/javascript; charset=utf-8');
     include_once 'gtdfuncs.inc.php';
 ?>
-var gtdcommandlineversion="200809110729",
+var gtdcommandlineversion="200810010633",
     gtdbasepath="<?php echo getAbsolutePath(); ?>";
 
 function gtdgetParents(callback) {
     callback({}); // empty the array first, to ensure we only issue the JSON request once
-    CmdUtils.log('off to get parents in v'+gtdcommandlineversion);
-    jQuery.getJSON(gtdbasepath+'addon.php?addonid=ajax&url=sendJSON.php&type=p',
-        function(json){
-            CmdUtils.log('back with parents');
-            callback(json);
-        }
-    );
+    //CmdUtils.log('off to get parents in v'+gtdcommandlineversion);
+    jQuery.getJSON(
+        gtdbasepath+'addon.php?addonid=ajax&url=sendJSON.php&type=p',
+        callback);
 }
+
+function gtdSetLastResult(xml) {
+    var newid=jQuery(xml).find("itemId").text();
+    CmdUtils.setLastResult('<a href="'+gtdbasepath+'itemReport.php?itemId='+
+            newid+'">'+jQuery(xml).find("title").text()+'</a>');
+    return newid;
+}
+
 var noun_type_gtdparent = {
   _name: "gtdphp parent project",
   parentList:null,
@@ -23,7 +28,6 @@ var noun_type_gtdparent = {
     noun_type_gtdparent.parentList=parents;
   },
   suggest: function( text, html ) { // TODO do this by integer too, for cleverclogs
-    //CmdUtils.log('in noun_type_gtdparent.suggest');
     if (noun_type_gtdparent.parentList === null) {
         gtdgetParents(noun_type_gtdparent.callback);
         return [];
@@ -31,14 +35,21 @@ var noun_type_gtdparent = {
     //if (text.length<3) {return [];}
     var id,title,
         suggestions=[],
-        teststring=new RegExp(text,"i");
-    for (id in noun_type_gtdparent.parentList) {
+        teststring=new RegExp(text,"i"),
+        i=4;
+    if (noun_type_gtdparent.parentList==={}) {
+        var dummy=CmdUtils.makeSugg('Still awaiting list of parents');
+        suggestions.push(dummy);
+    } else for (id in noun_type_gtdparent.parentList) {
       title=noun_type_gtdparent.parentList[id];
       if (teststring.test(title)) {
-    	suggestions.push(CmdUtils.makeSugg(title,"<a href='"+gtdbasepath+"itemReport.php?itemId="+id+"'>"+title+"</a>",{itemId:id}));
+    	suggestions.push(CmdUtils.makeSugg(title,
+            "<a href='"+gtdbasepath+"itemReport.php?itemId="+id+"'>"+title+"</a>",
+            {itemId:id}));
+    	if (!i--) break;
       }
     }
-    return suggestions.splice(0, 5);
+    return suggestions;
   }
 };
 
@@ -68,8 +79,8 @@ CmdUtils.CreateCommand({
       data:postdata,
       error: function() {displayMessage("Failed ajax call");},
       success:function(xml,text){
-        var newid=jQuery(xml).find("itemId").text();
-        displayMessage("Inbox item created with id: "+newid+", title: "+title.text);
+        displayMessage("Inbox item created with id: "+
+            gtdSetLastResult(xml)+", title: "+title.text);
       },
       dataType:"xml"
     });
@@ -89,17 +100,25 @@ CmdUtils.CreateCommand({
   takes: {"parent": noun_type_gtdparent},
 
   preview: function( pblock,parent) {
-    var document=Application.activeWindow.activeTab.document;
-    pblock.innerHTML = 'Creates a reference to '+
-      document.location.href+', with title: "'+
-      document.title+'" as a child of the item: </i>"'+
-      parent.html+'"</i>';
+    try {
+        var document=Application.activeWindow.activeTab.document;
+    } catch (err) {
+        pblock.innerHTML="Unable to get location or title for current page, so cannot create a GTD reference for it";
+        return false;
+    }
+    pblock.innerHTML= 'Creates a reference to this page as a child of: "'+
+        parent.html+'"';
   },
 
   execute: function(parent) {
-    var document=Application.activeWindow.activeTab.document,
-        currenturl=document.location.href,
-        title=document.title;
+    try {
+        var document=Application.activeWindow.activeTab.document,
+            currenturl=document.location.href,
+            title=document.title;
+    } catch (err) {
+        displayMessage("Unable to get this page's title or URL, so failed to create a reference to it");
+        return false;
+    }
     var postdata={
       action:"create",type:"r",output:"xml",fromajax:"true",
       parentId:parent.data.itemId,
@@ -107,15 +126,14 @@ CmdUtils.CreateCommand({
       description:"webpage: <a href='"+currenturl+"'>"+title+"</a>"
     };
 
-    //TODO extract the URL that we are going to create a reference to!
     jQuery.ajax({
       type:'post',
       url:gtdbasepath+"processItems.php",
       data:postdata,
       error: function() {displayMessage("Failed ajax call");},
       success:function(xml,text){
-        var newid=jQuery(xml).find("itemId").text();
-        displayMessage("Reference created with id: "+newid);
+        displayMessage("Reference created with id: "+
+            gtdSetLastResult(xml));
       },
       dataType:"xml"
     });
@@ -146,15 +164,14 @@ CmdUtils.CreateCommand({
       title:title.text
     };
 
-    //TODO extract the URL that we are going to create a reference to!
     jQuery.ajax({
       type:'post',
       url:gtdbasepath+"processItems.php",
       data:postdata,
       error: function() {displayMessage("Failed ajax call");},
       success:function(xml,text){
-        var newid=jQuery(xml).find("itemId").text();
-        displayMessage("Next action created with id: "+newid);
+        displayMessage("Next action created with id: "+
+            gtdSetLastResult(xml));
       },
       dataType:"xml"
     });

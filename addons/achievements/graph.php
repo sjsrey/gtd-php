@@ -18,7 +18,7 @@ $barplot->SetFillColor('#FFAAAA');
 $barplot->SetLegend($sourcedata['bartitle']);
 $plots[]=$barplot;
 
-$maxY=max($sourcedata['ybar'])+1;
+$maxY=end($sourcedata['ybar'])+1;
 $maxY2=array();
 $colours=array('#202020','#802020','#208020','#202080','#208080');
 $i=0;
@@ -32,7 +32,7 @@ while (!empty($sourcedata["yline$i"])) {
     $maxY2[]=round(max($sourcedata["yline$i"]),0);
     $i++;
 }
-$maxY=min($maxY,2*max($maxY2)+1);
+$maxY=max($maxY,1.2*max($maxY2)+1);
 $_SESSION["addons-{$addon['id']}"]['graph']=null;
 
 /* ==============================================

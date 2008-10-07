@@ -777,12 +777,12 @@ function columnedTable($cols,$data,$link='itemReport.php') {
    ======================================================================================
 */
 function query($querylabel,$values=NULL,$sort=NULL) {
+    if (empty($sort)) $sort=$_SESSION['sort'];
+
     log_array(array(
         'Query Label:'=>$querylabel
         ,'Values to be made safe:'=>$values
         ,'Sort array:'=>$sort));
-
-    if (empty($sort)) $sort=$_SESSION['sort'];
 
     //grab correct query string from query library array
     //values automatically inserted into array
