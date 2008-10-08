@@ -61,8 +61,8 @@ ul.clickabletree>:first-child { /* first item in a tree */
     display:inline-block;
     margin: 0 0.5em;
 }
-#trees .donehid,#trees .treehid { /* do not change this: used to toggle display of items */
-    display:none;
+#trees .donehid,#trees .treehid,#trees .contexthid,#trees .categoryhid {
+    display:none;/* do not change this: used to toggle display of items */
 }
 #treepopup {
     position:absolute;

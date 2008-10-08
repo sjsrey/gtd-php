@@ -275,7 +275,7 @@ function categoryselectbox($values) {
     $cashtml='<option value="0">--</option>'."\n";
     if ($result) {
         foreach($result as $row) {
-            $cashtml .= '   <option value="'.$row['categoryId'].'" title="'.makeclean($row['description']).'"';
+            $cashtml .= '<option value="'.$row['categoryId'].'" title="'.makeclean($row['description']).'"';
             if($row['categoryId']==$values['categoryId']) $cashtml .= ' selected="selected"';
             $cashtml .= '>'.makeclean($row['category'])."</option>\n";
             }
@@ -288,7 +288,7 @@ function contextselectbox($values) {
     $cshtml='<option value="0">--</option>'."\n";
     if ($result) {
             foreach($result as $row) {
-            $cshtml .= '                    <option value="'.$row['contextId'].'" title="'.makeclean($row['description']).'"';
+            $cshtml .= '<option value="'.$row['contextId'].'" title="'.makeclean($row['description']).'"';
             if($row['contextId']==$values['contextId']) $cshtml .= ' selected="selected"';
             $cshtml .= '>'.makeclean($row['name'])."</option>\n";
             }
@@ -301,7 +301,7 @@ function timecontextselectbox($values) {
     $tshtml='<option value="0">--</option>'."\n";
     if ($result) {
         foreach($result as $row) {
-            $tshtml .= '                    <option value="'.$row['timeframeId'].'" title="'.makeclean($row['description']).'"';
+            $tshtml .= '<option value="'.$row['timeframeId'].'" title="'.makeclean($row['description']).'"';
             if($row['timeframeId']==$values['timeframeId']) $tshtml .= ' selected="selected"';
             $tshtml .= '>'.makeclean($row['timeframe'])."</option>\n";
             }

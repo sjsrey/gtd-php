@@ -31,7 +31,7 @@ function show1($item) {  // recursive function to list an item, and to kick off 
             unset($map[$item]); // prevent any further display of its children
     }
     $haveshown[]=$item;
-    $prefix="<li class='tree{$values['type']}$liclass";
+    $prefix="<li class='tree{$values['type']}$liclass category{$values['categoryId']} context{$values['contextId']}";
     $mid1="'>\n<img src='{$addon['dir']}cog.png' class='noprint' alt='Menu' title='Menu of actions' />
             <input type='hidden' name='id' value='{$values['itemId']}' />" ;
     $mid2="<span$spanclass>".makeclean($values['title'])."</span>";
@@ -135,7 +135,8 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
 <script type='text/javascript' src='<?php echo $addon['dir']; ?>tree.js'></script>
 <?php include_once 'header.inc.php'; ?>
 <form action='' method='get' onsubmit='return false;'>
-<div class='form formrow'>
+<div class='form'>
+<div class='formrow'>
 <label class='left first' for='showdone'>Show completed items</label>
 <input type='checkbox' id='showdone' onclick='return GTD.tree.showdone(this);' />
 Show all items at and above:
@@ -143,12 +144,22 @@ Show all items at and above:
 foreach (array('m','v','o','g','p','a') as $type) if ($gottypes[$type])
     echo "<label class='' for='show$type'>{$typenames[$type]}s</label>\n"
         ,"<input type='radio' name='showat' id='show$type' "
-        ,    "onclick='return GTD.tree.show(\"$type\")' />\n";
+        ,"onclick='return GTD.tree.show(\"$type\")' />\n";
 foreach (array('L','C') as $type) if ($gottypes[$type])
     echo "<label class='' for='show$type'>Expand {$typenames[$type]}s</label>\n"
         ,"<input type='checkbox' checked='checked' id='show$type' "
-        ,    "onclick='return GTD.tree.expand(this,\"$type\")' />\n";
+        ,"onclick='return GTD.tree.expand(this,\"$type\")' />\n";
+echo "</div><div class='formrow'>",
+    "<label class='left first' for='categoryselect'>Category:</label>\n",
+    "<select id='categoryselect' onchange='return GTD.tree.dofilter(this)' >",
+    str_replace('>--<','>(all)<',categoryselectbox(array('categoryId'=>''))),
+    "</select>",
+    "<label for='contextselect'>Context:</label>\n",
+    "<select id='contextselect' onchange='return GTD.tree.dofilter(this)' >",
+    str_replace('>--<','>(all)<',contextselectbox(array('contextId'=>''))),
+    "</select>";
 ?>
+</div>
 </div>
 </form>
 <?php
