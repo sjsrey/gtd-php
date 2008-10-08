@@ -6,18 +6,18 @@ define("_DRY_RUN",false);
 
 define("_ALLOWUNINSTALL",false); // NOT YET ACTIVE
 
-require_once("headerDB.inc.php");
-require_once('admin.inc.php');
+require_once 'headerDB.inc.php';
+require_once 'admin.inc.php';
 
-define("_DEBUG",true && ($config['debug'] & _GTD_DEBUG));
+define("_DEBUG",true && ($_SESSION['debug']['debug']));
 
 /*
-TOFIX: scan for available installations
-TOFIX: Use a javascript onsubmit for the delete verification, and fallback to POST if no javascript
-TOFIX: move DELETE from install.php to here
+TODO: scan for available installations
+TODO: Use a javascript onsubmit for the delete verification, and fallback to POST if no javascript
+TODO: move DELETE from install.php to here
 
 ------------------------------------------------------------
-TOFIX: LOCK TABLES if possible, while doing admin.
+TODO: LOCK TABLES if possible, while doing admin.
 NB: you cannot use a locked table multiple times in a single query.
 Use aliases instead, in which case you must obtain a lock for each alias separately.
 mysql> LOCK TABLE t WRITE, t AS t1 WRITE;
@@ -30,7 +30,7 @@ mysql> INSERT INTO t SELECT * FROM t AS t1;
 $action=(isset($_REQUEST['action']))?$_REQUEST['action']:'validate';
 $showInstallations=true;
 $showCommands=true;
-$prefix=(isset($_REQUEST['prefix']))?$_REQUEST['prefix']:$config['prefix'];
+$prefix=(isset($_REQUEST['prefix']))?$_REQUEST['prefix']:$_SESSION['prefix'];
 if (!checkPrefix($prefix)) $prefix='';
 $availableActions=array('validate','repair','backup');
 if (_ALLOWUNINSTALL) $availableActions[]='delete';
@@ -79,7 +79,7 @@ switch ($action) {
             $validate="<h2>Validation checks on installation with prefix $prefix</h2>";
         if ($result===false) {
             $validate.="<p class='error'>No database with prefix '$prefix'</p>\n";
-            $prefix=$config['prefix'];
+            $prefix=$_SESSION['prefix'];
         } else {
             $toterrs=0;
             $validate.="<p>Number of inconsistencies in the gtd-php data-set. NB some errors may overlap.</p>\n"
@@ -97,16 +97,12 @@ switch ($action) {
         $action=($toterrs)?'repair':'backup';
         break;
 }
+$title='gtd-php Admin Tasks';
 /* ------------------------------------------------------------------------
     output begins here
  ------------------------------------------------------------------------*/
-?>
-<?php require_once("headerHtml.inc.php"); ?>
-</head><body><div id='container'>
-<?php require_once("headerMenu.inc.php"); ?>
-<div id='main'>
-<h1>gtd-php Admin Tasks</h1>
-<?php if ($action==='delete') { ?>
+require_once 'header.inc.php';
+if ($action==='delete') { ?>
     <h2>Delete installation</h2>
 <?php }
 if (!empty($validate)) echo $validate;
@@ -118,8 +114,8 @@ if ($showInstallations || $showCommands) { ?>
         <h3>Detected installations in this database</h3>
         <p>Pick one to operate on:</p>
         <div class='formrow'>
-            <label class='left first' for='prefix'>prefix</label><input id='prefix' type='text' name='prefix'
-            value='<?php echo $prefix; ?>' />
+            <label class='left first' for='prefix'>prefix</label>
+            <input disabled='disabled' id='prefix' type='text' name='prefix' value='<?php echo $prefix; ?>' />
         </div>
     <?php } if ($showCommands) { ?>
         <h3>Action to take:</h3>
@@ -147,4 +143,4 @@ if (!empty($backup)) {
  <a href='listItems.php?type=a&amp;tickler=true'>tickler file</a>, and on the
  <a href='listItems.php?type=w'>waiting-on list</a>, and so will rarely match the
   total shown on the <a href='listItems.php?type=a&amp;nextonly=true'>next-actions report</a>.</p>
-<?php require_once('footer.php'); ?>
+<?php require_once 'footer.inc.php'; ?>

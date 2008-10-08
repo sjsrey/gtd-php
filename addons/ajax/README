@@ -1,0 +1,9 @@
+AJAX addon for gtd 0.9alpha rev 483+
+
+Works in Firefox and Safari 3.  Partly tested ok on Konqueror 4
+
+You may find some real problems using this addon in IE:
+but as Microsoft make debugging and javascript implementation so difficult,
+it's not likely to get fixed soon, by me!
+
+Andrew

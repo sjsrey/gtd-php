@@ -1,3 +1,14 @@
+2008-10-08 Version 0.9beta
+    - customisable names and relationships for roles, goals, visions and values
+    - lots of javascript interactivity for a fast, responsive system
+    - a command-line interface for Firefox Ubiquity
+    - visual mapping of the tree of an item, its children, its children's children ...
+    - tagging with plain text to allow you to create free associations between any items you choose
+    - user-friendly interface to change the options - no more editing of config.php!
+    - create a parent while creating an item
+    - very flexible recurrence patterns, using standard calendar formats; e.g. "Second Tuesday of the month", or "5th November every second year"
+    - Development team: Scott, Crisses, Andrew and many contributions from our users
+
 2008-04-30 Version 0.8
     - table prefixes, allowing more than one installation in a specific MySQL database
     - an 'inbox' where items can be quickly created, for incorporation into actions and projects at a later time

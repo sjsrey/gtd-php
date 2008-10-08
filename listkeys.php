@@ -1,17 +1,17 @@
 <?php
-$title='gtd-php shortcut keys';
+$title='shortcut keys';
 $menu='';
-require_once("headerHtml.inc.php");
+require_once 'headerHtml.inc.php';
 ob_start();
-require_once('headerMenu.inc.php');
+require_once 'headerMenu.inc.php';
 $menutext=ob_get_contents();
 ob_end_clean();
 ?>
 </head><body>
 <div class='noprint'>
     <?php echo $menutext; ?>
-    <p id='main'>These keys can be changed in config.php</p>
 </div>
+<div id='main'>
 <h2>Shortcut keys for gtd-php</h2>
 <table summary='Shortcut keys'>
 <thead><tr><th>key</th><th>title</th><th>description</th></tr></thead>
@@ -28,4 +28,6 @@ foreach ($menu as $line)
 </tbody>
 </table>
 </body>
+</div>
+</div>
 </html>

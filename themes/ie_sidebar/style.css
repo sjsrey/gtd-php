@@ -1,0 +1,36 @@
+@import url(../default/style.css);
+
+#header {
+	margin: 10px auto;
+	background: none;
+	border-bottom: 4px solid #eed;
+}
+
+#menudiv {
+	border-left: 1px solid #eed;
+	padding-top:0.5em;
+}
+
+#menulist a,#menulist a:link,#menulist a:visited {
+	text-decoration: inherit;
+}
+
+#menulist a:hover {
+	background: inherit;
+	text-decoration: inherit;
+}
+
+#menudiv li li { /* second-level list items */
+	border-top: inherit;
+}
+
+.weeklytable {
+	width: auto;
+}
+
+select, input, textarea {
+	font-size:11px;
+	margin:auto 0.25em;
+	padding:2px;
+	color:#666655;
+}

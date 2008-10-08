@@ -1,5 +1,7 @@
 <?php
-require_once("headerDB.inc.php");
+require_once 'headerDB.inc.php';
+require_once 'gtdfuncs.inc.php';
+$alltypes=getTypes();
 /*
    ----------------------------------------------
    first, define the default menus
@@ -14,12 +16,12 @@ $menu[] = array("link"=>"item.php?type=a", 'title'=>"Create a new action", 'labe
 $menu[] = array("link"=>"item.php?type=w", 'title'=>"Create a new waiting on item", 'label' => "Waiting On");
 $menu[] = array("link"=>"item.php?type=r", 'title'=>"Create a reference", 'label' => "Reference");
 $menu[] = array("link"=>"item.php?type=p", 'title'=>"Create a new project", 'label' => "Project");
-$menu[] = array("link"=>"item.php?type=p&amp;someday=true", 'title'=>"Create a future project", 'label' => "Someday/Maybe");
+$menu[] = array("link"=>"item.php?type=p&amp;someday=true", 'title'=>"Create a project for someday", 'label' => "Someday/Maybe");
 $menu[] = array("link"=>'','label'=>'separator');
-$menu[] = array("link"=>"item.php?type=g", 'title'=>"Define a new goal", 'label' => "Goal");
-$menu[] = array("link"=>"item.php?type=o", 'title'=>"Define a new role", 'label' => "Role");
-$menu[] = array("link"=>"item.php?type=v", 'title'=>"Define a new vision", 'label' => "Vision");
-$menu[] = array("link"=>"item.php?type=m", 'title'=>"Define a new value", 'label' => "Value");
+$menu[] = array("link"=>"item.php?type=g", 'title'=>"Define a new {$alltypes['g']}", 'label' => "{$alltypes['g']}");
+$menu[] = array("link"=>"item.php?type=o", 'title'=>"Define a new {$alltypes['o']}", 'label' => "{$alltypes['o']}");
+$menu[] = array("link"=>"item.php?type=v", 'title'=>"Define a new {$alltypes['v']}", 'label' => "{$alltypes['v']}");
+$menu[] = array("link"=>"item.php?type=m", 'title'=>"Define a new {$alltypes['m']}", 'label' => "{$alltypes['m']}");
 /*
    ----------------------------------------------
 */
@@ -43,22 +45,22 @@ $menu[] = array("link"=>'','label'=>'Review');
 //-------------------------------------------
 $menu[] = array("link"=>"weekly.php", 'title'=>"Steps in the Weekly Review", 'label' => "Weekly Review");
 $menu[] = array("link"=>"orphans.php", 'title'=>"List items without a parent item", 'label' => "Orphaned Items");
-$menu[] = array("link"=>"listItems.php?type=a&amp;tickler=true", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
+$menu[] = array("link"=>"listItems.php?type=*&amp;tickler=true&amp;liveparents=*", 'title'=>"Hidden items and reminders", 'label' => "Tickler File");
 $menu[] = array("link"=>'','label'=>'separator');
-$menu[] = array("link"=>"listItems.php?type=g", 'title'=>"Review goals", 'label' => "Goals");
-$menu[] = array("link"=>"listItems.php?type=o", 'title'=>"Review roles / Areas of Responsibility", 'label' => "Roles");
-$menu[] = array("link"=>"listItems.php?type=v", 'title'=>"Review visions", 'label' => "Visions");
-$menu[] = array("link"=>"listItems.php?type=m", 'title'=>"Review values / Mission", 'label' => "Values");
+$menu[] = array("link"=>"listItems.php?type=g", 'title'=>"Review {$alltypes['g']}s", 'label' => "{$alltypes['g']}s");
+$menu[] = array("link"=>"listItems.php?type=o", 'title'=>"Review {$alltypes['o']}s", 'label' => "{$alltypes['o']}s");
+$menu[] = array("link"=>"listItems.php?type=v", 'title'=>"Review {$alltypes['v']}s", 'label' => "{$alltypes['v']}s");
+$menu[] = array("link"=>"listItems.php?type=m", 'title'=>"Review {$alltypes['m']}s", 'label' => "{$alltypes['m']}s");
 /*
    ----------------------------------------------
 */
 $menu[] = array("link"=>'','label'=>'Lists');
 //-------------------------------------------
-$menu[] = array("link"=>"editLists.php?type=L", 'title'=>"Create a general purpose list", 'label' => "New List");
-$menu[] = array("link"=>"listLists.php?type=L", 'title'=>"Show general-purpose lists", 'label' => "Show Lists");
+$menu[] = array("link"=>"item.php?type=L", 'title'=>"Create a general purpose list", 'label' => "New List");
+$menu[] = array("link"=>"listItems.php?type=L", 'title'=>"Show general-purpose lists", 'label' => "Show Lists");
 $menu[] = array("link"=>'','label'=>'separator');
-$menu[] = array("link"=>"editLists.php?type=C", 'title'=>"Create a reusable list", 'label' => "New Checklist");
-$menu[] = array("link"=>"listLists.php?type=C", 'title'=>"Show reusable checklists", 'label' => "Show Checklists");
+$menu[] = array("link"=>"item.php?type=C", 'title'=>"Create a reusable list", 'label' => "New Checklist");
+$menu[] = array("link"=>"listItems.php?type=C", 'title'=>"Show reusable checklists", 'label' => "Show Checklists");
 /*
    ----------------------------------------------
 */
@@ -69,40 +71,45 @@ $menu[] = array("link"=>"editCat.php?field=context", 'title'=>"Edit spatial cont
 $menu[] = array("link"=>"editCat.php?field=time-context", 'title'=>"Edit time contexts", 'label' => "Time Contexts");
 $menu[] = array("link"=>'','label'=>'separator');
 $menu[] = array("link"=>"preferences.php", 'title'=>"User preferences", 'label' => "User Preferences");
-if ($config['showAdmin'])
+if (!$_SESSION['config']['suppressAdmin']) {
+    $menu[] = array("link"=>"types1.php", 'title'=>"Change names in the hierarchy", 'label' => "Edit Level names");
+    $menu[] = array("link"=>"types2.php", 'title'=>"Change relationships between the levels", 'label' => "Edit Levels");
     $menu[] = array("link"=>"admin.php", 'title'=>"Administration", 'label' => "Admin");
+}
 /*
    ----------------------------------------------
 */
 $menu[] = array("link"=>'','label'=>'Help');
 //-------------------------------------------
 $newbuglink="https://www.hosted-projects.com/trac/toae/gtdphp/newticket";
-if (!$config['withholdVersionInfo']) $newbuglink.='?milestone='._GTDPHP_VERSION.'&amp;description='
+if (!$_SESSION['config']['withholdVersionInfo']) $newbuglink.='?milestone='._GTDPHP_VERSION.'&amp;description='
     .urlencode('gtd-php='._GTD_REVISION.' , GTD-db='._GTD_VERSION
     .' , PHP='.PHP_VERSION.' , Database='.getDBVersion()
     );
 $menu[] = array("link"=>"http://www.gtd-php.com/Users/Documentation", 'title'=>"Documentation", 'label' => "Helpfile Wiki");
-$menu[] = array("link"=>$newbuglink, 'title'=>"Report a bug on the gtd-php trac system", 'label' => "Report a bug");
+$menu[] = array("link"=>$newbuglink, 'title'=>"Report a bug", 'label' => "Report a bug");
 $menu[] = array("link"=>"listkeys.php", 'title'=>"List the shortcut keys", 'label' => "Show shortcut keys");
 $menu[] = array("link"=>"http://toae.org/boards", 'title'=>"Help and development discussions", 'label' => "Support Forum");
 $menu[] = array('link'=>'http://www.gtd-php.com/Developers/Contrib','title'=>'User-contributed enhancements','label'=>'Themes and add-ons');
 $menu[] = array("link"=>"https://www.hosted-projects.com/trac/toae/gtdphp", 'title'=>"Bug tracking and project development", 'label' => "Developers' wiki");
 $menu[] = array("link"=>"http://www.frappr.com/gtdphp", 'title'=>"Tell us where you are", 'label' => "Frappr Map");
-if ($config['debug'] & _GTD_DEBUG) {
+if ($_SESSION['debug']['debug']) {
     $menu[] = array("link"=>"https://www.hosted-projects.com/trac/toae/gtdphp/log?action=stop_on_copy&amp;rev="
         ._GTD_REVISION."&amp;stop_rev=411&amp;mode=follow_copy&amp;verbose=on"
         ,'title'=>'Changelog (requires trac login)', 'label'=>'Changelog');
 }
 $menu[] = array("link"=>'','label'=>'separator');
 $menu[] = array("link"=>"donate.php", 'title'=>"Help us defray our costs", 'label' => "Donate");
-$menu[] = array("link"=>"credits.php", 'title'=>"The GTD-PHP development team", 'label' => "Credits");
-$menu[] = array("link"=>"license.php", 'title'=>"The GTD-PHP license", 'label' => "License");
+$menu[] = array("link"=>"license.php", 'title'=>"The GTD-PHP license and credits", 'label' => "License &amp; Credits");
 $menu[] = array("link"=>"version.php", 'title'=>"Version information", 'label' => "Version");
 /*
    ----------------------------------------------
         now process addons
 */
-if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddon) {
+$eventhandlers=@array_merge((array)$_SESSION['addons'][_GTD_ON_MENU]['*'],
+                            (array)$_SESSION['addons'][_GTD_ON_MENU][$page]
+                            );
+foreach ($eventhandlers as $addonid=>$thisaddon) {
     $url=$thisaddon['where'];
     foreach ($menu as $key=>$line) {
         if ($url!==$line['link']) continue;
@@ -123,7 +130,7 @@ if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddo
         }
         unset($thisaddon['where']);
         unset($thisaddon['when']);
-        $thisaddon['link']="addon.php?addonid=$addonid";
+        $thisaddon['link']="addon.php?addonid=$addonid&amp;url={$thisaddon['link']}";
         array_splice($menu,$offset,$length,array($thisaddon));
         break;
     }
@@ -133,8 +140,13 @@ if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddo
         finally, echo out the menus
 */
 ?>
+<div id='container'>
 <div id="header">
-	<h1 id='sitename'><a href='index.php'><?php echo $config['title'];?></a></h1>
+	<h1 id='sitename'><a href='index.php'><?php
+        echo $_SESSION['config']['title'];
+    ?></a><?php
+        echo ' ',(isset($titlefull))?$titlefull:$title;
+    ?></h1>
 </div>
 <div id="menudiv">
 	<ul id="menulist">
@@ -149,11 +161,11 @@ if (!empty($config['addons'])) foreach ($config['addons'] as $addonid=>$thisaddo
                 $menuend="</ul></li>\n";
             }
         } else {
-            if (empty($acckey[$line['link']]))
-                $accesskey=$keypress='';
+            if (empty($_SESSION['keys'][$line['link']]))
+                $keypress='';
             else {
-                $menu[$index]['key']=$key=$acckey[$line['link']];
-                $keypress=" ({$acckey[$line['link']]})";
+                $menu[$index]['key']=$key=$_SESSION['keys'][$line['link']];
+                $keypress=" ($key)";
                 $accesskeys.="<a href='{$line['link']}' accesskey='$key'></a>";
             }
 	        echo "<li$class>\n"

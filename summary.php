@@ -1,76 +1,64 @@
 <?php
-//INCLUDES
-include_once('header.php');
+$title='Summary';
+include_once 'header.inc.php';
 
 $values=array();
 
 //SQL Code
 
-//Select notes
-$values['filterquery'] = " WHERE ".sqlparts("notefilter",$config,$values);
-$reminderresult = query("getnotes",$config,$values,$sort);
-
 //get # space contexts
-$res = query("countspacecontexts",$config,$values,$sort);
+$res = query("countspacecontexts",$values);
 $numbercontexts=(is_array($res[0]))?(int) $res[0]['COUNT(*)']:0;
 
 //count active items
 $values['type'] = "a";
 $values['isSomeday'] = "n";
-$values['filterquery'] = " WHERE ".sqlparts("typefilter",$config,$values)
-                                ." AND ".sqlparts("issomeday",$config,$values)
-                                ." AND ".sqlparts("activeitems",$config,$values)
-                                ." AND ".sqlparts("pendingitems",$config,$values);
-                                
+$values['childfilterquery'] = " WHERE ".sqlparts("typefilter",$values)
+                                ." AND ".sqlparts("issomeday",$values)
+                                ." AND ".sqlparts("activeitems",$values)
+                                ." AND ".sqlparts("pendingitems",$values);
+$values['filterquery'] = " WHERE ".sqlparts("liveparents",$values);
 //get # nextactions
-$res = query("countnextactions",$config,$values,$sort);
-$nextactionsdue=array('-1'=>0,'0'=>0,'1'=>0,'2'=>0,'3'=>0,'4'=>0);
+$res = query("countnextactions",$values);
+$actionsdue=$nextactionsdue=array('-1'=>0,'0'=>0,'1'=>0,'2'=>0,'3'=>0,'4'=>0);
 if (is_array($res))
-    foreach ($res as $line)
+    foreach ($res as $line) {
         $nextactionsdue[$line['duecategory']]=$line['nnextactions'];
+        $actionsdue[$line['duecategory']]=$line['nactions'];
+    }
 $numbernextactions=array_sum($nextactionsdue);
-
-// get # actions
-$values['filterquery'].=" AND ".sqlparts("liveparents",$config,$values);
-$res =query("countactions",$config,$values,$sort);
-$numberitems =($res)?(int) $res[0]['nactions']:0;
+$numberactions=array_sum($actionsdue);
 
 // get and count active projects
 $values['type']= "p";
 $values['isSomeday'] = "n";
 
-$stem  = " WHERE ".sqlparts("typefilter",$config,$values)
-        ." AND ".sqlparts("activeitems",$config,$values)
-        ." AND ".sqlparts("pendingitems",$config,$values);
+$stem  = " WHERE ".sqlparts("typefilter",$values)
+        ." AND ".sqlparts("activeitems",$values)
+        ." AND ".sqlparts("pendingitems",$values);
 
-$values['filterquery'] = $stem." AND ".sqlparts("issomeday",$config,$values);
-$pres = query("getitems",$config,$values,$sort);
+$values['filterquery'] = $stem." AND ".sqlparts("issomeday",$values);
+$pres = query("getitems",$values);
 $numberprojects=($pres)?count($pres):0;
 
 //get and count someday projects
 $values['isSomeday'] = "y";
-$values['filterquery'] = $stem." AND ".sqlparts("issomeday",$config,$values);
-$sm = query("getitems",$config,$values,$sort);
+$values['filterquery'] = $stem." AND ".sqlparts("issomeday",$values);
+$sm = query("getitems",$values);
 $numbersomeday=($sm)?count($sm):0;
 
+// count inbox items
+$values=array('type'=>'i');
+$values['filterquery']=' WHERE '.sqlparts('typefilter',$values)
+                       .' AND '.sqlparts('pendingitems',$values);
+$result = query("counttype",$values);
+$inboxcount= ($result) ? $result[0]['cnt'] : 0;
 
-//PAGE DISPLAY CODE
-echo "<h2>GTD Summary</h2>\n";
-echo '<h4>Today is '.date($config['datemask']).'. (Week '.date("W").'/52 &amp; Day '.date("z").'/'.(365+date("L")).')</h4>'."\n";
-
-echo "<div class='reportsection'>\n";
-if ($reminderresult) {
-        echo "<br /><h3>Reminder Notes</h3>";
-        $tablehtml="";
-        foreach ($reminderresult as $row) {
-                $notehtml .= "<p>".date($config['datemask'],strtotime($row['date'])).": ";
-                $notehtml .= '<a href = "note.php?noteId='.$row['ticklerId'].'&amp;referrer=s" title="Edit '.makeclean($row['title']).'">'.makeclean($row['title'])."</a>";
-                if ($row['note']!="") $notehtml .= " - ".trimTaggedString($row['note']);
-                $notehtml .= "</p>\n";
-        }
-    echo $notehtml;
-    }
-echo "</div>";
+gtd_handleEvent(_GTD_ON_DATA,$pagename);
+/*----------------------------------------------------------------
+    display page
+*/
+echo '<h4>Today is '.date($_SESSION['config']['datemask']).'. (Week '.date("W").'/52 &amp; Day '.date("z").'/'.(365+date("L")).')</h4>'."\n";
 
 echo "<div class='reportsection'>\n";
 
@@ -83,7 +71,7 @@ if($numbernextactions==1) {
 }
 $space1=" in $numbercontexts <a href='reportContext.php'>Spatial Context"
         .(($numbercontexts==1)?'':'s') . "</a>";
-if ($config["contextsummary"] === 'nextaction') {
+if ($_SESSION['config']["contextsummary"]) {
     $space2='';
 } else {
     $space2=$space1;
@@ -99,11 +87,15 @@ echo "<p>There $verb $numbernextactions"
     ," now overdue</span>, and <span"
     ,($nextactionsdue['1']==0)?'>' : " class='comingdue'>"
     ,($nextactionsdue['1']==1)?"1 has its deadline":"{$nextactionsdue['1']} have deadlines"
-    ,"  in the coming 7 days</span>. Altogether, there are $numberitems <a href='listItems.php?type=a'>Action"
-    ,($numberitems==1)?'':'s'
-    ,"</a>$space2.</p>\n</div>\n";
+    ,"  in the coming 7 days</span>. Altogether, there "
+    ,($numberactions==1)?'is 1':"are $numberactions"
+    ," <a href='listItems.php?type=a'>Action"
+    ,($numberactions==1)?'':'s'
+    ,"</a>$space2, \n"
+    ,($inboxcount)?"and <a href='listItems.php?type=i'>$inboxcount inbox item(s)</a>":'and no inbox items'
+    ,".</p>\n";
 
-echo "<div class='reportsection'>\n";
+echo "</div>\n<div class='reportsection'>\n";
 
 $numdue=0;
 $numoverdue=0;
@@ -157,5 +149,5 @@ if($numbersomeday) {
 }
 echo "</div>\n";
 
-include_once('footer.php');
+include_once 'footer.inc.php';
 ?>

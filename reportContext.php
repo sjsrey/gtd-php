@@ -1,28 +1,31 @@
-<?php include_once('header.php'); ?>
-<h2>Contexts Summary</h2>
-<h3>Spatial Context (row), Temporal Context (column)</h3>
-<?php include_once('reportContext.inc.php'); ?>
+<?php
+$title='Contexts Summary';
+include_once 'reportContext.inc.php';
+include_once 'header.inc.php';
+gtd_handleEvent(_GTD_ON_DATA,$pagename);
+?>
+<p>To move to a particular space-time context, select the number or the context name.</p>
 <table class="datatable" summary="table of contexts" id="contexttable">
     <thead><tr>
-        <td>Context</td>
+        <th>Context</th>
         <?php
         $runningtotals=array();
         foreach ($timeframeNames as $tcId => $tname) {
             $runningtotals["t$tcId"]=0;
             ?>
-            <td><a href='editCat.php?field=time-context&amp;id=<?php echo $tcId; ?>'
-                    title='Edit time context'><?php echo makeclean($tname); ?>
-                </a>
-            </td>
+            <th id='thtc<?php
+            echo $tcId;
+            ?>'><?php
+                echo makeclean($tname);
+            ?></th>
         <?php } ?>
-        <td>Total</td>
+        <th>Total</th>
     </tr></thead>
     <tbody><?php foreach ($contextNames as $cid => $cname) {
         $runningtotals["c$cid"]=0;
         ?>
         <tr>
-	       <td><a href='editCat.php?field=context&amp;id=<?php echo $cid; ?>'
-                title='Edit context'><?php echo makeclean($cname); ?></a>
+	       <td><a href='#c<?php echo $cid; ?>' ><?php echo makeclean($cname); ?></a>
            </td>
            <?php foreach ($timeframeNames as $tid => $tname) {
         		if ($count=$matrixcount[$cid][$tid]) {
@@ -56,21 +59,20 @@
         </tr>
     </tbody>
 </table>
-<p>To move to a particular space-time context, select the number.<br />
-To edit a context select the context name.</p>
 <?php
 foreach ($contextNames as $cid => $cname) {
     if (!$runningtotals["c$cid"]) continue;
-    echo "<a id='c$cid'></a>\n";
-    echo "<h2><a href='editCat.php?field=context&amp;id=$cid' "
-        ,"title='Edit the ",makeclean($cname)," context'>"
-        ,"Context:&nbsp;",makeclean($cname),"</a></h2>\n";
+    echo "<div id='dc$cid'>\n"
+        ,"<a id='c$cid'></a>\n"
+        ,"<h2><a href='editCat.php?field=context&amp;id=$cid' "
+        ,"title='Edit the ".makeClean($cname)." context'>"
+        ,"Context:&nbsp;".makeClean($cname)."</a></h2>\n";
    foreach ($timeframeNames as $tid => $tname) {
         if (isset($matrixout[$cid][$tid])) {
-            echo "<a id='c{$cid}t{$tid}'></a>\n"
-                ,"<h3><a href='editCat.php?field=time-context&amp;id=$tid' title='",
-                makeclean($tname),"'>"
-                ,"Time Context:&nbsp;",makeclean($tname),"</a></h3>\n";
+            echo "<div class='t{$tid}'>\n"
+                ,"<a id='c{$cid}t{$tid}'></a>\n"
+                ,"<h3><a href='editCat.php?field=time-context&amp;id=$tid' title='".makeClean($tname)."'>"
+                ,"Time Context:&nbsp;".makeClean($tname)."</a></h3>\n";
             ?>
             <form action="processItems.php" method="post">
                 <table class="datatable sortable" summary="table of actions"
@@ -78,16 +80,17 @@ foreach ($contextNames as $cid => $cname) {
                     <?php echo $matrixout[$cid][$tid]; ?>
                 </table>
                 <div>
-                	<input type="hidden" name="referrer" value="<?php echo basename($thisurl['path']),"#c{$cid}t{$tid}"; ?>" />
+                	<input type="hidden" name="referrer" value="<?php echo "{$pagename}.php#c{$cid}t{$tid}"; ?>" />
                     <input type="hidden" name="multi" value="y" />
         		    <input type="hidden" name="wasNAonEntry" value="<?php echo implode(' ',$wasNAonEntry[$cid][$tid]); ?> " />
                     <input type="hidden" name="action" value="complete" />
                     <input type="submit" class="button" value="Update Actions" name="submit" />
                 </div>
             </form>
+            </div>
             <?php
         }
     }
+    echo '</div>';
 }
-include_once('footer.php');
-?>
+include_once 'footer.inc.php'; ?>

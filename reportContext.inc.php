@@ -1,12 +1,13 @@
 <?php
+include_once 'headerDB.inc.php';
 function makeContextRow($row) {
-    global $config;
     $rowout=array();
     $rowout['itemId']=$row['itemId'];
+    $rowout['type']='a';
 	$rowout['description']=$row['description'];
-	$rowout['repeat'] = ($row['repeat']=="0")?'&nbsp;':$row['repeat'];
+	$rowout['recurdesc'] = ($row['recurdesc']=="0")?'&nbsp;':$row['recurdesc'];
     if($row['deadline']) {
-        $deadline=prettyDueDate($row['deadline'],$config['datemask']);
+        $deadline=prettyDueDate($row['deadline'],$row['daysdue']);
         $rowout['deadline'] =$deadline['date'];
         $rowout['deadline.class']=$deadline['class'];
         $rowout['deadline.title']=$deadline['title'];
@@ -19,13 +20,12 @@ function makeContextRow($row) {
 	$rowout['checkboxname']='isMarked[]';
 	$rowout['checkbox.title']='Mark as complete';
 	$rowout['checkboxvalue']=$row['itemId'];
-    $rowout['NA'] = $row['NA'];
+    $rowout['NA'] = $row['nextaction']==='y';
     return $rowout;
 }
-function makeContextTable($maintable) {
-    global $dispArray,$show,$config;
+function makeContextTable($maintable,$dispArray,$show,$trimlength) {
     ob_start();
-    require('displayItems.inc.php');
+    require 'displayItems.inc.php';
     $out=ob_get_contents();
     ob_end_clean();
     return $out;
@@ -34,7 +34,7 @@ $values=array();
 
 //SQL CODE AREA
 //obtain all contexts
-$contextResults = query("getspacecontexts",$config,$values,$sort);
+$contextResults = query("getspacecontexts",$values);
 $contextNames=array(0=>'none');
 if ($contextResults)
     foreach ($contextResults as $row)
@@ -42,8 +42,8 @@ if ($contextResults)
 
 //obtain all timeframes
 $values['type']='a';
-$values['timefilterquery'] = ($config['useTypesForTimeContexts'])?" WHERE ".sqlparts("timetype",$config,$values):'';
-$timeframeResults = query("gettimecontexts",$config,$values,$sort);
+$values['timefilterquery'] = ($_SESSION['config']['useTypesForTimeContexts'])?" WHERE ".sqlparts("timetype",$values):'';
+$timeframeResults = query("gettimecontexts",$values);
 $timeframeNames=array(0=>'none');
 $timeframeDesc=array(0=>'none');
 if ($timeframeResults) foreach($timeframeResults as $row) {
@@ -51,33 +51,34 @@ if ($timeframeResults) foreach($timeframeResults as $row) {
 	$timeframeDesc[(int) $row['timeframeId']]=$row['description'];
 	}
 
-//obtain all active item timeframes and count instances of each
-$NAfilter='isNA'.(($config["contextsummary"] === 'nextaction')?'only':'');
-$values['filterquery'] = sqlparts($NAfilter,$config,$values);
-$values['extravarsfilterquery'] =sqlparts("getNA",$config,$values);;
+$values['extravarsfilterquery'] ='';
 
-$thisurl=parse_url($_SERVER['PHP_SELF']);
 $dispArray=array('parent'=>'Project'
     ,'NA'=>'NA'
     ,'title'=>'Action'
     ,'description'=>'Description'
     ,'deadline'=>'Deadline'
-    ,'repeat'=>'Repeat'
+    ,'recurdesc'=>'Repeat'
     ,'checkbox'=>'Complete');
 $show=array();
 foreach ($dispArray as $key=>$val) $show[$key]=true;
 
 $wasNAonEntry=array();
+$trimlength=$_SESSION['config']['trimLength'];
 
 $values['type'] = "a";
 $values['isSomeday'] = "n";
-$values['childfilterquery']  = " WHERE ".sqlparts("typefilter",$config,$values)
-                            ." AND ".sqlparts("activeitems",$config,$values)
-                            ." AND ".sqlparts("issomeday",$config,$values)
-                            ." AND ".sqlparts("pendingitems",$config,$values);
-$values['filterquery']      .=' WHERE '.sqlparts("liveparents",$config,$values);;
-$tstsort=array('getitemsandparent'=>'cname ASC,timeframeId ASC,'.$sort['getitemsandparent']);
-$result = query("getitemsandparent",$config,$values,$tstsort);
+$values['childfilterquery']  = " WHERE ".sqlparts("typefilter",$values)
+                            ." AND ".sqlparts("activeitems",$values)
+                            ." AND ".sqlparts("issomeday",$values)
+                            ." AND ".sqlparts("pendingitems",$values);
+
+if ($_SESSION['config']["contextsummary"])
+    $values['childfilterquery'] .= ' AND '.sqlparts('isNAonly',$values);
+
+$values['filterquery'] =' WHERE '.sqlparts("liveparents",$values);;
+$tstsort=array('getitemsandparent'=>'cname ASC,timeframeId ASC,'.$_SESSION['sort']['getitemsandparent']);
+$result = query("getitemsandparent",$values,$tstsort);
 $grandtot=count($result);
 $index=0;
 $lostitems=array();
@@ -90,26 +91,26 @@ foreach ($contextNames as $cid=>$dummy1) {
                 && (    !array_key_exists((int) $result[$index]['contextId'],$contextNames)
                      || !array_key_exists((int) $result[$index]['timeframeId'],$timeframeNames))) {
             array_push($lostitems,$result[$index++]);
-        }
+		}
 		while ($index<$grandtot &&
                 (int) $result[$index]['contextId']===$cid &&
                 (int) $result[$index]['timeframeId']===$tid ) {
             $row=$result[$index];
-            if ($row['NA']) array_push($wasNAonEntry[$cid][$tid],$row['itemId']);
+            if ($row['nextaction']==='y') array_push($wasNAonEntry[$cid][$tid],$row['itemId']);
             array_push($maintable,makeContextRow($row));
             $index++;
-		}
+        }
 		$matrixcount[$cid][$tid]=count($maintable);
         if (count($maintable))
-            $matrixout[$cid][$tid]=makeContextTable($maintable);
+            $matrixout[$cid][$tid]=makeContextTable($maintable,$dispArray,$show,$trimlength);
     }
 }
-$_SESSION['lastfilterp']=$_SESSION['lastfiltera']=basename($thisurl['path']);
+$_SESSION['lastfilterp']=$_SESSION['lastfiltera']="{$pagename}.php";
 if (count($lostitems)) {
     $cid='-1';
     $tid=0;
     $wasNAonEntry[$cid][$tid]=array();
-    foreach ($timeframeNames as $thistid=>$dummy1) $matrixcount[$cid][$thistid]=0;
+    foreach ($timeframeNames as $thistid=>$dummy2) $matrixcount[$cid][$thistid]=0;
     $contextNames[$cid]="ERROR: Failed to find context";
     $maintable=array();
     $dispArray['spatialcontext']='Context Id';
@@ -130,9 +131,11 @@ if (count($lostitems)) {
         $rowout['timeframe']        =$thisTname;
         $rowout['timeframeId']      =$row['timeframeId'];
         array_push($maintable,$rowout);
-        if ($row['NA']) array_push($wasNAonEntry[$cid][$tid],$row['itemId']);
+        if ($rowout['NA']) array_push($wasNAonEntry[$cid][$tid],$row['itemId']);
     }
     $matrixcount[$cid][$tid]=count($maintable);
-    $matrixout[$cid][$tid]=makeContextTable($maintable);
+    $matrixout[$cid][$tid]=makeContextTable($maintable,$dispArray,$show,$trimlength);
 }
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser
+
+

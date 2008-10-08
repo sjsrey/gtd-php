@@ -1,4 +1,5 @@
 <?php
+require_once 'headerDB.inc.php';
 $values = array();
 $thiscat=array();
 $field=$_GET['field'];
@@ -37,14 +38,14 @@ switch ($field) {
         $query='timecontextselectbox' ;
         $values['timefilterquery'] = '';
         $keys[]='type';
-        $showTypes=$config['useTypesForTimeContexts'];
+        $showTypes=$_SESSION['config']['useTypesForTimeContexts'];
         break;
     default:
         $query='';
         $showTypes=false;
         break;
 }
-$result = query($query,$config,$values,$sort);
+$result = query($query,$values);
 $catlist=array();
 $count=0;
 $thiscat=false;
@@ -56,7 +57,7 @@ if ($result) {
     	$newcat=array();
     	$i=0;
         foreach ($checkcat as $item)
-        	$newcat[$keys[$i++]]=$item;
+        	$newcat[$keys[$i++]]=makeclean($item);
         if (!$firstcat) $firstcat=$newcat['id'];
         if (!$nextcat) $nextcat=$newcat['id'];
         if ($newcat['id']==$id) {
@@ -70,8 +71,7 @@ if ($result) {
     else if ($nextcat===-1)
         $nextcat=0;
 }
-if (!$thiscat && $id)
+if ($thiscat)
+    $title.=': '.$thiscat['name'];
+else if ($id)
     $title=makeClean("Failed to find $field with id=$id");
-if ($config['debug'] & _GTD_DEBUG) echo "<pre>catlist:",print_r($catlist,true),'</pre>';
-
-?>

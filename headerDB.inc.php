@@ -1,7 +1,9 @@
 <?php
-require_once("ses.php");
-require_once("config.php");
-if ($config['debug'] & _GTD_NOTICE)
+require_once 'ses.inc.php';
+require 'config.inc.php';
+
+$_SESSION['prefix']=$config['prefix']; // TODO this bit needs revision for multi-user setups
+if (!empty($_SESSION['debug']['notice']))
 		error_reporting(E_ALL);
     else
 		error_reporting(E_ALL ^ E_NOTICE);
@@ -23,40 +25,50 @@ if ($config['debug'] & _GTD_NOTICE)
   safeIntoDB($value,$key) - to make a value safe for database processing,
                             by escaping any control characters
 
-  getsql($config,$values,$sort,$querylabel) - to return the sql query text,
+  getsql($querylabel,$values,$sort) - to return the sql query text,
                                               for query with name: $querylabel
 
-  sqlparts($part,$config,$values) - to return the sql query subclause text,
+  sqlparts($part,$values) - to return the sql query subclause text,
                                         for the subclause with name: $querylabel
 
   connectdb($config) - to open a connection to the database, and return the connector handle
 */
 switch ($config['dbtype']) {
     case "mysql":
-		require_once("mysql.inc.php");
+		require_once 'mysql.inc.php';
         break;
     /*
        only mysql is supported, at present! - all of the others are here as placeholders for later development
-    */
     case "frontbase":
-        require_once("frontbase.inc.php");
+        require_once 'frontbase.inc.php';
         break;
     case "msql":
-        require_once("msql.inc.php");
+        require_once 'msql.inc.php';
         break;
     case "mssql":
-        require("mssql.inc.php");
+        require 'mssql.inc.php';
         break;
     case "postgres":
-        require("postgres.inc.php");
+        require 'postgres.inc.php';
         break;
     case "sqlite":
-        require("sqlite.inc.php");
+        require 'sqlite.inc.php';
         break;
+    */
     default:
-        die("Database type not configured.  Please edit the config.php file.");
+        die("Database type not configured.  Please edit the config.inc.php file.");
 }
 //connect to database
 $connection = connectdb($config);
-require_once("gtdfuncs.php");
+unset($config['pass']); // don't let the database password leak out
+require_once 'gtdfuncs.inc.php';
+global $onInstall;
+if (empty($onInstall) &&
+        (!is_array($_SESSION['config'])
+         || !array_key_exists('title',$_SESSION['config'])
+    ) ) {
+    // if no options are in the session variable, and we're not in the installer, read options from db
+    retrieveConfig();
+}
+
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

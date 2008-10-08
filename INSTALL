@@ -1,4 +1,4 @@
-Version 0.8 (April 2008)
+Version 0.9beta (October 2008)
 
 A web-based implementation of the Getting Things Done system for personal organization.
 
@@ -10,7 +10,7 @@ Requirements:
 
 This version supports installations using table prefixes in the database.
 
-For current users of gtd-php 0.7, or users of beta releases of 0.8, the upgrading process is straightforward.
+For current users of gtd-php 0.7, 0.8, or users of alpha releases of 0.9, the upgrading process is straightforward.
 
 For new users, there are OS-specific installation instructions for the Mac, Debian/Sarge, PC and memory stick.
 

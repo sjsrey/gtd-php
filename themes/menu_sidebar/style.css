@@ -2,18 +2,20 @@
 
 #header {
 	margin: 10px auto;
-	background: 0pt none;
+	background: none;
 	border-bottom: 4px solid #eed;
 }
 
 #menudiv {
-	float: right;
 	border-left: 1px solid #eed;
+	width:16%;
+	padding-top:0.5em;
+	float:right;
 }
 
 #main {
-	margin-right: 11em;
-	clear:none;
+	float:left;
+	width:83%;
 }
 
 #footer {

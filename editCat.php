@@ -1,10 +1,10 @@
 <?php
-require_once('header.php');
-require_once('editCat.inc.php');
+require_once 'editCat.inc.php';
+require_once 'header.inc.php';
+log_array('$catlist');
 ?>
-<h2><?php echo $title; ?></h2>
 <?php if ($thiscat || !$id) {
-?><form action="processCat.php" method="post" onsubmit="return validate(this);">
+?><form action="processCat.php" method="post" onsubmit="return GTD.validate(this);">
 <div class='formrow'><span class="error" id='errorMessage'></span></div>
 <div>
 <input type='hidden' name='field' value='<?php echo $field; ?>' />
@@ -38,7 +38,9 @@ require_once('editCat.inc.php');
             if ($showTypes) {
                 echo "<td>\n";
                 $cls='first';
-                foreach (array("v"=>"Vision","o"=>"Role","g"=>"Goal","p"=>"Project","a"=>"Action") as $key=>$val) {
+                $alltypes=getTypes();
+                foreach (array('v','o','g','p','a') as $key) {
+                    $val=$alltypes[$key];
                     echo "<input type='radio' name='type' id='$val' value='$key'";
                     if ($thiscat['type']===$key) echo " checked='checked'";
                     echo " class='$cls' /><label for='$val' class='$cls'>$val</label> ";
@@ -61,7 +63,7 @@ require_once('editCat.inc.php');
     <?php foreach ($catlist as $row) { ?>
         <tr>
             <td><a href=<?php
-                echo "'{$_SERVER['PHP_SELF']}?field=$field&amp;id={$row['id']}' title='Edit {$row['name']} {$field}'>{$row['name']}";
+                echo "'$pagename.php?field=$field&amp;id={$row['id']}' title='Edit {$row['name']} {$field}'>{$row['name']}";
             ?></a></td>
             <td><?php echo $row['description']; ?></td>
             <?php if ($showTypes) { ?><td><?php echo getTypes($row['type']); ?></td><?php } ?>
@@ -93,4 +95,4 @@ require_once('editCat.inc.php');
 </table>
 </form><?php
 }
-include_once('footer.php'); ?>
+include_once 'footer.inc.php'; ?>

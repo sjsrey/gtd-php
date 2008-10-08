@@ -1,9 +1,9 @@
 <?php
     //INCLUDES
-    include_once('header.php');
+    include_once 'header.inc.php';
     $values=array('itemId' => (int) $_GET['itemId']);
     $types=getTypes();
-    $result = query("selectitemshort",$config,$values,$sort);
+    $result = query("selectitemshort",$values);
     $type=$result[0]['type'];
     $typename=getTypes($type);
     $title=makeclean($result[0]['title']);
@@ -21,4 +21,4 @@
         ?>'><?php echo $val; ?></a>
     <?php } ?>
 </div>
-<?php include('footer.php') ?>
+<?php include 'footer.inc.php'; ?>
