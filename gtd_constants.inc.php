@@ -1,5 +1,5 @@
 <?php
-define('_GTD_REVISION',551);
+define('_GTD_REVISION',553);
 define('_GTD_VERSION','0.8z.07'); // DATABASE version
 define('_GTDPHP_VERSION','0.9alpha');  // gtd-php version, as per the TRAC system
 

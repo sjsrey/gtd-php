@@ -54,8 +54,6 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
 $menu='';
 include_once 'header.inc.php';
 retrieveConfig(); // force retrieval of preferences from db upon entering this screen, to avoid inter-session contamination
-if (ini_get('register_globals'))
-    echo "<p class='warning'>Please turn register_globals off in php.ini or in .htaccess</p>";
 $checkboxes='';
 // get a list of theme sub-directories, to go into the dropdown selector
 $themes=array();

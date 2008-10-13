@@ -609,6 +609,24 @@ function saveConfig() { // store config preferences in the table
     return $tst;
 }
 //----------------------------------------------------------------
+function checkRegisterGlobals() { // check php ini values are ok for utf-8
+    $out = (!ini_get('register_globals')) ? '' : <<<RGWARN
+<p class='warning'>
+<b>WARNING: Running in this configuration is not supported.</b>  Your current
+PHP configuration has <tt>register globals</tt> set <tt>on</tt>. This creates
+security vulnerabilities, and may intefere with the running of gtd-php.  You
+can continue, but the application will behave unpredictably and unreliably.
+You can switch <tt>register_globals</tt> off globally in php.ini, if you are
+confident that this will not intefere with any of the other PHP applications on
+this server.  Or you can switch it off locally in the gtd-php installation
+directory by adding the following line to the <tt>.htaccess</tt> file in this
+directory:<br />
+<tt>php_flag register_globals off</tt>
+</p>
+RGWARN;
+    return $out;
+}
+//----------------------------------------------------------------
 function checkUTF8() { // check php ini values are ok for utf-8
 
     $passed=true;
@@ -620,17 +638,20 @@ function checkUTF8() { // check php ini values are ok for utf-8
     }
 
     if (stristr(ini_get('mbstring.http_input'  ),'UTF-8')===false) {
-        $_SESSION['message'][]='In php.ini, set mbstring.http_input=UTF-8,ASCII';
+        $_SESSION['message'][]="Either set mbstring.http_input=UTF-8,ASCII in php.ini;
+            or add this line to .htaccess: phpvalue mbstring.http_input UTF-8,ASCII";
         $passed=false;
     }
         
     if (stristr(ini_get('mbstring.detect_order'),'UTF-8')===false) {
-        $_SESSION['message'][]='In php.ini, set mbstring.detect_order=UTF-8,ASCII';
+        $_SESSION['message'][]="Either set mbstring.detect_order=UTF-8,ASCII in php.ini;
+            or add this line to .htaccess: phpvalue mbstring.detect_order UTF-8,ASCII";
         $passed=false;
     }
 
     if (!(ini_get('mbstring.func_overload') & 6)) {
-        $_SESSION['message'][]='In php.ini, set mbstring.func_overload=6';
+        $_SESSION['message'][]="Either set mbstring.func_overload=6 in php.ini;
+            or add this line to .htaccess: phpvalue mbstring.func_overload 6";
         $passed=false;
     }
 

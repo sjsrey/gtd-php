@@ -213,22 +213,12 @@ function checkInstall() {
 	global $versions,$tablelist,$checkState,$tablesByVersion;
     register_shutdown_function('failDuringCheck');
 	$goodToGo=true; // assume we'll be able to upgrade, until we find something to stop us
+    require_once 'gtdfuncs.inc.php';
 
     // check for register globals - instruct user to turn it off in .htaccess if it's on
 	$checkState='preflight';
-    if(ini_get('register_globals')) {
-        echo "<p class='warning'>Your current PHP configuration has <tt>register globals</tt> set <tt>on</tt>.",
-            "  This creates security vulnerabilities, and may intefere with the running of gtd-php. ",
-            " You can continue with installation, but the application may behave unpredictably and unreliably. ",
-            " Running in this configuration is not supported.  ",
-            " You can switch <tt>register_globals</tt> off globally in php.ini, if you are confident ",
-            " that this will not intefere with any of the other PHP applications on this server. ",
-            " Or you can switch it off locally in the gtd-php installation directory by adding the following line ",
-            " to the <tt>.htaccess</tt> file in this directory:<br />"
-            ,"<tt>php_flag register_globals off</tt></p>";
-    }
-
-    echo "<p>Read the <a href='INSTALL'>INSTALL</a> file for information on using this install/upgrade program</p>\n";
+    
+    echo "<p>Read the <a href='INSTALL'>INSTALL</a> file for information on using this install/upgrade program</p>\n",checkRegisterGlobals();
 
 	if (_DEBUG) {
 		$included_files = get_included_files();
@@ -557,7 +547,7 @@ installation for use and familiarize yourself with the system.</p>\n
 	if ($install_success) {
         $title='Installation Complete';
         require_once 'headerMenu.inc.php';
-        echo "<div id='main'><p>Installation completed:
+        echo "<div id='main'>",checkRegisterGlobals(),"<p>Installation completed:
             <a href='preferences.php'>Now check the preferences</a>,
             and make any necessary changes</p>";
     } else {
