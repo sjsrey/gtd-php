@@ -1,5 +1,5 @@
 <?php
-global $Amaintable,$AdispArray,$typename,$AcreateItemId,$item,$AnoEntries,$Athistableid;
+global $Amaintable,$AdispArray,$typename,$AcreateItemId,$item,$AnoEntries,$Athistableid,$Afootertext;
 if (empty ($Amaintable['n'])) return;
 
 include_once 'gtdfuncs.inc.php';
@@ -28,6 +28,13 @@ foreach ($Amaintable['n'] as $key=>$maintable) {
     $maintable[$i]['title']="Add new {$typename[$key]}";
     $maintable[$i]['row.class']='sortbottom creator';
     $maintable[$i]['NA']=null;
+    
+    // remove the existing creation row in the table footer
+    $footertext=$Afootertext['n'][$key];
+    foreach ($footertext as $ndx=>$foot) {
+        if (strstr($foot,'Add new')!==false) array_splice($footertext,$ndx);
+    }
+    $Afootertext['n'][$key]=$footertext;
     
     // store our changes in the array of tables that are to be output
     $Amaintable['n'][$key]=$maintable;

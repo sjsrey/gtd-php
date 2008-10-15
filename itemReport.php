@@ -127,12 +127,9 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
         foreach (array('categoryId','contextId','deadline') as $field)
             if ($item[$field]) $createItemId.="&amp;$field={$item[$field]}";
     }
+    $addnew="<a href='item.php?itemId$createItemId' class='creator'>Add new $thischildtype</a>";
     // prepare text to display for use if there are no children:
-    $noEntries= '<h3>No '
-            . (($comp==='n')?"<a href='item.php?itemId=$createItemId' title='Create a new child'>":'' )
-            .$sectiontitle
-            .( ($comp==='n')?'</a>':'' )
-            ."</h3>";
+    $noEntries= "<h3>No $sectiontitle".(($comp==='n')?" - $addnew":'' )."</h3>";
     /* set limit on number of children to dispay, if we are processing completed items,
         and the number of returned items is greater than the user-configured display limit */
     if ($comp==='y' && $_SESSION['config']['ReportMaxCompleteChildren']
@@ -144,6 +141,8 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
             ">".(count($result)-$limit)." more... (".count($result)." items in total)</a>";
     } else {
         $limit=count($result);
+        if ($comp==='n')
+            $footertext[]=$addnew;
     }
     /* ------------------------------------------------
         decide which fields to tabulate, based on child item type, and completion status
