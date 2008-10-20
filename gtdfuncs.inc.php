@@ -185,32 +185,47 @@ function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the vis
 	$ampStrings='/^&[#a-zA-Z0-9]+;/';
 	
 	// initialise variables
-	if ($inLength==0) $inLength=strlen($inStr)*4+1;
+    $instrlen=strlen($inStr);
+	if ($inLength==0) $inLength=$instrlen*4+1;
 	$outStr='';
 	$visibleLength=0;
 	$thisChar=0;
+    $tagToCloselen=0;
 	$keepGoing=!empty($inStr);
 	$tagsOpen=array();
+    $tagToClose='';
 	// main processing here
 	while ($keepGoing) {
+        $totest=substr($inStr,$thisChar);
 		$stillHere = TRUE;
-		$tagToClose=end($tagsOpen);
-		if ($tagToClose && strtolower(substr($inStr,$thisChar,strlen($tagToClose)))===strtolower($tagToClose) ) {
+		if ($tagToCloselen && strtolower(substr($totest,0,$tagToCloselen))===$tagToClose ) {
 			$stillHere=FALSE;
-			$thisChar+=strlen($tagToClose);
-			if ($keepTags) $outStr.=array_pop($tagsOpen);
-		} else foreach ($permittedTags as $thisTag=>$thisClosingTag) {
-			if ($stillHere && (substr($inStr,$thisChar,1)==='<') && (preg_match($thisTag,substr($inStr,$thisChar),$matches)>0)) {
-				$thisChar+=strlen($matches[0]);
-				$stillHere=FALSE;
-				if ($keepTags) {
-					array_push($tagsOpen,$thisClosingTag);
-					$outStr.=$matches[0];
-				}
-			} // end of if
-		} // end of else foreach
+			$thisChar+=$tagToCloselen;
+			if ($keepTags) {
+                $outStr.=array_pop($tagsOpen);
+            } else array_pop($tagsOpen);
+            $tagToClose=end($tagsOpen);
+		} else {
+            $totest0=substr($totest,0,1);
+            foreach ($permittedTags as $thisTag=>$thisClosingTag) {
+			    if ( $totest0==='<' && preg_match($thisTag,$totest,$matches)===1 ) { 
+				    $thisChar+=strlen($matches[0]);
+				    $stillHere=FALSE;
+				    if ($keepTags) {
+					    array_push($tagsOpen,$thisClosingTag);
+					    $outStr.=$matches[0];
+                        $tagToClose=$thisClosingTag;
+				    }
+                    break;
+			    } // end of if
+		    } // end of else foreach
+        }
+        if (!$stillHere) // we've got a new end tag that we're watching for, so save its length
+            $tagToCloselen=strlen($tagToClose);
 		// now check for & ... control characters
-		if ($stillHere && (substr($inStr,$thisChar,1)==='&') && (preg_match($ampStrings,substr($inStr,$thisChar),$matches)>0)) {
+		if ($stillHere 
+            && ($totest0==='&') 
+            && (preg_match($ampStrings,$totest,$matches)===1)) {
 			if (strlen(html_entity_decode($matches[0]))==1) {
 				$visibleLength++;
 				$outStr.=$matches[0];
@@ -221,18 +236,18 @@ function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the vis
 		// just a normal character, so add it to the string
 		if ($stillHere) {
 			$visibleLength++;
-			$outStr.=substr($inStr,$thisChar,1);
+			$outStr.=$totest0;
 			$thisChar++;
 		} // end of if
-		$keepGoing= (($thisChar<strlen($inStr)) && ($visibleLength<$inLength));
+		$keepGoing= ($thisChar<$instrlen && $visibleLength<$inLength);
 	} // end of while ($keepGoing)
 	// add ellipsis if we have trimmed some text
-	if ($thisChar<strlen($inStr) && $visibleLength>=$inLength) $outStr.=$ellipsis;
+	if ($thisChar<$instrlen && $visibleLength>=$inLength) $outStr.=$ellipsis;
 	// got the string - now close any open tags
 	if ($keepTags) while (count($tagsOpen))
 		$outStr.=array_pop($tagsOpen);
 	$outStr=nl2br(escapeChars($outStr));
-	return($outStr);
+	return $outStr;
 }
 //-------------------------------------------------
 function prettyDueDate($dateToShow,$daysdue,$thismask=null) {
@@ -462,7 +477,7 @@ function resetHierarchy() {
         'v'=>array('o','g','L','C'),
         'o'=>array('g','p','L','C'),
         'g'=>array('p','L','C'),
-        'p'=>array('p','a','w','r','i','C','L'),
+        'p'=>array('p','a','w','r','C','L'),
         'w'=>array(),
         'a'=>array(),
         'r'=>array(),

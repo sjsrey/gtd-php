@@ -920,6 +920,7 @@ function sqlparts($part,$values) {
         $sqlpart = " its.`nextaction`='y' ";
 		break;
 	case "issomeday":
+        //TODO - I'm fairly sure we don't need to use the IF function here any more - but that needs testing
 		$sqlpart = " IF(its.`isSomeday`='y','y','n') = '{$values['isSomeday']}' ";
 		break;
     case "iteminlist":

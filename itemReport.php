@@ -382,7 +382,23 @@ if (!empty($item['tags'])) {
 }
 echo '<tr><th>Created:</th><td>'.$item['dateCreated']."</td></tr>\n";
 if ($item['lastModified']) echo '<tr><th>Last modified:</th><td>'.$item['lastModified']."</td></tr>\n";
-if ($item['dateCompleted']) echo '<tr><th>Completed On:</th><td>'.$item['dateCompleted']."</td></tr>\n";
+if ($item['dateCompleted']) {
+    echo '<tr><th>Completed On:</th><td>'.$item['dateCompleted']."</td></tr>\n";
+} else { ?>
+<tr>
+    <th>Complete</th>
+    <td>
+        <form method='post' action='processItems.php'>
+            <div>
+                <input type='submit' name='complete' value='Today' id='completereport' />
+                <input type='hidden' name='action' value='complete' />
+                <input type='hidden' name='referrer' value='itemReport.php?itemId=<?php echo $values['itemId']; ?>' />
+                <input type='hidden' name='itemId' value='<?php echo $values['itemId']; ?>' />
+            </div>
+        </form>
+    </td>
+</tr>
+<?php }
 ?>
 </tbody></table>
 <?php

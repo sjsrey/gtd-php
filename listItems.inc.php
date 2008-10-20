@@ -369,18 +369,20 @@ $title .= $typename;
     ===================================================================
 */
 if ($quickfind)
-    $result=0;
+    $maintable=0;
 else
-    $result=query("getitemsandparent",$values,$sort);
+    $maintable=query("getitemsandparent",$values,$sort);
     
-$maintable=array();
+//$maintable=array();
 $thisrow=0;
 $allids=array();
-if ($result) {
+if ($maintable) {
     $nonext=FALSE;
     $nochildren=FALSE;
     $wasNAonEntry=array();  // stash this in case we introduce marking actions as next actions onto this screen
-    foreach ($result as $row) {
+    $max=count($maintable);
+    for ($thisrow=0;$thisrow<$max;$thisrow++) {
+        $row=&$maintable[$thisrow];
         $allids[]=$row['itemId'];
     
         $nochildren=false;
@@ -393,78 +395,60 @@ if ($result) {
             array_push($wasNAonEntry,$row['itemId']);
         } else $row['nextaction']=false;
         
-        $maintable[$thisrow]=array();
-        $maintable[$thisrow]['itemId']=$row['itemId'];
-        $maintable[$thisrow]['class'] = ($nonext || $nochildren)?'noNextAction':'';
-        $maintable[$thisrow]['NA'] =$row['nextaction']==='y';
-
-        $maintable[$thisrow]['dateCreated'] = $row['dateCreated'];
-        $maintable[$thisrow]['lastModified']= $row['lastModified'];
-        $maintable[$thisrow]['dateCompleted']= $row['dateCompleted'];
-        $maintable[$thisrow]['isSomeday'] =$row['isSomeday'];
-        $maintable[$thisrow]['type'] =$row['type'];
+        $row['class'] = ($nonext || $nochildren)?'noNextAction':'';
+        $row['NA'] =$row['nextaction']==='y';
 
         if ($row['parentId']=='') {
-            $maintable[$thisrow]['parent.class']='noparent';
-            $maintable[$thisrow]['ptitle']='';
+            $row['parent.class']='noparent';
+            $row['ptitle']='';
         } else {
-            $maintable[$thisrow]['ptitle']=$row['ptitle'];
-            $maintable[$thisrow]['parentId']=$row['parentId'];
+            $row['ptitle']=$row['ptitle'];
         }
         // add markers to indicate if this is a next action, or a project with no next actions, or an item with no childern
         if ($nochildren)
-            $maintable[$thisrow]['flags'] = 'noChild';
+            $row['flags'] = 'noChild';
         elseif ($nonext)
-            $maintable[$thisrow]['flags'] = 'noNA';
+            $row['flags'] = 'noNA';
         else
-            $maintable[$thisrow]['flags'] = '';
+            $row['flags'] = '';
 
         //item title
         if (!($row['type']=="a" || $row['type']==="r" || $row['type']==="w" || $row['type']==="i"))
-            $maintable[$thisrow]['doreport']=true;
+            $row['doreport']=true;
         
         $cleantitle=makeclean($row['title']);
-        $maintable[$thisrow]['title.class'] = 'maincolumn';
-        $maintable[$thisrow]['title'] =$row['title'];
+        $row['title.class'] = 'maincolumn';
 
-        $maintable[$thisrow]['checkbox.title']='Complete '.$cleantitle;
-        $maintable[$thisrow]['checkboxname']= 'isMarked[]';
-        $maintable[$thisrow]['checkboxvalue']=$row['itemId'];
+        $row['checkbox.title']='Complete '.$cleantitle;
+        $row['checkboxname']= 'isMarked[]';
+        $row['checkboxvalue']=$row['itemId'];
 
-        $maintable[$thisrow][$descriptionField] = $row['description'];
-        $maintable[$thisrow][$outcomeField] = $row['desiredOutcome'];
+        $row[$descriptionField] = $row['description'];
+        $row[$outcomeField] = $row['desiredOutcome'];
 
-        $maintable[$thisrow]['category'] =makeclean($row['category']);
-        $maintable[$thisrow]['categoryId'] =$row['categoryId'];
+        $row['category'] =makeclean($row['category']);
 
-        $maintable[$thisrow]['context'] = makeclean($row['cname']);
-        $maintable[$thisrow]['contextId'] = $row['contextId'];
+        $row['context'] = makeclean($row['cname']);
         
-        $maintable[$thisrow]['timeframe'] = makeclean($row['timeframe']);
-        $maintable[$thisrow]['timeframeId'] = $row['timeframeId'];
-
-        $maintable[$thisrow]['tags'] =$row['tags'];
+        $row['timeframe'] = makeclean($row['timeframe']);
 
         $childType=array();
         $childType=getChildType($row['type']);
-        if (count($childType)) $maintable[$thisrow]['childtype'] =$childType[0];
+        if (count($childType)) $row['childtype'] =$childType[0];
         
         if($row['deadline']) {
             $deadline=prettyDueDate($row['deadline'],$row['daysdue']);
-            $maintable[$thisrow]['deadline'] =$deadline['date'];
+            $row['deadline'] =$deadline['date'];
             if (empty($row['dateCompleted'])) {
-                $maintable[$thisrow]['deadline.class']=$deadline['class'];
-                $maintable[$thisrow]['deadline.title']=$deadline['title'];
+                $row['deadline.class']=$deadline['class'];
+                $row['deadline.title']=$deadline['title'];
             }
-        } else $maintable[$thisrow]['deadline']='';
+        } else $row['deadline']='';
              
-        $maintable[$thisrow]['recurdesc'] =$row['recurdesc'];
-        $maintable[$thisrow]['tickledate']= $row['tickledate'];
-        $thisrow++;
-    } // end of: foreach ($result as $row)
+    } // end of: for
     
     log_value('values to print:',$maintable);
-} // end of: if($result)
+} else $maintable=array(); // end of: if($maintable)
 /*
     ===================================================================
     end of main query: finished building array of items

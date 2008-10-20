@@ -59,8 +59,8 @@ foreach (getTypes() as $ctype=>$ctypename) {
 </tbody>
 </table>
 <div class='formbuttons'>
-    <input type='submit' value='Apply changes' name='submit' />
-    <input type='reset'  value='Reset form' name='reset'  />
+    <input type='submit' value='Apply' name='submit' />
+    <input type='reset'  value='Reset' name='reset'  />
     <input type='submit' value='Revert to original (pre-v0.9) level names and relationships' name='L0p8' />
     <input type='hidden' name='suppressAsOrphan[]' value='m' />
     <input type='hidden' name='suppressAsOrphan[]' value='i' />

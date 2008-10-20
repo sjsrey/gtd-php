@@ -866,6 +866,39 @@ GTD.resortTable=function (lnk) {
     }
 };
 // ======================================================================================
+GTD.setTabs=function() {
+/*
+ * display the tabs in the preferences screen
+ */
+    var list;
+    $('#optionsform').
+        prepend(
+            list=$(document.createElement('ul')).addClass('tabbar')
+            ).
+        find('h2').
+            wrapInner(document.createElement('li')).
+            children('li').
+                appendTo(list).
+                click(function() { // change which tab is displayed
+                    var clickedtab=$(this);
+                    if (clickedtab.hasClass('selectedTab')) { return false; }
+                    $('ul.tabbar li').
+                        filter('.selectedtab').
+                            removeClass('selectedtab');
+                    clickedtab.addClass('selectedtab');
+                    $('div.tabsheet').
+                        hide().
+                        filter('[id='+clickedtab.text()+']').
+                            show();
+                }).
+                filter(':first').
+                    click().
+                end().
+            end().
+            remove();
+    $('#footer').before('<p>Note that Apply will save changes on all tabs; Reset will reset all tabs</p>');
+};
+// ======================================================================================
 GTD.showrecurbox=function (what,where) {
 /*
  * populates and displayes the custom recurrence box on item.php

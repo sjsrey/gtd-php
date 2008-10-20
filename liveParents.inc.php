@@ -2,7 +2,7 @@
     <tbody id='parentlist'>
         <tr>
             <td><a class='add' href='#' onclick='return GTD.parentselect.search();' title='Click here to select parent(s)'>+</a></td>
-            <td><a href='#' onclick='return GTD.parentselect.search();' title='Click here to select parent(s)'>Select parent(s)</a></td>
+            <td><a href='#' onclick='return GTD.parentselect.search();' title='Click here to select or create parent(s)'>Select or create parent(s)</a></td>
             <td>&nbsp;</td>
         </tr><?php
             if (is_array($parents) && count($parents)) foreach ($parents as $parent) {

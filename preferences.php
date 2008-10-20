@@ -52,6 +52,14 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
    ======================================================================================
 */
 $menu='';
+require_once 'headerHtml.inc.php';
+?>
+<script type='text/javascript'>
+    /* <![CDATA[ */
+    $(document).ready(GTD.setTabs);
+    /* ]]> */
+</script>
+<?php
 include_once 'header.inc.php';
 retrieveConfig(); // force retrieval of preferences from db upon entering this screen, to avoid inter-session contamination
 $checkboxes='';

@@ -10,6 +10,9 @@
 <?php if (!empty($tfoot)) echo $tfoot; ?>
 <tbody>
 <?php
+$showclass=array();
+foreach ($dispArray as $key=>$val)
+    $showclass[$key]=($show[$key])?'':' hidden';
 foreach ($maintable as $row) {
     echo '<tr'
         ,(!empty($row['row.class']))?" class='{$row['row.class']}' ":''
@@ -18,8 +21,7 @@ foreach ($maintable as $row) {
     foreach ($dispArray as $key=>$val) {
         echo "<td class='col-$key"
             ,(isset($row["$key.class"]))?" ".$row["$key.class"]:''
-            ,($show[$key])?'':' hidden'
-            ,"'"
+            ,$showclass[$key],"'"
             ,(isset($row["$key.title"]))?(' title="'.$row["$key.title"].'"'):''
             ,">$idval";
         $idval='';

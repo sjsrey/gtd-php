@@ -23,7 +23,7 @@ define("_ALLOWUNINSTALL",true);
 
     /* _DEBUG = false | true -
     show lots of debugging information during execution */
-define("_DEBUG",true);
+define("_DEBUG",false);
 
     /* _DRY_RUN = false | true - dry run won't change the database, but will
     mime all the actions that would be done: use _DEBUG true to see these */
@@ -435,7 +435,10 @@ function doInstall($installType,$fromPrefix) {
 	$endMsg=$temp='';
 	register_shutdown_function('cleanup');
 	if (_DEBUG) echo "<pre class='debug'>Install type is: $installType<br />Source database has prefix $fromPrefix</pre>";
-	echo "<p>Installing ... please wait</p>\n";
+	if ($installType=='0' || $installType=='1')
+        echo "<p>Installing ... please wait</p>\n";
+    else
+        echo "<p>Upgrading will take place in several stages ... please wait</p>\n";
     flushAndResetTimer();
 	//---------------------------------------------------
     switch($installType){
@@ -547,13 +550,20 @@ installation for use and familiarize yourself with the system.</p>\n
 	if ($install_success) {
         $title='Installation Complete';
         require_once 'headerMenu.inc.php';
-        echo "<div id='main'>",checkRegisterGlobals(),"<p>Installation completed:
-            <a href='preferences.php'>Now check the preferences</a>,
-            and make any necessary changes</p>";
-    } else {
         echo "<div id='main'>";
-    }
-	echo $endMsg;
+        echo checkRegisterGlobals(),
+            "<p>Installation completed:",
+            "<a href='preferences.php'>Now check the preferences</a>,",
+            " and make any necessary changes</p></div>";
+        /*
+            Force the session to restart, to ensure that
+            session variables will be initialised correctly,
+            for the new installation. TOFIX needs testing
+        */
+        $_SESSION = array();
+        session_destroy();
+    } else echo "<div id='main'>";
+    echo $endMsg;
 }
 /*
    ======================================================================================

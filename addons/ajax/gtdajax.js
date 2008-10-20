@@ -722,6 +722,48 @@ function initContextToggle() {
     end of context-toggling code
   ======================================================================================
 */
+function completeFromReport(event) {
+/*
+ * handle the pressing of the completion button in itemReport
+ * event:
+ */
+    var that=$(this).unbind('click'),
+        thisform=that.parents('form'),
+        mydata=thisform.serialize() + '&output=xml&fromjavascript=true';
+    $.ajax({
+        cache:false,
+        data:mydata,
+        dataType:'xml',
+        error:function (arg1,arg2,arg3) {
+            window.status='Failed to complete this item: '+arg2;
+            $('#debuglog').empty().text(arg1.responseText);
+            that.click();
+        },
+        success:function (xmldata, textStatus) {
+            var dateCompleted=$('gtdphp values dateCompleted',xmldata).text(),
+                rowpos=that.position();
+            that.parents('td').
+                eq(0).
+                empty().
+                text(dateCompleted).
+                parents('tr').
+                children('th').
+                text('Completed on:');
+            $('#debuglog').
+                empty().
+                append($('gtdphp log',xmldata).
+                text());
+            window.status=$('gtdphp result line',xmldata).text();
+            messagepopup('',xmldata,rowpos.top,rowpos.left).    // show success message over that row
+                animate({left:rowpos.left},5000).               // wait for 5 seconds
+                queue(function(){$(this).remove().dequeue();}); // and then disappear
+        },
+        type:'POST',
+        url:'processItems.php'
+    });
+    return false;
+}
+// ======================================================================================
 function addAjaxEditIcon(node,functioncall) {
 /*
  * Add an ajax edit icon to each row in a table of items
@@ -1208,9 +1250,11 @@ GTD.ajax.inititem=function() {
                 addClass('col-ajax nosort')
         );
 
-    $("input:submit:not(#filtersubmit),input:reset").
+    $("input:submit:not(#filtersubmit,#completereport),input:reset").
         css({display:'none'});
-        
+
+    // TODO - need to hook the #completereport button in itemReport to use an AJAX call for completion
+    $("#completereport").click(completeFromReport);
     return true;
 };
 // ======================================================================================
@@ -1273,39 +1317,6 @@ GTD.ajax.setNoChildren=function(tables) {
             );
         }
     }
-};
-// ======================================================================================
-GTD.ajax.setTabs=function() {
-/*
- * display the tabs in the preferences screen
- */
-    var list;
-    $('#optionsform').
-        prepend(
-            list=$(document.createElement('ul')).addClass('tabbar')
-            ).
-        find('h2').
-            wrapInner(document.createElement('li')).
-            children('li').
-                appendTo(list).
-                click(function() { // change which tab is displayed
-                    var clickedtab=$(this);
-                    if (clickedtab.hasClass('selectedTab')) { return false; }
-                    $('ul.tabbar li').
-                        filter('.selectedtab').
-                            removeClass('selectedtab');
-                    clickedtab.addClass('selectedtab');
-                    $('div.tabsheet').
-                        hide().
-                        filter('[id='+clickedtab.text()+']').
-                            show();
-                }).
-                filter(':first').
-                    click().
-                end().
-            end().
-            remove();
-    $('#footer').before('<p>Note that Apply will save changes on all tabs; Reset will reset all tabs</p>');
 };
 /* ======================================================================================
 GTD.ajax.tagKeypress=function(e) {

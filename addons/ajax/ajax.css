@@ -38,26 +38,6 @@ div.ontop#freezer {
 tr.ajaxselected * {
     background-color:#DAFADA !important;
 }
-ul.tabbar li {
-    float:left;
-    display:inline;
-    border:1px solid #dafada;
-    margin: 0;
-    padding:0 1em;
-    margin-bottom:1em;
-    color:black;
-    background-color:white;
-    
-}
-ul.tabbar li.selectedtab {
-    background-color:#ccf;
-    font-weight: bolder;
-}
-ul.tabbar li:hover {
-    cursor:pointer;
-    background-color:#aac;
-    text-decoration:underline;
-}
 .onajaxcall * {
     cursor: wait;
 }

@@ -32,7 +32,7 @@ while (!empty($sourcedata["yline$i"])) {
     $maxY2[]=round(max($sourcedata["yline$i"]),0);
     $i++;
 }
-$maxY=max($maxY,1.2*max($maxY2)+1);
+$maxY=max($maxY,1.2*max($maxY2)+0.1);
 $_SESSION["addons-{$addon['id']}"]['graph']=null;
 
 /* ==============================================
@@ -40,6 +40,7 @@ $_SESSION["addons-{$addon['id']}"]['graph']=null;
 */
 $graph = new Graph(600,400);
 $graph->SetScale("datelin",0,$maxY);
+$graph->SetClipping(true);
 $graph->img->SetMargin(30,10,50,80);
 
 $graph->xaxis->scale->SetDateFormat('Y-m-d');

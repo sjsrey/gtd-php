@@ -7,6 +7,7 @@
     - user-friendly interface to change the options - no more editing of config.php!
     - create a parent while creating an item
     - very flexible recurrence patterns, using standard calendar formats; e.g. "Second Tuesday of the month", or "5th November every second year"
+    - actions can now have tickle dates WITHOUT needing to set a deadline
     - Development team: Scott, Crisses, Andrew and many contributions from our users
 
 2008-04-30 Version 0.8

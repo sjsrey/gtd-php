@@ -33,10 +33,6 @@ switch ($page) {
         $onready.="GTD.ajax.inititem();";
         break;
         //-------------------------------------------------------------
-    case 'preferences':
-        $onready.="GTD.ajax.setTabs();";
-        break;
-        //-------------------------------------------------------------
     case 'reportContext':
         $onready.="GTD.ajax.initcontext();";
         break;
