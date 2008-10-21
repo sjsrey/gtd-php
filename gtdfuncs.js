@@ -988,8 +988,8 @@ GTD.toggleHidden=function (parent,link,show) {
  * link:  the id of the element that the user pressed to reveal the section - we can dispose of that element, now
  * show: string indicating whether revealed item is a block, table-row, inline, block-inline, etc.
  */
-    $('#'+parent+' .togglehiddden').show();
-    $('#link').hide();
+    $('#'+parent+' .togglehidden').removeClass('togglehidden').show();
+    $('#'+link).hide();
     return false;
 };
 // ======================================================================================

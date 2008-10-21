@@ -262,7 +262,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
 			if ($shownext) {
                 $maintable[$i]['NA']=$comp!=="y" && $row['nextaction']==='y';
                 $maintable[$i]['NA.title']='Mark as a Next Action';
-                if ($maintable[$i]['NA']==='y') array_push($wasNAonEntry,$row['itemId']);
+                if ($maintable[$i]['NA']) array_push($wasNAonEntry,$row['itemId']);
             }
 		} else {
 			$maintable[$i]['completed']=date($_SESSION['config']['datemask'],strtotime($row['dateCompleted']));
@@ -380,10 +380,10 @@ if (!empty($item['tags'])) {
     foreach ($taglist as $tag) echo "<a href='listItems.php?type=*&amp;tags=$tag'>$tag</a>, ";
     echo "</td></tr>\n";
 }
-echo '<tr><th>Created:</th><td>'.$item['dateCreated']."</td></tr>\n";
-if ($item['lastModified']) echo '<tr><th>Last modified:</th><td>'.$item['lastModified']."</td></tr>\n";
+echo '<tr><th>Created:</th><td>'.$item['dateCreated']."</td></tr>\n"; // TOFIX - datemask
+if ($item['lastModified']) echo '<tr><th>Last modified:</th><td>'.$item['lastModified']."</td></tr>\n";  // TOFIX - datemask
 if ($item['dateCompleted']) {
-    echo '<tr><th>Completed On:</th><td>'.$item['dateCompleted']."</td></tr>\n";
+    echo '<tr><th>Completed On:</th><td>'.$item['dateCompleted']."</td></tr>\n";  // TOFIX - datemask
 } else { ?>
 <tr>
     <th>Complete</th>

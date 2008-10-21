@@ -2,10 +2,13 @@
     if (!headers_sent()) header('Content-Type: application/javascript; charset=utf-8');
     include_once 'gtdfuncs.inc.php';
 ?>
-var gtdcommandlineversion="200810201000",
+/*jslint browser: false, eqeqeq: true, nomen: true, undef: true */
+/*global Application,CmdUtils,jQuery,noun_arb_text,displayMessage */
+var gtdcommandlineversion="200810202214",
     gtdbasepath="<?php echo getAbsolutePath(); ?>",
-    doLog=false;
-//TODO cache parents list using Application.storage.set(gtdphp.ubiquity.projectlist)p
+    doLog=false,
+    STORAGE={PROJECTS:'gtdphp.ubiquity.projects'};
+//===========================================================
 function gtdSetLastResult(xml) {
     var newid=jQuery(xml).find("itemId").text();
     CmdUtils.setLastResult('<a href="'+gtdbasepath+'itemReport.php?itemId='+
@@ -18,22 +21,24 @@ var noun_type_gtdparent = {
   parentList:null,
   //---------------------------------------------------------
   subsuggest: function(text, html) {
-    if (doLog) {CmdUtils.log('in subsuggest searching for parent '+text);}
+    if (doLog) {displayMessage('in subsuggest searching for parent '+text);}
     var id,title,teststring,
         suggestions=[],
         i=4;
     if (this.parentList==={}) {
         suggestions.push(CmdUtils.makeSugg('Still awaiting list of parents'));
-    } else for (id in noun_type_gtdparent.parentList) {
-      if (text==='') {text='.';}
-      teststring=new RegExp(text,"i");
-      title=noun_type_gtdparent.parentList[id];
-      if (teststring.test(title)) {
-    	suggestions.push(CmdUtils.makeSugg(title,
-            "<a href='"+gtdbasepath+"itemReport.php?itemId="+id+"'>"+title+"</a>",
-            {itemId:id}));
-    	if (!i--) break;
-      }
+    } else {
+        for (id in noun_type_gtdparent.parentList) {
+          if (text==='') {text='.';}
+          teststring=new RegExp(text,"i");
+          title=noun_type_gtdparent.parentList[id];
+          if (teststring.test(title)) {
+        	suggestions.push(CmdUtils.makeSugg(title,
+                "<a href='"+gtdbasepath+"itemReport.php?itemId="+id+"'>"+title+"</a>",
+                {itemId:id}));
+        	if (!i--) {break;}
+          }
+        }
     }
     return suggestions;
   },
@@ -43,16 +48,17 @@ var noun_type_gtdparent = {
     if (self.parentList === null) {
         self.parentList={}; // empty the array first, to ensure we only issue the JSON request once
         self._callback=callback;
-        if (doLog) {CmdUtils.log('off to get parents in v'+gtdcommandlineversion);}
+        if (doLog) {displayMessage('off to get parents in v'+gtdcommandlineversion);}
         jQuery.getJSON(
             gtdbasepath+'addon.php?addonid=ajax&url=sendJSON.php&type=p',
             function(parents) {
-                if (doLog) {CmdUtils.log('assigning parents');}
+                if (doLog) {displayMessage('assigning parents');}
                 self.parentList=parents;
-                if (doLog) {CmdUtils.log('on callback searching for parent '+text);}
+                Application.storage.set(STORAGE.PROJECTS,parents);
+                if (doLog) {displayMessage('on callback searching for parent '+text);}
                 var out=self.subsuggest(text, html);
-                if (doLog) {CmdUtils.log('got '+out.length+' results');}
-                for (sug in out) {self._callback(out[sug]);}
+                if (doLog) {displayMessage('got '+out.length+' results');}
+                for (var sug in out) {self._callback(out[sug]);}
             });
         return [];
     }
@@ -60,6 +66,11 @@ var noun_type_gtdparent = {
   }
   //---------------------------------------------------------
 };
+//===========================================================
+// initialize list of projects
+if (doLog) {displayMessage('initialising now v'+gtdcommandlineversion);}
+noun_type_gtdparent.parentList=Application.storage.get(STORAGE.PROJECTS,null);
+noun_type_gtdparent.suggest('','',function dummy(e){});
 //===========================================================
 CmdUtils.CreateCommand({
   name: "gtdin",
@@ -145,6 +156,27 @@ CmdUtils.CreateCommand({
       },
       dataType:"xml"
     });
+  }
+  //---------------------------------------------------------
+});
+//===========================================================
+CmdUtils.CreateCommand({
+  name: "gtdclear",
+  homepage: "http://www.gtd-php.com/Developers/Ubiquity",
+  author: { name: "Andrew Smith"},
+  contributors: ["Andrew Smith"],
+  license: "GPL",
+  description: "Clears the cache of GTD projects, and regenerates them from the live database",
+  //---------------------------------------------------------
+  preview: function(pblock) {
+    jQuery(pblock).text(this.description);
+  },
+  //---------------------------------------------------------
+  execute: function() {
+    Application.storage.set(STORAGE.PROJECTS,null);
+    noun_type_gtdparent.parentList=null;
+    displayMessage("GTD parents cache cleared: regenerating now")
+    noun_type_gtdparent.suggest('','',function(){});
   }
   //---------------------------------------------------------
 });

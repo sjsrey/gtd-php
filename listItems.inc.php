@@ -374,7 +374,6 @@ else
     $maintable=query("getitemsandparent",$values,$sort);
     
 //$maintable=array();
-$thisrow=0;
 $allids=array();
 if ($maintable) {
     $nonext=FALSE;
@@ -384,7 +383,7 @@ if ($maintable) {
     for ($thisrow=0;$thisrow<$max;$thisrow++) {
         $row=&$maintable[$thisrow];
         $allids[]=$row['itemId'];
-    
+        //  TOFIX - datemask for suppressUntil, dateCreated, dateCompleted - can we do this in MySQL??? in getItemsAndParents??? - yes, using DATE_FORMAT
         $nochildren=false;
         $nonext=false;
         if ($checkchildren) {
@@ -448,6 +447,7 @@ if ($maintable) {
     } // end of: for
     
     log_value('values to print:',$maintable);
+    unset($row);
 } else $maintable=array(); // end of: if($maintable)
 /*
     ===================================================================

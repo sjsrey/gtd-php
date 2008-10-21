@@ -14,23 +14,25 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
         $name=$varprefix.$option[0];
         $val=(isset($values[$option[0]])) ? $values[$option[0]] : null;
         echo "<div class='formrow'>\n";
+        $for=" for='opt$name'";
         switch ($option[1]) {
             case 'checkbox':
-                echo "<input type='checkbox' name='$name' "
+                echo "<input type='checkbox' name='$name' id='opt$name' "
                     ,($val) ? " checked='checked' ": ''
                     ,"/>";
                 $checkboxes.="$name,";
                 break;
             case 'heading':
                 echo '<hr />';
+                $for='';
                 break;
             case 'text': // deliberately flows through
-                echo "<input type='text' name='$name' size='$textsize' value='"
+                echo "<input type='text' name='$name' size='$textsize' id='opt$name' value='"
                     ,makeclean($val)
                     ,"' />\n";
                 break;
             default: // it's a select
-                echo "<select name='$name'>";
+                echo "<select name='$name' id='opt$name'>";
                 foreach ($option[1] as $optval=>$opttext)
                     echo "<option value='$optval'"
                         ,($val==$optval) ? " selected='selected' ": ''
@@ -38,7 +40,7 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
                 echo "</select>";
                 break;
         }
-        echo "<label>{$option[2]}</label></div>\n";
+        echo "<label$for>{$option[2]}</label></div>\n";
     }
     ?>
         <div class='formbuttons'>
