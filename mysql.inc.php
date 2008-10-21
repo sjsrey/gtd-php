@@ -406,23 +406,23 @@ function getsql($querylabel,$values,$sort) {
 		case "getchildren":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`,
 					i.`desiredOutcome`, its.`type`,
-					IF(its.`isSomeday`='y','y','n') AS isSomeday, its.`deadline`,
+					IF(its.`isSomeday`='y','y','n') AS isSomeday, 
+                    UNIX_TIMESTAMP(its.`deadline`) AS `deadline`,
                     DATEDIFF(CURDATE(),its.`deadline`) AS `daysdue`,
                     i.`recurdesc`,i.`recur`,
-					its.`tickledate`,its.`nextaction`,
-					its.`dateCreated`, its.`dateCompleted`,
-					its.`lastModified`, its.`categoryId`,
-					c.`category`, its.`contextId`,
+					UNIX_TIMESTAMP(its.`tickledate`) AS `tickledate`,
+                    its.`nextaction`,
+					UNIX_TIMESTAMP(its.`dateCreated`) AS `dateCreated`, 
+                    UNIX_TIMESTAMP(its.`dateCompleted`) AS `dateCompleted`,
+					UNIX_TIMESTAMP(its.`lastModified`) AS `lastModified`,
+                    its.`categoryId`,c.`category`, its.`contextId`,
 					cn.`name` AS cname, its.`timeframeId`, ti.`timeframe`
 				FROM `{$prefix}lookup` AS lu
 					JOIN `{$prefix}items` AS i USING (`itemId`)
 					JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
-					LEFT OUTER JOIN `{$prefix}context` AS cn
-						ON (its.`contextId` = cn.`contextId`)
-					LEFT OUTER JOIN `{$prefix}categories` AS c
-						ON (its.`categoryId` = c.`categoryId`)
-					LEFT OUTER JOIN `{$prefix}timeitems` AS ti
-						ON (its.`timeframeId` = ti.`timeframeId`)
+					LEFT OUTER JOIN `{$prefix}context` AS cn USING (`contextId`)
+					LEFT OUTER JOIN `{$prefix}categories` AS c USING (`categoryId`)
+					LEFT OUTER JOIN `{$prefix}timeitems` AS ti USING (`timeframeId`)
 				WHERE lu.`parentId`= '{$values['parentId']}' {$values['filterquery']}
 				ORDER BY {$sort['getchildren']}";
 			break;
@@ -450,10 +450,14 @@ function getsql($querylabel,$values,$sort) {
 			$sql="SELECT
     				x.`itemId`, x.`title`, x.`description`,
     				x.`desiredOutcome`, x.`type`, x.`isSomeday`,
-    				x.`deadline`, x.`recurdesc`, x.`recur`,
+    				UNIX_TIMESTAMP(x.`deadline`) AS `deadline`,
+                    x.`recurdesc`, x.`recur`,
     				DATEDIFF(CURDATE(),x.`deadline`) AS `daysdue`,
-    				x.`tickledate`, x.`dateCreated`, x.`dateCompleted`,
-    				x.`lastModified`, x.`categoryId`, x.`category`,
+    				UNIX_TIMESTAMP(x.`tickledate`) AS `tickledate`,
+                    UNIX_TIMESTAMP(x.`dateCreated`) AS `dateCreated`,
+                    UNIX_TIMESTAMP(x.`dateCompleted`) AS `dateCompleted`,
+    				UNIX_TIMESTAMP(x.`lastModified`) AS `lastModified`,
+                    x.`categoryId`, x.`category`,
     				x.`contextId`, x.`cname`, x.`timeframeId`,
     				x.`timeframe`,x.`nextaction`,
     				GROUP_CONCAT(DISTINCT y.`parentId` ORDER BY y.`ptitle`) as `parentId`,

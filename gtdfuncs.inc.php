@@ -207,18 +207,20 @@ function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the vis
             $tagToClose=end($tagsOpen);
 		} else {
             $totest0=substr($totest,0,1);
-            foreach ($permittedTags as $thisTag=>$thisClosingTag) {
-			    if ( $totest0==='<' && preg_match($thisTag,$totest,$matches)===1 ) { 
-				    $thisChar+=strlen($matches[0]);
-				    $stillHere=FALSE;
-				    if ($keepTags) {
-					    array_push($tagsOpen,$thisClosingTag);
-					    $outStr.=$matches[0];
-                        $tagToClose=$thisClosingTag;
-				    }
-                    break;
-			    } // end of if
-		    } // end of else foreach
+            if ($totest0==='<') {
+                foreach ($permittedTags as $thisTag=>$thisClosingTag) {
+			        if ( preg_match($thisTag,$totest,$matches)===1 ) { 
+				        $thisChar+=strlen($matches[0]);
+				        $stillHere=FALSE;
+				        if ($keepTags) {
+					        array_push($tagsOpen,$thisClosingTag);
+					        $outStr.=$matches[0];
+                            $tagToClose=$thisClosingTag;
+				        }
+                        break;
+			        } // end of if
+		        } // end of else foreach
+            }
         }
         if (!$stillHere) // we've got a new end tag that we're watching for, so save its length
             $tagToCloselen=strlen($tagToClose);
@@ -253,9 +255,8 @@ function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the vis
 function prettyDueDate($dateToShow,$daysdue,$thismask=null) {
     if (is_null($thismask)) $thismask=$_SESSION['config']['datemask'];
 	$retval=array('class'=>'','title'=>'');
-    if(trim($dateToShow)!='') {
-        $timestamp=strtotime($dateToShow);
-        $retval['date'] = date($thismask,$timestamp );
+    if($dateToShow) {
+        $retval['date'] = date($thismask,$dateToShow );
         if ($daysdue>0) {
             $retval['class']='overdue';
             $retval['title']="$daysdue day(s) overdue";

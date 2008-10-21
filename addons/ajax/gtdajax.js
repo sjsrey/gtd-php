@@ -365,7 +365,7 @@ function itemEditor(row) {
         GTD.freeze(false);
     };
     // --------------------------------------------------------
-    this.saveFull=function() { // TOFIX - javascript is doing odd things to £ signs
+    this.saveFull=function() {
         var mydata,form=$('form',newdiv).get(0);
         // first, validate the form
         if (!GTD.validate(form)) {return false;}

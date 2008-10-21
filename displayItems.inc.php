@@ -13,17 +13,17 @@
 $showclass=array();
 foreach ($dispArray as $key=>$val)
     $showclass[$key]=($show[$key])?'':' hidden';
-foreach ($maintable as $row) {
+foreach ($maintable as $row) if ($row) {
     echo '<tr'
         ,(!empty($row['row.class']))?" class='{$row['row.class']}' ":''
         ,">\n";
     $idval="<input type='hidden' name='id' value='{$row['itemId']}' />";
     foreach ($dispArray as $key=>$val) {
-        echo "<td class='col-$key"
-            ,(isset($row["$key.class"]))?" ".$row["$key.class"]:''
-            ,$showclass[$key],"'"
-            ,(isset($row["$key.title"]))?(' title="'.$row["$key.title"].'"'):''
-            ,">$idval";
+        echo '<td class="col-',$key
+            ,(empty($row[$key.'.class']))?'':' '.$row[$key.'.class']
+            ,$showclass[$key],'"'
+            ,(empty($row[$key.'.title']))?'':(' title="'.$row[$key.'.title'].'"')
+            ,'>',$idval;
         $idval='';
         switch ($key) {
             case 'assignType':
@@ -52,6 +52,11 @@ foreach ($maintable as $row) {
                 else
                     echo "<a href='reportContext.php#c",$row[$key.'Id'],"' title='Go to the ",$row[$key]," context report'>{$row[$key]}</a>";
                 break;
+            case 'dateCreated':    // flows through to case 'tickledate' deliberately
+            case 'dateCompleted':  // flows through to case 'tickledate' deliberately
+            case 'tickledate':
+                if ($row[$key]) echo date($_SESSION['config']['datemask'],$row[$key]);
+                break;
             case 'desiredOutcome': // flows through to case 'description' deliberately
             case 'shortdesc':      // flows through to case 'description' deliberately
             case 'shortoutcome':   // flows through to case 'description' deliberately
@@ -70,6 +75,9 @@ foreach ($maintable as $row) {
                         ,($row[$key]==='noChild')?'!':'&nbsp;'
                         ,"</a>";
                 break;
+            case 'lastModified':
+                if ($row[$key]) echo date($_SESSION['config']['datemask'].' H:G:s',$row[$key]);
+                break;                
             case 'NA':
                 if ($row[$key]!==null)
                     echo "<input name='isNAs[]' value='{$row['itemId']}'"
@@ -116,11 +124,10 @@ foreach ($maintable as $row) {
                             ,"<img src='themes/{$_SESSION['theme']}/report.gif' class='noprint' alt='Report' title='View Report' /></a>";
                     echo "<a href='item.php?itemId={$row['itemId']}'>"
                     ,"<img src='themes/{$_SESSION['theme']}/edit.gif' class='noprint' alt='Edit ' title='Edit' /></a>"
-                    ,"<a ",(empty($row['NA']))?'':"class='nextactionlink'"
+                    ,"<a "
+                    ,(empty($row['NA']))?'':"class='nextactionlink'"
                     ," title='"
-                    ,(empty($row['doreport']))?'Edit':'View Report'
-                    ,"' href='item"
-                    ,(empty($row['doreport']))?'':'Report'
+                    ,(empty($row['doreport']))?"Edit' href='item":"View Report' href='itemReport"
                     ,".php?itemId={$row['itemId']}'>$cleaned</a>";
                 }
                 break;
