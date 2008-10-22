@@ -32,7 +32,7 @@ if ($values['itemId']) { // editing an item
     $nextaction=false;
     $values['title']=$values['description']=$values['desiredOutcome']=$values['tagname']='';
     $values['deadline']=$values['dateCompleted']=$values['recurdesc']=$values['tickledate']=null;
-    $values['type']=$_REQUEST['type'];
+    $values['type']=(empty($_REQUEST['type'])) ? 'a' : $_REQUEST['type'];
     $values['isSomeday']=(isset($_GET['someday']) &&  $_GET['someday']=='true')?'y':'n';
     $nextaction=isset($_REQUEST['nextonly']) && ($_REQUEST['nextonly']=='true' || $_REQUEST['nextonly']==='y');
     foreach ( array('categoryId','contextId','timeframeId') as $cat)
@@ -299,8 +299,30 @@ if ($sep!=='<p>') echo "</p>\n";
         if ($show['ptitle']) { ?>
             <div class='formrow'>
                 <label for='parenttable' class='left first'>Parent(s):</label>
-                <?php if ($show['scriptparents']) {
-                    include_once 'liveParents.inc.php';
+                <?php if ($show['scriptparents']) { ?>
+<table summary='parents selected' class='datatable' id='parenttable' style='display:inline'>
+    <tbody id='parentlist'>
+        <tr>
+            <td><a class='add' href='#' onclick='return GTD.parentselect.search();' title='Click here to select or create parent(s)'>+</a></td>
+            <td><a href='#' onclick='return GTD.parentselect.search();' title='Click here to select parent(s)'>Select parent(s)</a> or
+                <a href='#' onclick='return GTD.createparent("<?php
+                    echo $ptypes[0];
+                ?>");' title='Click here to create a parent(s)'>Create a parent</a></td>
+            <td>&nbsp;</td>
+        </tr><?php
+            if (is_array($parents) && count($parents)) foreach ($parents as $parent) {
+                $ptype=($parent['isSomeday']=='y')?'s':$parent['ptype'];
+                echo "<tr id='parentrow{$parent['parentId']}'>"
+                    ,"<td><a href='#' onclick='return GTD.removeParent(\"{$parent['parentId']}\")'
+                            title='remove as parent' class='remove'>X</a></td>"
+                    ,"<td><a href='itemReport.php?itemId={$parent['parentId']}' title='view parent'>"
+                    ,makeclean($parent['ptitle']),"</a></td>"
+                    ,"<td>",getTypes($ptype)
+                    ,"<input type='hidden' name='parentId[]' value='{$parent['parentId']}' /></td>"
+                    ,"</tr>\n";
+                }
+    ?></tbody>
+</table><?php
                 } else { ?>
                     <select name="parentId[]" id='parenttable' multiple="multiple" size="6">
                         <?php echo parentselectbox($values); ?>

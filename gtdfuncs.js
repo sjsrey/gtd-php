@@ -481,6 +481,14 @@ GTD.cookieSet=function (name,value,path,maxagedays) {
         '; path='+path;
 };
 // ======================================================================================
+GTD.createparent=function(type) {
+    document.forms[0].afterCreate.value=
+        document.forms[0].referrer.value=
+        'item.php?nextId='+document.forms[0].itemId.value+'&amp;type='+type;
+    document.forms[0].submit();
+    return false;
+}
+// ======================================================================================
 GTD.debugInit=function (keyToCatch) {
 /*
  * initialise the key-handler, passing through the user-specified key that will toggle display of debug-logs
@@ -651,11 +659,7 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
  * typename:
  * rownum:
  */
-    document.forms[0].afterCreate.value=
-        document.forms[0].referrer.value=
-        'item.php?nextId='+document.forms[0].itemId.value+'&amp;type='+type;
-    document.forms[0].submit();
-    return false;
+    return GTD.createparent(type);
 };
 // -------------------------------------------------------------------------
 GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) {
