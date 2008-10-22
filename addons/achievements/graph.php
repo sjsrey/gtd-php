@@ -43,7 +43,7 @@ $graph->SetScale("datelin",0,$maxY);
 $graph->SetClipping(true);
 $graph->img->SetMargin(30,10,50,80);
 
-$graph->xaxis->scale->SetDateFormat('Y-m-d');
+$graph->xaxis->scale->SetDateFormat($_SESSION['config']['datemask']);
 $graph->xaxis->scale->ticks->Set(28*24*60*60,7*24*60*60);
 //$graph->xaxis->scale->SetDateAlign( MONTHADJ_1);
 $graph->xaxis->SetLabelAngle(90);

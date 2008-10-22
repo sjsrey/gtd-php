@@ -125,8 +125,9 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
     if ($comp==='n') {
         // inherit some defaults from parent:
         $createItemId="0&amp;parentId={$values['itemId']}&amp;type=$thistype";
-        foreach (array('categoryId','contextId','deadline') as $field)
+        foreach (array('categoryId','contextId') as $field)
             if ($item[$field]) $createItemId.="&amp;$field={$item[$field]}";
+        if ($item['deadline']) $createItemId.="&amp;deadline=".date('Y-m-d',$item['deadline']);
     }
     $addnew="<a href='item.php?itemId$createItemId' class='creator'>Add new $thischildtype</a>";
     // prepare text to display for use if there are no children:
@@ -395,7 +396,7 @@ echo '<tr><th>Created:</th><td>'
 
 if ($item['lastModified'])
     echo '<tr><th>Last modified:</th><td>'
-        ,date($_SESSION['config']['datemask'].' H:G:s',$item['lastModified'])
+        ,date($_SESSION['config']['datemask'].' H:i:s',$item['lastModified'])
         ,"</td></tr>\n";
 
 if ($item['dateCompleted']) {

@@ -77,8 +77,8 @@ function rawQuery($query) {
   ===============================================================
 */
 function safeIntoDB($value,$key=NULL) {
-	// don't clean arrays - clean individual strings/values. TOFIX: this looks very inefficient, and gets called A LOT
 	if (is_array($value)) {
+        // don't clean arrays - clean individual strings/values by calling self recursively
 		foreach ($value as $key=>$string) $value[$key] = safeIntoDB($string,$key);
 		return $value;
 	} else {
@@ -688,6 +688,13 @@ function getsql($querylabel,$values,$sort) {
 				    WHERE i.`itemId` = '{$values['itemId']}'";
 			break;
 
+        case 'selectlastmodified':
+            $sql="SELECT UNIX_TIMESTAMP(`lastModified`) AS `lastModified`
+                    ,`lastModified` AS `lmreal`
+                    FROM `{$prefix}itemstatus`
+                    WHERE `itemId` = '{$values['itemId']}'";
+            break;
+            
 		case "selectparents":
 			$sql="SELECT lu.`parentId`,i.`title` AS `ptitle`,its.`isSomeday`,its.`type` AS `ptype`
 				FROM `{$prefix}lookup` AS lu

@@ -13,7 +13,7 @@
 $showclass=array();
 foreach ($dispArray as $key=>$val)
     $showclass[$key]=($show[$key])?'':' hidden';
-foreach ($maintable as $row) if ($row) {
+foreach ($maintable as $row) {
     echo '<tr'
         ,(!empty($row['row.class']))?" class='{$row['row.class']}' ":''
         ,">\n";
@@ -76,7 +76,7 @@ foreach ($maintable as $row) if ($row) {
                         ,"</a>";
                 break;
             case 'lastModified':
-                if ($row[$key]) echo date($_SESSION['config']['datemask'].' H:G:s',$row[$key]);
+                if ($row[$key]) echo date($_SESSION['config']['datemask'].' H:i:s',$row[$key]);
                 break;                
             case 'NA':
                 if ($row[$key]!==null)

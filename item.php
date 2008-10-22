@@ -224,6 +224,7 @@ if (empty($values['recur'])) {
     log_value('Recurrence values going into form',$recur);
     // get the date of the next recurrence, after the current one has been completed, for the user's information
     $nextdate=getNextRecurrence($values);
+    if ($nextdate) $nextdate=date($_SESSION['config']['datemask'],strtotime($nextdate));
 }
 /*
     ===========================================================================
@@ -267,11 +268,13 @@ if ($show['header']) { ?>
 $sep='<p>';
 if ($show['changetypes']) foreach ($canchangetypesafely as $totype)
     if ($totype!==$values['type']) {
-        echo "$sep <a href='processItems.php?action=changeType&amp;itemId="
-            ,$values['itemId'],"&amp;safe=1&amp;type=$totype&amp;isSomeday="
-            ,$values['isSomeday'];
-        if (!empty($referrer)) echo "&amp;referrer=$referrer";
-        echo "'>Convert to ",getTypes($totype),"</a>\n";
+        echo "$sep <a href='processItems.php?action=changeType&amp;safe=1"
+            ,"&amp;itemId=",$values['itemId']
+            ,"&amp;type=$totype"
+            ,"&amp;isSomeday=",$values['isSomeday']
+            ,"&amp;oldtype=",$values['type']
+            ,(empty($referrer))?'':"&amp;referrer=$referrer"
+            ,"'>Convert to ",getTypes($totype),"</a>\n";
         $sep=' , ';
     }
 if ($show['type']) {
@@ -457,16 +460,8 @@ if ($sep!=='<p>') echo "</p>\n";
                     </span>
                 <?php } ?>
             </div>
-        <?php } ?>
-        
-        <div class='hidden'>
-    	   <input type='hidden' name='required' value='title:notnull:Title can not be blank.,tickledate:date:Suppress date must be a valid date.,deadline:date:Deadline must be a valid date.,dateCompleted:date:Completion date is not valid.' />
-    	   <input type='hidden' name='dateformat' value='ccyy-mm-dd' />
-            <?php
-                if (!$values['itemId']) $hiddenvars['lastcreate']=$_SERVER['QUERY_STRING']; // TOFIX - why do this???
-                foreach ($hiddenvars as $key=>$val) echo hidePostVar($key,$val);
-            ?>
-        </div><?php
+        <?php
+    }
 $key='afterCreate'.$values['type'];
 // always use config value when creating
 if (!empty($_SESSION['config']['afterCreate'][$values['type']]) && empty($_SESSION[$key]))
@@ -480,14 +475,10 @@ if ($show['submitbuttons']) { ?>
     <?php
     if (isset($_REQUEST['nextId'])) {
         // don't show any next item buttons: we are creating a parent item here
+        $hiddenvars['referrer']='item.php?itemId='.$_REQUEST['nextId'];
+        $hiddenvars['addAsParentTo']=$_REQUEST['nextId'];
         ?><div class='formbuttons'>
             <input type='submit' value='Create item and assign as parent' name='submit' />
-            <input type='hidden' name='referrer' id='referrer' value='item.php?itemId=<?php
-                echo $_REQUEST['nextId'];
-            ?>' />
-            <input type='hidden' name='addAsParentTo' value='<?php
-                echo $_REQUEST['nextId'];
-            ?>' />
         <?php
     } else if ($_SESSION['config']['radioButtonsForNextPage']) { ?>
         <div class='formrow'>
@@ -582,8 +573,16 @@ if ($show['submitbuttons']) { ?>
     }
 ?></div><?php
 } // end of if ($show['submitbuttons'])
-
-if ($show['recurdesc']) {
+?>
+<div class='hidden'>
+   <input type='hidden' name='required' value='title:notnull:Title can not be blank.,tickledate:date:Suppress date must be a valid date.,deadline:date:Deadline must be a valid date.,dateCompleted:date:Completion date is not valid.' />
+   <input type='hidden' name='dateformat' value='ccyy-mm-dd' />
+    <?php
+        if (!$values['itemId']) $hiddenvars['lastcreate']=$_SERVER['QUERY_STRING']; // TOFIX - why do this???
+        foreach ($hiddenvars as $key=>$val) echo hidePostVar($key,$val);
+    ?>
+</div>
+<?php if ($show['recurdesc']) {
 ?><div id='recur' <?php
     if ($_SESSION['useLiveEnhancements']) echo " class='togglehidden' ";
 ?>><a name='recurform' id='recurform'></a>

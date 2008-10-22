@@ -101,10 +101,14 @@ function doAction($localAction) { // do the current action on the current item; 
             break;
         //-----------------------------------------------------------------------------------
 		case 'changeType':
+            $values['oldtype']=$_REQUEST['oldtype'];
 			changeType();
 			$newtype=getTypes($values['type']);
 			$msg="$newtype is now the type for item: '$title'";
-			$updateGlobals['referrer']="item.php?itemId={$values['itemId']}&amp;referrer={$updateGlobals['referrer']}";
+		    $updateGlobals['referrer']="item.php?itemId={$values['itemId']}&amp;referrer="
+                .((empty($updateGlobals['referrer']))
+                    ? "listItems.php?type={$values['oldtype']}"
+                    : $updateGlobals['referrer']);
 			break;
         //-----------------------------------------------------------------------------------
         case 'checkcomplete':
@@ -470,7 +474,6 @@ function recurItem() {
         $_SESSION['message'][] = $msg;
     } else {
         $values['dateCreated']=date('Y-m-d');
-        $values['lastModified']=date('Y-m-d H:G:s');
         // now need to set tickle date (either to NULL, or to date in quotes)
     	if (empty($values['deadline']) || $values['deadline']==='NULL') {
             $values['tickledate']="'$nextdue'";
@@ -615,6 +618,10 @@ function nextPage() { // set up the forwarding to the next page
     $nextURL=html_entity_decode($nextURL);
 	
 	if ($updateGlobals['captureOutput']) {
+        if ($values['itemId']) {
+            $result=query('selectlastmodified',$values);
+            if ($result) $values['lastModified']=$result[0]['lastModified'];
+        }
         $logtext=ob_get_contents();
         ob_end_clean();
         $outtext=$_SESSION['message'];
@@ -623,7 +630,6 @@ function nextPage() { // set up the forwarding to the next page
             $header="Content-Type: text/xml; charset=".$_SESSION['config']['charset'];
             header($header);
         }
-        // TODO - would be nice to always return lastModified
         echo '<?xml version="1.0" ?',"><gtdphp>"; // encoding="{$_SESSION['config']['charset']}"
         echo "<values>";
         foreach ($values as $key=>$val) {
@@ -651,10 +657,15 @@ function nextPage() { // set up the forwarding to the next page
                 case 'dateCompleted':    // deliberately flows through
                 case 'dateCreated':      // deliberately flows through 
                 case 'deadline':         // deliberately flows through
-                case 'lastModified':     // deliberately flows through
                 case 'oldDateCompleted': // deliberately flows through
-                case 'tickledate':       // deliberately flows through
-                    echo "<$key>",str_replace(array('NULL',"'"),'',$val),"</$key>";
+                case 'tickledate':
+                    echo "<$key>"
+                        ,($val==='NULL' || empty($val)) ? '' :
+                            ('<![CDATA['
+                            .date($_SESSION['config']['datemask'],
+                                strtotime(str_replace("'",'',$val)))
+                            .']]>')
+                        ,"</$key>";
                     break;
                 //-------------------------------------------------------
                 case 'description':      // deliberately flows through
@@ -662,6 +673,11 @@ function nextPage() { // set up the forwarding to the next page
                     $val=nl2br($val);    // deliberately flows through
                 default:
                     echo "<$key><![CDATA[$val]]></$key>";
+                    break;
+                case 'lastModified':
+                    if ($val) echo "<$key><![CDATA["
+                            ,date($_SESSION['config']['datemask'].' H:i:s',$val)
+                            ,"]]></$key>";
                     break;
                 //-------------------------------------------------------
                 case 'tagname':

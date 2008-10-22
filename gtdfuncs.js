@@ -653,7 +653,7 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
  */
     document.forms[0].afterCreate.value=
         document.forms[0].referrer.value=
-        'item.php?nextId=0&amp;type='+type;
+        'item.php?nextId='+document.forms[0].itemId.value+'&amp;type='+type;
     document.forms[0].submit();
     return false;
 };

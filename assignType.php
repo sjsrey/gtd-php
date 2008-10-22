@@ -11,14 +11,12 @@
     unset($types['s']);
 ?><h2>Change the Type of <?php echo "$typename: '$title'"; ?></h2>
 <div class='submitbuttons'>
-    <?php foreach ($types as $key=>$val) { ?>
-        <a href='processItems.php?itemId=<?php
-            echo $values['itemId'];
-        ?>&amp;action=changeType&amp;type=<?php
-            echo $key;
-            if (!empty($_REQUEST['referrer']))
-                echo "&amp;referrer=",$_REQUEST['referrer'];
-        ?>'><?php echo $val; ?></a>
-    <?php } ?>
+    <?php foreach ($types as $key=>$val)
+        echo "<a href='processItems.php?itemId=",$values['itemId']
+            ,"&amp;action=changeType&amp;type=",$key
+            ,"&amp;oldtype=",$type
+            ,(empty($_REQUEST['referrer']))?'':"&amp;referrer={$_REQUEST['referrer']}"
+            ,"'>$val</a>";
+    ?>
 </div>
 <?php include 'footer.inc.php'; ?>

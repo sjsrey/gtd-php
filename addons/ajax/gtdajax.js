@@ -1127,7 +1127,6 @@ function saveperspective(e) {
 function showcolumnselector(e) {
 /*
  * Event handler for when the user has activated the column selecter/orderer UI
- * TOFIX - dismissing it doesn't seem to be working
  * e: jQuery event
  */
     var coldiv,collist,

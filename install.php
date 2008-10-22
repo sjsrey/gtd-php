@@ -558,7 +558,7 @@ installation for use and familiarize yourself with the system.</p>\n
         /*
             Force the session to restart, to ensure that
             session variables will be initialised correctly,
-            for the new installation. TOFIX needs testing
+            for the new installation.
         */
         $_SESSION = array();
         session_destroy();

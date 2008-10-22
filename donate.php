@@ -6,7 +6,7 @@
 <p>
 Donations to the project are greatly appreciated and are used to
  help us to pay for hosting services that support our cvs and svn 
-repositories, the user forums, documnentation and related activities.
+repositories, the user forums, documentation and related activities.
 </p>
 <p>
  You can donate via paypal by simply clicking on the following button. 
