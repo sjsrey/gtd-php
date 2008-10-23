@@ -482,6 +482,11 @@ GTD.cookieSet=function (name,value,path,maxagedays) {
 };
 // ======================================================================================
 GTD.createparent=function(type) {
+/*
+ * create a parent for the item we are currently creating/editing
+ *
+ * type: (single letter) type of parent to be created
+ */
     document.forms[0].afterCreate.value=
         document.forms[0].referrer.value=
         'item.php?nextId='+document.forms[0].itemId.value+'&amp;type='+type;

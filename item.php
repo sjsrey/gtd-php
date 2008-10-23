@@ -304,10 +304,12 @@ if ($sep!=='<p>') echo "</p>\n";
     <tbody id='parentlist'>
         <tr>
             <td><a class='add' href='#' onclick='return GTD.parentselect.search();' title='Click here to select or create parent(s)'>+</a></td>
-            <td><a href='#' onclick='return GTD.parentselect.search();' title='Click here to select parent(s)'>Select parent(s)</a> or
-                <a href='#' onclick='return GTD.createparent("<?php
-                    echo $ptypes[0];
-                ?>");' title='Click here to create a parent(s)'>Create a parent</a></td>
+            <td><a href='#' onclick='return GTD.parentselect.search();' title='Click here to select parent(s)'>Select parent(s)</a>
+                <?php if (!isset($_REQUEST['nextId']))
+                    echo " or <a href='#' onclick='return GTD.createparent(\""
+                        ,$ptypes[0]
+                        ,"\");' title='Click here to create a parent(s)'>Create a parent</a></td>";
+                ?>
             <td>&nbsp;</td>
         </tr><?php
             if (is_array($parents) && count($parents)) foreach ($parents as $parent) {
@@ -495,7 +497,7 @@ else
     $tst=$_SESSION['config']["afterCreate{$values['type']}"];
 if ($show['submitbuttons']) { ?>
     <?php
-    if (isset($_REQUEST['nextId'])) {
+    if (!empty($_REQUEST['nextId'])) {
         // don't show any next item buttons: we are creating a parent item here
         $hiddenvars['referrer']='item.php?itemId='.$_REQUEST['nextId'];
         $hiddenvars['addAsParentTo']=$_REQUEST['nextId'];

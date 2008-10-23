@@ -420,9 +420,12 @@ function getsql($querylabel,$values,$sort) {
 				FROM `{$prefix}lookup` AS lu
 					JOIN `{$prefix}items` AS i USING (`itemId`)
 					JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
-					LEFT OUTER JOIN `{$prefix}context` AS cn USING (`contextId`)
-					LEFT OUTER JOIN `{$prefix}categories` AS c USING (`categoryId`)
-					LEFT OUTER JOIN `{$prefix}timeitems` AS ti USING (`timeframeId`)
+					LEFT OUTER JOIN `{$prefix}context` as cn
+						ON (its.`contextId` = cn.`contextId`)
+					LEFT OUTER JOIN `{$prefix}categories` as c
+						ON (its.`categoryId` = c.`categoryId`)
+					LEFT OUTER JOIN `{$prefix}timeitems` as ti
+						ON (its.`timeframeId` = ti.`timeframeId`)
 				WHERE lu.`parentId`= '{$values['parentId']}' {$values['filterquery']}
 				ORDER BY {$sort['getchildren']}";
 			break;
