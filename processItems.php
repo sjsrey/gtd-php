@@ -608,14 +608,20 @@ function nextPage() { // set up the forwarding to the next page
             break;
 	}
     log_value('referrer',$updateGlobals['referrer']);
+    if (strpos($nextURL,'nextId=0')!==false) {
+        if (empty($_REQUEST['referrer']) || strpos($_REQUEST['referrer'],'nextId=0')) {
+            $_SESSION[$key]=$tst;
+            $nextURL='';
+        } else {
+            $nextURL=str_replace('nextId=0','nextId='.$values['newitemId'],$nextURL);
+            $_SESSION[$key]=$tst;
+            $_SESSION['message'][]='Creation of this '.getTypes($values['type']).' has been suspended while parent is created';
+        }
+    }
     if ($nextURL=='')
         $nextURL="listItems.php?type=$t";
-    else if (strpos($nextURL,'nextId=0')!==false) {
-        $nextURL=str_replace('nextId=0','nextId='.$values['newitemId'],$nextURL);
-        $_SESSION[$key]=$tst;
-        $_SESSION['message'][]='Creation of this '.getTypes($values['type']).' has been suspended while parent is created';
-    }
-    $nextURL=html_entity_decode($nextURL);
+    else 
+        $nextURL=html_entity_decode($nextURL);
 	
 	if ($updateGlobals['captureOutput']) {
         if ($values['itemId']) {

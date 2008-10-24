@@ -685,16 +685,11 @@ function retrieveConfig() {
         $_SESSION[$options['option']]=unserialize($options['value']);
 
     // retrieve cookie values, and overlay them onto preferences
-    foreach ($_COOKIE as $key=>$val)
-        if (!empty($key) && isset($_SESSION['config'][$key]))
-            
-
-    foreach (array('theme'=>'default','useLiveEnhancements'=>false) as $key=>$val) {
+    foreach (array('theme'=>'default','useLiveEnhancements'=>false) as $key=>$val)
         if (array_key_exists($key,$_COOKIE))
             $_SESSION['config'][$key]=$_SESSION[$key]=$_COOKIE[$key];
-        if (empty($_SESSION[$key]))
-            $_SESSION['config'][$key] =$_SESSION[$key] = $val;
-    }
+        else
+            $_SESSION[$key]=$_SESSION['config'][$key];
 
     // go through the list of installed addons, and register them
     foreach($_SESSION['addons'] as $addon=>$dummy)

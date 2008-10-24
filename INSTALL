@@ -23,7 +23,7 @@ New installation on a Mac
    2. cd ~/Sites
    3. tar -xzvf pathtotarball
    4. cd ~/Sites/gtd-php
-   5. cp config.sample.php config.php
+   5. cp config.sample.php config.inc.php
    6. set up the database and config file 
 
 
@@ -47,9 +47,9 @@ New installation on Debian/Sarge
           mv gtd-php /var/www/
 
    4. Configure apache. You may wish to use virtual hosts, but you can configure it any way you like.
-   5. Make a config.php
+   5. Make a config.inc.php
 
-          cp /var/www/gtd-php/config.sample.php /var/www/gtd-php/config.php
+          cp /var/www/gtd-php/config.sample.php /var/www/gtd-php/config.inc.php
 
    6. set up the database and config file 
 
@@ -61,7 +61,7 @@ New installation on a Windows PC
    1. Install a webserver, PHP, and MySQL. If you don't already have these, then get an all-in-one package that will set them up and configure them so that they all work nicely together. For example, WAMP.
    2. Go to your webserver contents page (e.g. C:/program files/wamp/web/), and create a new subdirectory gtdphp
    3. In that subdirectory, unzip the gtd-php package.
-   4. make a copy of the config.sample.php file, and name it config.php
+   4. make a copy of the config.sample.php file, and name it config.inc.php
    5. set up the database and config file 
 
 
@@ -78,7 +78,7 @@ Setting up the MySQL database and config file for the first time
           mysql -u root -p -e "grant all privileges on gtd.* to <user>@localhost identified by '<password>'; flush privileges;"
 
    3. decide on a prefix for your installation: this will uniquely identify your GTD actions and projects. If in doubt, use the default, gtdphp_
-   4. edit the config.php file, specifying the name of your database, your MySQL user name and password, and, if you wish, change the default prefix. Use the user account created for the gtd database user, do not use the root account!
+   4. edit the config.inc.php file, specifying the name of your database, your MySQL user name and password, and, if you wish, change the default prefix. Use the user account created for the gtd database user, do not use the root account!
    5. Complete the installation 
 
 
@@ -92,7 +92,7 @@ Upgrading
 
       (use this in case you need to restore)
    2. Extract the tarball into the same directory you originally installed gtd-php in.
-   3. Rename your config.php file to config.php.old. Copy the config.sample.php file to config.php. Copy over the config values for your database settings from config.php.old to config.php.
+   3. Rename your config.php file to config.php.old. Copy the config.sample.php file to config.inc.php. Copy over the config values for your database settings from config.php.old to config.inc.php
    4. Complete the installation 
 
 NB You do not need to recreate your original database: i.e., step 1 is simply a precaution.
@@ -102,8 +102,7 @@ NB You do not need to recreate your original database: i.e., step 1 is simply a 
 To complete the installation
 ===================================================
 
-   1. Read the rest of the new config.php file, and check if you wish to change any of the default values.
-   2. Complete the installation by opening your browser, and navigating to the install.php script. This will probably be something like this: http://localhost/gtdphp/install.php
+   1. Open your browser, and navigate to the install.php script. This will probably be something like this: http://localhost/gtdphp/install.php
           * If you encounter a mysql error "Error connecting to database" then connect to mysql from a shell and issue:
 
             set password for '<user>'@'localhost' = old_password('<password>');'
@@ -119,5 +118,5 @@ To complete the installation
                 o copying any earlier installations to the new prefix, upgrading to the latest version in the process
                 o creating a new empty installation
                 o creating a new installation with sample data: if you are new to gtd-php, select this option 
-   3. Explore, enjoy, and send us comments, suggestions, gripes, donations at http://toae.org/boards
-   4. If you have any bugs or requests please open a new ticket for this on our trac site. 
+   2. Explore, enjoy, and send us comments, suggestions, gripes, donations at http://toae.org/boards
+   3. If you have any bugs or requests please open a new ticket for this on our trac site.

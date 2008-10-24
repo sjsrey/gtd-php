@@ -366,9 +366,11 @@ if ($item['timeframeId'])
 
 if ($item['deadline']) {
     $deadline=prettyDueDate($item['deadline'],$item['daysdue']);
-    echo "<tr><th>Deadline:</th>"
-        ,"<td class='{$deadline['class']}' title='{$deadline['title']}'>"
-        ,$deadline['date'],"</td></tr>\n";
+    echo '<tr><th>Deadline:</th><td'
+        ,(empty($item['dateCompleted']))
+            ? " class='{$deadline['class']}' title='{$deadline['title']}'"
+            : ''
+        ,'>',$deadline['date'],"</td></tr>\n";
 }
 
 if ($item['type']==='a' || $item['type']==='w') 
