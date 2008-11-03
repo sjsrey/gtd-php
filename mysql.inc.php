@@ -70,7 +70,14 @@ function doQuery($query,$label=NULL) {
   ===============================================================
 */
 function rawQuery($query) {
+    global $totalquerytime;
+    list($busec, $bsec) = explode(' ',microtime());
+
     $reply = mysql_query($query);
+
+    list($ausec, $asec) = explode(' ',microtime());
+    $totalquerytime+= (float)$ausec + (float)$asec - (float)$busec - (float)$bsec;
+
     return $reply;
 }
 /*
@@ -501,10 +508,12 @@ function getsql($querylabel,$values,$sort) {
 							its.`deadline` AS pdeadline, i.`recurdesc` AS precurdesc,
 							its.`tickledate` AS ptickledate,
 							its.`dateCompleted` AS pdateCompleted
-						FROM `{$prefix}items` AS i
-						JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+						FROM `{$prefix}itemstatus` AS its
+                        JOIN `{$prefix}items` AS i USING (`itemId`)
+                        WHERE its.`itemId` IN (SELECT DISTINCT `parentId` FROM `{$prefix}lookup`)
 					) as y ON (y.`parentId` = x.`parentId`)
-				{$values['filterquery']} GROUP BY x.`itemId`
+				{$values['filterquery']}
+                GROUP BY x.`itemId`
 				ORDER BY {$sort['getitemsandparent']}";
 			break;
 
@@ -525,7 +534,7 @@ function getsql($querylabel,$values,$sort) {
 				JOIN `{$prefix}itemstatus` AS its USING (itemId)
 				WHERE its.`dateCompleted` IS NULL
 				AND ( ( its.`itemId` NOT IN
-						  (SELECT lu.`itemId` FROM `{$prefix}lookup` as lu)
+						  (SELECT DISTINCT lu.`itemId` FROM `{$prefix}lookup` as lu)
 					    {$values['orphansfilterquery']}
                        ) OR its.`type` IS NULL OR its.`type`=''
                 ) ORDER BY {$sort['getorphaneditems']}";

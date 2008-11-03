@@ -1,6 +1,4 @@
 <?php
-list($usec, $sec) = explode(" ", microtime());
-$starttime=(float)$usec + (float)$sec;
 if (!isset($areUpdating)) require_once 'headerDB.inc.php';
 
 if ($_SESSION['version']!==_GTD_VERSION && !isset($areUpdating) ) {
@@ -39,6 +37,7 @@ if (is_readable($themejs))
 /*-----------------------------------------------------------
     build HTML header
 */
+if (empty($_SESSION['theme'])) $_SESSION['theme']='default';
 $headertext=<<<HTML1
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 		  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">

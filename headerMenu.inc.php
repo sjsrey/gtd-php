@@ -82,9 +82,11 @@ if (!$_SESSION['config']['suppressAdmin']) {
 $menu[] = array("link"=>'','label'=>'Help');
 //-------------------------------------------
 $newbuglink="https://www.hosted-projects.com/trac/toae/gtdphp/newticket";
-if (!$_SESSION['config']['withholdVersionInfo']) $newbuglink.='?milestone='._GTDPHP_VERSION.'&amp;description='
-    .urlencode('gtd-php='._GTD_REVISION.' , GTD-db='._GTD_VERSION
-    .' , PHP='.PHP_VERSION.' , Database='.getDBVersion()
+if (!$_SESSION['config']['withholdVersionInfo'])
+    $newbuglink.='?milestone='._GTDPHP_VERSION.'&amp;description='.urlencode(
+        'gtd-php='._GTD_REVISION.' , GTD-db='._GTD_VERSION
+        .' , PHP='.PHP_VERSION.' , Database='.getDBVersion()
+        .' , Browser='.$_SERVER['HTTP_USER_AGENT']
     );
 $menu[] = array("link"=>"http://www.gtd-php.com/Users/Documentation", 'title'=>"Documentation", 'label' => "Helpfile Wiki");
 $menu[] = array("link"=>$newbuglink, 'title'=>"Report a bug", 'label' => "Report a bug");

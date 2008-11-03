@@ -602,7 +602,10 @@ if ($show['submitbuttons']) { ?>
    <input type='hidden' name='required' value='title:notnull:Title can not be blank.,tickledate:date:Suppress date must be a valid date.,deadline:date:Deadline must be a valid date.,dateCompleted:date:Completion date is not valid.' />
    <input type='hidden' name='dateformat' value='ccyy-mm-dd' />
     <?php
-        if (!$values['itemId']) $hiddenvars['lastcreate']=$_SERVER['QUERY_STRING']; // TOFIX - why do this???
+        if (!$values['itemId']) {
+            // we are creating a new item, so remember its defaults, to make it easy to create another just like it
+            $hiddenvars['lastcreate']=$_SERVER['QUERY_STRING'];
+        }
         foreach ($hiddenvars as $key=>$val) echo hidePostVar($key,$val);
     ?>
 </div>
@@ -760,7 +763,29 @@ if ($show['dateCreated']) { ?>
         <span class='detail'>Last Modified: <?php echo $values['lastModified']; ?></span>
     </div>
 <?php }
-if ($show['scriptparents']) include_once 'searcher.inc.php';
+if ($show['scriptparents']) { 
+?><div id='searcher'>
+    <div id='donebox'>
+        <a href='javascript:GTD.parentselect.close();' id='closesearch' title='click, or press escape, to close'>X</a>
+    </div>
+    <form method='get' action='#' onsubmit='return GTD.parentselect.close();'>
+        <p>
+            <label for="searcherneedle">Search for</label>
+            <input type='text' name='searcherneedle' id='searcherneedle' onkeyup='return GTD.parentselect.refinesearch(this);' />
+            in the titles of
+        <br /><?php
+            foreach ($allowedSearchTypes as $key=>$value)
+                echo "&nbsp;&nbsp;<label for='radio$key'>$value</label>\n"
+                    ,"<input type='radio' name='qtype' class='notfirst' value='$key' id='radio$key' "
+                    ," onclick='return GTD.parentselect.refinesearch(this);' "
+                        ,($key===$values['ptype'])?' checked="checked" ':''
+                    ," />&nbsp;\n";
+            ?><input type='hidden' name='returntype' value='table' />
+        </p>
+        <div id='searchresults'>&nbsp;</div>
+    </form>
+</div><?php
+}
 if ($show['footer']) include_once 'footer.inc.php';
 function hidePostVar($name,$val) {
     $val=makeclean($val);

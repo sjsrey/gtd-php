@@ -77,33 +77,46 @@ $tablesByVersion=array( // NB the order of tables in these arrays is CRITICAL. t
     );
 
 $versions=array(
-    '0.5'=>     array(  'tables'=>'0.5',
-                        'database'=>'0.5',
+    '0.5'=>      array(      'tables'=>'0.5',
+                           'database'=>'0.5',
                         'upgradepath'=>'X')
-    ,'0.7'=>     array(  'tables'=>'0.7',
-                        'database'=>'0.7',
+                        
+    ,'0.7'=>     array(      'tables'=>'0.7',
+                           'database'=>'0.7',
                         'upgradepath'=>'0.7')
-    ,'0.8rc-1'=> array(  'tables'=>'0.8rc-1',
-                        'database'=>'0.8rc-1',
+                        
+    ,'0.8rc-1'=> array(      'tables'=>'0.8rc-1',
+                           'database'=>'0.8rc-1',
                         'upgradepath'=>'0.8rc-1')
-    ,'0.8rc-3'=> array(  'tables'=>'0.8rc-3',
-                        'database'=>'0.8rc-3',
+                        
+    ,'0.8rc-3'=> array(      'tables'=>'0.8rc-3',
+                           'database'=>'0.8rc-3',
                         'upgradepath'=>'0.8rc-3')
-    ,'0.8rc-4'=> array(  'tables'=>'0.8rc-4',
-                        'database'=>'0.8rc-4',
+                        
+    ,'0.8rc-4'=> array(      'tables'=>'0.8rc-4',
+                           'database'=>'0.8rc-4',
                         'upgradepath'=>'0.8rc-4')
-    ,'0.8z.04'  => array(  'tables'=>'0.8z.04',
-                        'database'=>'0.8z.04',
+                        
+    ,'0.8z.04'=> array(      'tables'=>'0.8z.04',
+                           'database'=>'0.8z.04',
                         'upgradepath'=>'0.8z.04')
-    ,'0.8z.05'  => array(  'tables'=>'0.8z.04',
-                        'database'=>'0.8z.05',
+                        
+    ,'0.8z.05'=> array(      'tables'=>'0.8z.04',
+                           'database'=>'0.8z.05',
                         'upgradepath'=>'0.8z.05')
-    ,'0.8z.06'  => array(  'tables'=>'0.8z.06',
-                        'database'=>'0.8z.06',
+                        
+    ,'0.8z.06'=> array(      'tables'=>'0.8z.06',
+                           'database'=>'0.8z.06',
                         'upgradepath'=>'0.8z.06')
-    ,'0.8z.07'  => array(  'tables'=>'0.8z.07',
-                        'database'=>'0.8z.07',
+                        
+    ,'0.8z.07'=> array(      'tables'=>'0.8z.07',
+                           'database'=>'0.8z.07',
+                        'upgradepath'=>'0.8z.07')
+                        
+    ,'0.8z.08'=> array(      'tables'=>'0.8z.07',
+                           'database'=>'0.8z.08',
                         'upgradepath'=>'copy')
+
     );
 /*
   end of global variables
@@ -527,6 +540,12 @@ installation for use and familiarize yourself with the system.</p>\n
             drop_table("{$toPrefix}perspectivemap");
         }
         up08z05TO08z07($fromPrefix,$toPrefix);
+		// deliberately flows through to next case
+		//---------------------------------------------------
+
+	 case '0.8z.07': // ugprade from 0.8z.07
+        copyToNewPrefix('0.8z.07','0.8z.08',$fromPrefix,$toPrefix);
+        up08z07TO08z08($fromPrefix,$toPrefix);
 
 		//---------------------------------------------------
         // end of chained upgrade process
@@ -561,7 +580,7 @@ installation for use and familiarize yourself with the system.</p>\n
             for the new installation.
         */
         $_SESSION = array();
-        session_destroy();
+        session_destroy(); // TOFIX - seems to then go into next screen without a theme!
     } else echo "<div id='main'>";
     echo $endMsg;
 }
@@ -1578,6 +1597,14 @@ function up08z05TO08z07($toPrefix) {
 }
 /*
    ======================================================================================
+*/
+function up08z07TO08z08($toPrefix) {
+    $q="ALTER TABLE `{$toPrefix}itemstatus` ADD INDEX `typeComp` (`type`,`dateCompleted`)";
+    send_query($q);
+    return true;
+}
+/*
+   ======================================================================================
      Table Creation Queries
    ======================================================================================
 */
@@ -1620,24 +1647,25 @@ function create_table ($prefix,$name) {
        $q.=_FULLTEXT." KEY `description` (`description`"._INDEXLEN.")";
 	break;
 	case "itemstatus";
-       $q.="`itemId` int(10) unsigned NOT NULL auto_increment, ";
-       $q.="`dateCreated` date default '"._DEFAULTDATE."', ";
-       $q.="`lastModified` timestamp default '"._DEFAULTDATE."' ,";
-       $q.="`dateCompleted` date default NULL, ";
-       $q.="`type` enum ('m','v','o','g','p','a','r','w','i','L','C','T') NOT NULL default 'i', ";
-       $q.="`categoryId` int(11) unsigned NOT NULL default '0', ";
-       $q.="`isSomeday` enum('y','n') NOT NULL default 'n', ";
-       $q.="`contextId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`timeframeId` int(10) unsigned NOT NULL default '0', ";
-       $q.="`deadline` date default NULL, ";
-       $q.="`tickledate` date default NULL, ";
-       $q.="`nextaction` enum('y','n') NOT NULL DEFAULT 'n', ";
-       $q.=" PRIMARY KEY (`itemId`), ";
-       $q.=" KEY `type` (`type`), ";
-       $q.=" KEY `categoryId` (`categoryId`), ";
-       $q.=" KEY `contextId` (`contextId`), ";
-       $q.=" KEY `timeframeId` (`timeframeId`), ";
-       $q.=" KEY `isSomeday` (`isSomeday`) ";
+       $q.="`itemId` int(10) unsigned NOT NULL auto_increment,
+            `dateCreated` date default '"._DEFAULTDATE."',
+            `lastModified` timestamp default '"._DEFAULTDATE."' ,
+            `dateCompleted` date default NULL,
+            `type` enum ('m','v','o','g','p','a','r','w','i','L','C','T') NOT NULL default 'i',
+            `categoryId` int(11) unsigned NOT NULL default '0',
+            `isSomeday` enum('y','n') NOT NULL default 'n',
+            `contextId` int(10) unsigned NOT NULL default '0',
+            `timeframeId` int(10) unsigned NOT NULL default '0',
+            `deadline` date default NULL,
+            `tickledate` date default NULL,
+            `nextaction` enum('y','n') NOT NULL DEFAULT 'n',
+             PRIMARY KEY (`itemId`),
+             KEY `type` (`type`),
+             KEY `categoryId` (`categoryId`),
+             KEY `contextId` (`contextId`),
+             KEY `timeframeId` (`timeframeId`),
+             KEY `isSomeday` (`isSomeday`),
+             KEY `typeComp` (`type`,`dateCompleted`)";
 	break;
 	case "lookup":
        $q.="`parentId` int(11) NOT NULL DEFAULT '0', ";

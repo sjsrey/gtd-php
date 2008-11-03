@@ -1,5 +1,10 @@
 <?php
 session_start();
+global $pagename,$starttime,$totalquerytime;
+list($usec, $sec) = explode(" ", microtime());
+$starttime=(float)$usec + (float)$sec;
+$totalquerytime=0;
+
 if(isset($_SESSION['views']))
     $_SESSION['views']++;
 else{
@@ -12,7 +17,6 @@ else{
     $_SESSION['addonsdir']='addons/';
 }
 ignore_user_abort(false);
-global $pagename;
 
 $thisurl=parse_url($_SERVER[
     (empty($_SERVER['SCRIPT_NAME']))

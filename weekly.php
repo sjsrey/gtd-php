@@ -29,6 +29,13 @@ include_once 'header.inc.php';
     } else
         $numProjects=0;
     $numNoNext=count($maintable);
+
+    //count how many inbox items there are
+    $nInbox=array('type'=>'i');
+    $nInbox['filterquery']=' WHERE '.sqlparts('typefilter',$nInbox)
+                   .' AND '.sqlparts('pendingitems',$nInbox);
+    $nInbox = query("counttype",$nInbox);
+    $nInbox= ($nInbox) ? $nInbox[0]['cnt'] : 0;
     
     // get list of orphans
 	$orph_maintable = getOrphans();
@@ -59,9 +66,16 @@ include_once 'header.inc.php';
             <a href="item.php?type=w" title="Add waitingOn">things you are waiting for</a>,
             <a href="item.php?type=r" title="Add reference">references</a>,
             and <a href="item.php?type=p&amp;someday=true" title="Add Someday/Maybe">someday/maybes</a> that are not yet in the system.</td></tr>
-    <?php // TOFIX - count how many inbox items there are, and amend the next message accordingly ?>
-    <tr><td>Empty your <a href='listItems.php?type=i'>gtd-php inbox</a></td>
-        <td>Use the 'Set Type' button to convert each one into a project, action, reference or waiting-on</td>
+    <tr><?php
+        if ($nInbox) {
+            ?>
+            <td>Empty your <a href='listItems.php?type=i'>gtd-php inbox</a></td>
+            <td><?php echo "You have <a href='listItems.php?type=i'>",$nInbox,' item',($nInbox>1)?'s':'';
+                ?> in your inbox</a>; use the 'Set Type' button to convert each one into a project, action, reference or waiting-on</td>
+        <?php } else { ?>
+            <td>Congratulations, you have no inbox items!</td>
+            <td>&nbsp;</td>
+        <?php } ?>
     </tr>
 <?php if ($orphancnt) { ?>
     <tr><td>Assign parents to the <a href='orphans.php'>orphans</a></td>

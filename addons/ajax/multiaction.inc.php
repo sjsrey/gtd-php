@@ -1,5 +1,5 @@
 <?php
-global $taglist,$cashtml,$cshtml,$tshtml;
+global $taglist,$cashtml,$cshtml,$tshtml,$filter;
 ?>
 <div id='multicontainer' class='formrow hidden'>
     <span class='multispan'>
@@ -41,3 +41,14 @@ global $taglist,$cashtml,$cshtml,$tshtml;
     </select>
     </span>
 </div>
+<script type='text/javascript'>
+/* <![CDATA[ */
+GTD.ajax.filter={<?php
+    echo "everything:'"
+        ,($filter['everything']=='true')?'true':'false'
+        ,"',tickler:'"
+        ,($filter['tickler']=='true')?'true':'false',
+        "'";
+?>};
+/* ]]> */
+</script>

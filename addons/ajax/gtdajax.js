@@ -1,12 +1,13 @@
 /*jslint browser: true, eqeqeq: true, nomen: true, undef: true */
 /*global GTD,jQuery,escape,unescape,$NBtheseTagsAreForJSLint */
+if (typeof GTD.ajax==='undefined') {GTD.ajax={};} // ensure that the publicly visible object exists
 if (!window.GTD.ajaxfuncs) {(function($) { // // wrap the lot in an anonymous function
 // ======================================================================================
 GTD.ajaxfuncs=true; // simple boolean flag to show that this javascript file has been run
 // ======================================================================================
 var editor=[],onajax=false,hiddencontexts=[],NAclicked;
 // ======================================================================================
-$.fn.animateShow=function() {
+$.fn.animateShow=function(callback) {
 /*
  * this function does the animation for items which have successfully been updated via AJAX
  * It works by extending jQuery, so that we can execute the function on any jQuery object
@@ -18,7 +19,10 @@ $.fn.animateShow=function() {
         addClass('ajaxupdated').
         animate({opacity:1},600).
         show();
-    setTimeout(function () {that.removeClass("ajaxupdated");},2000);
+    setTimeout(function () {
+            that.removeClass("ajaxupdated");
+            if (typeof callback!=='undefined') {callback(that);}
+        },2000);
     // always return the jQuery item we came in with, to allow chaining
     return that;
 };
@@ -156,7 +160,10 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
                 this.lineHeight=Live_field.prototype.lineHeight=this.field.clientHeight-this.baseHeight;
             }
             this.field.cols=setWidth(width); // then dividing available width by em width
+            if (this.field.cols<30) {this.field.cols=30;}
             this.field.rows=Math.round(1.001+(height-that.baseHeight)/that.lineHeight+($.browser.mozilla?0:1));
+            if (this.field.rows<2) {this.field.rows=2;}
+            
             var txt=old.html();
             $(this.field).text(txt.replace(/<br *\/*>/gi,''));//dummy closure for PSPad: */
             break;
@@ -178,20 +185,33 @@ function updateItem(row,xmldata) {
  * row: the DOM object of the row being edited
  * xmldata: an XML object containing the returned AJAX data
  */
-    var i,max,oldId,newId,done,fields,newval,newvalues,donedate,xmlfields,rowclasses,selects;
+    var i,max,oldId,newId,done,fields,newval,newvalues,donedate,xmlfields,
+        rowclasses,selects,hide1,hide2;
     row=$(row);
     oldId=row.find('input[name=id]').val();
     newvalues=$('gtdphp values',xmldata);
     newId=newvalues.children('newitemId').text();
     donedate=newvalues.children('dateCompleted').text();
     done= (donedate !== "NULL" && donedate !== "");
-    if (newId!=='' && newId!==oldId) { // got a new ID, either from a recurred item or a newly created one
-        // if item has been recurred into a new itemID, then clone the row
+    if (newId==='' || newId===oldId) {
+        if (done && !GTD.ajax.filter.everything) {hide2=function(that){that.hide();};}
+    } else {
+        // got a new ID, either from a recurred item or a newly created one
         if (oldId==='0') {
             // we have just created an item: if there's an NA checkbox, add a click event to it
             row.find('.col-NA :checkbox').
                 click(NAclicked);
         } else {
+            // item has been recurred into a new itemID
+            
+            // test to see if we are going to hide the completed occurrence
+            if (GTD.ajax.filter.everything) {hide1=function(that){that.hide();};}
+
+            // test to see if we are going to hide the new occurrence
+            if (GTD.ajax.filter.tickler || newvalues.children('suppressUntil') ) {
+                hide2=function(that){that.hide();};
+            }
+            
             row.clone().
                 insertAfter(row).
                 removeClass('inajax onajaxcall').
@@ -208,9 +228,9 @@ function updateItem(row,xmldata) {
                 find('.col-ajax img').
                     hide().
                     end().
-                animateShow();
+                animateShow(hide);
         }
-
+        
         // update some fields to reflect the new ID
         row.
             find('[name=itemId],input[name=id],[name="isNAs[]"]:checkbox,[name="isMarked[]"]:checkbox').
@@ -257,7 +277,7 @@ function updateItem(row,xmldata) {
             attr('disabled',true);
     }
     row.removeClass('inajax onajaxcall').
-        animateShow();
+        animateShow(hide2);
 }
 // ======================================================================================
 function doAJAXupdate(thisnode,overlay) {
@@ -272,10 +292,7 @@ function doAJAXupdate(thisnode,overlay) {
     if ($(row).hasClass('inajax')) {return false;}
     $(row).addClass('inajax onajaxcall').animate({opacity:0.1},100);
     node=thisnode;
-    data={
-        itemId      : node.value,
-        output      : 'xml'
-    };
+    data={ itemId : node.value , output : 'xml' };
     $.extend(data,overlay);
     $.ajax({
         cache:false,
@@ -292,10 +309,18 @@ function doAJAXupdate(thisnode,overlay) {
             updateItem(row,xmldata);                        // update the row with the new data
             var rowpos=$(row).position();                   // get the screen position of the row we operated on
             messagepopup('',xmldata,rowpos.top,rowpos.left).// show success message over that row
-                animate({left:rowpos.left},5000).           // wait for 5 seconds
+                animate({left:rowpos.left},3000).           // wait for 3 seconds
                 queue(function(){
-                    if (data.action==='delete') {           // if we were deleting, 
-                        $(row).remove();                    // remove the rows from the table
+                    switch (data.action) {
+                        case 'delete':
+                            $(row).remove();                // remove the rows from the table
+                            break;
+                        case 'makeNA':
+                            $('.col-title a',row).addClass('nextactionlink');
+                            break;
+                        case 'removeNA':
+                            $('.col-title a',row).removeClass('nextactionlink');
+                            break;
                     }
                     $(this).remove().dequeue();             // and then disappear
                 });
@@ -692,8 +717,7 @@ function initContextToggle() {
 
     // now add checkboxes to toggle the time-contexts, at the bottom of each column on the summary table
     headcells=$('table#contexttable>thead>tr>th');  // we shall need to parse the header row, below
-    $('table#contexttable tr:last').
-        clone().                            // add a row
+    $('table#contexttable tr:last').clone().// add a row
         appendTo('table#contexttable').     //   to the bottom of the table
         find('td').slice(0,-1).             // skip the last cell
             each(function(ndx) {
@@ -712,7 +736,7 @@ function initContextToggle() {
                         total=$(this).text();                 // get number of items in this context
                     }
                     $(this).empty();                          // empty the cell before inserting checkbox
-                    if (context!=='' && total) {
+                    if (context!=='' && total!=='0') {
                         addAjaxToggleContext(this,'.t'+context);
                     }
                 }
@@ -922,6 +946,7 @@ function multichange() {
                     $(this).hide();
                 }
             });
+    // TODO change the titles on the checkboxes
     return true;
 }
 /*
@@ -1142,7 +1167,7 @@ function showcolumnselector(e) {
         css({top:(10+e.pageY)+"px",left:(10+e.pageX)+"px"}).    // position just below and to the right of mouse click
         append(
             $(document.createElement('span')).                  // insert a SPAN into the DIV
-                attr('id','colpreviewspan').
+                attr({id:'colpreviewspan'}).
                 append(
                     $("<input type='checkbox' />").             // the SPAN contains a CHECKBOX
                         attr({id:'colpreview',name:'colpreview',checked:true})
@@ -1216,8 +1241,6 @@ colselectorclose=function() {
         all the functions above are just utility functions for these
 
  ======================================================================================*/
-if (typeof GTD.ajax==='undefined') {GTD.ajax={};} // create the publicly visible object
-// ======================================================================================
 GTD.ajax.initcontext=function() {
     this.inititem();
     initContextToggle();
@@ -1268,6 +1291,7 @@ GTD.ajax.multisetup=function() {
             find('.col-ajax').                // find the table-header cell for the AJAX column
                 addClass('ajaxeye').          // add the eye icon to it
                 click(showcolumnselector).    // add the click-handler to it
+                attr({title:'Show/hide/reorder columns'}).
                 end().
             find('th.col-checkbox').          // find the table-header cell for the checkbox column
                 empty().                      // remove its current contents
