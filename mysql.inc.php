@@ -282,6 +282,16 @@ function fixData($prefix) {
             `parentId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)
            OR `itemId` NOT IN (SELECT `itemId` FROM `{$prefix}items`)";
     rawQuery($q);
+
+    // remove any sort prefixes that contain references to obsolete tables
+    $q="SELECT `value` FROM `{$prefix}preferences` WHERE `uid`='0' AND `option`='sort'";
+    $sort=doQuery($q);
+    if ($sort) {
+        $sort=str_replace('ia.','',unserialize($sort[0]['value']));
+        $q="UPDATE `{$prefix}preferences` SET `value`='".serialize($sort)
+                ."' WHERE `uid`='0' AND `option`='sort'";
+        rawQuery($q);
+    }
 }
 /*
   ===============================================================

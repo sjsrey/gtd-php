@@ -550,7 +550,6 @@ installation for use and familiarize yourself with the system.</p>\n
 		//---------------------------------------------------
         // end of chained upgrade process
         updateVersion($toPrefix);
-        fixData($toPrefix);
         $endMsg.="<p>GTD-PHP database upgraded to "._GTD_VERSION." - gosh, you're brave</p>";
         $install_success=true;
         break;
@@ -567,6 +566,9 @@ installation for use and familiarize yourself with the system.</p>\n
 	//---------------------------------------------------
 
 	if ($install_success) {
+        echo "<h2>Final task: cleaning the data</h2>";
+        flushAndResetTimer();
+        fixData($toPrefix);
         $title='Installation Complete';
         require_once 'headerMenu.inc.php';
         echo "<div id='main'>";

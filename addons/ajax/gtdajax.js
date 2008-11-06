@@ -21,7 +21,7 @@ $.fn.animateShow=function(callback) {
         show();
     setTimeout(function () {
             that.removeClass("ajaxupdated");
-            if (typeof callback!=='undefined') {callback(that);}
+            if (callback!=undefined && callback!==null) {callback(that);}
         },2000);
     // always return the jQuery item we came in with, to allow chaining
     return that;
@@ -50,7 +50,7 @@ function messagepopup(text,xmldata,top,left) {
             msgbox.append(sep+$(this).text());
             sep='<br/>';
         });
-    msgbox.animateShow();
+    msgbox.animateShow(null);
     return msgbox;
 }
 // ======================================================================================
@@ -186,7 +186,7 @@ function updateItem(row,xmldata) {
  * xmldata: an XML object containing the returned AJAX data
  */
     var i,max,oldId,newId,done,fields,newval,newvalues,donedate,xmlfields,
-        rowclasses,selects,hide1,hide2;
+        rowclasses,selects,hide1=null,hide2=null;
     row=$(row);
     oldId=row.find('input[name=id]').val();
     newvalues=$('gtdphp values',xmldata);
@@ -228,7 +228,7 @@ function updateItem(row,xmldata) {
                 find('.col-ajax img').
                     hide().
                     end().
-                animateShow(hide);
+                animateShow(hide1);
         }
         
         // update some fields to reflect the new ID
@@ -559,7 +559,7 @@ function itemEditor(row) {
                 }
                 window.status=$('gtdphp result line',xmldata).text();
                 $('#debuglog').empty().append($('gtdphp log',xmldata).text());
-                $(row).animateShow();
+                $(row).animateShow(null);
                 that.tidyUp();
                 updateItem(row,xmldata);
             },
@@ -1121,7 +1121,7 @@ function saveperspective(e) {
             $('#debuglog').empty().text(arg1.responseText);
             msgbox.empty().
                 text('Failed to save this view').
-                animateShow().
+                animateShow(null).
                 animate({left:pos.left},5000).              // wait for 5 seconds
                 queue(function(){
                     $(this).remove().dequeue();             // and then disappear
@@ -1137,7 +1137,7 @@ function saveperspective(e) {
                         'Saved this view' : 'Failed to save this view');
             messagepopup(msgbox,xmldata);
             msgbox.
-                animateShow().
+                animateShow(null).
                 animate({left:pos.left},5000).              // wait for 5 seconds
                 queue(function(){
                     $(this).remove().dequeue();             // and then disappear
@@ -1291,7 +1291,7 @@ GTD.ajax.multisetup=function() {
             find('.col-ajax').                // find the table-header cell for the AJAX column
                 addClass('ajaxeye').          // add the eye icon to it
                 click(showcolumnselector).    // add the click-handler to it
-                attr({title:'Show/hide/reorder columns'}).
+                attr({title:'Temporarily show/hide/reorder columns'}).
                 end().
             find('th.col-checkbox').          // find the table-header cell for the checkbox column
                 empty().                      // remove its current contents
@@ -1516,7 +1516,7 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
                 typename=GTD.typenames[type];
                 line=that.makeline(id,title,type,typename,0,true,typename);
                 box.insertBefore(line, box.firstChild);
-                $(line).animateShow();
+                $(line).animateShow(null);
                 max=that.creatorlines.length;
                 for (i=0;i<max;i++) {that.creatorlines[i]++;}
                 that.gotparent(id,title,type,typename,0);
@@ -1619,7 +1619,7 @@ GTD.toggleHidden=function (parent,link,dummy) {
  * link:  the id of the element that the user pressed to reveal the section - we can dispose of that element, now
  */
     $('#'+link).remove();
-    $('tr.togglehidden','#'+parent).animateShow();
+    $('tr.togglehidden','#'+parent).animateShow(null);
     return false;
 };
 // ======================================================================================
