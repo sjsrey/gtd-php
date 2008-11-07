@@ -411,13 +411,14 @@ function checkInstall() {
             echo "</tr>\n";
 		}
 		if (!$destInUse) {
-		      // TOFIX - sample data commented out until release
-            //echo "<tr>",tabulateOption('','1',"New install with sample data");
-			//if (_ALLOWUNINSTALL  && count($gotVersions)) echo "<td>&nbsp;</td>\n";
-            //echo "</tr>\n";
-            echo "<tr>",tabulateOption('','0',"New install with empty database");
-			if (_ALLOWUNINSTALL && count($gotVersions)) echo "<td>&nbsp;</td>\n";
-			echo "</tr>\n";
+            echo "<tr>"
+                ,tabulateOption('','1',"New install with sample data")
+                ,(_ALLOWUNINSTALL && count($gotVersions)) ? "<td>&nbsp;</td>\n" : ''
+                ,"</tr>\n"
+                ,"<tr>"
+                ,tabulateOption('','0',"New install with empty database")
+                ,(_ALLOWUNINSTALL && count($gotVersions)) ? "<td>&nbsp;</td>\n" : ''
+                ,"</tr>\n";
         }
 		// and finally, close the table
 		echo "</tbody></table>\n<div>\n"
@@ -480,7 +481,7 @@ installation for use and familiarize yourself with the system.</p>\n
 	 case '1': // new install with sample data
 		create_tables($toPrefix);
 		updateVersion($toPrefix);
-		create_data();
+		create_data($toPrefix);
         importOldConfig();
     	$install_success = true;
         // give some direction about what happens next for the user.
@@ -550,7 +551,7 @@ installation for use and familiarize yourself with the system.</p>\n
 		//---------------------------------------------------
         // end of chained upgrade process
         updateVersion($toPrefix);
-        $endMsg.="<p>GTD-PHP database upgraded to "._GTD_VERSION." - gosh, you're brave</p>";
+        $endMsg.="<p>GTD-PHP database upgraded to "._GTD_VERSION."</p>";
         $install_success=true;
         break;
 		//---------------------------------------------------
@@ -566,7 +567,7 @@ installation for use and familiarize yourself with the system.</p>\n
 	//---------------------------------------------------
 
 	if ($install_success) {
-        echo "<h2>Final task: cleaning the data</h2>";
+        echo "<h2>Final stage: cleaning the data</h2>";
         flushAndResetTimer();
         fixData($toPrefix);
         $title='Installation Complete';
@@ -599,14 +600,14 @@ function flushAndResetTimer() {
 /*
    ======================================================================================
 */
-function create_data() {
+function create_data($toPrefix) {
 	// a load of inserts here to create the sample data
 	$sample=fopen('gtdsample.inc.sql','r');
     if ($sample) {
         while (!feof($sample)) {
             $insert = fgets($sample, 8192);
             if (!empty($insert) && $insert[0]!=='-') {
-                $insert=str_replace('gtdsample_',$config['prefix'],$insert);
+                $insert=str_replace('gtdsample_',$toPrefix,$insert);
                 send_query($insert);
             }
         }
@@ -1585,15 +1586,6 @@ function up08z05TO08z07($toPrefix) {
             its.`tickledate`=  ia.`tickledate`, its.`nextaction`=ia.`nextaction`";
     send_query($q);
     send_query("DROP TABLE `{$toPrefix}itemattributes`");
-    
-    // remove ia table prefixes from SORT options, and save them
-    if ($result=doQuery("SELECT `value` FROM `{$toPrefix}preferences` WHERE 'uid'=0 AND `option`='sort'")) {
-        $sort=serialize(safeIntoDB(str_replace(array('ia.','`ia`.'),'',unserialize($result[0]['value']))));
-        if(_DEBUG) echo "<pre class='debug'>Sort option before: ",
-            print_r($result),"<br/>and after:",print_r($sort),"</pre>";
-        send_query("REPLACE INTO `{$toPrefix}preferences`
-                        (`uid`,`option`,`value`) VALUES ('0','sort','$sort')");
-    }
     
     return true;
 }

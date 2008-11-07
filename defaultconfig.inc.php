@@ -67,14 +67,13 @@ $config['show7']=false; // false | true - show the Seven Habits of Highly Effect
 //Default sort order for each query.  The sort order can be overridden within each page.
 
 $sort = array(
-    "spacecontextselectbox" => "cn.`name` ASC",
-    "categoryselectbox"     => "c.`category` ASC",
-    "parentselectbox"       => "i.`title` ASC",
-    "timecontextselectbox"  => "ti.`timeframe` DESC",
-    "getitemsandparent"     => "type ASC, ptitle ASC, title ASC, deadline ASC, dateCreated DESC",
-    "getorphaneditems"      => "`type` ASC, `title` ASC",
-    "getchildren"           => "its.`dateCompleted` DESC, ia.`deadline` DESC, i.`title` ASC",
-    "getitems"              => "i.`title` ASC"
+    "categoryselectbox"      => "`category` ASC"
+    ,"getchildren"           => "`dateCompleted` DESC, `deadline` DESC, `title` ASC"
+    ,"getitems"              => "`title` ASC"
+    ,"getitemsandparent"     => "`type` ASC, `ptitle` ASC, `title` ASC, `deadline` ASC, `dateCreated` DESC"
+    ,"getorphaneditems"      => "`type` ASC, `title` ASC"
+    ,"spacecontextselectbox" => "`name` ASC"
+    ,"timecontextselectbox"  => "`timeframe` DESC"
 );
 
 $config["storeRecurrences"] = true; // false | true - when recurring items are completed, store each occurrence as a completed item
@@ -84,7 +83,7 @@ $config['forceAllFields'] = false; // false | true - all fields will always be d
 $config['allowChangingTypes'] = false; // false | true - allows the user to change the types of any item (false=change only inbox items)
 $config['suppressAdmin'] = false; // false | true - suppresses the Admin option from the menu
 $config['suppressCustomRecurrences']=true; // false | true - prevents user entering recurrence patterns as plain text
-$config['charset'] = 'ISO8859-15'; // character-encoding for pages: utf-8 IS NOT YET SUPPORTED, nor is any other multi-byte character set
+$config['charset'] = 'ISO8859-15'; // character-encoding for pages: utf-8 IS EXPERIMENTAL; other multi-byte character sets are not supported
 $config['withholdVersionInfo']=false; // true | false - if false, will send the version numbers of your installations of gtd-php, PHP and MySQL when you report a bug
 
 $config['debugKey']='h';

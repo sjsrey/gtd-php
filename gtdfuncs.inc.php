@@ -532,12 +532,13 @@ function overlayConfig(&$baseconfig,&$baseacckey,&$basesort) {
     unset($config['pass']); // stop the password leaking anywhere
     array_merge($baseconfig,$config);
     array_merge($baseacckey,$acckey);
+    /*  go through the custom sort array:
+        if the key exists in the set of defaults, use the custom value instead
+        of the default; otherwise, ignore the value
+    */
     foreach ($sort as $key=>$val)
         if (array_key_exists($key,$basesort))
-            $basesort[$key]=str_replace(
-                array('ia.`type`'),
-                array('its.`type`'),
-                $val);
+            $basesort[$key]=str_replace('ia.','',$val);
 }
 //----------------------------------------------------------------
 function importOldConfig() { // get preferences from old config.php file

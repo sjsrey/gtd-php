@@ -288,8 +288,9 @@ function fixData($prefix) {
     $sort=doQuery($q);
     if ($sort) {
         $sort=str_replace('ia.','',unserialize($sort[0]['value']));
-        $q="UPDATE `{$prefix}preferences` SET `value`='".serialize($sort)
-                ."' WHERE `uid`='0' AND `option`='sort'";
+        $q="REPLACE INTO `{$toPrefix}preferences`
+                        (`uid`,`option`,`value`) VALUES ('0','sort','"
+                        .serialize($sort)."')";
         rawQuery($q);
     }
 }
