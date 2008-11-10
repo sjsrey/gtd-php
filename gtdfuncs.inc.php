@@ -154,9 +154,9 @@ function escapeforjavascript($txt) {
     return $txt;
 }
 //-------------------------------------------------
-function escapeChars($str) {  // TOFIX consider internationalization issues with charset coding
-    foreach (array('/\&/u'=>'&amp;','/\& /'=>'&amp; ','/&amp;hellip;/'=>'&hellip;') as $from=>$to)
-        $str=preg_replace($from,$to,$str);
+function escapeChars($str) {
+    foreach (array('&'=>'&amp;','&amp;hellip;'=>'&hellip;') as $from=>$to)
+        $str=str_replace($from,$to,$str);
 	return $str;
 }
 //-------------------------------------------------
