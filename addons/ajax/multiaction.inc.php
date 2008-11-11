@@ -44,11 +44,10 @@ global $taglist,$cashtml,$cshtml,$tshtml,$filter;
 <script type='text/javascript'>
 /* <![CDATA[ */
 GTD.ajax.filter={<?php
-    echo "everything:'"
+    echo "everything:"
         ,($filter['everything']=='true')?'true':'false'
-        ,"',tickler:'"
-        ,($filter['tickler']=='true')?'true':'false',
-        "'";
+        ,",tickler:"
+        ,($filter['tickler']=='true')?'true':'false';
 ?>};
 /* ]]> */
 </script>
