@@ -1,5 +1,5 @@
 /*jslint browser: true, eqeqeq: true, nomen: true, undef: true */
-/*global GTD,jQuery,escape,unescape,$NBtheseTagsAreForJSLint */
+/*global GTD,jQuery,$NBtheseTagsAreForJSLint */
 if (typeof GTD.ajax==='undefined') {GTD.ajax={};} // ensure that the publicly visible object exists
 if (!window.GTD.ajaxfuncs) {(function($) { // // wrap the lot in an anonymous function
 // ======================================================================================
@@ -21,7 +21,7 @@ $.fn.animateShow=function(callback) {
         show();
     setTimeout(function () {
             that.removeClass("ajaxupdated");
-            if (callback!=undefined && callback!==null) {callback(that);}
+            if (callback!==undefined && callback!==null) {callback(that);}
         },2000);
     // always return the jQuery item we came in with, to allow chaining
     return that;
@@ -81,10 +81,12 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
             switch(inputtype) {
                 //--------------------------------------------------
                 case 'text':
-                    $(old.get(0).childNodes).
+                    // find the element that originally contained the title
+                    old.children().andSelf().               // look at the table cell and all its children
                         filter(function() {
-                            return (this.textContent!=='');
+                            return (this.textContent!==''); // remove elements that have no text content
                         }).
+                        eq(0).                              // just use the first element - otherwise we might try to set a child AND then set its parent too
                         empty().
                         append(cleantext);
                     break;
@@ -205,13 +207,14 @@ function updateItem(row,xmldata) {
             // item has been recurred into a new itemID
             
             // test to see if we are going to hide the completed occurrence
-            if (GTD.ajax.filter.everything) {hide1=function(that){that.hide();};}
-
-            // test to see if we are going to hide the new occurrence
-            if (GTD.ajax.filter.tickler || newvalues.children('suppressUntil') ) {
-                hide2=function(that){that.hide();};
+            if (!GTD.ajax.filter.everything) {
+                hide1=function(that){that.hide();};
+                // test to see if we are going to hide the new occurrence
+                if (!GTD.ajax.filter.tickler && newvalues.children('suppressUntil') ) {
+                    hide2=function(that){that.hide();};
+                }
             }
-            
+
             row.clone().
                 insertAfter(row).
                 removeClass('inajax onajaxcall').
@@ -336,7 +339,7 @@ NAclicked=function (event) {
 };
 
 // ======================================================================================
-function itemEditor(row) {
+function ItemEditor(row) {
 /*
  * constructor to create editing fields for item title/desc/outcome
  * row: the DOM object of the row where the item to be edited, is displayed
@@ -545,7 +548,7 @@ function itemEditor(row) {
                         $('responseXml parseError srcText',arg1).text();
                 window.status='Failed update: '+dbg;
                 $('#debuglog').empty().text(dbg);
-                that.reset();
+                that.reset(true);
             },
             success:function (xmldata, textStatus) {
                 if (namefield) {
@@ -568,12 +571,20 @@ function itemEditor(row) {
         });
     };
     // --------------------------------------------------------
-    this.reset=function() { // reset function
+    this.reset=function(preventFurtherAJAX) { // reset function
         if (namefield) {namefield.Set(false);}
         if (descfield) {descfield.Set(false);}
         if (outcomefield) {outcomefield.Set(false);}
-        if (itemId==='0') {$(row).remove();}
-        that.tidyUp();
+        if (itemId==='0') {
+            $(row).remove();
+            that.tidyUp();
+        } else {
+            that.tidyUp();
+            if (preventFurtherAJAX!==true) {
+                // if cancelling, restore AJAX icon: the only time we wouldn't do this is if AJAX failed
+                $(row).find('.col-ajax img').show();
+            }
+        }
     };
     // --------------------------------------------------------
     iconfield=new Live_field(tdsave,'saveCancel',this.save,this.reset,this.expand);
@@ -868,8 +879,8 @@ function createFormForNewItem() {
     newrow.
         find('td.col-ajax').
         remove();
-    addAjaxEditIcon(newrow.get(0),itemEditor);
-    createAjaxEditor(newrow.find('td').get(0),itemEditor);
+    addAjaxEditIcon(newrow.get(0),ItemEditor);
+    createAjaxEditor(newrow.find('td').get(0),ItemEditor);
     newrow.find('td.col-title input').focus().select();
     return false;
 }
@@ -887,7 +898,7 @@ function createfirstchild(e) {
         parents('div.hidden').
             removeClass('hidden').      // show the table
         end().
-        find('.creator td.col-ajax').
+        find('.creator td.col-ajax img').
             click();                    // and trigger the usual AJAX item-creation editor
 }
 /* ======================================================================================
@@ -1252,19 +1263,22 @@ GTD.ajax.inititem=function() {
  */
     $("table:has(.col-title) tbody tr").
         each(function() {
-            addAjaxEditIcon(this,itemEditor);
+            addAjaxEditIcon(this,ItemEditor);
         }).
         find('.col-NA :checkbox').
             click(NAclicked).
         end().find('.col-checkbox :checkbox').
             click(checkboxclicked).
-        end().filter('.creator').
-            find('td.col-ajax').
-                append(document.createTextNode('+')).
-                addClass('addlink').
-                css('cursor','pointer').
-                click(createFormForNewItem).
-                attr('title','Create new list item');
+        end().filter('.creator').find('td.col-ajax').
+            addClass('addlink').
+            append(
+                $('<img />').attr({
+                    alt  :'Create a new child',
+                    src  :GTD.ajax.dir+'ajaxedit.gif',
+                    title:'Create a new child'
+                }).
+                click(createFormForNewItem)
+            );
 
     $("table:has(.col-title) thead tr").
         prepend(
@@ -1275,7 +1289,7 @@ GTD.ajax.inititem=function() {
     $("input:submit:not(#filtersubmit,#completereport),input:reset").
         css({display:'none'});
 
-    // TODO - need to hook the #completereport button in itemReport to use an AJAX call for completion
+    // hook the #completereport button in itemReport to use an AJAX call for completion
     $("#completereport").click(completeFromReport);
     return true;
 };

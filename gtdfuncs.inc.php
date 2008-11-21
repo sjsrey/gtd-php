@@ -689,8 +689,10 @@ function retrieveConfig() {
     foreach (array('theme'=>'default','useLiveEnhancements'=>false) as $key=>$val)
         if (array_key_exists($key,$_COOKIE))
             $_SESSION['config'][$key]=$_SESSION[$key]=$_COOKIE[$key];
-        else
+        elseif (array_key_exists($key,$_SESSION['config']))
             $_SESSION[$key]=$_SESSION['config'][$key];
+        else
+            $_SESSION[$key]=$_SESSION['config'][$key]=$val;
 
     // go through the list of installed addons, and register them
     foreach($_SESSION['addons'] as $addon=>$dummy)

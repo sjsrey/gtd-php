@@ -4,7 +4,7 @@
 ?>
 /*jslint browser: false, eqeqeq: true, nomen: true, undef: true */
 /*global Application,CmdUtils,jQuery,noun_arb_text,displayMessage */
-var gtdcommandlineversion="200810202214",
+var gtdcommandlineversion="200811201725",
     gtdbasepath="<?php echo getAbsolutePath(); ?>",
     doLog=false,
     STORAGE={PROJECTS:'gtdphp.ubiquity.projects'};
@@ -72,12 +72,20 @@ if (doLog) {displayMessage('initialising now v'+gtdcommandlineversion);}
 noun_type_gtdparent.parentList=Application.storage.get(STORAGE.PROJECTS,null);
 noun_type_gtdparent.suggest('','',function dummy(e){});
 //===========================================================
-CmdUtils.CreateCommand({
+// command object template
+function makegtd(obj) {
+    jQuery.extend(obj,{
+        homepage: "http://www.gtd-php.com/Developers/Ubiquity",
+        author: { name: "Andrew Smith"},
+        contributors: ["Andrew Smith"],
+        license: "GPL",
+        icon:gtdbasepath+'favicon.ico'
+        });
+    CmdUtils.CreateCommand(obj);
+}
+//===========================================================
+makegtd({
   name: "gtdin",
-  homepage: "http://www.gtd-php.com/Developers/Ubiquity",
-  author: { name: "Andrew Smith"},
-  contributors: ["Andrew Smith"],
-  license: "GPL",
   description: "Adds a GTD inbox item",
   help: "Provide item title for a new GTD inbox item",
   takes: {"item title": noun_arb_text},
@@ -103,15 +111,10 @@ CmdUtils.CreateCommand({
       dataType:"xml"
     });
   }
-  //---------------------------------------------------------
 });
 //===========================================================
-CmdUtils.CreateCommand({
+makegtd({
   name: "gtdref",
-  homepage: "http://www.gtd-php.com/Developers/Ubiquity",
-  author: { name: "Andrew Smith"},
-  contributors: ["Andrew Smith"],
-  license: "GPL",
   description: "Adds a reference to the current URL",
   help: "Adds a gtd-php reference to the current URL, or,"+
         "if a link is selected, to the destination of that link",
@@ -157,15 +160,10 @@ CmdUtils.CreateCommand({
       dataType:"xml"
     });
   }
-  //---------------------------------------------------------
 });
 //===========================================================
-CmdUtils.CreateCommand({
+makegtd({
   name: "gtdclear",
-  homepage: "http://www.gtd-php.com/Developers/Ubiquity",
-  author: { name: "Andrew Smith"},
-  contributors: ["Andrew Smith"],
-  license: "GPL",
   description: "Clears the cache of GTD projects, and regenerates them from the live database",
   //---------------------------------------------------------
   preview: function(pblock) {
@@ -175,18 +173,14 @@ CmdUtils.CreateCommand({
   execute: function() {
     Application.storage.set(STORAGE.PROJECTS,null);
     noun_type_gtdparent.parentList=null;
-    displayMessage("GTD parents cache cleared: regenerating now")
+    displayMessage("GTD parents cache cleared: regenerating now");
     noun_type_gtdparent.suggest('','',function(){});
   }
   //---------------------------------------------------------
 });
 //===========================================================
-CmdUtils.CreateCommand({
+makegtd({
   name: "gtdna",
-  homepage: "http://www.gtd-php.com/Developers/Ubiquity",
-  author: { name: "Andrew Smith"},
-  contributors: ["Andrew Smith"],
-  license: "GPL",
   description: "Adds a next action to gtd-php",
   help: "Adds a next action",
   takes: {title: noun_arb_text},
@@ -216,6 +210,5 @@ CmdUtils.CreateCommand({
       dataType:"xml"
     });
   }
-  //---------------------------------------------------------
 });
 //===========================================================

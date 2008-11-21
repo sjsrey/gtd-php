@@ -25,7 +25,7 @@
     color:white;
     font-size:1.5em;
 }
-#ajaxsave:hover,.ajaxcancel:hover,#ajaxexpand:hover {
+.addlink,#ajaxsave:hover,.ajaxcancel:hover,#ajaxexpand:hover {
     cursor: pointer;
 }
 .ajaxupdated,.ajaxupdated * {
