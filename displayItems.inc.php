@@ -3,7 +3,7 @@
     <?php foreach ($dispArray as $key=>$val)
         echo '<th class="col-',$key
             ,($show[$key])?'':' hidden'
-            ,'">',$val,'</th>';
+            ,'">',$val,"</th>\n";
     ?>
     </tr>
 </thead>

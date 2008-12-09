@@ -920,7 +920,7 @@ function movemultiselect() {
     table=$('table:has(th.col-checkbox)');
     checkbox=table.find('th.col-checkbox');
     container=$('#multicontainer');
-    
+
     if ($.browser.safari) {
       /* Hack needed for safari, because it fails to resize the checkbox column.
        * This hack forces the column to be too wide, temporarily; it can then
@@ -931,7 +931,7 @@ function movemultiselect() {
                 width($('#multiaction').width()+2);
     }
 
-    if (table.filter('th.col-checkbox').hasClass('hidden') || !checkbox.length) {
+    if (!checkbox.length || checkbox.is(":hidden")) {
         container.hide();
     } else {
         container.show();
@@ -1288,7 +1288,8 @@ GTD.ajax.inititem=function() {
     $("table:has(.col-title) thead tr").
         prepend(
             $(document.createElement('th')).
-                addClass('col-ajax nosort')
+                addClass('col-ajax nosort').
+                text(' ')
         );
 
     $("input:submit:not(#filtersubmit,#completereport),input:reset").
@@ -1297,6 +1298,7 @@ GTD.ajax.inititem=function() {
     // hook the #completereport button in itemReport to use an AJAX call for completion
     $("#completereport").click(completeFromReport);
     return true;
+
 };
 // ======================================================================================
 GTD.ajax.multisetup=function() {
