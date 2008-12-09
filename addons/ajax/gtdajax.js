@@ -104,8 +104,8 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
     switch(inputtype) {
         case 'saveCancel':  // creating SAVE/CANCEL/EXPAND butttons
             a1=document.createElement('img');
-            a1.className='add';
             a1.src=GTD.ajax.dir+'save.gif';
+            a1.className='add';
             a1.alt='save changes';
             a1.title='save';
             a1.id='savebutton';
@@ -210,7 +210,9 @@ function updateItem(row,xmldata) {
             if (!GTD.ajax.filter.everything) {
                 hide1=function(that){that.hide();};
                 // test to see if we are going to hide the new occurrence
-                if (!GTD.ajax.filter.tickler && newvalues.children('suppressUntil') ) {
+                if (!GTD.ajax.filter.tickler &&
+		    	parseInt(newvalues.children('unixtickledate').text()) >
+		    	Date.parse(Date()) ) {
                     hide2=function(that){that.hide();};
                 }
             }
@@ -466,13 +468,14 @@ function ItemEditor(row) {
     }
     // --------------------------------------------------------
     function showfullform() {
-        var cancelbtn,savebtn;
+        var cancelbtn, savebtn;
         $('*',row).unbind('keypress');
         fillfullform();
         $(newdiv).
             removeClass('hidden').
-            css('top',window.scrollY+5);
-            
+            css('top', 5 +
+              document.body.scrollTop ? document.body.scrollTop : window.scrollY
+              );
         GTD.initcalendar(newdiv);
         // assign save and cancel functions to buttons
         cancelbtn=document.createElement('span');
@@ -487,10 +490,12 @@ function ItemEditor(row) {
         savebtn.alt='save item';
         savebtn.title='Save changes';
         $(savebtn).click(that.saveFull);
-        $('#errorbox').prepend(cancelbtn);
-        $('#errorbox').prepend(savebtn);
-        $('*',newdiv).keypress(function(e){  // TODO consider splitting out into a central key-handler
-            if (e.keyCode===27) {
+        
+        $('#errorbox').
+            prepend(cancelbtn).
+            prepend(savebtn);
+        $(document).one('keypress',function fullform_keypress(e){  // TODO consider splitting out into a central key-handler
+            if (e.keyCode === 27) {
                 that.cancelFull();
                 return false;
             }

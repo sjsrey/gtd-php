@@ -36,7 +36,7 @@ foreach ($maintable as $row) {
                 break;
             case 'category':
                 if (!empty($row[$key.'Id']))
-                    echo "<a href='editCat.php?field=category&amp;id=",$row[$key.'Id'],"' title='Edit the {$row[$key]} category'>{$row[$key]}</a>";
+                    echo "<a href='listItems.php?categoryId=",$row[$key.'Id'],"' title='Show all in this category'>{$row[$key]}</a>";
                 else
                     echo '&nbsp;';
                 break;
@@ -106,11 +106,11 @@ foreach ($maintable as $row) {
                 if ($row[$key]=='')
                     echo '&nbsp;';
                 else
-                    echo "<a href='editCat.php?field=context&amp;id=",$row[$key.'Id'],"' title='Go to the ",$row[$key]," context report'>{$row[$key]}</a>";
+                    echo "<a href='listItems.php?contextId=",$row[$key.'Id'],"' title='List all items in this spatial context'>{$row[$key]}</a>";
                 break;
             case 'timeframe':
                 if (!empty($row[$key.'Id']))
-                    echo "<a href='editCat.php?field=time-context&amp;id=",$row[$key.'Id'],"' title='Edit the {$row[$key]} time context'>{$row[$key]}</a>";
+                    echo "<a href='reportContext.php#c{$row['contextId']}t{$row['timeframeId']}' title='Go to the context report'>{$row[$key]}</a>";
                 else
                     echo '&nbsp;';
                 break;

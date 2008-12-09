@@ -2,7 +2,7 @@
 /*global GTD,unescape,Calendar,jQuery */
 /* global unescape: because decodeURIcomponent corrupts some characters in AJAX
                     but this will change when we get proper i18n/utf8/mbcs handling in gtd-php
-    
+
    global GTD:      object for holding public functions and public variables
    global Calendar: javascript routine for handling calendar UI, in calendar.js
    ======================================================================================
@@ -41,7 +41,7 @@ function manualcellindex(cell) {
     var index=false;
     $(cell).parents('tr').
         find('th,td').
-        each(function(id){
+        each(function mci_each(id){
             if (this===cell) {
                 index=id;
                 return false;
@@ -248,7 +248,8 @@ function ts_sort_checkbox(a,b) {
  *  saying "nothing to setup".
  */
 if (typeof Calendar!=='undefined') {
-    Calendar.setup = function (params) {
+    Calendar.setup = function Cal_setup(params) {
+      var tmp, i;
     	function param_default(pname, def) { if (typeof params[pname] === "undefined") { params[pname] = def; } }
 
     	param_default("inputField",     null);
@@ -280,8 +281,8 @@ if (typeof Calendar!=='undefined') {
     	param_default("showOthers",     false);
     	param_default("multiple",       null);
 
-    	var tmp = ["inputField", "displayArea", "button"];
-    	for (var i in tmp) {
+    	tmp = ["inputField", "displayArea", "button"];
+    	for (i in tmp) {
     		if (typeof params[tmp[i]] === "string") {
     			params[tmp[i]] = document.getElementById(params[tmp[i]]);
     		}
@@ -292,8 +293,7 @@ if (typeof Calendar!=='undefined') {
     	}
 
     	function onSelect(cal) {
-    		var p = cal.params;
-    		var update = (cal.dateClicked || p.electric);
+    		var p = cal.params, update = (cal.dateClicked || p.electric);
     		if (update && p.inputField) {
     			p.inputField.value = cal.date.print(p.ifFormat);
     			if (typeof p.inputField.onchange === "function") {
@@ -317,18 +317,19 @@ if (typeof Calendar!=='undefined') {
     	}
         //------------------------------------------------------------------------
         function showCal() {
-    		var dateEl = params.inputField || params.displayArea;
-    		var dateFmt = params.inputField ? params.ifFormat : params.daFormat;
-    		var mustCreate = false;
-    		var cal = window.calendar;
+    		var i, d, ds,
+              dateEl = params.inputField || params.displayArea,
+    		  dateFmt = params.inputField ? params.ifFormat : params.daFormat,
+    		  mustCreate = false,
+    		  cal = window.calendar;
     		if (dateEl) {
     			params.date = Date.parseDate(dateEl.value || dateEl.innerHTML, dateFmt);
             }
     		if (!(cal && params.cache)) {
     			window.calendar = cal = new Calendar(params.firstDay,
-    							     params.date,
-    							     params.onSelect || onSelect,
-    							     params.onClose || function(cal) { cal.hide(); });
+    			     params.date,
+    			     params.onSelect || onSelect,
+    			     params.onClose || function cal_hide(cal) { cal.hide(); });
     			cal.showsTime = params.showsTime;
     			cal.time24 = (params.timeFormat === "24");
     			cal.weekNumbers = params.weekNumbers;
@@ -339,9 +340,9 @@ if (typeof Calendar!=='undefined') {
     		}
     		if (params.multiple) {
     			cal.multiple = {};
-    			for (var i = params.multiple.length; --i >= 0;) {
-    				var d = params.multiple[i];
-    				var ds = d.print("%Y%m%d");
+    			for (i = params.multiple.length; --i >= 0;) {
+    				d = params.multiple[i];
+    				ds = d.print("%Y%m%d");
     				cal.multiple[ds] = d;
     			}
     		}
@@ -363,7 +364,7 @@ if (typeof Calendar!=='undefined') {
         }
         //------------------------------------------------------------------------
         /* these events are to show the calendar:
-         * if a button is present, it will be used as the trigger, else 
+         * if a button is present, it will be used as the trigger, else
          * the input field itself will be used
          */
         if (params.button) {
@@ -398,7 +399,7 @@ GTD.checkRecurrence=function (dateElement) {
     return true;
 };
 // ======================================================================================
-GTD.completeToday=function (datefield) {
+GTD.completeToday=function gtd_completetoday(datefield) {
 /*
  * enter today's date into the completion date field
  *
@@ -416,10 +417,10 @@ GTD.completeToday=function (datefield) {
     //	return true;
 };
 // ======================================================================================
-GTD.confirmDelete=function(elem) {
+GTD.confirmDelete=function gtd_confirmedelete(elem) {
 /*
  * confirm that the user wishes to delete the current item in item.php
- * elem: 
+ * elem:
  */
    var myform;
    if (confirm("Delete this item?")) {
@@ -430,22 +431,22 @@ GTD.confirmDelete=function(elem) {
    return false;
 };
 // ======================================================================================
-GTD.cookieGet=function (name,path) {
+GTD.cookieGet=function gtd_cookieget(name,path) {
 /*
  * get a cookie
  * returns: value of the cookie
  *
  * name: name of the cookie
  */
-    if (!document.cookie) {return null;}
-    var i,max,cookies,
+    if (!document.cookie) { return null; }
+    var i, max, cookie, cookies,
         testval=encodeURIComponent(name)+'=',
         namelen=testval.length;
 
     cookies = document.cookie.split(';');
     max=cookies.length;
     for (i=0; i<max; i++) {
-        var cookie = cookies[i].replace(/^ *(.*) *$/,"$1");
+        cookie = cookies[i].replace(/^ *(.*) *$/,"$1");
         // Does this cookie string begin with the name we want?
         if (cookie.substring(0, namelen)===testval) {
             return decodeURIComponent(cookie.substring(namelen));
@@ -454,7 +455,7 @@ GTD.cookieGet=function (name,path) {
     return null;
 };
 //--------------------------------------------------
-GTD.cookieSet=function (name,value,path,maxagedays) {
+GTD.cookieSet=function gtd_cookieset(name,value,path,maxagedays) {
 /*
  * Set a cookie
  *
@@ -481,7 +482,7 @@ GTD.cookieSet=function (name,value,path,maxagedays) {
         '; path='+path;
 };
 // ======================================================================================
-GTD.createparent=function(type) {
+GTD.createparent=function gtd_createparent(type) {
 /*
  * create a parent for the item we are currently creating/editing
  *
@@ -492,9 +493,9 @@ GTD.createparent=function(type) {
         'item.php?nextId='+document.forms[0].itemId.value+'&amp;type='+type;
     document.forms[0].submit();
     return false;
-}
+};
 // ======================================================================================
-GTD.debugInit=function (keyToCatch) {
+GTD.debugInit=function gtd_debuginit(keyToCatch) {
 /*
  * initialise the key-handler, passing through the user-specified key that will toggle display of debug-logs
  *
@@ -504,7 +505,7 @@ GTD.debugInit=function (keyToCatch) {
     $(document).keypress(keyPressHandler);
 };
 // ======================================================================================
-GTD.filtertoggle=function (which) {
+GTD.filtertoggle=function gtd_filtertoggle(which) {
 /*
  * toggle the enabled/disabled status of form elements in the filter form in listItems
  *
@@ -531,7 +532,7 @@ GTD.filtertoggle=function (which) {
     return true;
 };
 // ======================================================================================
-GTD.focusOnForm=function (id) {
+GTD.focusOnForm=function gtd_focusonform(id) {
 /*
  * pass the focus to a specific item on a form
  *
@@ -566,7 +567,7 @@ GTD.focusOnForm=function (id) {
     }
 };
 // ======================================================================================
-GTD.freeze=function (tofreeze) {
+GTD.freeze=function gtd_freeze(tofreeze) {
 /*
  * hide all on-screen elements with a blanket DIV laid over everything
  *
@@ -581,7 +582,7 @@ GTD.freeze=function (tofreeze) {
 	freezediv.style.display=(tofreeze)?"block":"none";
 };
 // ======================================================================================
-GTD.initcalendar=function(container) {
+GTD.initcalendar=function gtd_initcalendar(container) {
 /*
  * initialise the calendars
  *
@@ -603,7 +604,7 @@ GTD.initcalendar=function(container) {
     }
 };
 // ======================================================================================
-GTD.ParentSelector=function(ids,titles,types,onetype) {
+GTD.ParentSelector=function Gtd_parentselector(ids,titles,types,onetype) {
 /*
  * constructor for the dynamic parent-selector in item.php
  *
@@ -640,9 +641,9 @@ GTD.ParentSelector=function(ids,titles,types,onetype) {
         line=this.makeline(this.parentIds[i],this.ptitles[i],type,typename,i,useTypes,onetype);
         box.appendChild(line);
     }
-}; 
+};
 // -------------------------------------------------------------------------
-GTD.ParentSelector.prototype.close=function() {
+GTD.ParentSelector.prototype.close=function gtd_ps_close() {
 /*
  * close the parent-selector
  */
@@ -654,7 +655,7 @@ GTD.ParentSelector.prototype.close=function() {
     this.inSearch=false;
 };
 // -------------------------------------------------------------------------
-GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rownum) {
+GTD.ParentSelector.prototype.gocreateparent=function gtd_ps_gcp(id,title,type,typename,rownum) {
 /*
  * user has requested to create a new item, which will become the parent of the current item
  *
@@ -667,7 +668,7 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
     return GTD.createparent(type);
 };
 // -------------------------------------------------------------------------
-GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) {
+GTD.ParentSelector.prototype.gotparent=function gtd_ps_gp(id,title,type,typename,rownum) {
 /*
  * add the clicked parent to the list of the item's parents
  *
@@ -677,7 +678,7 @@ GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) 
  * typename:
  * rownum:
  */
-    var newrow,anchor,cell,cell1,cell2;
+    var newrow, anchor, cell, cell1, cell2, input;
     if (id==='0') {
         this.gocreateparent(id,title,type,typename,rownum);
         return false;
@@ -692,7 +693,7 @@ GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) 
 
     newrow.id='parentrow'+id;
     anchor.href='#';
-    $(anchor).click(function(){return GTD.removeParent(id);});
+    $(anchor).click(function gtd_click_rp(){return GTD.removeParent(id);});
     anchor.title='remove as parent';
     anchor.className='remove';
     anchor.appendChild(document.createTextNode('X'));
@@ -707,10 +708,15 @@ GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) 
     newrow.appendChild(cell1);
 
     cell2.appendChild(document.createTextNode(typename));
-    var input=document.createElement('input');
-    input.type='hidden';
-    input.name='parentId[]';
-    input.value=id;
+    try {
+      input=document.createElement("<input type='hidden' name='parentId[]' value='"+id+"' />");
+    }
+    catch (err) {
+      input=document.createElement('input');
+      input.type='hidden';
+      input.name='parentId[]';
+      input.value=id;
+    }
     cell2.appendChild(input);
     newrow.appendChild(cell2);
 
@@ -718,7 +724,7 @@ GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rownum) 
     return true;
 };
 // -------------------------------------------------------------------------
-GTD.ParentSelector.prototype.makeline=function(id,title,type,typename,i,useTypes,onetype) {
+GTD.ParentSelector.prototype.makeline=function gtd_ps_ml(id,title,type,typename,i,useTypes,onetype) {
 /*
  * create a line to go into the list of parents, displaying a specific parent
  *
@@ -736,7 +742,7 @@ GTD.ParentSelector.prototype.makeline=function(id,title,type,typename,i,useTypes
         anchor=document.createElement('a'),
         linetext=title;
     anchor.href='#';
-    $(anchor).click(function() {
+    $(anchor).click(function anchor_click() {
         that.gotparent(id,title,type,typename,thisi);
     });
     anchor.appendChild(document.createTextNode('+'));
@@ -748,7 +754,7 @@ GTD.ParentSelector.prototype.makeline=function(id,title,type,typename,i,useTypes
     return line;
 };
 // -------------------------------------------------------------------------
-GTD.ParentSelector.prototype.refinesearch=function(needle) {
+GTD.ParentSelector.prototype.refinesearch=function gtd_ps_rs(needle) {
 /*
  * refine the list of parents displayed, based on a partial string entered by the user
  *
@@ -776,7 +782,7 @@ GTD.ParentSelector.prototype.refinesearch=function(needle) {
     }
 };
 // -------------------------------------------------------------------------
-GTD.ParentSelector.prototype.search=function() {
+GTD.ParentSelector.prototype.search=function gtd_ps_s() {
 /*
  * something to do with setting up the auto-search in the parent box
  *
@@ -787,7 +793,7 @@ GTD.ParentSelector.prototype.search=function() {
     GTD.freeze(true);
     document.getElementById('searcher').style.display='block';
     document.getElementById("searcherneedle").focus();
-    document.onkeypress=function(e) {
+    document.onkeypress=function search_keypress(e) {
         var pressed;
         if (window.event) {pressed=window.event.keyCode;} else {pressed=e.keyCode;}
         if (pressed===27) {
@@ -802,7 +808,7 @@ GTD.ParentSelector.prototype.search=function() {
     parenttable.style.left=0;
 };
 // -------------------------------------------------------------------------
-GTD.removeParent=function (id) {
+GTD.removeParent=function gtd_rp(id) {
 /*
  * remove a parent from the displayed list of parents for this item
  *
@@ -815,67 +821,61 @@ GTD.removeParent=function (id) {
     // end of ParentSelector constructor
     ======================================================================================
 */
-GTD.resortTable=function (lnk) {
+GTD.resortTable=function gtd_rs(lnk) {
 /*
  * user has clicked on a column-heading: sort the table by that column
  *
  * lnk: the element that the user clicked
  */
-    var i,j,max,td,column,table,itm,itmh,firstRow,newRows,allth,ci,sortfn,
-        re=/ sort(up|down)/;
+    var max, td, column, table, itm, itmh, newRows, sortfn, thisbody;
+
+    // Delete any arrows that may be showing
+    $('th',table).removeClass("sortup sortdown");
+
     max=lnk.childNodes.length;
     td = getParent(lnk,'TD') || getParent(lnk,'TH');
     column = manualcellindex(td);
     table = getParent(td,'TABLE');
+    thisbody=table.tBodies[0];
 
     // Work out a type for the column
     if (table.rows.length <= 1) {return;}
-    itm = ts_getInnerText(table.tBodies[0].rows[0].cells[column]);
-    itmh = table.tBodies[0].rows[0].cells[column].innerHTML;
+    itm = ts_getInnerText(thisbody.rows[0].cells[column]);
+    itmh = thisbody.rows[0].cells[column].innerHTML;
     sortfn = ts_sort_caseinsensitive;
     if (itmh.match(/^<input.*(radio|checkbox).*>$/)) {sortfn = ts_sort_checkbox;}
     else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d\d\d$/)) {sortfn = ts_sort_date;}
     else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d$/)) {sortfn = ts_sort_date;}
-    else if (itm.match(/^[£$]/)) {sortfn = ts_sort_currency;}
-    else if (itm.match(/^[\d\.]+$/)) {sortfn = ts_sort_numeric;}
+    //else if (itm.match(/^[£$]/)) {sortfn = ts_sort_currency;}
+    //else if (itm.match(/^[\d\.]+$/)) {sortfn = ts_sort_numeric;}
     sort_column_index = column;
-    firstRow = newRows = [];
-    max=table.rows[0].length;
-    for (i=0;i<max;i++) { firstRow[i] = table.rows[0][i]; }
-    max=table.tBodies[0].rows.length;
-    for (j=0;j<max;j++) { newRows[j] = table.tBodies[0].rows[j]; }
+    newRows = [];
+    $('tbody tr',table).each(function newrows_push(){
+      newRows.push(this);
+    });
 
     newRows.sort(sortfn);
 
+    // add sort marker to this column header
     if (lnk.getAttribute("sortdir") === 'down') {
-        td.className = td.className.replace(re,"") + " sortup";
+        $(td).addClass("sortup");
         newRows.reverse();
         lnk.setAttribute('sortdir','up');
     } else {
-        td.className = td.className.replace(re,"") + " sortdown";
+        $(td).addClass("sortdown");
         lnk.setAttribute('sortdir','down');
     }
 
-    // We appendChild rows that already exist to the tbody, so it moves them rather than creating new ones
-    // don't do sortbottom rows
-    max=newRows.length;
-    for (i=0;i<max;i++) { if (!newRows[i].className || (newRows[i].className && (newRows[i].className.indexOf('sortbottom') === -1))) {table.tBodies[0].appendChild(newRows[i]);}}
-    // do sortbottom rows only
-    for (i=0;i<max;i++) { if (newRows[i].className && (newRows[i].className.indexOf('sortbottom') !== -1)) {table.tBodies[0].appendChild(newRows[i]);}}
+    // We appendChild rows that already exist to the tbody, so it moves them
+    //   rather than creating new ones.  Put sortbottom-rows last
+    
+    $(thisbody).
+      append($(newRows).filter(":not(.sortbottom)")).
+      append($(newRows).filter(".sortbottom"));
 
-    // Delete any other arrows there may be showing
-    allth = document.getElementsByTagName("th");
-    max=allth.length;
-    for (ci=0;ci<max;ci++) {
-        if (allth[ci].className.match(re)) {
-            if (allth[ci] !== td && getParent(allth[ci],"table") === getParent(td,"table")) { // in the same table as us?
-                allth[ci].className = allth[ci].className.replace(re,"");
-            }
-        }
-    }
 };
 // ======================================================================================
-GTD.setTabs=function() {
+GTD.setTabs=function gtd_settabs() {
 /*
  * display the tabs in the preferences screen
  */
@@ -888,7 +888,7 @@ GTD.setTabs=function() {
             wrapInner(document.createElement('li')).
             children('li').
                 appendTo(list).
-                click(function() { // change which tab is displayed
+                click(function tabclicked() { // change which tab is displayed
                     var clickedtab=$(this);
                     if (clickedtab.hasClass('selectedTab')) { return false; }
                     $('ul.tabbar li').
@@ -908,7 +908,7 @@ GTD.setTabs=function() {
     $('#footer').before('<p>Note that Apply will save changes on all tabs; Reset will reset all tabs</p>');
 };
 // ======================================================================================
-GTD.showrecurbox=function (what,where) {
+GTD.showrecurbox=function gtd_showrecurbox(what,where) {
 /*
  * populates and displayes the custom recurrence box on item.php
  *
@@ -951,28 +951,26 @@ GTD.showrecurbox=function (what,where) {
     return false;
 };
 // ======================================================================================
-GTD.tagAdd=function(newtaglink) {
+GTD.tagAdd=function gtd_tagadd(newtaglink) {
 /*
  * in item.php, user has clicked on one of the tag names: add it to the list of tags for this object
  *
  * newtaglink: DOM object of tag being clicked
  */
-    var tagfield,currentTags,newtag,testtags,rawval;
-    tagfield=document.getElementById('tags');
-    rawval=tagfield.value;
-    currentTags=','+rawval.toLowerCase()+',';
-    newtag=newtaglink.text;
-    testtags=currentTags.replace(/\s*,\s*/g,',');
-    if (testtags.search(','+newtag+',')===-1) {
-        if (rawval.search(/,\s*$/)===-1 && rawval.search(/^\s*$/)===-1) {
-            tagfield.value=rawval.value+',';
-        }
-        tagfield.value=tagfield.value+newtag+',';
+    var tagfield = $('#tags'),
+	rawval = tagfield.val(),
+        newtag = newtaglink.text.toLowerCase(),
+        testtags = ("," + rawval.toLowerCase() + ",").replace(/\s*,\s*/g, ",");
+        
+    if (testtags.match(','+newtag+',') === null) {
+        if (rawval.match(/,\s*$/) === null && rawval.match(/^\s*$/) === null)
+            tagfield.val(rawval + ',');
+        tagfield.val(tagfield.val() + newtaglink.text);
     }
     return false;
 };
 // ======================================================================================
-GTD.tagShow=function(anchor) {
+GTD.tagShow=function gtd_tagshow(anchor) {
 /*
  * user is toggling the display of all tags in item.php
  * anchor: the DOM object of the link being clicked
@@ -988,7 +986,7 @@ GTD.tagShow=function(anchor) {
     return false;
 };
 // ======================================================================================
-GTD.toggleHidden=function (parent,link,show) {
+GTD.toggleHidden=function gtd_togglehidden(parent,link,show) {
 /*
  * Reveals contents of a hidden section of an itemReport table,
  *  e.g. tickled items, or all completed items
@@ -1002,7 +1000,7 @@ GTD.toggleHidden=function (parent,link,show) {
     return false;
 };
 // ======================================================================================
-GTD.validate=function (form) {
+GTD.validate=function gtd_validate(form) {
 /*
  * validate entries on a form, when it is submitted
  *
@@ -1013,11 +1011,12 @@ GTD.validate=function (form) {
     /*
      * utility function for validate to check whether a field is empty
      */
+      var tst, isblank;
         switch (field.type) {
         	case "text":
-        		var tst=field.value;
+        		tst = field.value;
     			tst.replace(" ","");
-    		    var isblank=(tst === '');
+    		    isblank = (tst === '');
     		    return isblank;
     		case "checkbox":
     			return !field.checked;
@@ -1030,19 +1029,20 @@ GTD.validate=function (form) {
     /*
      * utility function for validate to check a date is valid
      */
+      var dateRegEx, format, tst;
         if (checkForNull(field)) {return true;}
         // The validity of the format itself should be checked when set in user preferences.  This function assumes that the format passed in is valid.
 
         // Build the regular expression
-        var format = dateFormat;
+        format = dateFormat;
         format = format.replace(/([^mcyd])/,'[$1]');         // Any char that is not m, c, y, or d is a literal
         format = format.replace(/dd/,'[0-3][0-9]');          // First char of a day can be 0-3, second 0-9
         format = format.replace(/mm/,'[0-1][0-9]');          // First char of a month can be 0 or 1, second 0-9
         format = format.replace(/yy/,'[0-9][0-9]');          // Year must be two chars
         format = format.replace(/cc/,'[0-9][0-9]');          // Century must be two chars
 
-        var dateRegEx = new RegExp(format);
-        var tst=field.value;
+        dateRegEx = new RegExp(format);
+        tst=field.value;
         return tst.match(dateRegEx);
     }
     //------------------------------------------------------------------------
@@ -1110,7 +1110,7 @@ GTD.validate=function (form) {
     return formValid;
 };
 // ======================================================================================
-$(document).ready(function() {
+$(document).ready(function gtd_onready() {
     GTD.focusOnForm();
     sortables_init();
     if (typeof GTD.debugKey!=='undefined') {GTD.debugInit(GTD.debugKey);}

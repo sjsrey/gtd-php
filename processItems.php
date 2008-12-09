@@ -660,11 +660,16 @@ function nextPage() { // set up the forwarding to the next page
                     // suppress reporting these values
                     break;
                 //-------------------------------------------------------
+                case 'tickledate':
+                  if (!empty($val) && $val!=='NULL')
+                    echo '<unixtickledate>'
+                        ,strtotime(str_replace("'",'',$val))
+                        ,'</unixtickledate>';
+					 // deliberately flows through
                 case 'dateCompleted':    // deliberately flows through
                 case 'dateCreated':      // deliberately flows through 
                 case 'deadline':         // deliberately flows through
-                case 'oldDateCompleted': // deliberately flows through
-                case 'tickledate':
+                case 'oldDateCompleted': 
                     echo "<$key>"
                         ,($val==='NULL' || empty($val)) ? '' :
                             ('<![CDATA['

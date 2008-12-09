@@ -72,10 +72,34 @@
     /*
         ------------------------------------------------------------------------
     */
+    function cleanTree() {
+      $("#trees").find(".allchildrenhid,.hidbutwith").
+           removeClass("allchildrenhid hidbutwith");
+    }
+
+    /*
+        ------------------------------------------------------------------------
+    */
+    function makeTreeSane() {
+      $("#trees li").
+        filter(":has(li:visible>span:visible)"). // find any items that have visible children,
+          children("span:hidden").               // but would otherwise be hidden
+            addClass("hidbutwith").              // and add a class to ensure they're visible but with greyed title
+          end().
+        end().
+        filter(":visible").                      // then find visible rows
+          children("span:hidden").               // for which the title is still hidden
+            parent().
+              addClass("allchildrenhid");        // and hide the row itself
+    }
+    /*
+        ------------------------------------------------------------------------
+    */
     GTD.tree={
         //------------------------------------------------------------------
         expand:function (box,type) {
             // user wishes to toggle display of all (check)list items
+            cleanTree();
             if (box.checked) {
                 $('.tree'+type).
                     removeClass('treecollapse').
@@ -85,39 +109,29 @@
                     addClass('treecollapse').
                     children('ul').addClass('treehid');
             }
+            makeTreeSane();
             return true;
         },
         //------------------------------------------------------------------
         dofilter:function (sender) {
-            var where=sender.id,
-                what=$(sender).val(),
-                prefix=(where==='categoryselect')?'category':'context',
-                treeitems=$('#trees li'),
-                filter='.'+prefix+what,
-                filterhid=prefix+'hid';
-                
-            if (what==='0') {
-                // user has selected "all" from select box
-                treeitems.children('span').andSelf().removeClass(filterhid);
-            }else{
-                // user has selected one specific category or context
-                
-                // so remove the hiding-class from all items in this category
-                treeitems.filter(filter).children('span').andSelf().
-                    removeClass(filterhid);
-                    
-                // and add the hiding-class to all other items
-                treeitems.not(filter).each(function(){
-                    var that=$(this);
-                    if (that.is('li:has(li)')) {
-                        // if the item has children, just hide the name
-                        that.children('span').addClass(filterhid);
-                    }else{
-                        // else if it has no children, hide the whole row
-                        that.addClass(filterhid);
-                    }
-                });
+            var where = sender.id,
+                what = $(sender).val(),
+                prefix = (where === "categoryselect") ? "category" : "context",
+                tree = $("#trees"),
+                treeitems = tree.find("li"),
+                filter = '.' + prefix + what,
+                filterhid = prefix + "hid";
+
+            cleanTree();
+            tree.find("." + filterhid).removeClass(filterhid);
+            
+            if (what !== "0") { // user has selected one specific category or context
+                // add the hiding-class to items outside this category/context
+              treeitems.not(filter).
+                children("span").
+                  addClass(filterhid);
             }
+            makeTreeSane();
         },
         //------------------------------------------------------------------
         prune:function() {
@@ -126,6 +140,7 @@
                 saveclicked=spanclicked.parent('li');
                 
             dismisspopup();
+            cleanTree();
 
             // count number of items that would be deleted, and highlight block to be deleted
             allDescendants=saveclicked.
@@ -154,12 +169,14 @@
                 $('input[name=referrer]',form).val(nexturl);
                 $('#pruningform').submit();
             }
+            makeTreeSane();
             return false;
         },
         //------------------------------------------------------------------
         show:function (type) {
             // user has changed which part of the hierarchy will be displayed
-            var which='';
+            var which = "";
+            cleanTree();
             switch (type) { // NB each case deliberately flows through into the next, so the "which" variable accumulates
                 case 'a': // display all actions, inbox, waiting-on, references
                     which=which+'.treea,.treei,.treew,.treer,'; // deliberately flows into next case
@@ -178,16 +195,20 @@
                 not(which).addClass('treehid').      // hide items NOT listed in the "which" variable
                 end().
                 filter(which).removeClass('treehid'); // show items that ARE listed in the "which" variable
+
+            makeTreeSane();
             return true;
         },
         //------------------------------------------------------------------
         showdone:function(box) {
+            cleanTree();
             // user is toggling display of completed items
             if (box.checked) {
                 $('span.treedone').parent().removeClass('donehid');
             } else {
                 $('span.treedone').parent().addClass('donehid');
             }
+            makeTreeSane();
         }
         //------------------------------------------------------------------
     };

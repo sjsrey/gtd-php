@@ -353,15 +353,15 @@ if (!empty($pids)) {
 }
 
 if ($item['categoryId']) 
-    echo "<tr><th>Category:</th><td><a href='editCat.php?id={$item['categoryId']}&amp;field=category'>"
+    echo "<tr><th>Category:</th><td><a href='listItems.php?categoryId={$item['categoryId']}&amp;type={$item['type']}'>"
         ,makeclean($item['category']),"</a></td></tr>\n";
 
 if ($item['contextId']) 
-    echo "<tr><th>Space Context:</th><td><a href='editCat.php?id={$item['contextId']}&amp;field=context'>"
+    echo "<tr><th>Space Context:</th><td><a href='listItems.php?contextId={$item['contextId']}&amp;type={$item['type']}'>"
         ,makeclean($item['cname']),"</a></td></tr>\n";
 
 if ($item['timeframeId'])
-    echo "<tr><th>Time Context:</th><td><a href='editCat.php?id={$item['timeframeId']}&amp;field=time-context'>"
+    echo "<tr><th>Time Context:</th><td><a href='listItems.php?timeframeId={$item['timeframeId']}&amp;type={$item['type']}'>"
         ,makeclean($item['timeframe']),"</a></td></tr>\n";
 
 if ($item['deadline']) {

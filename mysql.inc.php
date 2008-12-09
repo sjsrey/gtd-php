@@ -107,16 +107,15 @@ function safeIntoDB($value,$key=NULL) {
    ======================================================================================
 */
 function backupData($prefix) {
-    $sep="-- *******************************\n";
+    $sep="\n-- *******************************\n";
     $tables=array('categories','context','items','itemstatus','lookup','preferences','tagmap','timeitems','version');
-    $data='';
-    $header='';
-    $creators='';
+    $tableStructure=$data=$header=$creators='';
     foreach ($tables as $tab) {
         $table=$prefix.$tab;
         $data .=$sep;
         $header .="TRUNCATE TABLE `$table`;\n";
-		$tableStructure = @mysql_fetch_assoc(rawQuery("SHOW CREATE TABLE $table"));
+	$struc=@mysql_fetch_assoc(rawQuery("SHOW CREATE TABLE $table"));
+	$tableStructure .= $struc['Create Table']."\n";
         $creators .= "DROP TABLE IF EXISTS `{$table}`; \n".$tableStructure['Create Table'].";\n";
         $rows = rawQuery("SELECT * FROM `$table`",false);
         while ($rec = @mysql_fetch_assoc($rows) ) {
@@ -127,8 +126,7 @@ function backupData($prefix) {
             $data .= "INSERT INTO `$table` VALUES ($thisdata);\n";
         }
     }
-    //$data=htmlspecialchars($creators.$sep.$header.$sep.$data,ENT_NOQUOTES);
-    $data=htmlspecialchars($header.$sep.$data,ENT_NOQUOTES,$_SESSION['config']['charset']);
+    $data=htmlspecialchars($tableStructure.$sep.$header.$data,ENT_NOQUOTES,$_SESSION['config']['charset']);
     return $data;
 }
 /*

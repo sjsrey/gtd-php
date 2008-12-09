@@ -2,213 +2,225 @@
     if (!headers_sent()) header('Content-Type: application/javascript; charset=utf-8');
     include_once 'gtdfuncs.inc.php';
 ?>
-/*jslint browser: false, eqeqeq: true, nomen: true, undef: true */
+/*jslint browser: false, eqeqeq: true, undef: true */
 /*global Application,CmdUtils,jQuery,noun_arb_text,displayMessage */
-var gtdcommandlineversion="200811201725",
-    gtdbasepath="<?php echo getAbsolutePath(); ?>",
-    doLog=false,
-    STORAGE={PROJECTS:'gtdphp.ubiquity.projects'};
-//===========================================================
-function gtdSetLastResult(xml) {
-    var newid=jQuery(xml).find("itemId").text();
-    CmdUtils.setLastResult('<a href="'+gtdbasepath+'itemReport.php?itemId='+
-            newid+'">'+jQuery(xml).find("title").text()+'</a>');
-    return newid;
+
+
+var kver = "200812081547",
+    kPath = "<?php echo getAbsolutePath(); ?>",
+    kDoLog = false,
+    kProjectCache = "gtdphp.ubiquity.projects";
+
+
+// --------------------- ubiquity utility to initialise list of projects
+function startup_gtd() {
+  if (kDoLog) { displayMessage(kver + " gtd-ubiquity initialising now"); }
+  // initialize list of projects
+  noun_type_gtdparent.parentList = Application.storage.get(kProjectCache, null);
+  if (noun_type_gtdparent.parentList === null) {
+    noun_type_gtdparent.getParents();
+  }
 }
-//===========================================================
+
+
+// ------------------------------ ubiquity utility to set last query result
+function gtdSetLastResult(aXml) {
+  var newid = jQuery(aXml).find("itemId").text();
+  CmdUtils.setLastResult('<a href="' + kPath + 'itemReport.php?itemId=' +
+            newid + '">' + jQuery(aXml).find("title").text() + '</a>');
+  return newid;
+}
+
+
+// ---------------------------------- AJAX utility for amending database items
+function gtdDoAjax(aData, aSucceed) {
+  var field, template = { output: "xml", fromajax: "true" };
+  for (field in template) { aData[field] = template[field]; }
+  jQuery.ajax({
+    type: 'post',
+    url: kPath + "processItems.php",
+    data: aData,
+    error: function gtd_ajaxerr() { displayMessage("Failed ajax call"); },
+    success: aSucceed,
+    dataType: "xml"
+  });
+}
+
+
+// ------------------------ noun: parent project
 var noun_type_gtdparent = {
   _name: "gtdphp parent project",
-  parentList:null,
-  //---------------------------------------------------------
-  subsuggest: function(text, html) {
-    if (doLog) {displayMessage('in subsuggest searching for parent '+text);}
-    var id,title,teststring,
-        suggestions=[],
-        i=4;
-    if (this.parentList==={}) {
-        suggestions.push(CmdUtils.makeSugg('Still awaiting list of parents'));
-    } else {
-        for (id in noun_type_gtdparent.parentList) {
-          if (text==='') {text='.';}
-          teststring=new RegExp(text,"i");
-          title=noun_type_gtdparent.parentList[id];
-          if (teststring.test(title)) {
-        	suggestions.push(CmdUtils.makeSugg(title,
-                "<a href='"+gtdbasepath+"itemReport.php?itemId="+id+"'>"+title+"</a>",
-                {itemId:id}));
-        	if (!i--) {break;}
-          }
+  parentList: null,
+  //'default': function gtdp_default() { return this.subsuggest('')[0]; },
+  
+  getParents: function gtd_getparents(aOnDone) {
+    var self=this;
+    if (kDoLog) { displayMessage('off to get parents'); }
+    jQuery.getJSON(kPath + "addon.php?addonid=ajax&url=sendJSON.php&type=p",
+      function gtd_json(aParents) {
+        if (kDoLog) {displayMessage('assigning parents');}
+        self.parentList = aParents;
+        Application.storage.set(kProjectCache, aParents);
+	if (aOnDone) { aOnDone(); }
+      });
+  },
+
+  subsuggest: function gtd_subsuggest(aText, aHtml) {
+    if (kDoLog) { displayMessage('in subsuggest searching for parent ' + aText); }
+    var id, title, teststring,
+        suggestions = [],
+        i = 4;
+    if (this.parentList === {}) {
+      suggestions.push(CmdUtils.makeSugg('Still awaiting list of parents'));
+    }
+    else {
+      for (id in noun_type_gtdparent.parentList) {
+        if (aText === '') { aText = "."; }
+        teststring = new RegExp(aText, "i");
+        title = noun_type_gtdparent.parentList[id];
+        if (teststring.test(title)) {
+          suggestions.push(CmdUtils.makeSugg(title,
+             "<a href='" + kPath +
+	     "itemReport.php?itemId=" + id + "'>" + title + "</a>",
+             {itemId: id}));
+          if (!i--) { break; }
         }
+      }
     }
     return suggestions;
   },
-  //---------------------------------------------------------
-  suggest: function( text, html, callback ) {
-    var self=this;
+
+  suggest: function gtd_suggest(aText, aHtml, aCallback) {
+    var self = this;
     if (self.parentList === null) {
-        self.parentList={}; // empty the array first, to ensure we only issue the JSON request once
-        self._callback=callback;
-        if (doLog) {displayMessage('off to get parents in v'+gtdcommandlineversion);}
-        jQuery.getJSON(
-            gtdbasepath+'addon.php?addonid=ajax&url=sendJSON.php&type=p',
-            function(parents) {
-                if (doLog) {displayMessage('assigning parents');}
-                self.parentList=parents;
-                Application.storage.set(STORAGE.PROJECTS,parents);
-                if (doLog) {displayMessage('on callback searching for parent '+text);}
-                var out=self.subsuggest(text, html);
-                if (doLog) {displayMessage('got '+out.length+' results');}
-                for (var sug in out) {self._callback(out[sug]);}
-            });
-        return [];
+      self.parentList = {}; // empty the array first, to ensure we only issue the JSON request once
+      self._callback = aCallback;
+      self.getParents(function gtd_gotparents() {
+        out = self.subsuggest(aText, aHtml);
+        for (sug in out) { self._callback(out[sug]); }
+        //self._callback(out);
+        if (kDoLog) { displayMessage("got " + out.length + " async results"); }
+      });
+      return [];
     }
-    return self.subsuggest(text, html);
+    return self.subsuggest(aText, aHtml);
   }
-  //---------------------------------------------------------
+
 };
-//===========================================================
-// initialize list of projects
-if (doLog) {displayMessage('initialising now v'+gtdcommandlineversion);}
-noun_type_gtdparent.parentList=Application.storage.get(STORAGE.PROJECTS,null);
-noun_type_gtdparent.suggest('','',function dummy(e){});
-//===========================================================
-// command object template
-function makegtd(obj) {
-    jQuery.extend(obj,{
-        homepage: "http://www.gtd-php.com/Developers/Ubiquity",
-        author: { name: "Andrew Smith"},
-        contributors: ["Andrew Smith"],
-        license: "GPL",
-        icon:gtdbasepath+'favicon.ico'
-        });
-    CmdUtils.CreateCommand(obj);
+
+
+// --------------------- command object template
+function makegtd(aObj) {
+  var field, template = {homepage: "http://www.gtd-php.com/Developers/Ubiquity",
+    author: {name: "Andrew Smith"},
+    license: "GPL",
+    icon: kPath + 'favicon.ico'};
+  for (field in template) { aObj[field] = template[field]; }
+  CmdUtils.CreateCommand(aObj);
 }
-//===========================================================
+
+
+// ------ create an inbox item
 makegtd({
   name: "gtdin",
   description: "Adds a GTD inbox item",
   help: "Provide item title for a new GTD inbox item",
-  takes: {"item title": noun_arb_text},
-  //---------------------------------------------------------
-  preview: function( pblock,title ) {
-    pblock.innerHTML = 'Creates inbox item with title: "<i>'+title.text+'"</i>"';
+  takes: { "item title": noun_arb_text },
+
+  preview: function gtdin_preview(aPblock, aTitle) {
+    aPblock.innerHTML = 'Creates inbox item with title: "<i>' + aTitle.text + '"</i>"';
   },
-  //---------------------------------------------------------
-  execute: function(title) {
-    //var itemurl=", <a href='"+gtdbasepath+"item.php?itemId=";
-    var postdata={
-      action:"create",type:"i",output:"xml",
-      fromajax:"true",title:title.text};
-    jQuery.ajax({
-      type:'post',
-      url:gtdbasepath+"processItems.php",
-      data:postdata,
-      error: function() {displayMessage("Failed ajax call");},
-      success:function(xml,text){
-        displayMessage("Inbox item created with id: "+
-            gtdSetLastResult(xml)+", title: "+title.text);
-      },
-      dataType:"xml"
-    });
+
+  execute: function gtdin_exec(aTitle) {
+    //var itemurl=", <a href='"+kPath+"item.php?itemId=";
+    gtdDoAjax(
+      { action: "create", type: "i", title: aTitle.text },
+      function gtdin_exec_ajax(aXml,aText){
+        displayMessage("Inbox item created with id: " +
+            gtdSetLastResult(aXml) + ", title: " + aTitle.text);
+      } );
   }
 });
-//===========================================================
+
+
+// ------ create a reference
 makegtd({
   name: "gtdref",
   description: "Adds a reference to the current URL",
-  help: "Adds a gtd-php reference to the current URL, or,"+
+  help: "Adds a gtd-php reference to the current URL, or," +
         "if a link is selected, to the destination of that link",
 
-  takes: {"parent": noun_type_gtdparent},
-  //---------------------------------------------------------
-  preview: function( pblock,parent) {
+  takes: { "parent": noun_type_gtdparent },
+
+  preview: function gtdref_preview(aPblock, aParent) {
     try {
-        var document=Application.activeWindow.activeTab.document;
+      Application.activeWindow.activeTab.document;
     } catch (err) {
-        pblock.innerHTML="Unable to get location or title for current page, so cannot create a GTD reference for it";
-        return false;
+      aPblock.innerHTML = "Unable to get location or title for current page, so cannot create a GTD reference for it";
+      return false;
     }
-    pblock.innerHTML= 'Creates a reference to this page as a child of: "'+
-        parent.html+'"';
+    aPblock.innerHTML = 'Creates a reference to this page as a child of: "' +
+      aParent.html + '"';
   },
-  //---------------------------------------------------------
-  execute: function(parent) {
+
+  execute: function gtdref_exec(aParent) {
     try {
-        var document=Application.activeWindow.activeTab.document,
-            currenturl=document.location.href,
-            title=document.title;
+      var document = Application.activeWindow.activeTab.document,
+          currenturl = document.location.href,
+          title = document.title;
     } catch (err) {
         displayMessage("Unable to get this page's title or URL, so failed to create a reference to it");
         return false;
     }
-    var postdata={
-      action:"create",type:"r",output:"xml",fromajax:"true",
-      parentId:parent.data.itemId,
-      title:title,
-      description:"webpage: <a href='"+currenturl+"'>"+title+"</a>"
-    };
+    gtdDoAjax(
+      {action: "create", type: "r", parentId: aParent.data.itemId, title: title,
+        description: "webpage: <a href='" + currenturl+"'>" + title + "</a>"},
+      function gtdref_exec_ajax(aXml,aText){
+        displayMessage("Reference created with id: " + gtdSetLastResult(aXml));
+      } );
+  }
+});
 
-    jQuery.ajax({
-      type:'post',
-      url:gtdbasepath+"processItems.php",
-      data:postdata,
-      error: function() {displayMessage("Failed ajax call");},
-      success:function(xml,text){
-        displayMessage("Reference created with id: "+
-            gtdSetLastResult(xml));
-      },
-      dataType:"xml"
-    });
-  }
-});
-//===========================================================
-makegtd({
-  name: "gtdclear",
-  description: "Clears the cache of GTD projects, and regenerates them from the live database",
-  //---------------------------------------------------------
-  preview: function(pblock) {
-    jQuery(pblock).text(this.description);
-  },
-  //---------------------------------------------------------
-  execute: function() {
-    Application.storage.set(STORAGE.PROJECTS,null);
-    noun_type_gtdparent.parentList=null;
-    displayMessage("GTD parents cache cleared: regenerating now");
-    noun_type_gtdparent.suggest('','',function(){});
-  }
-  //---------------------------------------------------------
-});
-//===========================================================
+
+// ------ create a next-action
 makegtd({
   name: "gtdna",
   description: "Adds a next action to gtd-php",
   help: "Adds a next action",
-  takes: {title: noun_arb_text},
-  modifiers: {parent:noun_type_gtdparent},
-  //---------------------------------------------------------
-  preview: function( pblock,title,mods) {
-    pblock.innerHTML = 'Creates a next action with title: "'+
-      title.text+'" as a child of the item: '+mods.parent.html;
-  },
-  //---------------------------------------------------------
-  execute: function(title,mods) {
-    var postdata={
-      action:"create",type:"a",output:"xml",fromajax:"true",nextaction:'y',
-      parentId:mods.parent.data.itemId,
-      title:title.text
-    };
+  takes: { title: noun_arb_text },
+  modifiers: { parent: noun_type_gtdparent },
 
-    jQuery.ajax({
-      type:'post',
-      url:gtdbasepath+"processItems.php",
-      data:postdata,
-      error: function() {displayMessage("Failed ajax call");},
-      success:function(xml,text){
-        displayMessage("Next action created with id: "+
-            gtdSetLastResult(xml));
-      },
-      dataType:"xml"
-    });
+  preview: function gtdna_preview(aPblock, aTitle, aMods) {
+    aPblock.innerHTML = 'Creates a next action with title: "' +
+      aTitle.text + '" as a child of the item: ' + aMods.parent.html;
+  },
+
+  execute: function gtdna_exec(aTitle, aMods) {
+    gtdDoAjax(
+      { action: "create",type: "a", nextaction: 'y',
+        parentId: aMods.parent.data.itemId, title: aTitle.text },
+      function gtdna_exec_ajax(aXml, aText){
+        displayMessage("Next action created with id: " +
+	  gtdSetLastResult(aXml));
+      });
   }
 });
-//===========================================================
+
+
+// ------ clear and refresh the list of projects
+makegtd({
+  name: "gtdclear",
+  description: "Clears the cache of GTD projects, and regenerates them from the live database",
+
+  preview: function gtdclear_preview(aPblock) {
+    aPblock.innerHtml = this.description;
+  },
+
+  execute: function gtdclear_exec() {
+    Application.storage.set(kProjectCache, null);
+    noun_type_gtdparent.parentList = null;
+    displayMessage("GTD parents cache cleared: regenerating now");
+    noun_type_gtdparent.getParents();
+  }
+
+});

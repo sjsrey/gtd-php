@@ -61,7 +61,8 @@ ul.clickabletree>:first-child { /* first item in a tree */
     display:inline-block;
     margin: 0 0.5em;
 }
-#trees .donehid,#trees .treehid,#trees .contexthid,#trees .categoryhid {
+#trees .donehid,#trees .treehid,#trees .contexthid,#trees .categoryhid,
+ #trees .allchildrenhid {
     display:none;/* do not change this: used to toggle display of items */
 }
 #treepopup {
@@ -81,15 +82,19 @@ ul.clickabletree>:first-child { /* first item in a tree */
 }
 
 li.treeL { 
-	background-color:#CCF; 
- 	} 
+    background-color:#CCF;
+}
 li.treeC { 
-	background-color:#CFC; 
-	} 
+    background-color:#CFC;
+} 
 li.treeL>span,li.treeC>span { 
-	color:black; 
-	font-weight: bold; 
-	} 
+    color:black;
+    font-weight: bold;
+} 
 li.treeT>span { 
-	color:#00F; 
-	} 
+    color:#00F;
+}
+li>span.hidbutwith {
+  display: inline !important;
+  color:#bbb;
+}
