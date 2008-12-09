@@ -108,6 +108,15 @@ foreach ($maintable as $row) {
                 else
                     echo "<a href='listItems.php?contextId=",$row[$key.'Id'],"' title='List all items in this spatial context'>{$row[$key]}</a>";
                 break;
+            case 'tags':
+                if (empty($row[$key])) break;
+                $tags=explode(',',$row[$key]);
+                $sep='';
+                foreach ($tags as $tag) {
+                  echo "$sep<a href='listItems.php?tags=$tag'>$tag</a>";
+                  $sep=', ';
+                }
+                break;
             case 'timeframe':
                 if (!empty($row[$key.'Id']))
                     echo "<a href='reportContext.php#c{$row['contextId']}t{$row['timeframeId']}' title='Go to the context report'>{$row[$key]}</a>";

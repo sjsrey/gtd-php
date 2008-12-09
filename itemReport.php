@@ -388,7 +388,11 @@ if (!empty($item['tickledate']))
 if (!empty($item['tags'])) {
 	echo "<tr><th>Tags:</th><td>";
     $taglist=explode(',',$item['tags']);
-    foreach ($taglist as $tag) echo "<a href='listItems.php?type=*&amp;tags=$tag'>$tag</a>, ";
+    $sep='';
+    foreach ($taglist as $tag) {
+      echo "$sep<a href='listItems.php?tags=$tag'>$tag</a>";
+      $sep=', ';
+    }
     echo "</td></tr>\n";
 }
 
