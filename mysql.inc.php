@@ -109,24 +109,27 @@ function safeIntoDB($value,$key=NULL) {
 function backupData($prefix) {
     $sep="\n-- *******************************\n";
     $tables=array('categories','context','items','itemstatus','lookup','preferences','tagmap','timeitems','version');
-    $tableStructure=$data=$header=$creators='';
+    $dropper=$data=$creators='';
     foreach ($tables as $tab) {
         $table=$prefix.$tab;
         $data .=$sep;
-        $header .="TRUNCATE TABLE `$table`;\n";
-	$struc=@mysql_fetch_assoc(rawQuery("SHOW CREATE TABLE $table"));
-	$tableStructure .= $struc['Create Table']."\n";
-        $creators .= "DROP TABLE IF EXISTS `{$table}`; \n".$tableStructure['Create Table'].";\n";
+        $struc=@mysql_fetch_assoc(rawQuery("SHOW CREATE TABLE $table"));
+        $creators .= $struc['Create Table'].'; '.$sep;
+        $dropper .= "DROP TABLE IF EXISTS `{$table}`; \n";
         $rows = rawQuery("SELECT * FROM `$table`",false);
         while ($rec = @mysql_fetch_assoc($rows) ) {
-        	$thisdata='';
-        	foreach ($rec as $key => $value)
-        		$thisdata .= ( ($value===NULL) ? 'NULL' : ("'".safeIntoDB($value)."'") ) . ',';
+            $thisdata='';
+            foreach ($rec as $key => $value)
+                $thisdata .= ( ($value===NULL)
+                             ? 'NULL'
+                             : ("'".safeIntoDB($value)."'") ) . ',';
         	$thisdata = substr($thisdata,0,-1);
-            $data .= "INSERT INTO `$table` VALUES ($thisdata);\n";
+          $data .= "INSERT INTO `$table` VALUES ($thisdata);\n";
         }
     }
-    $data=htmlspecialchars($tableStructure.$sep.$header.$data,ENT_NOQUOTES,$_SESSION['config']['charset']);
+    $data=htmlspecialchars($dropper.$sep.$creators.$data,
+                           ENT_NOQUOTES,
+                           $_SESSION['config']['charset']);
     return $data;
 }
 /*

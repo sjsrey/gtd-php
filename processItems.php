@@ -532,7 +532,20 @@ function makeComplete() { // mark an action as completed
 /* ===========================================================================================
 	general utility functions that don't modify the database
    ========================================================= */
+function buildCreateChildURL($URL) {
+    global $values;
+    foreach ( array(
+      'categoryId'=>'categoryId','contextId'=>'contextId',
+      'timeframeId'=>'timeframeId',
+      'suppress'=>'suppress','deadline'=>'deadline',
+      'isSomeday'=>'isSomeday','tickledate'=>'tickledate'
+      ) as $key=>$cat )
+          if (!empty($values[$key]) && $values[$key]!='NULL')
+            $URL.="&amp;$cat=".str_replace("'","",$values[$key]);
 
+    return $URL;
+}
+// ===================================================================
 function nextPage() { // set up the forwarding to the next page
 	global $values,$updateGlobals,$action;
 	$t = (isset($values['oldtype']))?$values['oldtype']:((isset($values['type']))?$values['type']:null);
@@ -557,8 +570,9 @@ function nextPage() { // set up the forwarding to the next page
     }
     if ($action=='delete' && $tst=='item') $tst='list';
 
-	switch ($tst) {
-		case "another" :
+    switch ($tst) {
+    
+        case "another" :
             $nextURL="item.php?type=$t";
             if (!empty($updateGlobals['parents'])) {
                 $parentlist= (is_array($updateGlobals['parents']))
@@ -566,26 +580,23 @@ function nextPage() { // set up the forwarding to the next page
                             :$updateGlobals['parents'];
                 if ($parentlist!='') $nextURL.="&amp;parentId=$parentlist";
             }
-            foreach ( array(
-              'categoryId'=>'categoryId','contextId'=>'contextId',
-              'timeframeId'=>'timeframeId',
-              'suppress'=>'suppress','deadline'=>'deadline',
-              'isSomeday'=>'isSomeday','tickledate'=>'tickledate'
-              ) as $key=>$cat )
-                  if (!empty($values[$key]) && $values[$key]!='NULL') $nextURL.="&amp;$cat=".str_replace("'","",$values[$key]);
-            if (!empty($values['nextaction']) && $values['nextaction']==='y') $nextURL.="&amp;nextonly=true";
+            $nextURL=buildCreateChildURL($nextURL);
+            if (!empty($values['nextaction']) && $values['nextaction']==='y')
+              $nextURL.="&amp;nextonly=true";
             break;
-		case 'child'   :
+            
+        case 'child'   :
             $child=getChildType($values['type']);
             $nextURL="item.php?parentId=$id&amp;type={$child[0]}";
             if ($child[0]==='a') $nextURL.='&amp;nextonly=true';
-            foreach (array('categoryId','contextId','timeframeId') as $field)
-                if (!empty($values[$field])) $nextURL.="&amp;$field=".$values[$field];
+            $nextURL=buildCreateChildURL($nextURL);
             break;
+            
         case "item"    :
             $nextURL="itemReport.php?itemId=$id";
             break;
-		case "list"	   :
+            
+        case "list"	   :
             $nextURL="listItems.php?type=$t";
             if (!empty($values['isSomeday']) && $values['isSomeday']==='y') {
                 $nextURL.='&someday=true';
@@ -593,16 +604,19 @@ function nextPage() { // set up the forwarding to the next page
                 $nextURL.='&tickler=true';
             }
             break;
-		case "parent"  :
+            
+        case "parent"  :
             $nextURL=(count($updateGlobals['parents']))
                         ?('itemReport.php?itemId='.$updateGlobals['parents'][0])
                         :'orphans.php';
             break;
-		case "referrer":
+            
+        case "referrer":
             $nextURL=(empty($updateGlobals['referrer']) )
                         ? (empty($_SESSION["lastfilter$t"])?'':$_SESSION["lastfilter$t"])
                         : $updateGlobals['referrer'];
             break;
+            
         default        :
             $nextURL=$tst;
             break;

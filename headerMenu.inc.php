@@ -28,7 +28,7 @@ $menu[] = array("link"=>"item.php?type=m", 'title'=>"Define a new {$alltypes['m'
 $menu[] = array("link"=>'','label'=>'Process');
 //-------------------------------------------
 $menu[] = array("link"=>"listItems.php?type=i", 'title'=>"Process inbox", 'label' => "Inbox");
-$menu[] = array("link"=>"listItems.php?type=a&amp;nextonly=true", 'title'=>"Next actions", 'label' => "Next Actions");
+$menu[] = array("link"=>"listItems.php?type=a&amp;nextonly=true", 'title'=>"Process Next actions", 'label' => "Next Actions");
 $menu[] = array("link"=>"listItems.php?type=a", 'title'=>"Process actions", 'label' => "Actions");
 $menu[] = array("link"=>"listItems.php?type=w", 'title'=>"Process waiting-ons", 'label' => "Waiting On");
 $menu[] = array("link"=>"listItems.php?type=r", 'title'=>"Process references", 'label' => "References");

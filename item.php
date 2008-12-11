@@ -473,12 +473,16 @@ if ($sep!=='<p>') echo "</p>\n";
                     <br />
                     <span id='taglist'>
                         <?php
+                        $sep='';
+                        if ($_SESSION['useLiveEnhancements']) {
+                          $pre="<a class='add' href='#' onclick='return GTD.tagAdd(this)'>";
+                          $post="</a>\n";
+                        } else {
+                          $pre=$post="";
+                        }
                         foreach ($taglist as $tag) {
-                            echo "<a class='add' href='#'"
-                                ,($_SESSION['useLiveEnhancements']) ?
-                                    " onclick='return GTD.tagAdd(this)'"
-                                    : ''
-                                ,">$tag</a>, \n";
+                            echo "$sep$pre$tag$post";
+                            $sep=', ';
                         }
                         ?>
                     </span>
