@@ -1,3 +1,9 @@
+.inactive {
+    color: #DDD !important;
+}
+.invisible {
+    visibility: hidden;
+}
 ul>li>span.treedone { /* completed items */
     text-decoration: line-through;
     color:grey;
@@ -15,14 +21,17 @@ li.treeexpand>span { /* show the pointer cursor for items that can be expanded/c
 #trees li { /* items with no children - aka leaf nodes */
     list-style: circle inside;
 }
-li.treea>span{ /* action titles */
+li.treea>span { /* next-action titles */
+    color:#c80; /* to match nextactionlink in themes/default/style.css */
+}
+li.treea>span.treenotNA { /* non-next-action action titles */
     color:#003399;
 }
 li.treep>span {  /* project titles */
     color:#3399cc;
 }
 li.treeg>span{  /* goal titles */
-    color:#f20000;
+    color:#0000f2;
 }
 li.treeo>span{  /* role titles */
     color:#9c0000;
@@ -62,7 +71,7 @@ ul.clickabletree>:first-child { /* first item in a tree */
     margin: 0 0.5em;
 }
 #trees .donehid,#trees .treehid,#trees .contexthid,#trees .categoryhid,
- #trees .allchildrenhid {
+ #trees .allchildrenhid, #trees .nexthid, #trees .somedayhid {
     display:none;/* do not change this: used to toggle display of items */
 }
 #treepopup {
