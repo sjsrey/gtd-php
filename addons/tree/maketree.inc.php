@@ -14,13 +14,13 @@ TODO - if root node is completed, show completed items by default
 */
 //------------------------------------------------------------------------------
 function show1($item) {  // recursive function to list an item, and to kick off listing of its children
-    global $items,$map,$baditems,$haveshown,$addon;
+    global $items,$map,$baditems,$haveshown,$addon,$showSomedays;
     $values=$items[$item];
     if ($values['dateCompleted']) {
         $liclass=' donehid';
         $spanclass=" class='treedone'";
     } else if ($values['isSomeday']==='y') {
-        $liclass=' somedayhid';
+        $liclass= ($showSomedays) ? '' : ' somedayhid';
         $spanclass=" class='someday'";
     } else {
         $liclass='';
@@ -85,7 +85,7 @@ $typenames=getTypes();
 
 
 if ($showingall) {
-
+    $showSomedays=false;
     // test to see if we are only displaying a limited range of item types
     $from=(empty($_GET['showfrom'])) ? false : array_search($_GET['showfrom'],$mainTypes);
     $to = (empty($_GET['showto']))   ? false : array_search($_GET['showto']  ,$mainTypes);
@@ -202,9 +202,6 @@ if (!$suppressListing) {
         $items[$line['itemId']]=$line; // store the item info in an associative array, using the itemId as the key
         $gottypes[$line['type']]=true; //record which item types are in use - we will use this to determine which radio buttons and checkboxes to show
     }
-    if (!$showingall) {
-        // TODO scan maintypes to set $from and $to
-    }
 
 }
 $title='Tree hierarchy';
@@ -219,6 +216,7 @@ foreach ($mainTypes as $type) {
     if (!$suppressListing && $gottypes[$type])
         $toLiveType.=makeRadio('LiveTo',$type,$type===$mainTypes[$to]);
 }
+$showSomedays=!$showingall && $items[$idlist[0]]['isSomeday']==='y';
 
 /* ---------------------------------------------------------------------------
     finished processing - now produce the HTML
@@ -258,10 +256,10 @@ include_once 'header.inc.php';
 </div>
 
 <div class='formbuttons'>
+<input type='submit' name='filter' value='Retrieve this tree' />
 <?php if (!$suppressListing) { ?>
 <a href='#' onclick='return GTD.tree.toggleOptions(false);'>Cancel and return to live options</a>
 <?php } ?>
-<input type='submit' name='filter' value='Retrieve this tree' />
 </div>
 
 </div>
@@ -296,7 +294,8 @@ include_once 'header.inc.php';
 <?php
 if ($gottypes['p']) { ?>
 <label class='left' for='showsomeday'>Someday</label>
-<input type='checkbox' id='showsomeday' onclick='return GTD.tree.showSomeday(this);' />
+<input type='checkbox' id='showsomeday' onclick='return GTD.tree.showSomeday(this);'<?php
+  if ($showSomedays) echo " checked='checked' "; ?>/>
 <?php }
 
 foreach (array('L','C') as $type) if ($gottypes[$type])

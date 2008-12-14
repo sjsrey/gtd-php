@@ -132,9 +132,17 @@ if ($showInstallations || $showCommands) { ?>
 }
 if (!empty($repair)) echo $repair;
 if (!empty($backup)) {
+  /* buffer the entire backup, so that we never just output part of it,
+   * because it could be disastrous if the user were to rely on a partial
+   * backup, given that the backup instructions now start with commands to
+   * delete the existing tables
+   */
+    @ob_start(); 
     ?><h2>Backup of installation with prefix '<?php echo $prefix; ?>'</h2>
     <textarea cols="120" rows="10"><?php echo $backup; ?></textarea>
-<?php } ?>
+<?php
+    @ob_end_flush();
+} ?>
 <h2>&nbsp;</h2>
 <p>Note that because this report counts all items (of all types) without parents
  regardless of whether they'd normally appear in the orphans report, the
