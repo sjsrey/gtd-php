@@ -22,4 +22,5 @@ $events[_GTD_ON_MENU]['*']=array(
 			)
 	);
 
+//COPY THIS FILE TO setup.inc.php and make changes there to activate your personal portal
 
