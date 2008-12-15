@@ -390,11 +390,12 @@ if ($maintable) {
             $nonext=($row['type']=='p' && !$row['numNA']);
         }
         if (isset($row['nextaction']) && $row['nextaction']==='y') {
-            array_push($wasNAonEntry,$row['itemId']);
-        } else $row['nextaction']=false;
+            array_push($wasNAonEntry,$row['itemId']); // TOFIX need to do something similar with completed items
+            $row['NA'] =true;
+        } else $row['NA']=false;
         
         $row['class'] = ($nonext || $nochildren)?'noNextAction':'';
-        $row['NA'] =$row['nextaction']==='y';
+        $row['nextaction']==='y';
 
         if ($row['parentId']=='') {
             $row['parent.class']='noparent';
@@ -420,6 +421,10 @@ if ($maintable) {
         $row['checkbox.title']='Complete '.$cleantitle;
         $row['checkboxname']= 'isMarked[]';
         $row['checkboxvalue']=$row['itemId'];
+        
+        if (!empty($row['dateCompleted']))
+            $row['NAdisabled']=$row['checkboxchecked']=$row['checkboxdisabled']=true;
+            
 
         $row[$descriptionField] = $row['description'];
         $row[$outcomeField] = $row['desiredOutcome'];

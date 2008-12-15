@@ -5,15 +5,18 @@ if (!window.GTD.ajaxfuncs) {(function($) { // // wrap the lot in an anonymous fu
 // ======================================================================================
 GTD.ajaxfuncs=true; // simple boolean flag to show that this javascript file has been run
 // ======================================================================================
-var editor=[],onajax=false,hiddencontexts=[],NAclicked;
+var NAclicked, colselectorclose,
+    onajax = false,
+    hiddencontexts = [],
+    editor = [];
 // ======================================================================================
 $.fn.animateShow=function(callback) {
 /*
  * this function does the animation for items which have successfully been updated via AJAX
  * It works by extending jQuery, so that we can execute the function on any jQuery object
  */
-    var that=this;
-    var disp=(!$.browser.msie && this.get(0).tagName.toLowerCase()==='tr')?'table-row':'block';
+    var that=this,
+        disp=(!$.browser.msie && this.get(0).tagName.toLowerCase()==='tr')?'table-row':'block';
     this.css({opacity:0,display:disp}).
         removeClass('togglehidden hidden').
         addClass('ajaxupdated').
@@ -65,7 +68,10 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
  * resetfunc: function to be executed if the user cancels / resets rather than saving
  * expandfunc: function to be executed if the user requests a form to edit the entire item
  */
-    var a1, a2,a3,that=this,jsource=$(source),width,height,old;
+    var a1, a2, a3, width, height, old, txt,
+        jsource = $(source),
+        that = this;
+        
     width=source.clientWidth;
     height=source.clientHeight;
     old=jsource.clone(true);    // keep a backup of the source object as it was when we create the editing field
@@ -166,7 +172,7 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
             this.field.rows=Math.round(1.001+(height-that.baseHeight)/that.lineHeight+($.browser.mozilla?0:1));
             if (this.field.rows<2) {this.field.rows=2;}
             
-            var txt=old.html();
+            txt=old.html();
             $(this.field).text(txt.replace(/<br *\/*>/gi,''));//dummy closure for PSPad: */
             break;
             //--------------------------------------------------
@@ -180,23 +186,29 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
 Live_field.prototype.em=-1;
 Live_field.prototype.baseWidth=-1;
 // ======================================================================================
-function updateItem(row,xmldata) {
+function updateItem(row, xmldata) {
 /* this function is called when we return from an AJAX call successfully.
  * Now we update the display of the edited item.
  *
  * row: the DOM object of the row being edited
  * xmldata: an XML object containing the returned AJAX data
  */
-    var i,max,oldId,newId,done,fields,newval,newvalues,donedate,xmlfields,
-        rowclasses,selects,hide1=null,hide2=null;
     row=$(row);
-    oldId=row.find('input[name=id]').val();
-    newvalues=$('gtdphp values',xmldata);
-    newId=newvalues.children('newitemId').text();
-    donedate=newvalues.children('dateCompleted').text();
-    done= (donedate !== "NULL" && donedate !== "");
+    var i, max, fields, newval, xmlfields, rowclasses, selects, counterElem,
+        oldId = row.find("input[name=id]").val(),
+        newvalues = $("gtdphp values", xmldata),
+        newId = newvalues.children("newitemId").text(),
+        donedate = newvalues.children("dateCompleted").text(),
+        done = (donedate !== "NULL" && donedate !== ""),
+        hide1 = null,
+        hide2 = null,
+        incrementCounter = 0;
+        
     if (newId==='' || newId===oldId) {
-        if (done && !GTD.ajax.filter.everything) {hide2=function(that){that.hide();};}
+        if (done && !GTD.ajax.filter.everything) {
+          hide2 = function hideCompletedRowNoRecur(that){ that.hide(); };
+          incrementCounter--; // one row is being removed
+        }
     } else {
         // got a new ID, either from a recurred item or a newly created one
         if (oldId==='0') {
@@ -208,12 +220,14 @@ function updateItem(row,xmldata) {
             
             // test to see if we are going to hide the completed occurrence
             if (!GTD.ajax.filter.everything) {
-                hide1=function(that){that.hide();};
+                hide1 = function(that){that.hide();};
+                incrementCounter--; // one row is being removed
                 // test to see if we are going to hide the new occurrence
                 if (!GTD.ajax.filter.tickler &&
-		    	parseInt(newvalues.children('unixtickledate').text()) >
-		    	Date.parse(Date()) ) {
-                    hide2=function(that){that.hide();};
+                    parseInt(newvalues.children('unixtickledate').text()) >
+		    	             Date.parse(Date())/1000 ) {
+		    	        incrementCounter--; // one row is being removed
+                  hide2 = function(that){that.hide();};
                 }
             }
 
@@ -234,6 +248,8 @@ function updateItem(row,xmldata) {
                     hide().
                     end().
                 animateShow(hide1);
+                
+            incrementCounter++; // one row is being added
         }
         
         // update some fields to reflect the new ID
@@ -261,8 +277,9 @@ function updateItem(row,xmldata) {
             row.find('.col-'+fields[i]).text(newval.text());
         }
     }
-    if ((newval=newvalues.children('tagname')).length) {
-        row.find('.col-tags').text(newval.text());
+    newval = newvalues.children('tagname');
+    if (newval.length) {
+      row.find('.col-tags').text(newval.text());
     }
     
     xmlfields=['contextid','categoryid','timeframeid'];
@@ -275,7 +292,8 @@ function updateItem(row,xmldata) {
             );
         }
     }
-    // if it's not a checklist, and item is completed, disable the checkboxes, to prevent further AJAXing of this item which might create a clash
+    // if it's not a checklist, and item is completed, disable the checkboxes,
+    // to prevent further AJAXing of this item which might create a clash
     if (done && $('input[name=ptype]').val()!=='C') {
         row.find(':checkbox').
             unbind().
@@ -283,6 +301,22 @@ function updateItem(row,xmldata) {
     }
     row.removeClass('inajax onajaxcall').
         animateShow(hide2);
+        
+    if (incrementCounter) { // number of visible rows has changed, so modify the table heading
+      counterElem = $("#ajaxcountincrement");
+      if (counterElem.length) {
+        incrementCounter += parseInt(counterElem.text());
+      }
+      else {
+        counterElem=$( document.createElement('span') ).
+                    appendTo($("#pagetitle")).
+                    attr({ id: "ajaxcountincrement" }).
+                    text(".");
+      }
+      incrementCounter = (incrementCounter > 0) ? " +" + incrementCounter.toString() :
+                        " " + incrementCounter.toString();
+      counterElem.text(incrementCounter);
+    }
 }
 // ======================================================================================
 function doAJAXupdate(thisnode,overlay) {
@@ -474,8 +508,8 @@ function ItemEditor(row) {
         $(newdiv).
             removeClass('hidden').
             css('top', 5 +
-              document.body.scrollTop ? document.body.scrollTop : window.scrollY
-              );
+              document.body.scrollTop ? document.body.scrollTop :
+                                        window.scrollY );
         GTD.initcalendar(newdiv);
         // assign save and cancel functions to buttons
         cancelbtn=document.createElement('span');
@@ -655,7 +689,7 @@ function toggleContext(e) {
  *
  * e: the jQuery event object
  */
-    var max,
+    var max, i,
         cookieval='',
         context=e.data.context,
         cookiesep='',
@@ -670,7 +704,7 @@ function toggleContext(e) {
         hiddencontexts[hiddencontexts.length] = context;
     }
     max=hiddencontexts.length;
-    for (var i=0; i<max; i++) {
+    for (i = 0; i < max; i++) {
         if (hiddencontexts[i]) {
             cookieval=cookieval+cookiesep+hiddencontexts[i];
             cookiesep='/';
@@ -970,7 +1004,6 @@ function multichange() {
     ======================================================================================
     routines for the user management of the display and sorting columns
 */
-var colselectorclose;
 // -------------------------------------------------------------------------
 function reordercolumns() {
 /*
@@ -1270,7 +1303,7 @@ GTD.ajax.inititem=function() {
         each(function() {
             addAjaxEditIcon(this,ItemEditor);
         }).
-        find('.col-NA :checkbox').
+        find('.col-NA :checkbox:enabled').
             click(NAclicked).
         end().find('.col-checkbox :checkbox').
             click(checkboxclicked).
@@ -1429,10 +1462,11 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
  * typename:
  * rownum:
  */
-    var livename,thisrow,livesave,livedesc,that=this,
-        ENTERTITLE="enter title here",
-        FORCETITLE="Title cannot be blank",
-        ENTERDESC="optional description";
+    var livename, thisrow, livesave, livedesc, tb, tr, livequit,
+        that = this,
+        ENTERTITLE = "enter title here",
+        FORCETITLE = "Title cannot be blank",
+        ENTERDESC = "optional description";
     // ----------------------------------------------
     function clearfield(thisfield) {
         // empty a field
@@ -1445,7 +1479,6 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
     // ----------------------------------------------
     
     // insert a one-row table at the top of the search results
-    var tb,tr;
     tb=document.createElement('table');
     tr=document.createElement('tr');
     
@@ -1483,7 +1516,7 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
     livesave.href      = '#';
     livesave.title     = 'create this '+typename;
     $(livesave).click(function(e) {
-        var someday,thisdesc,myurl,mydata;
+        var someday, thisdesc, myurl, mydata;
         if (livename.value==='' || livename.value===FORCETITLE || livename.value===ENTERTITLE) {
             livename.value=FORCETITLE;
             livename.focus();
@@ -1551,7 +1584,7 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
     thisrow.appendChild(document.createTextNode(' '));
     thisrow.appendChild(livesave);
 
-    var livequit       = document.createElement('a');
+    livequit           = document.createElement('a');
     livequit.className = 'remove';
     livequit.id        = 'livesave';
     livequit.href      = '#';

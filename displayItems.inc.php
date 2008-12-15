@@ -44,6 +44,7 @@ foreach ($maintable as $row) {
                 if (!empty($row['checkboxname']))
                     echo "<input name='{$row['checkboxname']}' value='{$row['checkboxvalue']}' type='checkbox'"
                         ,(empty($row['checkboxchecked'])) ? '' : " checked='checked' "
+                        ,(empty($row['checkboxdisabled'])) ? '' : " disabled='disabled' "
                         ,"/>";
                 break;
             case 'context':
@@ -83,6 +84,7 @@ foreach ($maintable as $row) {
                     echo "<input name='isNAs[]' value='{$row['itemId']}'"
                         ,"type='",(empty($dispArray[$key.'.type']))?'checkbox':'radio',"'"
                         ,($row[$key])?" checked='checked' ":''
+                        ,(empty($row['NAdisabled'])) ? '' : " disabled='disabled' "
                         ,' />';
                 break;
             case 'parent':

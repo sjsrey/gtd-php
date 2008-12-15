@@ -121,7 +121,17 @@ $array=array();
 foreach ($addons as $addon) {
     $desc=makeClean(@file_get_contents($_SESSION['addonsdir'].$addon.'/description'));
     if (!empty($desc)) $desc="($desc)";
-    $array[]=array($addon,'checkbox',"<b>$addon</b> $desc");
+    if ($optHandle=@fopen($_SESSION['addonsdir'].$addon.'/options.inc.php','r',true)) {
+        /* TOFIX - we definitely don't want the options link to be part of the checkbox label
+           Also, probably better to put each options tab in a DIV at the bottom of the page
+           and convert it into a tab.
+           In summary, this is not yet production-ready, but is here as a basic interface 
+           to enable addon developers to start work on viable options pages
+        */
+        $opts = "<a href='addon.php?addonid=$addon&amp;url=options.inc.php'>Options</a>";
+        fclose($optHandle);
+    } else $opts ='';
+    $array[]=array($addon,'checkbox',"<b>$addon</b> $opts $desc");
 }
 $live=array();
 if ($_SESSION['addons']) foreach ($_SESSION['addons'] as $where)
