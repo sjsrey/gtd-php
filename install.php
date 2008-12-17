@@ -626,9 +626,9 @@ function failDuringCheck() {
             echo "<p class='error'>Unable to start the installation pre-flight checks</p>";
             break;
         case 'config': // no valid config.inc.php
-    		echo "<p class='error'>No valid config.inc.php file found.<br />"
-    			,"Copy the config.sample.php file to config.inc.php, and set the MySQL parameters</p>\n";
-    		// TODO link to config.inc.php documentation here
+            echo "<p class='error'>No valid config.inc.php file found.<br />"
+    			     ,"Copy the config.sample.php file to config.inc.php, and set the MySQL parameters. "
+               ,"Here's the <a href='http://www.gtd-php.com/Users/Config09'>online help</a>.</p>\n";
             break;
         case 'db': // failed during attempt to open database
             echo "<p class='error'>"

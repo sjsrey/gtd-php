@@ -313,7 +313,7 @@ function updateItem(row, xmldata) {
                     attr({ id: "ajaxcountincrement" }).
                     text(".");
       }
-      incrementCounter = (incrementCounter > 0) ? " +" + incrementCounter.toString() :
+      incrementCounter = (incrementCounter >= 0) ? " +" + incrementCounter.toString() :
                         " " + incrementCounter.toString();
       counterElem.text(incrementCounter);
     }

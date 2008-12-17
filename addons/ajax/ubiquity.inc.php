@@ -6,7 +6,7 @@
 /*global Application,CmdUtils,jQuery,noun_arb_text,displayMessage */
 
 
-var kver = "200812081547",
+var kver = "200812161143",
     kPath = "<?php echo getAbsolutePath(); ?>",
     kDoLog = false,
     kProjectCache = "gtdphp.ubiquity.projects";
@@ -32,7 +32,7 @@ function gtdSetLastResult(aXml) {
 }
 
 
-// ---------------------------------- AJAX utility for amending database items
+// ---------------------------------- AJAX utility for database-writing API
 function gtdDoAjax(aData, aSucceed) {
   var field, template = { output: "xml", fromajax: "true" };
   for (field in template) { aData[field] = template[field]; }
@@ -57,12 +57,12 @@ var noun_type_gtdparent = {
     var self=this;
     if (kDoLog) { displayMessage('off to get parents'); }
     jQuery.getJSON(kPath + "addon.php?addonid=ajax&url=sendJSON.php&type=p",
-      function gtd_json(aParents) {
-        if (kDoLog) {displayMessage('assigning parents');}
-        self.parentList = aParents;
-        Application.storage.set(kProjectCache, aParents);
-	if (aOnDone) { aOnDone(); }
-      });
+                   function gtd_json(aParents) {
+                     if (kDoLog) {displayMessage('assigning parents');}
+                     self.parentList = aParents;
+                     Application.storage.set(kProjectCache, aParents);
+                     if (aOnDone) { aOnDone(); }
+                   });
   },
 
   subsuggest: function gtd_subsuggest(aText, aHtml) {
@@ -150,27 +150,37 @@ makegtd({
   help: "Adds a gtd-php reference to the current URL, or," +
         "if a link is selected, to the destination of that link",
 
-  takes: { "parent": noun_type_gtdparent },
+  modifiers: { title: noun_arb_text },
+  
+  takes: { parent: noun_type_gtdparent },
 
-  preview: function gtdref_preview(aPblock, aParent) {
+  _getDocHrefAndTitle: function gtdref_getDocHrefAndTitle() {
     try {
-      Application.activeWindow.activeTab.document;
+      var document = Application.activeWindow.activeTab.document,
+          currenturl = document.location.href,
+          title = aMods.title.html || document.title;
+      return { done: true, url: currenturl, title: title };
     } catch (err) {
-      aPblock.innerHTML = "Unable to get location or title for current page, so cannot create a GTD reference for it";
+      return { done: false, message: "Unable to get location or title for current page, so cannot create a GTD reference for it" };
+    }
+  },
+  
+  preview: function gtdref_preview(aPblock, aParent, aMods) {
+    var docInfo=this._getDocHrefAndTitle();
+    if (!docInfo.done) {
+      aPblock.innerHTML = docInfo.message;
       return false;
     }
     aPblock.innerHTML = 'Creates a reference to this page as a child of: "' +
       aParent.html + '"';
+    return true;
   },
 
-  execute: function gtdref_exec(aParent) {
-    try {
-      var document = Application.activeWindow.activeTab.document,
-          currenturl = document.location.href,
-          title = document.title;
-    } catch (err) {
-        displayMessage("Unable to get this page's title or URL, so failed to create a reference to it");
-        return false;
+  execute: function gtdref_exec(aParent, aMods) {
+    var docInfo=this._getDocHrefAndTitle();
+    if (!docInfo.done) {
+      displayMessage(docInfo.message);
+      return false;
     }
     gtdDoAjax(
       {action: "create", type: "r", parentId: aParent.data.itemId, title: title,
@@ -178,6 +188,7 @@ makegtd({
       function gtdref_exec_ajax(aXml,aText){
         displayMessage("Reference created with id: " + gtdSetLastResult(aXml));
       } );
+    return true;
   }
 });
 

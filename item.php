@@ -33,7 +33,9 @@ if ($values['itemId']) { // editing an item
     $values['title']=$values['description']=$values['desiredOutcome']=$values['tagname']='';
     $values['deadline']=$values['dateCompleted']=$values['recurdesc']=$values['tickledate']=null;
     $values['type']=(empty($_REQUEST['type'])) ? 'a' : $_REQUEST['type'];
-    $values['isSomeday']=(isset($_GET['someday']) &&  $_GET['someday']=='true')?'y':'n';
+    $values['isSomeday']=(   (isset($_GET['isSomeday']) && $_GET['isSomeday']==='y')
+                          || (isset($_GET['someday'])   && $_GET['someday']=='true')
+                         ) ? 'y' : 'n';
     $nextaction=isset($_REQUEST['nextonly']) && ($_REQUEST['nextonly']=='true' || $_REQUEST['nextonly']==='y');
     foreach ( array('categoryId','contextId','timeframeId') as $cat)
         $values[$cat]= (isset($_REQUEST[$cat]))?(int) $_REQUEST[$cat]:0;
