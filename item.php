@@ -446,7 +446,7 @@ if ($sep!=='<p>') echo "</p>\n";
                             : $values['recurdesc']
                         ,"<label> If completed today, "
                         ,(empty($nextdate))
-                            ? " there will be no further recurrence"
+                            ? " there would be no further recurrence"
                             : " the next recurrence would be <span id='nextduedate'>$nextdate</span>"
                         ,"</label>";
                 ?> <a href='#recurform' <?php

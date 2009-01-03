@@ -81,7 +81,7 @@ function getNextRecurrence() {
   if ($("#recur [name=FREQtype]:checked").val() === "NORECUR") {
     // user has specified that there's no recurrence, so that's easy - no AJAX needed
     setNextDueText( { next: false } );
-    return;
+    return true;
   }
   
   nextdue.text("Calculating ...");
@@ -90,6 +90,7 @@ function getNextRecurrence() {
         $("#recur *,#deadline,#tickledate").serialize();
 
   $.getJSON(url, setNextDueText);
+  return true;
 }
 // ======================================================================================
 function makeSaveButton(aFunc) {

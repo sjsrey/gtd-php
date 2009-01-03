@@ -25,7 +25,7 @@ switch ($action) {
         require_once 'gtdfuncs.inc.php';
         $values=array();
         foreach (array('deadline','tickledate','dateCompleted') as $field)
-          $values[$field] = (empty($_POST[$field])) ? '' : $_POST[$field];
+          $values[$field] = (empty($_REQUEST[$field])) ? '' : $_REQUEST[$field];
         list($values['recur'],$dummy) = processRecurrence($values);
         $output=array('next'=>getNextRecurrence($values));
         break;

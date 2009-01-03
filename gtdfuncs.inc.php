@@ -26,11 +26,11 @@ if (empty($_SESSION['debug']['debug'])) {
                 ,($log_count) ? '<a href="#log'.(-1+$log_count).'">&uarr;</a>' : ''
                 ,' <a href="#log',++$log_count,'">&darr;</a> ';
 
-            if (gettype($pretext)==='string') {
+            if (is_string($pretext)) {
                 $truevar=$varname;
             } else {
                 $pretext=$varname;
-                eval("\$truevar=(isset($varname))?$varname:\$GLOBALS['".substr($varname,1)."'];");
+                $truevar=(isset($$varname)) ? $$varname : $GLOBALS[substr($varname,1)];
             }
             echo '<b>',htmlentities($pretext,ENT_NOQUOTES),'</b> '
                 ,htmlentities(print_r($truevar,true),ENT_NOQUOTES)  //,$_SESSION['config']['charset'])
@@ -905,6 +905,7 @@ function processRecurrence($values) {
 
     $rrule=$vevent->getProperty('rrule');
     $rruletext=$vevent->_format_recur('',array(array('value'=>$rrule)));
+
     log_value("RRULEtext: $rruletext ; calculated rule=",$rrule);
     // now we've done the round trip, we can be confident that it's a valid recurrence string, so store it
     $recur=$rruletext;
@@ -952,7 +953,7 @@ function getNextRecurrence($values) {
 
     log_array(array(
         'recur='=>$values['recur']
-        ,'$rrule'
+        ,'rrule decoded from that recur text'=>$rrule
         ,'start date (dirty)='=>$startdate));
             
     $startdate=$vcal->validDate($startdate);
