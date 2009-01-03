@@ -130,18 +130,24 @@ function gtd_handleEvent($event,$page) {
     $eventhandlers=@array_merge((array)$_SESSION['addons'][$event]['*'],
                                 (array)$_SESSION['addons'][$event][$page]
                                 );
+    $result=true;
     foreach ($eventhandlers as $addonid=>$handler) {
         $addon=array('id'=>$addonid,
                      'dir'=>$_SESSION['addonsdir'].$addonid.'/',
                      'urlprefix'=>"addon.php?addonid=$addonid&url="
                      );
-         if (   !($fp = @fopen($fn="{$addon['dir']}$handler", 'r', 1))
-             or !fclose($fp)
-             or ((include $fn)===false)
+         if (   ($fp = @fopen($fn="{$addon['dir']}$handler", 'r', 1))
+             && fclose($fp)
+             && ((include $fn)!==false)
             ) {
+            
+          if (array_key_exists('result',$addon)) $result = $result && $addon['result'];
+          
+         } else {
             $_SESSION['message'][]="Failed to load addon '$addonid' - please check the addons section of the preferences screen";
-        }
+         }
     }
+    return $result;
 }
 /*
     end of event-handling functions
@@ -833,6 +839,80 @@ function query($querylabel,$values=NULL,$sort=NULL) {
     log_value('Query Result:',$result);
 
     return $result;
+}
+/*
+   ======================================================================================
+*/
+function processRecurrence($values) {
+    $rrule=array();
+    require_once 'iCalcreator.class.inc.php';
+    $vevent = new vevent();
+
+    $rrule=array();
+    $rrule['INTERVAL']= (empty($_REQUEST['INTERVAL'])) ? 1 : $_REQUEST['INTERVAL'];
+    if (!empty($_REQUEST['UNTIL'])) $rrule['UNTIL']=$_REQUEST['UNTIL'];
+    switch ($_REQUEST['FREQtype']) {
+        case ('TEXT') :
+            $vevent->parse(array('RRULE:'.$_REQUEST['icstext']));
+            $rrule=array();
+            break;
+        case ('DAILY'):   // Deliberately flows through to next case
+        case ('WEEKLY'):  // Deliberately flows through to next case
+        case ('MONTHLY'): // Deliberately flows through to next case
+        case ('YEARLY'):
+            $rrule['FREQ']=$_REQUEST['FREQtype'];
+            break;
+        // end of simple cases - now the trickier stuff
+        case ('WEEKLYBYDAY'):
+            $rrule['FREQ']='WEEKLY';
+            if (is_array($_REQUEST['WEEKLYday'])) {
+                $out=array();
+                foreach ($_REQUEST['WEEKLYday'] as $val)
+                    array_push($out,array('DAY'=>$val));
+                $rrule['BYDAY']=$out;
+            }
+            break;
+        case ('MONTHLYBYDAY'):
+            $rrule['FREQ']='MONTHLY';
+            $rrule['BYMONTHDAY']=array($_REQUEST['MONTHLYdate']);
+            break;
+        case ('MONTHLYBYWEEK'):
+            $rrule['FREQ']='MONTHLY';
+            $rrule['BYDAY']=array( (int) $_REQUEST['MONTHLYweek'] ,
+                'DAY'=> $_REQUEST['MONTHLYweekday']  );
+            break;
+        case ('YEARLYBYDATE'):
+            $rrule['FREQ']='YEARLY';
+            $rrule['BYMONTHDAY']=array($_REQUEST['YEARLYdate']);
+            $rrule['BYMONTH']=array($_REQUEST['YEARLYmonth']);
+            break;
+        case ('YEARLYBYWEEK'):
+            $rrule['FREQ']='YEARLY';
+            $rrule['BYMONTH']=array($_REQUEST['YEARLYweekmonth']);
+            $rrule['BYDAY']=array( (int) $_REQUEST['YEARLYweeknum'] ,
+                                'DAY'=> $_REQUEST['YEARLYweekday']  );
+            break;
+        default:
+            return array('','');
+    }
+    /*  got all the data from the form
+        --------------------------------------------------------------------
+    */
+    if ($_REQUEST['FREQtype']!=='TEXT') {
+        $vevent->setProperty( "rrule",$rrule);
+        log_value('RRULE form values=',$rrule);
+    }
+
+    $rrule=$vevent->getProperty('rrule');
+    $rruletext=$vevent->_format_recur('',array(array('value'=>$rrule)));
+    log_value("RRULEtext: $rruletext ; calculated rule=",$rrule);
+    // now we've done the round trip, we can be confident that it's a valid recurrence string, so store it
+    $recur=$rruletext;
+    $desc = (empty($_REQUEST['recurdesc']))
+        ? "+{$rrule['INTERVAL']}".substr($rrule['FREQ'],0,1) // set desc based on intelligent description
+        : $_REQUEST['recurdesc'] ;
+
+    return array($recur,$desc);
 }
 /*
    ======================================================================================

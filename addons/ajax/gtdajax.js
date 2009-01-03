@@ -10,22 +10,23 @@ var NAclicked, colselectorclose,
     hiddencontexts = [],
     editor = [];
 // ======================================================================================
-$.fn.animateShow=function(callback) {
+$.fn.animateShow = function(aCallback) {
 /*
  * this function does the animation for items which have successfully been updated via AJAX
  * It works by extending jQuery, so that we can execute the function on any jQuery object
  */
     var that=this,
-        disp=(!$.browser.msie && this.get(0).tagName.toLowerCase()==='tr')?'table-row':'block';
-    this.css({opacity:0,display:disp}).
-        removeClass('togglehidden hidden').
-        addClass('ajaxupdated').
-        animate({opacity:1},600).
-        show();
+        disp = (!$.browser.msie && this.get(0).tagName.toLowerCase() === "tr") ?
+                "table-row" : "block";
+    this.css({ opacity: 0.01, display: disp }).
+        removeClass("togglehidden hidden").
+        addClass("ajaxupdated").
+        show().
+        animate({opacity:1},600);
     setTimeout(function () {
             that.removeClass("ajaxupdated");
-            if (callback!==undefined && callback!==null) {callback(that);}
-        },2000);
+            if (aCallback !== undefined && aCallback !== null) { aCallback(that); }
+        }, 2000);
     // always return the jQuery item we came in with, to allow chaining
     return that;
 };
@@ -53,8 +54,65 @@ function messagepopup(text,xmldata,top,left) {
             msgbox.append(sep+$(this).text());
             sep='<br/>';
         });
-    msgbox.animateShow(null);
+    msgbox.animateShow();
     return msgbox;
+}
+// ======================================================================================
+function getNextRecurrence() {
+  var url,
+      nextdue = $("#nextdue");
+
+  function setNextDueText(json) {
+     var shortText, longText,
+         text = json.next;
+     if (text) {
+       shortText = "Next: " + text;
+       longText = "From today, next recurrence would be " + text;
+     }
+     else {
+       shortText = "Next: none";
+       longText = "No further recurrences";
+     }
+     nextdue.
+        text(longText).
+        animateShow(function() { nextdue.text(shortText); });
+  }
+
+  if ($("#recur [name=FREQtype]:checked").val() === "NORECUR") {
+    // user has specified that there's no recurrence, so that's easy - no AJAX needed
+    setNextDueText( { next: false } );
+    return;
+  }
+  
+  nextdue.text("Calculating ...");
+
+  url = GTD.ajax.urlprefix + "sendJSON.inc.php&action=getrecur&" +
+        $("#recur *,#deadline,#tickledate").serialize();
+
+  $.getJSON(url, setNextDueText);
+}
+// ======================================================================================
+function makeSaveButton(aFunc) {
+  var btn = $("<button type='submit'></button>");
+  return $(btn).
+           addClass("ajaxsave ajaxbutton").
+           click(aFunc).
+           append(
+           $(document.createElement("img")).attr(
+             { src: GTD.ajax.dir + "save.gif",
+               alt: "save item",
+               title: "Save changes",
+               width: 16,
+               height: 16               
+             }));
+}
+// ======================================================================================
+function makeCancelButton(aFunc) {
+  return $(document.createElement("button")).
+            text("X").
+            attr({ title: "Cancel changes" }).
+            addClass("ajaxcancel ajaxbutton").
+            click(aFunc);
 }
 // ======================================================================================
 function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
@@ -68,7 +126,7 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
  * resetfunc: function to be executed if the user cancels / resets rather than saving
  * expandfunc: function to be executed if the user requests a form to edit the entire item
  */
-    var a1, a2, a3, width, height, old, txt,
+    var width, height, old, txt,
         jsource = $(source),
         that = this;
         
@@ -90,7 +148,7 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
                     // find the element that originally contained the title
                     old.children().andSelf().               // look at the table cell and all its children
                         filter(function() {
-                            return (this.textContent!==''); // remove elements that have no text content
+                            return ($(this).text() !== ""); // remove elements that have no text content
                         }).
                         eq(0).                              // just use the first element - otherwise we might try to set a child AND then set its parent too
                         empty().
@@ -109,31 +167,18 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
     jsource.empty();
     switch(inputtype) {
         case 'saveCancel':  // creating SAVE/CANCEL/EXPAND butttons
-            a1=document.createElement('img');
-            a1.src=GTD.ajax.dir+'save.gif';
-            a1.className='add';
-            a1.alt='save changes';
-            a1.title='save';
-            a1.id='savebutton';
-            $(a1).click(savefunc);
 
-            a2=document.createElement('span');
-            a2.title='cancel';
-            a2.appendChild(document.createTextNode('X'));
-            a2.className='ajaxcancel';
-            $(a2).click(resetfunc);
-
-            source.appendChild(a1);
-            source.appendChild(document.createTextNode(' '));
-            source.appendChild(a2);
+            $(source).append(makeSaveButton(savefunc)).
+                      append(document.createTextNode(" ")).
+                      append(makeCancelButton(resetfunc));
+                      
             if (expandfunc!==undefined) {
-                a3=document.createElement('span');
-                a3.title='expand';
-                a3.appendChild(document.createTextNode('+'));
-                a3.id='ajaxexpand';
-                $(a3).click(expandfunc);
-                source.appendChild(document.createTextNode(' '));
-                source.appendChild(a3);
+              $(source).append(document.createTextNode(" ")).
+                        append($(document.createElement("button")).
+                                attr({ title: "expand" }). 
+                                addClass("ajaxexpand ajaxbutton").
+                                text("+").
+                                click(expandfunc));
             }
             break;
             //--------------------------------------------------
@@ -167,10 +212,10 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
                 this.field.rows++;
                 this.lineHeight=Live_field.prototype.lineHeight=this.field.clientHeight-this.baseHeight;
             }
-            this.field.cols=setWidth(width); // then dividing available width by em width
-            if (this.field.cols<30) {this.field.cols=30;}
-            this.field.rows=Math.round(1.001+(height-that.baseHeight)/that.lineHeight+($.browser.mozilla?0:1));
-            if (this.field.rows<2) {this.field.rows=2;}
+            this.field.cols = Math.max(30, setWidth(width)); // then dividing available width by em width
+            this.field.rows = Math.max(2,
+              Math.round(1.001 + (height - that.baseHeight) / that.lineHeight +
+                         ($.browser.mozilla ? 0 : 1)));
             
             txt=old.html();
             $(this.field).text(txt.replace(/<br *\/*>/gi,''));//dummy closure for PSPad: */
@@ -224,7 +269,7 @@ function updateItem(row, xmldata) {
                 incrementCounter--; // one row is being removed
                 // test to see if we are going to hide the new occurrence
                 if (!GTD.ajax.filter.tickler &&
-                    parseInt(newvalues.children('unixtickledate').text()) >
+                    parseInt(newvalues.children('unixtickledate').text(), 10) >
 		    	             Date.parse(Date())/1000 ) {
 		    	        incrementCounter--; // one row is being removed
                   hide2 = function(that){that.hide();};
@@ -305,7 +350,7 @@ function updateItem(row, xmldata) {
     if (incrementCounter) { // number of visible rows has changed, so modify the table heading
       counterElem = $("#ajaxcountincrement");
       if (counterElem.length) {
-        incrementCounter += parseInt(counterElem.text());
+        incrementCounter += parseInt(counterElem.text(), 10);
       }
       else {
         counterElem=$( document.createElement('span') ).
@@ -380,33 +425,33 @@ function ItemEditor(row) {
  * constructor to create editing fields for item title/desc/outcome
  * row: the DOM object of the row where the item to be edited, is displayed
  */
-    this.ended=true;
-    if ($(row).hasClass('inajax')) {return false;}
-    var that=this,gotfullitemform,itemId,expandme,newdiv,tdtitle,tddesc,tdsave,
-        tdoutcome,namefield,descfield,outcomefield,iconfield,thisurl,
-        unoccupiedcells,max,i,checkfields=['isSomeday','nextAction'];
-    this.ended=false;
+    this.ended = true;
+    if ($(row).hasClass('inajax')) { return false; }
+    this.ended = false;
     $(row).addClass('inajax').
         find('.col-ajax img,:checkbox').
             hide().
         end().find('a[href]').
-            click(function(){
-                return false;
+            click(function clickLinkOnEditRow() {
+              return false;
             });
-    itemId=$('input[name=id]',row).val() || '0';
-    gotfullitemform=false;
-    expandme=false;
-    newdiv=document.createElement('div');
+    var tdsave, namefield, descfield, outcomefield, iconfield, thisurl, i,
+        that = this,
+        unoccupiedcells = [],
+        max = $('td',row).length,
+        gotfullitemform = false,
+        itemId = $('input[name=id]', row).val() || '0',
+        newdiv = document.createElement('div'),
+        checkfields = ['isSomeday', 'nextAction'],
+        tdtitle = $('.col-title',row).get(0),
+        tddesc = $('.col-description:visible',row).get(0),
+        tdoutcome = $('.col-desiredOutcome:visible',row).get(0);
+
     $(newdiv).
         addClass('ajaxform hidden').
         appendTo(document.body);
-    tdtitle=$('.col-title',row).get(0);
-    tddesc=$('.col-description',row).get(0);
-    tdoutcome=$('.col-desiredOutcome',row).get(0);
 
-    unoccupiedcells=[];
-    max=$('td',row).length;
-    for (i=0;i<max;i++) {unoccupiedcells[i]=true;}
+    for (i = 0; i < max; i++) { unoccupiedcells[i] = true; }
     if (tddesc) {
         descfield=new Live_field(tddesc,'textarea');
         unoccupiedcells[$('td',row).index(tddesc)]=false;
@@ -424,18 +469,39 @@ function ItemEditor(row) {
     } else {namefield=null;}
     tdsave=$('td.col-ajax',row).get(0);
     // --------------------------------------------------------
-    this.cancelFull=function() {
-        that.reset();
-        GTD.freeze(false);
+    this.runWhenReady = function itemEditor_runWhenReady(func) {
+      if (gotfullitemform) {
+        func();
+      }
+      else {
+        $(that).bind("itemFormReady", func);
+      }
     };
     // --------------------------------------------------------
-    this.saveFull=function() {
-        var mydata,form=$('form',newdiv).get(0);
-        // first, validate the form
-        if (!GTD.validate(form)) {return false;}
-        mydata = $(form).serialize() + '&output=xml&fromjavascript=true';
+    function fullFormKeypress(e){  // TODO consider splitting out into a central key-handler
+      if (e.keyCode === 27) {
+          that.cancelFull();
+          return false;
+      }
+      return true;
+    }
+    // --------------------------------------------------------
+    this.cancelFull=function() {
+        $(document).unbind("keypress", fullFormKeypress);
+        that.reset();
+        GTD.freeze(false);
+        return false;
+    };
+    // --------------------------------------------------------
+    this.saveFull=function(aEvent) {
+        var mydata, form = $("form",newdiv);
+
+        // summarise the form values in a query
+        mydata = form.serialize() + "&output=xml&fromjavascript=true";
+
         // freeze the form to prevent any edits while we're out on AJAX
         $('*',newdiv).unbind().attr('disabled',true);
+
         // send form to processItems.php in AJAX call
         $.ajax({
             cache:false,
@@ -492,6 +558,7 @@ function ItemEditor(row) {
             type:'POST',
             url:'processItems.php'
         });
+        return false;
     };
     // --------------------------------------------------------
     function fillfullform() {
@@ -502,48 +569,41 @@ function ItemEditor(row) {
     }
     // --------------------------------------------------------
     function showfullform() {
-        var cancelbtn, savebtn;
-        $('*',row).unbind('keypress');
-        fillfullform();
-        $(newdiv).
-            removeClass('hidden').
-            css('top', 5 +
-              document.body.scrollTop ? document.body.scrollTop :
-                                        window.scrollY );
-        GTD.initcalendar(newdiv);
-        // assign save and cancel functions to buttons
-        cancelbtn=document.createElement('span');
-        cancelbtn.appendChild(document.createTextNode('x'));
-        cancelbtn.className='ajaxcancel';
-        cancelbtn.title='Cancel changes';
-        $(cancelbtn).click(that.cancelFull);
+      var thisform = $("form", newdiv);
 
-        savebtn=document.createElement('img');
-        savebtn.src=GTD.ajax.dir+'save.gif';
-        savebtn.id='ajaxsave';
-        savebtn.alt='save item';
-        savebtn.title='Save changes';
-        $(savebtn).click(that.saveFull);
+      $("*", row).unbind("keypress");
+      fillfullform();
+      $(newdiv).
+        removeClass("hidden").
+        css("top", 5 +
+          document.body.scrollTop ? document.body.scrollTop :
+                                    window.scrollY );
+      
+      // assign save and cancel functions to buttons
+      $("#errorbox"). // document.createElement("div")).attr({ id: "ajaxfullformbuttons" }).prependTo($("div.form:first",thisform)).
+        prepend(makeCancelButton(that.cancelFull)).
+        prepend(makeSaveButton(that.saveFull));
         
-        $('#errorbox').
-            prepend(cancelbtn).
-            prepend(savebtn);
-        $(document).one('keypress',function fullform_keypress(e){  // TODO consider splitting out into a central key-handler
-            if (e.keyCode === 27) {
-                that.cancelFull();
-                return false;
-            }
-            return true;
-        });
+      /* now bind the submit action, to catch webkit, and
+       * add an extra (hidden) submit button at the end of the form,
+       * which firefox will use as its default action
+       */
+      thisform.
+        bind("submit", that.saveFull).
+        append(makeSaveButton(that.saveFull).addClass("hidden"));
+          
+      $(document).bind("keypress", fullFormKeypress);
+      
+      $("input[type=text]:first", thisform).focus();
+      GTD.initItem();
+      GTD.ajax.itemSetup();
+
     }
     // --------------------------------------------------------
-    this.expand=function() {
-        GTD.freeze(true);
-        if (gotfullitemform) {
-            showfullform();
-        } else {
-            expandme=true;
-        }
+    this.expand = function ajaxExpandEditor() {
+      GTD.freeze(true);
+      that.runWhenReady(showfullform);
+      return false;
     };
     // --------------------------------------------------------
     this.tidyUp=function () {
@@ -559,29 +619,43 @@ function ItemEditor(row) {
         this.ended=true;
     };
     // --------------------------------------------------------
-    this.save=function() {
-        var mydata;
-        $(row).animate({opacity:0.1},100).addClass('onajaxcall').click(false);
-        if (itemId==='0') {
-            // populate the form, and submit that
-            fillfullform();
-            return that.saveFull();
-        } else {
-            mydata={output:'xml',
-                    fromjavascript:true,
-                    action:'updateText',
-                    itemId:itemId};
+    this.save = function itemEditorSave() {
+
+        if (namefield && namefield.field.value === "") {
+          namefield.field.value = "set a title";
+          namefield.field.focus();
+          namefield.field.select();
+          return false;
         }
-        if (namefield) {mydata.title=namefield.field.value;}
-        if (descfield) {mydata.description=descfield.field.value;}
-        if (outcomefield) {mydata.desiredOutcome=outcomefield.field.value;}
+        
+        $(row).animate({ opacity: 0.1 }, 100).
+               addClass("onajaxcall").
+               click(false);
+        
+        if (itemId === "0") {
+            // populate the form, and submit that
+            that.runWhenReady(function submitItemFormWhenReady() {
+              fillfullform();
+              that.saveFull();
+            });
+            return false;
+        }
+        
+        var mydata = { output: "xml",
+                       fromjavascript: true,
+                       action: "updateText",
+                       itemId: itemId };
+
+        if (namefield) { mydata.title = namefield.field.value; }
+        if (descfield) { mydata.description = descfield.field.value; }
+        if (outcomefield) { mydata.desiredOutcome = outcomefield.field.value; }
 
         // do Ajax Call
         $.ajax({
-            cache:false,
-            data:mydata,
-            dataType:'xml',
-            error:function (arg1,arg2,arg3) {
+            cache: false,
+            data: mydata,
+            dataType: 'xml',
+            error: function (arg1,arg2,arg3) {
                 var dbg=$('responseText',arg1).text()+
                         $('responseXml parseError reason',arg1).text()+
                         $('responseXml parseError srcText',arg1).text();
@@ -589,7 +663,7 @@ function ItemEditor(row) {
                 $('#debuglog').empty().text(dbg);
                 that.reset(true);
             },
-            success:function (xmldata, textStatus) {
+            success: function (xmldata, textStatus) {
                 if (namefield) {
                     namefield.Set($('gtdphp values title',xmldata).text());
                 }
@@ -601,13 +675,14 @@ function ItemEditor(row) {
                 }
                 window.status=$('gtdphp result line',xmldata).text();
                 $('#debuglog').empty().append($('gtdphp log',xmldata).text());
-                $(row).animateShow(null);
+                $(row).animateShow();
                 that.tidyUp();
                 updateItem(row,xmldata);
             },
-            type:'POST',
-            url:'processItems.php'
+            type: 'POST',
+            url: 'processItems.php'
         });
+        return false;
     };
     // --------------------------------------------------------
     this.reset=function(preventFurtherAJAX) { // reset function
@@ -624,6 +699,7 @@ function ItemEditor(row) {
                 $(row).find('.col-ajax img').show();
             }
         }
+        return false;
     };
     // --------------------------------------------------------
     iconfield=new Live_field(tdsave,'saveCancel',this.save,this.reset,this.expand);
@@ -650,12 +726,12 @@ function ItemEditor(row) {
         error:function (arg1,arg2,arg3) {
             window.status='Failed to retrieve full item form: '+arg2;
             newdiv=null;
-            $('#ajaxexpand',tdsave).remove();
+            $(".ajaxexpand", tdsave).remove();
         },
         success:function (htmldata, textStatus) {
-            newdiv.innerHTML=htmldata;
-            gotfullitemform=true;
-            if (expandme) {showfullform();}
+            newdiv.innerHTML = htmldata;
+            gotfullitemform = true;
+            $(that).trigger("itemFormReady");
         },
         type:'GET',
         url:thisurl
@@ -841,6 +917,10 @@ function completeFromReport(event) {
 function addAjaxEditIcon(node,functioncall) {
 /*
  * Add an ajax edit icon to each row in a table of items
+ * TODO refactor: would be more efficient to insert the icons in PHP, and to
+ *      use event delegation with a single click handler for the
+ *      whole table.  Would need to do icon insertion in the
+ *      ON_DATA event handler for itemReport, reportContext, listItems
  *
  * node:
  * functioncall:
@@ -1083,7 +1163,6 @@ function reordercolumns() {
 function colselectorclicked(e) {
 /*
  * Event handler for when the user has toggled the display of a column
- * TOFIX something odd happens when hiding the checkbox column
  * e: jQuery event
  */
     var target=$(e.target);
@@ -1170,7 +1249,7 @@ function saveperspective(e) {
             $('#debuglog').empty().text(arg1.responseText);
             msgbox.empty().
                 text('Failed to save this view').
-                animateShow(null).
+                animateShow().
                 animate({left:pos.left},5000).              // wait for 5 seconds
                 queue(function(){
                     $(this).remove().dequeue();             // and then disappear
@@ -1186,7 +1265,7 @@ function saveperspective(e) {
                         'Saved this view' : 'Failed to save this view');
             messagepopup(msgbox,xmldata);
             msgbox.
-                animateShow(null).
+                animateShow().
                 animate({left:pos.left},5000).              // wait for 5 seconds
                 queue(function(){
                     $(this).remove().dequeue();             // and then disappear
@@ -1294,7 +1373,20 @@ GTD.ajax.initcontext=function() {
     this.inititem();
     initContextToggle();
 };
+
 // ======================================================================================
+
+GTD.ajax.itemSetup = function ajax_itemSetup() {
+  $("#recur input,#recur select,#deadline,#tickledate").change(getNextRecurrence);
+  $(document.createElement("span")).
+    appendTo("#recur").
+    text($("#nextduedate").text()).
+    attr(
+    { id: "nextdue", title: "Date of next recurrence, if this item were completed today"} );
+};
+
+// ======================================================================================
+
 GTD.ajax.inititem=function() {
 /*
  * initialise AJAX handling for itemReport, reportContext, listItems, (orphans?)
@@ -1325,8 +1417,7 @@ GTD.ajax.inititem=function() {
                 text(' ')
         );
 
-    $("input:submit:not(#filtersubmit,#completereport),input:reset").
-        css({display:'none'});
+    $("input:submit:not(#filtersubmit,#completereport),input:reset").hide(); // hide NOT remove - this is deliberate and important!
 
     // hook the #completereport button in itemReport to use an AJAX call for completion
     $("#completereport").click(completeFromReport);
@@ -1570,7 +1661,7 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
                 typename=GTD.typenames[type];
                 line=that.makeline(id,title,type,typename,0,true,typename);
                 box.insertBefore(line, box.firstChild);
-                $(line).animateShow(null);
+                $(line).animateShow();
                 max=that.creatorlines.length;
                 for (i=0;i<max;i++) {that.creatorlines[i]++;}
                 that.gotparent(id,title,type,typename,0);
@@ -1599,33 +1690,37 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
     return true;
 };
 // ======================================================================================
-GTD.ParentSelector.prototype.gotparent=function (id,title,type,typename,rowNum) {
+GTD.ParentSelector.prototype.gotparent =
+  function ajaxGotParent(aId, aTitle, aType, aTypename, aRowNum) {
 /*
  * add the clicked parent to the list of the item's parents
  *
- * id:
- * title:
- * type:
- * typename:
- * rowNum:
+ * aId:
+ * aTitle:
+ * aType:
+ * aTypename:
+ * aRowNum:
  */
-    if (this.editingrow!==-1) {this.liveclear();}
-    this.gotparentold(id,title,type,typename,rowNum);
-    if ($('#categoryId').val()!=='0'){return false;}
+  if (this.editingrow !== -1) { this.liveclear(); }
+  this.gotparentold(aId, aTitle, aType, aTypename, aRowNum);
 
-    // if category is unselected, get parent info via AJAX and put it in the form
-    $.getJSON(GTD.urlprefix+'sendJSON.php&itemId='+id,
-        function(json){
-            var formfield, thisform=$('form:first'),max,i,
-                fields=['categoryId','contextId','deadline'];
-            max=fields.length;
-            for (i=0;i<max;i++) {
-                formfield=thisform.find('[name='+fields[i]+']');
-                if (formfield.val()==='' || formfield.val()==='0') {
-                    formfield.val(json[fields[i]]);
-                }
-            }
-        });
+  var fields = $(
+    "#categoryId,#contextId,#timeframeId,#deadline,#isSomeday,#tickledate").
+    filter(":visible").filter(function ajaxgotparent_filter() {
+      var curVal=$(this).val();
+      return (curVal === "" || curVal === "0"); });
+
+  if (!fields.length) { return false; }
+
+  // if any inheritable fields are empty, get parent info via AJAX and put it in the form
+  $.getJSON(GTD.ajax.urlprefix + "sendJSON.inc.php&action=get1&itemId=" + aId,
+      function ajaxgotparent_ajax(json){
+        fields.each(function ajaxgotparent_fillblanks() {
+          $(this).val(json[this.name]);
+          });
+      });
+      
+  return true;
 };
 // ======================================================================================
 GTD.ParentSelector.prototype.makeline=function(id,title,type,typename,i,useTypes,onetype) {
@@ -1673,7 +1768,7 @@ GTD.toggleHidden=function (parent,link,dummy) {
  * link:  the id of the element that the user pressed to reveal the section - we can dispose of that element, now
  */
     $('#'+link).remove();
-    $('tr.togglehidden','#'+parent).animateShow(null);
+    $('tr.togglehidden','#'+parent).animateShow();
     return false;
 };
 // ======================================================================================

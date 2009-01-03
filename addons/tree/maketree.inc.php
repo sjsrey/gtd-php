@@ -238,6 +238,9 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
 include_once 'header.inc.php';
 ?>
 
+<!--[if IE 6]>
+<p class='warning'>WARNING: this addon is very unlikely to behave properly in IE6!</p>
+<![endif]-->
 
 
 <form action='' method='get' id='filterform'>

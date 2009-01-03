@@ -83,7 +83,7 @@ include_once 'header.inc.php';
         
         <table summary='Orphans'>
                     <tbody>
-                    <?php columnedTable(3,$orph_maintable); ?>
+                    <?php columnedTable(3,$orph_maintable,'item.php'); ?>
                     </tbody>
                 </table></td>
     </tr>

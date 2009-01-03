@@ -6,7 +6,7 @@
 /*global Application,CmdUtils,jQuery,noun_arb_text,displayMessage */
 
 
-var kver = "200812161143",
+var kver = "200901011137",
     kPath = "<?php echo getAbsolutePath(); ?>",
     kDoLog = false,
     kProjectCache = "gtdphp.ubiquity.projects";
@@ -56,7 +56,7 @@ var noun_type_gtdparent = {
   getParents: function gtd_getparents(aOnDone) {
     var self=this;
     if (kDoLog) { displayMessage('off to get parents'); }
-    jQuery.getJSON(kPath + "addon.php?addonid=ajax&url=sendJSON.php&type=p",
+    jQuery.getJSON(kPath + "addon.php?addonid=ajax&action=list&url=sendJSON.inc.php&type=p",
                    function gtd_json(aParents) {
                      if (kDoLog) {displayMessage('assigning parents');}
                      self.parentList = aParents;
@@ -154,9 +154,9 @@ makegtd({
   
   takes: { parent: noun_type_gtdparent },
 
-  _getDocHrefAndTitle: function gtdref_getDocHrefAndTitle() {
+  _getDocHrefAndTitle: function gtdref_getDocHrefAndTitle(aMods) {
     try {
-      var document = Application.activeWindow.activeTab.document,
+      var document = CmdUtils.getDocument(),
           currenturl = document.location.href,
           title = aMods.title.html || document.title;
       return { done: true, url: currenturl, title: title };
@@ -166,7 +166,7 @@ makegtd({
   },
   
   preview: function gtdref_preview(aPblock, aParent, aMods) {
-    var docInfo=this._getDocHrefAndTitle();
+    var docInfo=this._getDocHrefAndTitle(aMods);
     if (!docInfo.done) {
       aPblock.innerHTML = docInfo.message;
       return false;
@@ -177,7 +177,7 @@ makegtd({
   },
 
   execute: function gtdref_exec(aParent, aMods) {
-    var docInfo=this._getDocHrefAndTitle();
+    var docInfo=this._getDocHrefAndTitle(aMods);
     if (!docInfo.done) {
       displayMessage(docInfo.message);
       return false;

@@ -50,6 +50,80 @@ function manualcellindex(cell) {
     return index;
 }
 // ======================================================================================
+function checkSaneRecurrenceInterval(aEvent) {
+/*
+ * check that we don't have a crazy recurrence interval
+ *
+ * submitButton: DOM element of the form's submit button, which we'll use to
+ *               identify the form we're checking
+ */
+  var interval, intervalField, maxInterval, periodName, warning,
+      form = $("#itemform"),
+      passed = GTD.validate(form.get(0)),
+      freqType = form.find("[name=FREQtype]:checked").val();
+
+  switch (freqType) {
+
+    case "DAILY":
+      maxInterval = 366;
+      periodName = "days";
+      break;
+
+    case "WEEKLYBYDAY":        // no break needed, deliberately flows through to next case
+    case "WEEKLY":
+      maxInterval = 27;
+      periodName = "weeks";
+      break;
+
+    case "MONTHLYBYDAY":       // no break needed, deliberately flows through to next case
+    case "MONTHLYBYWEEK":      // no break needed, deliberately flows through to next case
+    case "MONTHLY":
+      maxInterval = 27;
+      periodName = "months";
+      break;
+
+    case "YEARLYBYDATE":       // no break needed, deliberately flows through to next case
+    case "YEARLYBYWEEK":       // no break needed, deliberately flows through to next case
+    case "YEARLY":
+      maxInterval = 6;
+      periodName = "years (note that gtd-php cannot handle gaps longer than 10 years)";
+      break;
+
+    case "NORECUR":            // no break needed, deliberately flows through to default
+    default: // probably TEXT
+      maxInterval = 0;
+      break;
+
+  } // end of switch (freqType)
+
+  intervalField = form.find("[name=INTERVAL]");
+  interval = intervalField.val();
+  
+  if (maxInterval && interval > maxInterval) {
+    // interval is outside recommended limits
+    warning = "You have selected a recurrence of " + interval + " " +
+                        periodName + ". Are you sure that's what you want?";
+    if (passed) {
+      // everything else would have been ok, so ask user to confirm:
+      if (!confirm(warning)) {
+        // user has cancelled in confirmation dialog
+        passed = false;
+        // ensure recurrence thing is shown
+        GTD.showrecurbox();
+        intervalField.get(0).focus();
+        intervalField.get(0).select();
+      }
+    }
+    else {
+      // validation tests had previously failed, so add warning to error box
+      $("#errorMessage").append(warning).append(document.createElement("br"));
+    }
+   
+  }
+
+  return passed;
+}
+// ======================================================================================
 function getDocPath(){
     return window.location.pathname.replace(/^(.*\/)[^\/]*$/,"$1");
 }
@@ -146,6 +220,7 @@ function ts_sort_date(a,b) {
     return 100;
 }
 
+/*
 function ts_sort_currency(a,b) {
     var aa,bb,retval;
     aa = ts_getInnerText(a.cells[sort_column_index]).replace(/[^0-9.]/g,'');
@@ -153,7 +228,6 @@ function ts_sort_currency(a,b) {
     retval = parseFloat(aa) - parseFloat(bb);
 	if (retval===0) {return (a.rowIndex-b.rowIndex);} else {return retval;}
 }
-
 function ts_sort_numeric(a,b) {
     var aa,bb;
     aa = parseFloat(ts_getInnerText(a.cells[sort_column_index]));
@@ -162,7 +236,7 @@ function ts_sort_numeric(a,b) {
     if (isNaN(bb)) {bb = 0;}
     if (aa===bb) {return (a.rowIndex-b.rowIndex);} else {return aa-bb;}
 }
-
+*/
 function ts_sort_caseinsensitive(a,b) {
     var aa,bb;
     aa = ts_getInnerText(a.cells[sort_column_index]).toLowerCase();
@@ -367,12 +441,8 @@ if (typeof Calendar!=='undefined') {
          * if a button is present, it will be used as the trigger, else
          * the input field itself will be used
          */
-        if (params.button) {
-            params.button[     "on" + params.eventName]=showCal;
-        } else if (params.inputField) {
-            params.inputField[ "on" + params.eventName]=showCal;
-        }
-        if (params.displayArea) {params.displayArea["on" + params.eventName]=showCal;}
+        $(params.button || params.inputField).bind(params.eventName, showCal);
+        //if (params.displayArea) {$(params.displayArea).bind(params.eventName, showCal);}
     };
 }
 // ======================================================================================
@@ -388,14 +458,14 @@ GTD.checkRecurrence=function (dateElement) {
  * dateElement: DOM element of the date form field being changed
  */
     var thisform=$(dateElement).parents('form'),
-        freqtype=$('[name=FREQtype]:checked',thisform).val();
+        freqtype=$("[name=FREQtype]:checked").val();
     if ( (dateElement.id==='tickledate' && thisform.find('#deadline').val()!=='' ) ||
-        ('NORECURDAILY WEEKLY MONTHLY YEARLY'.match(freqtype)!==null) ) {
+        ("NORECUR DAILY WEEKLY MONTHLY YEARLY".match(freqtype)!==null) ) {
         return true;
     }
     GTD.showrecurbox();
-    // TODO - write this function!!!
-    alert('now check the recurrence pattern');
+    // TODO - write this function - a simple alert isn't really good
+    alert('Check the recurrence pattern - the change to the tickle date or deadline may have affected it');
     return true;
 };
 // ======================================================================================
@@ -466,7 +536,7 @@ GTD.cookieSet=function gtd_cookieset(name,value,path,maxagedays) {
  */
     var maxage,expires;
     if (path===undefined) {path=getDocPath();}
-    if (maxagedays===undefined) {maxagedays=365;}
+    if (maxagedays===undefined) {maxagedays=365*3;} // 3 years
     expires=new Date();
     maxage=maxagedays * 24 * 60 * 60;
     if (value === null) {
@@ -582,26 +652,52 @@ GTD.freeze=function gtd_freeze(tofreeze) {
 	freezediv.style.display=(tofreeze)?"block":"none";
 };
 // ======================================================================================
-GTD.initcalendar=function gtd_initcalendar(container) {
+GTD.initItem = function gtd_initItem() {
+/*
+ * initialising an item form
+ *
+ */
+  GTD.initcalendar(document.getElementById("itemform"));
+  $("#itemform").bind("submit", checkSaneRecurrenceInterval);
+
+  if ($("#itemform [name=itemId]").val() === "0") {
+    $("#deadline,#tickledate").bind("change",function checkFutureDate(evt) {
+        var ok,
+            that = this,
+            testDate = Date.parseDate($(this).val(), "%Y-%m-%d"),
+            now = new Date(),
+            today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        if ( testDate.valueOf() < today.valueOf() ) {
+          ok = confirm("Date is in the past - are you sure?");
+          if (ok) {
+            $("#deadline,#tickledate").unbind("change");
+          } else {
+            setTimeout(function refocusAfterPastDate() {
+              that.focus();
+              that.select();
+            }, 50);
+          }
+          return ok;
+        }
+      });
+  }
+};
+// ======================================================================================
+GTD.initcalendar = function gtd_initcalendar(container) {
 /*
  * initialise the calendars
  *
  * container: the DOM item within which the calendar triggers are held
  */
-    var i,id,allinputs,max,firstDayOfWeek,classRegExp;
-    firstDayOfWeek=parseInt(document.getElementById('firstDayOfWeek').value,10);
-    allinputs=container.getElementsByTagName('input');
-    classRegExp=new RegExp("(^|\\s)hasdate(\\s|$)");
-    max=allinputs.length;
-    for (i=0;i<max;i++) {
-        if (classRegExp.test(allinputs[i].className) ) {
-            id=allinputs[i].id;
-            Calendar.setup( { firstDay  : firstDayOfWeek,
-                inputField: id,
-                button    : id+'_trigger'
-            });
-        }
+  var firstDayOfWeek = parseInt(document.getElementById('firstDayOfWeek').value, 10);
+  $("input.hasdate", container).each(
+    function setCalendarEvent() {
+      var id = this.id;
+      Calendar.setup( { firstDay: firstDayOfWeek,
+                        inputField: id,
+                        button: id + "_trigger" });
     }
+  );
 };
 // ======================================================================================
 GTD.ParentSelector=function Gtd_parentselector(ids,titles,types,onetype) {
@@ -905,10 +1001,9 @@ GTD.setTabs=function gtd_settabs() {
                 end().
             end().
             remove();
-    $('#footer').before('<p>Note that Apply will save changes on all tabs; Reset will reset all tabs</p>');
 };
 // ======================================================================================
-GTD.showrecurbox=function gtd_showrecurbox(what,where) {
+GTD.showrecurbox=function gtd_showrecurbox() {
 /*
  * populates and displayes the custom recurrence box on item.php
  *
@@ -916,8 +1011,9 @@ GTD.showrecurbox=function gtd_showrecurbox(what,where) {
  * where:
  */
     var startdate,t,mth,wk,dte,day,daynum,startday,form,days,recurbox,newhome;
-    recurbox=document.getElementById(what);
-    newhome=where.parentNode;
+    recurbox=document.getElementById("recur");
+    if ($(recurbox).is(":visible")) { return false; }
+    newhome=document.getElementById("recurdiv");
     while(newhome.hasChildNodes()) {newhome.removeChild(newhome.lastChild);}
     newhome.appendChild(recurbox);
     recurbox.style.display='block';
@@ -958,14 +1054,18 @@ GTD.tagAdd=function gtd_tagadd(newtaglink) {
  * newtaglink: DOM object of tag being clicked
  */
     var tagfield = $('#tags'),
-	rawval = tagfield.val(),
-        newtag = newtaglink.text.toLowerCase(),
+	      rawval = tagfield.val(),
+        newtag = $(newtaglink).text(),
         testtags = ("," + rawval.toLowerCase() + ",").replace(/\s*,\s*/g, ",");
         
-    if (testtags.match(','+newtag+',') === null) {
-        if (rawval.match(/,\s*$/) === null && rawval.match(/^\s*$/) === null)
-            tagfield.val(rawval + ',');
-        tagfield.val(tagfield.val() + newtaglink.text);
+    if (testtags.match("," + newtag.toLowerCase() + ",") === null) {
+        // we don't currently have this tag in the list, so we should add it
+        if (rawval.match(/,\s*$/) === null && rawval.match(/^\s*$/) === null) {
+            // we already have some tag(s), and no terminal comma, so add one
+            tagfield.val(rawval + ",");
+        }
+        // and now actually add the new tag to the list
+        tagfield.val(tagfield.val() + newtag);
     }
     return false;
 };
@@ -1087,7 +1187,7 @@ GTD.validate=function gtd_validate(form) {
                 passed=checkDate(thisfield,dateFormat);
                 break;
             case "notnull":
-        		passed=!checkForNull(thisfield);
+        		    passed=!checkForNull(thisfield);
                 break;
             case "depends":
             	fieldRequires = form.elements[requiredItem[3]];

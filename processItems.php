@@ -358,93 +358,23 @@ function retrieveFormVars() {
         $values['recur']=null;
         $values['recurdesc']=null;
     } else {
-        processRecurrence();
+    
+        list($values['recur'],$values['recurdesc']) = processRecurrence($values);
+        
+        if (    !empty($values['recur'])
+            && ( empty($values['deadline'])   || $values['deadline']==='NULL'   )
+            && ( empty($values['tickledate']) || $values['tickledate']==='NULL' ) ) {
+            
+            // haven't got a startdate, so use what the next recurrence date would be
+            $nextdue=getNextRecurrence($values);
+            if ($nextdue) $values['deadline']="'$nextdue'";
+            log_text("Forcing deadline where none given - $nextdue");
+
+        }
+
     }
 
 	log_value('retrieved form vars',$values);
-}
-//===========================================================================
-function processRecurrence() {
-    global $values;
-    $rrule=array();
-    require_once 'iCalcreator.class.inc.php';
-    $vevent = new vevent();
-
-    $rrule=array();
-    $rrule['INTERVAL']= (empty($_POST['INTERVAL'])) ? 1 : $_POST['INTERVAL'];
-    if (!empty($_POST['UNTIL'])) $rrule['UNTIL']=$_POST['UNTIL'];
-    switch ($_POST['FREQtype']) {
-        case ('TEXT') :
-            $vevent->parse(array('RRULE:'.$_POST['icstext']));
-            $rrule=array();
-            break;
-        case ('DAILY'):   // Deliberately flows through to next case
-        case ('WEEKLY'):  // Deliberately flows through to next case
-        case ('MONTHLY'): // Deliberately flows through to next case
-        case ('YEARLY'):
-            $rrule['FREQ']=$_POST['FREQtype'];
-            break;
-        // end of simple cases - now the trickier stuff
-        case ('WEEKLYBYDAY'):
-            $rrule['FREQ']='WEEKLY';
-            if (is_array($_POST['WEEKLYday'])) {
-                $out=array();
-                foreach ($_POST['WEEKLYday'] as $val)
-                    array_push($out,array('DAY'=>$val));
-                $rrule['BYDAY']=$out;
-            }
-            break;
-        case ('MONTHLYBYDAY'):
-            $rrule['FREQ']='MONTHLY';
-            $rrule['BYMONTHDAY']=array($_POST['MONTHLYdate']);
-            break;
-        case ('MONTHLYBYWEEK'):
-            $rrule['FREQ']='MONTHLY';
-            $rrule['BYDAY']=array( (int) $_POST['MONTHLYweek'] ,
-                'DAY'=> $_POST['MONTHLYweekday']  );
-            break;
-        case ('YEARLYBYDATE'):
-            $rrule['FREQ']='YEARLY';
-            $rrule['BYMONTHDAY']=array($_POST['YEARLYdate']);
-            $rrule['BYMONTH']=array($_POST['YEARLYmonth']);
-            break;
-        case ('YEARLYBYWEEK'):
-            $rrule['FREQ']='YEARLY';
-            $rrule['BYMONTH']=array($_POST['YEARLYweekmonth']);
-            $rrule['BYDAY']=array( (int) $_POST['YEARLYweeknum'] ,
-                                'DAY'=> $_POST['YEARLYweekday']  );
-            break;
-        default:
-            $values['recurdesc']='';
-            $values['recur']='';
-            return false;
-    }
-    /*  got all the data from the form
-        --------------------------------------------------------------------
-    */
-    if ($_POST['FREQtype']!=='TEXT') {
-        $vevent->setProperty( "rrule",$rrule);
-        log_value('RRULE form values=',$rrule);
-    }
-    
-    $rrule=$vevent->getProperty('rrule');
-    $rruletext=$vevent->_format_recur('',array(array('value'=>$rrule)));
-    log_value("RRULEtext: $rruletext ; calculated rule=",$rrule);
-    // now we've done the round trip, we can be confident that it's a valid recurrence string, so store it
-    $values['recur']=$rruletext;
-    if (  !empty($rruletext)
-        && ( empty($values['deadline'])   || $values['deadline']==='NULL'   )
-        && ( empty($values['tickledate']) || $values['tickledate']==='NULL' ) ) {
-        // haven't got a startdate, so use what the next recurrence date would be
-        $nextdue=getNextRecurrence($values);
-        if ($nextdue) $values['deadline']="'$nextdue'";
-        log_text("Forcing deadline where none given - $nextdue");
-    }
-    if (empty($_POST['recurdesc'])) {
-        // set desc based on intelligent description
-        $values['recurdesc']="+{$rrule['INTERVAL']}".substr($rrule['FREQ'],0,1);
-    } else
-        $values['recurdesc']=$_POST['recurdesc'] ;
 }
 //===========================================================================
 function recurItem() {

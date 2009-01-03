@@ -56,9 +56,7 @@ $headertext=<<<HTML1
 {$extrajavascript}
 HTML1;
 //-----------------------------------------------------------
-gtd_handleEvent(_GTD_ON_HEADER,$pagename);
-
-echo $headertext;
+if (gtd_handleEvent(_GTD_ON_HEADER,$pagename)) echo $headertext;
 /*
 Documentation for included files:
 

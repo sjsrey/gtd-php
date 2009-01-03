@@ -44,8 +44,8 @@ function makeOptionsTab($array,$values,$tabname,$varprefix='',$textsize=10) {
     }
     ?>
         <div class='formbuttons'>
-            <input type='submit' value='Apply' name='submit' />
-            <input type='reset'  value='Reset' name='reset'  />
+            <input type='submit' value='Apply all sections' name='submit' />
+            <input type='reset'  value='Reset all' name='reset'  />
         </div>
     </div>
     <?php

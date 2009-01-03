@@ -11,7 +11,9 @@ if (!$loadingajax)
 switch ($page) {
         //-------------------------------------------------------------
     case 'item':
-        if(!$loadingajax) {
+        if($loadingajax) {
+            $onready.="GTD.ajax.itemSetup();\n";
+        } else {
             global $show,$descrows,$outcomerows;
             $show['header']=$show['footer']=$show['submitbuttons']=
                 $show['ptitle']=$show['scriptparents']=$show['dateCreated']=
@@ -19,7 +21,10 @@ switch ($page) {
             $loadingajax=false;
             $descrows=4;
             $outcomerows=2;
+            // suppress all standard header output
+            $addon['result']=false;
         }
+            
         // TODO: attach onkeypress='return GTD.tagKeypress(event);' onto tag input field
         break;
         //-------------------------------------------------------------
@@ -58,7 +63,7 @@ if ($loadingajax) {
 <script type='text/javascript'>
 /* <![CDATA[ */
 $(document).ready(function() {
-    GTD.urlprefix='{$addon['urlprefix']}';
+    GTD.ajax.urlprefix='{$addon['urlprefix']}';
     GTD.ajax.dir='{$addon['dir']}';
     $onready
 });

@@ -1,6 +1,16 @@
 #searcher .creator {
     background-color:#FF8;
 }
+#recur #nextdue {
+    position:absolute;
+    bottom:0;
+    right:0;
+    margin:1px;
+    border:none;
+}
+#recur {
+    position:relative;
+}
 .ajaxform {
     position:absolute;
     left:1em;
@@ -12,21 +22,42 @@
     margin:1px;
 }
 .ajaxform,.ajaxform form, .ajaxform div.form {
-    padding:0;
-    margin:0;
+    padding:0px;
+    margin:0px;
 }
 .ajaxcancel {
     background-color:red;
     color:white;
-    font-size:1.5em;
 }
-#ajaxexpand {
+.ajaxexpand {
     background-color:blue;
     color:white;
-    font-size:1.5em;
 }
-.addlink,#ajaxsave:hover,.ajaxcancel:hover,#ajaxexpand:hover {
+.addlink,.ajaxbutton:hover {
     cursor: pointer;
+}
+.ajaxbutton img {
+    margin:0px;
+}
+.ajaxbutton {
+    border:0px;
+    padding:1px;
+    margin:0px;
+    height:18px;
+    width:18px;
+}
+.ajaxbutton:hover {
+    border:1px dotted;
+    padding:0px;
+}
+.ajaxbutton:active {
+    border:1px dashed;
+    padding:0px;
+}
+#ajaxfullformbuttons {
+    position:absolute;
+    bottom:0;
+    left:0;
 }
 .ajaxupdated,.ajaxupdated * {
 	background-color:#afa !important;
@@ -51,7 +82,7 @@ tr.ajaxselected * {
 #colselector li {
     list-style: none inside;
     padding: 2px 2px 2px 20px;
-    margin:0 2px;
+    margin:0px 2px;
     cursor:pointer;
 }
 #colselector li:hover,#colselector li.colshown:hover {

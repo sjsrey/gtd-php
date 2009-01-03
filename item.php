@@ -179,7 +179,7 @@ $weeks=array(1=>'1st',2=>'2nd',3=>'3rd',4=>'4th',5=>'5th',-1=>'Last');
 $months=array(1=>'January',2=>'February',3=>'March',4=>'April',5=>'May',6=>'June',
         7=>'July',8=>'August',9=>'September',10=>'October',11=>'November',12=>'December');
 
-$defaults=array('FREQtype'=>'NORECUR','FREQ'=>'NORECUR','INTERVAL'=>1,'UNTIL'=>null,
+$defaults=array('FREQtype'=>'NORECUR','FREQ'=>'NORECUR','INTERVAL'=>1,'RECURUNTIL'=>null,
                 'BYDAY'=>array(),'BYMONTHDAY'=>null,'BYMONTH'=>null,
                 'day'=>null,'week'=>null );
 
@@ -237,10 +237,11 @@ if (empty($values['recur'])) {
 if ($show['header']) include_once 'headerHtml.inc.php';
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
 if ($show['header']) { ?>
+
     <script type="text/javascript">
     /* <![CDATA[ */
     $(document).ready(function() {
-        GTD.initcalendar(document);
+        GTD.initItem();
         <?php if ($show['scriptparents']) { ?>
             GTD.typenames={<?php
                 $sep='';
@@ -248,7 +249,7 @@ if ($show['header']) { ?>
                     echo "$sep$key:'$val'";
                     $sep=',';
                 }
-            ?>};
+              ?>};
             GTD.tags=",<?php foreach ($taglist as $tag) echo "$tag,"; ?>";
             GTD.parentselect=new GTD.ParentSelector(
                 <?php echo "$pid\n,\n$ptitle\n,\n$partt\n,\"{$values['ptype']}\" \n"; ?>
@@ -258,6 +259,7 @@ if ($show['header']) { ?>
     });
     /* ]]> */
     </script>
+    
     <?php
     if ($values['itemId'])
         // don't want this appearing in TITLE, but do want it in H1
@@ -288,7 +290,7 @@ if ($show['type']) {
 }
 if ($sep!=='<p>') echo "</p>\n";
 ?>
-<form action="processItems.php" id="itemform" method="post" onsubmit="return GTD.validate(this);">
+<form action="processItems.php" id="itemform" method="post">
 <div class='form'>
     <div class='formrow' id='errorbox'><span class="error" id='errorMessage'></span></div>
         <?php if($show['title']) { ?>
@@ -434,7 +436,7 @@ if ($sep!=='<p>') echo "</p>\n";
         } else $hiddenvars['isSomeday']=$values['isSomeday'];
         
         if ($show['recurdesc']) { ?>
-            <div class='formrow'>
+            <div class='formrow' id='recurdiv'>
                 <label class='left first'>Repeat:</label>
                 <?php
                 //<input type='text' name='recurdesc' id='recurdesc' value='
@@ -445,11 +447,11 @@ if ($sep!=='<p>') echo "</p>\n";
                         ,"<label> If completed today, "
                         ,(empty($nextdate))
                             ? " there will be no further recurrence"
-                            : " the next recurrence would be $nextdate"
+                            : " the next recurrence would be <span id='nextduedate'>$nextdate</span>"
                         ,"</label>";
                 ?> <a href='#recurform' <?php
                     if ($_SESSION['useLiveEnhancements'])
-                        echo " onclick='return GTD.showrecurbox(\"recur\",this)' ";
+                        echo " onclick='return GTD.showrecurbox();' ";
                 ?>>Change ...</a>
                     <?php
                         if (!empty($values['recur'])) echo " <label>{$values['recur']}</label>";
@@ -605,7 +607,7 @@ if ($show['submitbuttons']) { ?>
 } // end of if ($show['submitbuttons'])
 ?>
 <div class='hidden'>
-   <input type='hidden' name='required' value='title:notnull:Title can not be blank.,tickledate:date:Suppress date must be a valid date.,deadline:date:Deadline must be a valid date.,dateCompleted:date:Completion date is not valid.' />
+   <input type='hidden' name='required' value='title:notnull:Title must not be blank.,tickledate:date:Suppress date must be a valid date.,deadline:date:Deadline must be a valid date.,dateCompleted:date:Completion date must be a valid date.' />
    <input type='hidden' name='dateformat' value='ccyy-mm-dd' />
     <?php
         if (!$values['itemId']) {
@@ -747,11 +749,11 @@ if ($show['submitbuttons']) { ?>
     </div>
 
     <div class='formrow'>
-        <label class='left first' for='UNTIL'>Don't repeat after:</label>
-        <input type='text' size='10' class='hasdate' name='UNTIL' id='UNTIL' value='<?php
-            if (!empty($recur['UNTIL'])) echo $recur['UNTIL'];
+        <label class='left first' for='RECURUNTIL'>Don't repeat after:</label>
+        <input type='text' size='10' class='hasdate' name='RECURUNTIL' id='RECURUNTIL' value='<?php
+            if (!empty($recur['RECURUNTIL'])) echo $recur['RECURUNTIL'];
         ?>' />
-        <button id='UNTIL_trigger'>&hellip;</button>
+        <button id='RECURUNTIL_trigger'>&hellip;</button>
         <span>
             <input type='radio' name='FREQtype' value='NORECUR' id='NORECUR' <?php
                 if ($recur['FREQtype']==='NORECUR') echo " checked='checked' ";

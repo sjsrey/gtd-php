@@ -3,6 +3,7 @@ $title='Edit item hierarchy: stage 1 - edit level names';
 require_once 'header.inc.php';
 ?>
 <form action='processTypes.php' method='post'>
+<p>Please use the singular form - e.g. goal not goal<b>s</b></p>
 <?php
 foreach (array(
         array('m','text','Top level (default is value)'),
