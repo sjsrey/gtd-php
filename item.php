@@ -598,7 +598,7 @@ if ($show['submitbuttons']) { ?>
 } // end of if ($show['submitbuttons'])
 ?>
 <div class='hidden'>
-   <input type='hidden' name='required' value='title:notnull:Title must not be blank.,tickledate:date:Suppress date must be a valid date.,deadline:date:Deadline must be a valid date.,dateCompleted:date:Completion date must be a valid date.' />
+   <input type='hidden' name='required' value="title:notnull:Title must not be blank.,tickledate:date:Suppress date must be a valid date.,deadline:date:Deadline must be a valid date.,dateCompleted:date:Completion date must be a valid date.,UNTIL:date:Dont-repeat-after date must be a valid date." />
    <input type='hidden' name='dateformat' value='ccyy-mm-dd' />
     <?php
         if (!$values['itemId']) {

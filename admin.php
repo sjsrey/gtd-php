@@ -32,13 +32,10 @@ $showInstallations=true;
 $showCommands=true;
 $prefix=(isset($_REQUEST['prefix']))?$_REQUEST['prefix']:$_SESSION['prefix'];
 if (!checkPrefix($prefix)) $prefix='';
-$availableActions=array('validate','repair','backup');
+$availableActions=array('validate','repair');
 if (_ALLOWUNINSTALL) $availableActions[]='delete';
 
 switch ($action) {
-    case 'backup':
-        $backup=backupData($prefix);
-        break;
     case 'delete':
         if (!_ALLOWUNINSTALL) break;
         break;
@@ -110,39 +107,31 @@ if (!empty($validate)) echo $validate;
 if ($showInstallations || $showCommands) { ?>
     <h2>Action</h2>
     <form action='admin.php'>
+    <div class='form'>
     <?php if ($showInstallations) { ?>
-        <h3>Detected installations in this database</h3>
-        <p>Pick one to operate on:</p>
+        <!--h3>Detected installations in this database</h3>
+        <p>Pick one to operate on:</p-->
         <div class='formrow'>
             <label class='left first' for='prefix'>prefix</label>
             <input disabled='disabled' id='prefix' type='text' name='prefix' value='<?php echo $prefix; ?>' />
         </div>
     <?php } if ($showCommands) { ?>
-        <h3>Action to take:</h3>
         <div class='formrow'>
+        <label class='left first'>Action to take:</label>
             <?php foreach ($availableActions as $doit) { ?>
                 <label class='notfirst left'><?php echo $doit; ?></label>
                 <input type='radio' name='action' value=<?php echo "'$doit'",($doit===$action)?" checked='checked' ":''; ?> />
             <?php } ?>
             <input type='submit' name='submit' value='Go' />
+            <a href='backup.php?prefix=<?php echo $prefix; ?>'>Create a backup of the database to save locally</a>
         </div>
     <?php } ?>
+    </div>
     </form>
 <?php
 }
 if (!empty($repair)) echo $repair;
-if (!empty($backup)) {
-  /* buffer the entire backup, so that we never just output part of it,
-   * because it could be disastrous if the user were to rely on a partial
-   * backup, given that the backup instructions now start with commands to
-   * delete the existing tables
-   */
-    @ob_start(); 
-    ?><h2>Backup of installation with prefix '<?php echo $prefix; ?>'</h2>
-    <textarea cols="120" rows="10"><?php echo $backup; ?></textarea>
-<?php
-    @ob_end_flush();
-} ?>
+?>
 <h2>&nbsp;</h2>
 <p>Note that because this report counts all items (of all types) without parents
  regardless of whether they'd normally appear in the orphans report, the

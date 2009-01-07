@@ -81,19 +81,23 @@ function checkSaneRecurrenceInterval(aEvent) {
  *
  * aEvent: jQuery event object for the submit action
  */
+
   var interval, intervalField, maxInterval, periodName,
       fieldToFocus = null,
       warning = "",
-      form = $("#itemform"),
+      form = $("#itemform").find(".formerror").removeClass("formerror").end(),
       passed = GTD.validate(form.get(0)),
       intervalField = form.find("[name=INTERVAL]"),
       interval = intervalField.val(),
       tickleField = form.find("#tickledate"),
-      tickleDate = Date.parseDate(tickleField.val(), "%Y-%m-%d"),
+      tickleVal = tickleField.val(),
+      tickleDate = Date.parseDate(tickleVal, "%Y-%m-%d") && tickleVal,
       untilField = form.find("#UNTIL"),
-      until = Date.parseDate(untilField.val(), "%Y-%m-%d"),
+      untilVal = untilField.val()
+      until = Date.parseDate(untilVal, "%Y-%m-%d") && untilVal,
       freqType = form.find("[name=FREQtype]:checked").val(),
-      deadline = Date.parseDate(form.find("#deadline").val(), "%Y-%m-%d"),
+      deadlineVal = form.find("#deadline").val(),
+      deadline = Date.parseDate(deadlineVal, "%Y-%m-%d") && deadlineVal,
       now = new Date(),
       today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -131,25 +135,18 @@ function checkSaneRecurrenceInterval(aEvent) {
 
   } // end of switch (freqType)
 
-  if (until < today && !form.find("#dateCompleted").val()) {
-    warning = warning +
-              "The end date you've set for recurrences is in the past.\n";
-    GTD.showrecurbox();              // ensure recurrence box is shown
-    fieldToFocus = untilField;
-  }
-
   if (maxInterval && interval > maxInterval) {
     // interval is outside recommended limits
     warning = warning + "You have selected a recurrence of " + interval +
               " " + periodName + ".\n";
     GTD.showrecurbox();              // ensure recurrence box is shown
-    fieldToFocus = intervalField;
+    fieldToFocus = intervalField.addClass("formerror");
   }
-  
-  if (tickleDate > deadline) {
+
+  if (deadlineVal && tickleDate > deadline) {
     warning = warning +
               "The item will be suppressed until after the deadline has passed.\n";
-    fieldToFocus = tickleField;
+    fieldToFocus = tickleField.addClass("formerror");
   }
 
   if (warning) {
@@ -503,7 +500,7 @@ GTD.checkRecurBase = function gtd_checkRecurBase(aEvent) {
     
     if (ok) {
       // we've warned once, and the user has said OK, so don't ask again
-      $("#deadline,#tickledate").
+      $("#deadline,#tickledate,#UNTIL").
         unbind("change",GTD.checkRecurBase).
         change(GTD.checkRecurrence);
     }
@@ -513,7 +510,7 @@ GTD.checkRecurBase = function gtd_checkRecurBase(aEvent) {
       setTimeout(function refocusAfterPastDate() {
         that.focus();
         that.select();
-      }, 50);
+      }, 100);
     }
     return ok && GTD.checkRecurrence(aEvent);
   }
@@ -749,7 +746,7 @@ GTD.initItem = function gtd_initItem(container) {
   
   $("form", container).bind("submit", checkSaneRecurrenceInterval);
   
-  $("#deadline,#tickledate", container).change(
+  $("#deadline,#tickledate,#UNTIL", container).change(
     ($("[name=itemId]",container).val() === "0") ?
       GTD.checkRecurBase :
       GTD.checkRecurrence );
