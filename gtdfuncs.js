@@ -8,26 +8,51 @@
    ======================================================================================
 */
 (function($) {
-var freezediv,focusOn,grabKey,oldTablePosition,sort_column_index;
+var freezediv, focusOn, grabKey, oldTablePosition, sort_column_index;
 // ======================================================================================
-function keyPressHandler(e) {
+$.fn.animateShow = function jquery_animateShow(aCallback) {
+/*
+ * this function does the animation for items which have successfully been updated
+ * It works by extending jQuery, so that we can execute the function on any jQuery object
+ */
+  var that = this,
+      disp = (!$.browser.msie && this.get(0).tagName.toLowerCase() === "tr") ?
+              "table-row" : "block";
+              
+  this.css({ opacity: 0.01, display: disp }).
+       removeClass("togglehidden hidden").
+       addClass("updated").
+       show().
+       animate({ opacity: 1 }, 600);
+
+  setTimeout(function () {
+    that.removeClass("updated");
+    if ($.isFunction(aCallback)) { aCallback(that); }
+  }, 2000);
+  
+  // always return the jQuery item we came in with, to allow chaining
+  return that;
+};
+// ======================================================================================
+function keyPressHandler(aEvent) {
 /*
  * event-handler for key presses, for when we are toggling the display of debug-log text
  *
- *  e: DOM event object
+ *  aEvent: DOM event object
  */
-    if (e.which!==grabKey) {return true;}
-    var targetNodeName;
-	if (e.target && e.target.nodeName) {
-		targetNodeName = e.target.nodeName.toLowerCase();
-		if (targetNodeName === "textarea" ||
-              (targetNodeName === "input" && e.target.type && e.target.type.toLowerCase() === "text")) {
-			return true;
-        }
-	}
-	$('.debug').toggle();
-    e.stopPropagation();
-    return false;
+  if (aEvent.which !== grabKey) { return true; }
+  var targetNodeName;
+  if (aEvent.target && aEvent.target.nodeName) {
+    targetNodeName = aEvent.target.nodeName.toLowerCase();
+    if ( targetNodeName === "textarea" ||
+        (targetNodeName === "input" && aEvent.target.type &&
+         aEvent.target.type.toLowerCase() === "text")) {
+      return true;
+    }
+  }
+  $('.debug').toggle();
+  aEvent.stopPropagation();
+  return false;
 }
 // ======================================================================================
 function manualcellindex(cell) {
@@ -54,13 +79,23 @@ function checkSaneRecurrenceInterval(aEvent) {
 /*
  * check that we don't have a crazy recurrence interval
  *
- * submitButton: DOM element of the form's submit button, which we'll use to
- *               identify the form we're checking
+ * aEvent: jQuery event object for the submit action
  */
-  var interval, intervalField, maxInterval, periodName, warning,
+  var interval, intervalField, maxInterval, periodName,
+      fieldToFocus = null,
+      warning = "",
       form = $("#itemform"),
       passed = GTD.validate(form.get(0)),
-      freqType = form.find("[name=FREQtype]:checked").val();
+      intervalField = form.find("[name=INTERVAL]"),
+      interval = intervalField.val(),
+      tickleField = form.find("#tickledate"),
+      tickleDate = Date.parseDate(tickleField.val(), "%Y-%m-%d"),
+      untilField = form.find("#UNTIL"),
+      until = Date.parseDate(untilField.val(), "%Y-%m-%d"),
+      freqType = form.find("[name=FREQtype]:checked").val(),
+      deadline = Date.parseDate(form.find("#deadline").val(), "%Y-%m-%d"),
+      now = new Date(),
+      today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   switch (freqType) {
 
@@ -96,31 +131,38 @@ function checkSaneRecurrenceInterval(aEvent) {
 
   } // end of switch (freqType)
 
-  intervalField = form.find("[name=INTERVAL]");
-  interval = intervalField.val();
-  
-  if (maxInterval && interval > maxInterval) {
-    // interval is outside recommended limits
-    warning = "You have selected a recurrence of " + interval + " " +
-                        periodName + ". Are you sure that's what you want?";
-    if (passed) {
-      // everything else would have been ok, so ask user to confirm:
-      if (!confirm(warning)) {
-        // user has cancelled in confirmation dialog
-        passed = false;
-        // ensure recurrence thing is shown
-        GTD.showrecurbox();
-        intervalField.get(0).focus();
-        intervalField.get(0).select();
-      }
-    }
-    else {
-      // validation tests had previously failed, so add warning to error box
-      $("#errorMessage").append(warning).append(document.createElement("br"));
-    }
-   
+  if (until < today && !form.find("#dateCompleted").val()) {
+    warning = warning +
+              "The end date you've set for recurrences is in the past.\n";
+    GTD.showrecurbox();              // ensure recurrence box is shown
+    fieldToFocus = untilField;
   }
 
+  if (maxInterval && interval > maxInterval) {
+    // interval is outside recommended limits
+    warning = warning + "You have selected a recurrence of " + interval +
+              " " + periodName + ".\n";
+    GTD.showrecurbox();              // ensure recurrence box is shown
+    fieldToFocus = intervalField;
+  }
+  
+  if (tickleDate > deadline) {
+    warning = warning +
+              "The item will be suppressed until after the deadline has passed.\n";
+    fieldToFocus = tickleField;
+  }
+
+  if (warning) {
+    if (passed && !confirm(warning + "Are you sure that's what you want?")) {
+      passed = false;
+    }
+    if (!passed) {
+      // validation tests had previously failed, so add warning to error box
+      warning = warning.replace(/\n/g, "<br/>");
+      $("#errorMessage").append(warning);
+      fieldToFocus.select().get(0).focus();
+    }
+  }
   return passed;
 }
 // ======================================================================================
@@ -446,30 +488,61 @@ if (typeof Calendar!=='undefined') {
     };
 }
 // ======================================================================================
-if (typeof window.GTD==='undefined') {window.GTD={};}
-GTD=window.GTD;
+if (typeof window.GTD === "undefined") { window.GTD = {}; }
+GTD = window.GTD;
 // ======================================================================================
-GTD.checkRecurrence=function (dateElement) {
+GTD.checkRecurBase = function gtd_checkRecurBase(aEvent) {
+  var ok,
+      that = this,
+      testDate = Date.parseDate($(this).val(), "%Y-%m-%d"),
+      now = new Date(),
+      today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+  if ( testDate.valueOf() < today.valueOf() ) {
+    ok = confirm("Date is in the past - are you sure?");
+    
+    if (ok) {
+      // we've warned once, and the user has said OK, so don't ask again
+      $("#deadline,#tickledate").
+        unbind("change",GTD.checkRecurBase).
+        change(GTD.checkRecurrence);
+    }
+    else {
+      // owing to browser silliness with propagation of change events,
+      // we need to lag the refocussing of this field
+      setTimeout(function refocusAfterPastDate() {
+        that.focus();
+        that.select();
+      }, 50);
+    }
+    return ok && GTD.checkRecurrence(aEvent);
+  }
+};
+// ======================================================================================
+GTD.checkRecurrence = function checkRecurrence(aEvent) {
 /*
  * if we have a recurrence pattern that's derived from a specific date,
  * e.g. first Monday in September, then when the date field changes, ask the user
  * if they want to update the recurrence pattern too
  *
- * dateElement: DOM element of the date form field being changed
+ * aEvent: the jQuery event
  */
-    var thisform=$(dateElement).parents('form'),
-        freqtype=$("[name=FREQtype]:checked").val();
-    if ( (dateElement.id==='tickledate' && thisform.find('#deadline').val()!=='' ) ||
+    var that = aEvent.target,
+        thisform = $(that).parents('form'),
+        recurField = $("[name=FREQtype]:checked"),
+        freqtype = recurField.val();
+        
+    if ( (that.id === 'tickledate' && thisform.find('#deadline').val() !== "" ) ||
         ("NORECUR DAILY WEEKLY MONTHLY YEARLY".match(freqtype)!==null) ) {
         return true;
     }
     GTD.showrecurbox();
-    // TODO - write this function - a simple alert isn't really good
-    alert('Check the recurrence pattern - the change to the tickle date or deadline may have affected it');
+    recurField.parents("p,div").eq(0).animateShow();
+    
     return true;
 };
 // ======================================================================================
-GTD.completeToday=function gtd_completetoday(datefield) {
+GTD.completeToday = function gtd_completetoday(datefield) {
 /*
  * enter today's date into the completion date field
  *
@@ -652,52 +725,34 @@ GTD.freeze=function gtd_freeze(tofreeze) {
 	freezediv.style.display=(tofreeze)?"block":"none";
 };
 // ======================================================================================
-GTD.initItem = function gtd_initItem() {
+GTD.initItem = function gtd_initItem(container) {
 /*
  * initialising an item form
  *
+ * container: DOM element of item DIV being processed
  */
-  GTD.initcalendar(document.getElementById("itemform"));
-  $("#itemform").bind("submit", checkSaneRecurrenceInterval);
-
-  if ($("#itemform [name=itemId]").val() === "0") {
-    $("#deadline,#tickledate").bind("change",function checkFutureDate(evt) {
-        var ok,
-            that = this,
-            testDate = Date.parseDate($(this).val(), "%Y-%m-%d"),
-            now = new Date(),
-            today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        if ( testDate.valueOf() < today.valueOf() ) {
-          ok = confirm("Date is in the past - are you sure?");
-          if (ok) {
-            $("#deadline,#tickledate").unbind("change");
-          } else {
-            setTimeout(function refocusAfterPastDate() {
-              that.focus();
-              that.select();
-            }, 50);
-          }
-          return ok;
-        }
-      });
-  }
-};
-// ======================================================================================
-GTD.initcalendar = function gtd_initcalendar(container) {
-/*
- * initialise the calendars
- *
- * container: the DOM item within which the calendar triggers are held
- */
-  var firstDayOfWeek = parseInt(document.getElementById('firstDayOfWeek').value, 10);
+  // initialise the calendars
+  var firstDayOfWeek = parseInt($("#firstDayOfWeek",container).val(), 10);
   $("input.hasdate", container).each(
     function setCalendarEvent() {
-      var id = this.id;
+      var that = this,
+          id = this.id;
       Calendar.setup( { firstDay: firstDayOfWeek,
                         inputField: id,
-                        button: id + "_trigger" });
+                        button: id + "_trigger",
+                        onUpdate: function calendarSelected(cal) {
+                          return $(that).triggerHandler("change");
+                        }
+                      });
     }
   );
+  
+  $("form", container).bind("submit", checkSaneRecurrenceInterval);
+  
+  $("#deadline,#tickledate", container).change(
+    ($("[name=itemId]",container).val() === "0") ?
+      GTD.checkRecurBase :
+      GTD.checkRecurrence );
 };
 // ======================================================================================
 GTD.ParentSelector=function Gtd_parentselector(ids,titles,types,onetype) {

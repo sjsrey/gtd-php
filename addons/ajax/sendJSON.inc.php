@@ -1,14 +1,15 @@
 <?php
 if (!headers_sent()) header('Content-Type: application/json; charset=utf-8');
-require_once 'headerDB.inc.php';
-require_once 'JSONlib.inc.php';
+ob_start();
 
+require_once 'headerDB.inc.php';
+
+require_once 'JSONlib.inc.php';
 $json = new Services_JSON();    // create a new instance of Services_JSON
+
 $values = array();
 $action=$_REQUEST['action'];
 $output=array('result'=>false); // default result
-
-ob_start();
 
 switch ($action) {
 
@@ -21,14 +22,37 @@ switch ($action) {
         break;
 
         
+    case 'getTable': // get html table of next actions
+        $_SESSION['config']['trimLength']=30;
+        require_once 'listItems.inc.php';
+        // some shenanigans to separate out the log from the table
+        $log=ob_get_contents();
+        ob_clean();
+
+        $dispArray=array(
+            'checkbox'=>'Done'
+            ,'title'=>'Actions'
+            ,'shortdesc'=>'Description'
+            ,'parent'=>'parents'
+        );
+        require 'displayItems.inc.php';
+        
+        $output['table']=ob_get_contents();
+        ob_clean();
+        echo $log;
+        break;
+
+
     case 'getrecur': // we want to know the next recurrence based on a pattern
         require_once 'gtdfuncs.inc.php';
         $values=array();
         foreach (array('deadline','tickledate','dateCompleted') as $field)
           $values[$field] = (empty($_REQUEST[$field])) ? '' : $_REQUEST[$field];
-        list($values['recur'],$dummy) = processRecurrence($values);
-        $output=array('next'=>getNextRecurrence($values));
+        list($values['recur'],$dummy,$vevent) = processRecurrence($values);
+        $output=array('next'=>getNextRecurrence($values,$vevent));
         break;
+
+
 
 
     case 'list': // getting all items of a particular type
@@ -59,8 +83,7 @@ switch ($action) {
       break;
 */
 }
-$output['log']=ob_get_contents();
-ob_end_clean();
+$output['log']=ob_get_flush();
 echo $json->encode($output);
 exit;
 ?>

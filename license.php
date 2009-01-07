@@ -45,23 +45,23 @@ include_once 'header.inc.php';
         <tr><td><a href='http://www.bazon.net/mishoo'>calendar</a></td>
             <td>A modified version of the javascript calendar released under the
                <a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>, and
-               &copy; 2002-2005 Mihai Bazon
+               &copy; 2002-5 Mihai Bazon
         </td></tr>
         <tr><td><a href='http://www.kigkonsult.se/iCalcreator/'>iCalCreator</a></td>
             <td>creation and processing of iCal files and fancy recurrence handling in PHP,
                 <a href='http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html'>LGPL 2.1</a> and
-                &copy; kigkonsult 2007
+                &copy; kigkonsult 2007-9
         </td></tr>
         <tr><td><a href='http://jquery.com/'>jQuery</a></td>
             <td>javascript library used by the core and many of the addons, dual MIT/GPL
                 <a href='http://docs.jquery.com/Licensing'>licences</a>, and
-                &copy; 2008 <a href='http://ejohn.org/'>John Resig</a> and the
+                &copy; 2008-9 <a href='http://ejohn.org/'>John Resig</a> and the
                 <a href='http://docs.jquery.com/Contributors'>jQuery team</a>
         </td></tr>
         <tr><td><a href='http://ui.jquery.com/'>jQuery UI</a></td>
             <td>javascript library used for fancy effects by the ajax addon, dual MIT/GPL
                 <a href='http://docs.jquery.com/Licensing'>licences</a>, and
-                &copy; 2008 Paul Bakaus and the <a href='http://ui.jquery.com/about'>jQuery UI Team</a>
+                &copy; 2008-9 Paul Bakaus and the <a href='http://ui.jquery.com/about'>jQuery UI Team</a>
         </td></tr>
         <tr><td><a href='http://www.famfamfam.com/lab/icons/silk/'>silk icons</a></td>
             <td>from the lovely famfamfam series, Creative Commons Attribution 2.5

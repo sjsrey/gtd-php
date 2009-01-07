@@ -174,12 +174,13 @@ $dates[21]='21st';
 $dates[22]='22nd';
 $dates[23]='23rd';
 $dates[31]='31st';
+$dates['-1']='last';
 
 $weeks=array(1=>'1st',2=>'2nd',3=>'3rd',4=>'4th',5=>'5th',-1=>'Last');
 $months=array(1=>'January',2=>'February',3=>'March',4=>'April',5=>'May',6=>'June',
         7=>'July',8=>'August',9=>'September',10=>'October',11=>'November',12=>'December');
 
-$defaults=array('FREQtype'=>'NORECUR','FREQ'=>'NORECUR','INTERVAL'=>1,'RECURUNTIL'=>null,
+$defaults=array('FREQtype'=>'NORECUR','FREQ'=>'NORECUR','INTERVAL'=>1,'UNTIL'=>null,
                 'BYDAY'=>array(),'BYMONTHDAY'=>null,'BYMONTH'=>null,
                 'day'=>null,'week'=>null );
 
@@ -191,7 +192,6 @@ if (empty($values['recur'])) {
     $values['recur']=$values['recurdesc']=null;
 } else {
     require_once 'iCalcreator.class.inc.php';
-    $c = new vcalendar();
     $e = new vevent();
     $e->parse(array('RRULE:'.$values['recur']));
     $rrule=$e->getProperty('rrule');
@@ -236,31 +236,31 @@ if (empty($values['recur'])) {
 */
 if ($show['header']) include_once 'headerHtml.inc.php';
 gtd_handleEvent(_GTD_ON_DATA,$pagename);
-if ($show['header']) { ?>
-
+if ($show['header']) {
+  if ($_SESSION['useLiveEnhancements']) { ?>
     <script type="text/javascript">
     /* <![CDATA[ */
     $(document).ready(function() {
-        GTD.initItem();
-        <?php if ($show['scriptparents']) { ?>
-            GTD.typenames={<?php
-                $sep='';
-                foreach ($alltypes as $key=>$val) {
-                    echo "$sep$key:'$val'";
-                    $sep=',';
-                }
-              ?>};
-            GTD.tags=",<?php foreach ($taglist as $tag) echo "$tag,"; ?>";
-            GTD.parentselect=new GTD.ParentSelector(
-                <?php echo "$pid\n,\n$ptitle\n,\n$partt\n,\"{$values['ptype']}\" \n"; ?>
-            );
-            GTD.parentselect.refinesearch('<?php echo $values['ptype']; ?>');
-        <?php } ?>
+      GTD.initItem(document);
+      <?php if ($show['scriptparents']) { ?>
+        GTD.typenames={ <?php
+          $sep='';
+          foreach ($alltypes as $key=>$val) {
+              echo "$sep$key:'$val'";
+              $sep=',';
+          }
+        ?> };
+        GTD.tags = ",<?php foreach ($taglist as $tag) echo "$tag,"; ?>";
+        GTD.parentselect = new GTD.ParentSelector(
+            <?php echo "$pid\n,\n$ptitle\n,\n$partt\n,\"{$values['ptype']}\" \n"; ?>
+        );
+        GTD.parentselect.refinesearch('<?php echo $values['ptype']; ?>');
+      <?php } ?>
     });
     /* ]]> */
     </script>
-    
     <?php
+    }
     if ($values['itemId'])
         // don't want this appearing in TITLE, but do want it in H1
         $titlefull= "<a href='itemReport.php?itemId={$values['itemId']}'>"
@@ -368,11 +368,7 @@ if ($sep!=='<p>') echo "</p>\n";
                 ?>' title='Temporarily puts this into the tickler file, hiding it from the active view'>Suppress until:</label>
                 <input type='text' size='10' name='tickledate' id='tickledate' class='hasdate' value=<?php
                     echo "'{$values['tickledate']}'";
-                    if ($_SESSION['useLiveEnhancements']) {
-                        ?> onchange="return GTD.checkRecurrence(this);" <?php
-                    }
-                ?> />
-                <button id='tickledate_trigger' type='button'>&hellip;</button>
+                ?> /><button id='tickledate_trigger' class='calendarbutton' type='button'>&hellip;</button>
             <?php
             } else
                 $hiddenvars['tickledate']=$values['tickledate'];
@@ -383,11 +379,7 @@ if ($sep!=='<p>') echo "</p>\n";
                      ?>' >Deadline:</label>
                 <input type='text' size='10' name='deadline' id='deadline' class='hasdate' value=<?php
                     echo "'{$values['deadline']}'";
-                    if ($_SESSION['useLiveEnhancements']) {
-                        ?> onchange="return GTD.checkRecurrence(this);" <?php
-                    }
-                    ?> />
-                <button id='deadline_trigger' type='button'>&hellip;</button>
+                    ?> /><button id='deadline_trigger' class='calendarbutton' type='button'>&hellip;</button>
             <?php } else $hiddenvars['deadline']=$values['deadline'];
             
             if ($show['dateCompleted']) { ?>
@@ -396,8 +388,7 @@ if ($sep!=='<p>') echo "</p>\n";
                 ?>'>Completed:</label>
                 <input type='text' size='10' class='hasdate' name='dateCompleted' id='dateCompleted' value='<?php
                     echo $values['dateCompleted'];
-                ?>'/>
-                <button id='dateCompleted_trigger' type='button'>&hellip;</button>
+                ?>'/><button id='dateCompleted_trigger' class='calendarbutton' type='button'>&hellip;</button>
 				<button type='button' id='dateCompleted_today' onclick="javascript:GTD.completeToday('dateCompleted');">Today</button>
             <?php } else $hiddenvars['dateCompleted']=$values['dateCompleted']; ?>
         </div>
@@ -749,11 +740,13 @@ if ($show['submitbuttons']) { ?>
     </div>
 
     <div class='formrow'>
-        <label class='left first' for='RECURUNTIL'>Don't repeat after:</label>
-        <input type='text' size='10' class='hasdate' name='RECURUNTIL' id='RECURUNTIL' value='<?php
-            if (!empty($recur['RECURUNTIL'])) echo $recur['RECURUNTIL'];
-        ?>' />
-        <button id='RECURUNTIL_trigger'>&hellip;</button>
+        <label class='left first' for='UNTIL'>Don't repeat after:</label>
+        <input type='text' size='10' class='hasdate' name='UNTIL' id='UNTIL' value='<?php
+            if (!empty($recur['UNTIL']))
+              echo $recur['UNTIL']['year'],'-'
+                  ,$recur['UNTIL']['month'],'-'
+                  ,$recur['UNTIL']['day'];
+        ?>' /><button id='UNTIL_trigger' type='button' class='calendarbutton'>&hellip;</button>
         <span>
             <input type='radio' name='FREQtype' value='NORECUR' id='NORECUR' <?php
                 if ($recur['FREQtype']==='NORECUR') echo " checked='checked' ";

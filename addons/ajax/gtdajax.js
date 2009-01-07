@@ -10,28 +10,6 @@ var NAclicked, colselectorclose,
     hiddencontexts = [],
     editor = [];
 // ======================================================================================
-$.fn.animateShow = function(aCallback) {
-/*
- * this function does the animation for items which have successfully been updated via AJAX
- * It works by extending jQuery, so that we can execute the function on any jQuery object
- */
-    var that=this,
-        disp = (!$.browser.msie && this.get(0).tagName.toLowerCase() === "tr") ?
-                "table-row" : "block";
-    this.css({ opacity: 0.01, display: disp }).
-        removeClass("togglehidden hidden").
-        addClass("ajaxupdated").
-        show().
-        animate({opacity:1},600);
-    setTimeout(function () {
-            that.removeClass("ajaxupdated");
-            if (aCallback !== undefined && aCallback !== null) { aCallback(that); }
-        }, 2000);
-    // always return the jQuery item we came in with, to allow chaining
-    return that;
-};
-
-// ======================================================================================
 function messagepopup(text,xmldata,top,left) {
     var sep='',msgbox;
     if (typeof text==='object') {
@@ -62,9 +40,12 @@ function getNextRecurrence() {
   var url,
       nextdue = $("#nextdue");
 
+  $("#debuglog").empty();
+  
   function setNextDueText(json) {
      var shortText, longText,
          text = json.next;
+     $("#debuglog").html(json.log);
      if (text) {
        shortText = "Next: " + text;
        longText = "From today, next recurrence would be " + text;
@@ -596,7 +577,7 @@ function ItemEditor(row) {
       $(document).bind("keypress", fullFormKeypress);
       
       $("input[type=text]:first", thisform).focus();
-      GTD.initItem();
+      GTD.initItem(newdiv);
       GTD.ajax.itemSetup();
 
     }

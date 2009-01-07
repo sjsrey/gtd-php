@@ -433,16 +433,21 @@ a.subheading:hover {
 	text-decoration: underline;
 }
 
-/* the ! preceding each project without a next action defined (in listProjects.php) */
+/* the ! preceding each project without a next action defined */
 .noNextAction,a.noNextAction {
 	font-weight: bold;
 	color: #F00;
 }
-
-/* the * marking each next action (in projectReport.php) */
+/* the * marking each next action */
 .nextActionMarker {
 	font-weight: bold;
 	color: #F80;
+}
+.calendarbutton {
+  padding:0px;
+}
+.updated,.updated * {
+	background-color:#afa !important;
 }
 
 /* forms */

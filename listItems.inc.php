@@ -294,24 +294,24 @@ if ($filter['everything']!="true") {
         $values['childfilterquery'] .= " AND ".sqlparts("categoryfilter",$values);
         $linkfilter .= '&amp;categoryId='.$values['categoryId'];
     }
-    
+
     if ($filter['contextId'] != NULL && $filter['notspacecontext']=="true")
         $values['childfilterquery'] .= " AND ".sqlparts("notcontextfilter",$values);
     elseif ($filter['contextId'] != NULL || $filter['notspacecontext']=="true") {
         $values['childfilterquery'] .= " AND ".sqlparts("contextfilter",$values);
         $linkfilter .= '&amp;contextId='.$values['contextId'];
     }
-    
+
     if ($filter['timeframeId'] != NULL && $filter['nottimecontext']=="true")
         $values['childfilterquery'] .= " AND ".sqlparts("nottimeframefilter",$values);
     elseif ($filter['timeframeId'] != NULL || $filter['nottimecontext']=="true") {
         $values['childfilterquery'] .= " AND ".sqlparts("timeframefilter",$values);
         $linkfilter .= '&amp;timeframeId='.$values['timeframeId'];
     }
-    
+
     if ($filter['completed']=="true") $values['childfilterquery'] .= " AND ".sqlparts("completeditems",$values);
     else $values['childfilterquery'] .= " AND " .sqlparts("pendingitems",$values);
-    
+
     if ($filter['someday']=="true") {
         $values['isSomeday']="y";
         $values['childfilterquery'] .= " AND " .sqlparts("issomeday",$values);
@@ -319,16 +319,16 @@ if ($filter['everything']!="true") {
         $values['isSomeday']="n";
         $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$values);
     }
-    
+
     if ($filter['tickler']=="true") {
         $linkfilter .='&amp;tickler=true';
         $values['childfilterquery'] .= " AND ".sqlparts("suppresseditems",$values);
     } else {
         $values['childfilterquery'] .= " AND ".sqlparts("activeitems",$values);
     }
-    
+
     if ($filter['repeatingonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("repeating",$values);
-    
+
     if ($filter['dueonly']=="true") $values['childfilterquery'] .= " AND " .sqlparts("due",$values);
 
     if ($filter['nextonly']=='true')
@@ -390,6 +390,11 @@ if ($maintable) {
             $nonext=($row['type']=='p' && !$row['numNA']);
         }
         if (isset($row['nextaction']) && $row['nextaction']==='y') {
+            /* TODO - test what happens when AJAX off, and showing complete
+             * and incomplete items, and user completes 1 and submits it.
+             * Fortunately, this is not an issue at present, because the completion
+             * checkboxes aren't displayed, if the list includes completed items
+             */
             array_push($wasNAonEntry,$row['itemId']); // TOFIX need to do something similar with completed items
             $row['NA'] =true;
         } else $row['NA']=false;

@@ -59,9 +59,6 @@
     bottom:0;
     left:0;
 }
-.ajaxupdated,.ajaxupdated * {
-	background-color:#afa !important;
-}
 div.ontop#freezer {
     z-Index:1000;
     cursor: wait;

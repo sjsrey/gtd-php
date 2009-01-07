@@ -844,91 +844,103 @@ function query($querylabel,$values=NULL,$sort=NULL) {
    ======================================================================================
 */
 function processRecurrence($values) {
-    $rrule=array();
     require_once 'iCalcreator.class.inc.php';
     $vevent = new vevent();
-
     $rrule=array();
     $rrule['INTERVAL']= (empty($_REQUEST['INTERVAL'])) ? 1 : $_REQUEST['INTERVAL'];
     if (!empty($_REQUEST['UNTIL'])) $rrule['UNTIL']=$_REQUEST['UNTIL'];
+
     switch ($_REQUEST['FREQtype']) {
-        case ('TEXT') :
-            $vevent->parse(array('RRULE:'.$_REQUEST['icstext']));
-            $rrule=array();
-            break;
+    
         case ('DAILY'):   // Deliberately flows through to next case
         case ('WEEKLY'):  // Deliberately flows through to next case
         case ('MONTHLY'): // Deliberately flows through to next case
         case ('YEARLY'):
             $rrule['FREQ']=$_REQUEST['FREQtype'];
             break;
+
         // end of simple cases - now the trickier stuff
+
+        case ('TEXT') :
+            // do a round trip converting the ICS text into an RRULE array
+            // which, after the switch, we'll then reinterpret as ICS text,
+            // so that we can be confident that the final result is valid
+            $vevent->parse(array('RRULE:'.$_REQUEST['icstext']));
+            $rrule=$vevent->getProperty('rrule');
+            break;
+
         case ('WEEKLYBYDAY'):
             $rrule['FREQ']='WEEKLY';
-            if (is_array($_REQUEST['WEEKLYday'])) {
-                $out=array();
-                foreach ($_REQUEST['WEEKLYday'] as $val)
-                    array_push($out,array('DAY'=>$val));
-                $rrule['BYDAY']=$out;
+            if (!empty($_REQUEST['WEEKLYday'])) { // could be empty, single value or array
+                if (is_array($_REQUEST['WEEKLYday'])) {
+                    $out=array();
+                    foreach ($_REQUEST['WEEKLYday'] as $val)
+                        array_push($out,array('DAY'=>$val));
+                    $rrule['BYDAY']=$out;
+                } else {
+                    $rrule['BYDAY']=array(array('DAY'=>$_REQUEST['WEEKLYday']));
+                }
             }
             break;
+            
         case ('MONTHLYBYDAY'):
             $rrule['FREQ']='MONTHLY';
             $rrule['BYMONTHDAY']=array($_REQUEST['MONTHLYdate']);
             break;
+            
         case ('MONTHLYBYWEEK'):
             $rrule['FREQ']='MONTHLY';
             $rrule['BYDAY']=array( (int) $_REQUEST['MONTHLYweek'] ,
                 'DAY'=> $_REQUEST['MONTHLYweekday']  );
             break;
+            
         case ('YEARLYBYDATE'):
             $rrule['FREQ']='YEARLY';
             $rrule['BYMONTHDAY']=array($_REQUEST['YEARLYdate']);
             $rrule['BYMONTH']=array($_REQUEST['YEARLYmonth']);
             break;
+            
         case ('YEARLYBYWEEK'):
             $rrule['FREQ']='YEARLY';
             $rrule['BYMONTH']=array($_REQUEST['YEARLYweekmonth']);
             $rrule['BYDAY']=array( (int) $_REQUEST['YEARLYweeknum'] ,
                                 'DAY'=> $_REQUEST['YEARLYweekday']  );
             break;
+            
         default:
-            return array('','');
+            return array('',''); // nothing to do, so quit
     }
     /*  got all the data from the form
         --------------------------------------------------------------------
     */
-    if ($_REQUEST['FREQtype']!=='TEXT') {
-        $vevent->setProperty( "rrule",$rrule);
-        log_value('RRULE form values=',$rrule);
-    }
-
-    $rrule=$vevent->getProperty('rrule');
-    $rruletext=$vevent->_format_recur('',array(array('value'=>$rrule)));
-
-    log_value("RRULEtext: $rruletext ; calculated rule=",$rrule);
-    // now we've done the round trip, we can be confident that it's a valid recurrence string, so store it
-    $recur=$rruletext;
+    if ($_REQUEST['FREQtype']!=='TEXT')
+        $vevent->setProperty("rrule",$rrule);
+    log_value('RRULE form values=',$rrule);
+    
+    $rruletext=substr($vevent->createRrule(), 6); // remove the "RRULE:" prefix
+    log_value('RRULEtext: ',$rruletext);
+    
+    // try to make a useful description of the recurrence pattern, if we haven't been given one
     $desc = (empty($_REQUEST['recurdesc']))
         ? "+{$rrule['INTERVAL']}".substr($rrule['FREQ'],0,1) // set desc based on intelligent description
         : $_REQUEST['recurdesc'] ;
 
-    return array($recur,$desc);
+    return array($rruletext,$desc,$vevent);
 }
 /*
    ======================================================================================
 */
-function getNextRecurrence($values) {
+function getNextRecurrence($values,$vevent=NULL) {
 /*
  *  get the next date of a recurring item
  *  returns false if failed, else returns timestamp of next recurrence
  */
     require_once 'iCalcreator.class.inc.php';
-
-    log_text("creating vcalendar to get recurrence date");
-    $vcal = new vcalendar();
-    $vevent = new vevent();
-    $vevent->parse(array('RRULE:'.$values['recur']));
+    if (!$vevent) {
+        log_text("creating vcal event to get recurrence date");
+        $vevent = new vevent();
+        $vevent->parse(array('RRULE:'.$values['recur']));
+    }
     $rrule=$vevent->getProperty('rrule');
 
     if (preg_match("/^FREQ=(YEARLY|MONTHLY|WEEKLY|DAILY);INTERVAL=[0-9]+$/",$values['recur'])) {
@@ -944,39 +956,46 @@ function getNextRecurrence($values) {
         // recur from deadline
         $startdate=$values['deadline'];
     }
-
     if (empty($startdate) || $startdate==='NULL') {
         // if we still haven't got a start date, use today
         $startdate=date('Y-m-d');
     } else
         $startdate=str_replace("'",'',$startdate);
+    $vevent->setProperty("dtstart",$startdate);
+    $start=$vevent->getProperty("dtstart");
+
+    // something very odd is happening when UNTIL is set and _recur2date is called using it
+    // so this is the workaround
+    // (problem might be related to the absence of a parent vcalendar for the vevent)
+    $saveUntil = (empty($rrule['UNTIL'])) ? NULL :
+      strtotime($rrule['UNTIL']['year'].'-'.$rrule['UNTIL']['month'].'-'.$rrule['UNTIL']['day']);
+    $vevent->setProperty( "dtend",'+10 years');
+    $end=$vevent->getProperty("dtend");
+
+    $rrule['COUNT']=2; // we want to know about the 2nd occurrence, because 1st = current one
+    if (isset($rrule['UNTIL'])) unset($rrule['UNTIL']); 
 
     log_array(array(
-        'recur='=>$values['recur']
-        ,'rrule decoded from that recur text'=>$rrule
-        ,'start date (dirty)='=>$startdate));
-            
-    $startdate=$vcal->validDate($startdate);
-    log_value('start date (normalised)',$startdate);
-    $vevent->setProperty( "dtstart",$startdate);
+       "recur={$values['recur']}, start=$startdate, rrule="=>$rrule,
+       "cleaned start="=>$start,
+       "cleaned end="=>$end,
+       "until="=>$saveUntil
+       ));
 
-    if (empty($rrule['UNTIL'])) {
-        $enddate=strtotime('+10 years');
-        $enddate=date('Y-m-d',$enddate);
-    } else
-        $enddate=$rrule['UNTIL'];
-    $enddate=$vcal->validDate($enddate);
-    $rrule['COUNT']=2; // 2 = start date + next recurrence
-    if (isset($rrule['UNTIL'])) unset($rrule['UNTIL']);
-    $vevent->_recur2Date($recurlist,$rrule,
-        $startdate,    // start date of item
-        $startdate,    // start date of interval we're interested in
-        $enddate       // end date
+    $vevent->_recur2date($recurlist,$rrule,
+        $start,    // start date of item
+        $start,    // start date of interval we're interested in
+        $end       // end date
     );
+    log_value('recurrence date back from iCalCreator=',$recurlist);
+
     if (empty($recurlist)) {
         $nextdue=false;
     } else {
-        $nextdue=date('Y-m-d',array_shift(array_keys($recurlist))); // get first key in returned array - that's the date
+        $nextdue=array_shift(array_keys($recurlist)); // get first key in returned array - that's the date
+        // if we had an UNTIL date, compare our returned date
+        // if it's later, then there are no more recurrences
+        $nextdue= ($saveUntil && $saveUntil < $nextdue) ? false : date('Y-m-d',$nextdue);
     }
     log_value('next due date',$nextdue);
     return $nextdue;

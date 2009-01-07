@@ -112,7 +112,6 @@ gtd_handleEvent(_GTD_ON_DATA,$pagename);
 if (isset($endmsg['header'])) echo "<h4>{$endmsg['header']}</h4>\n";
 if (isset($endmsg['link'])) echo "<a href='{$endmsg['link']}'>{$endmsg['prompt']}</a>\n";
 ?>
-<div id='debuglog'></div>
 <script type='text/javascript'>/* <![CDATA[ */
 $(document).ready(function() {
     GTD.filtertoggle();

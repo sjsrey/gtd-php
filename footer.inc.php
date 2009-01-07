@@ -2,6 +2,7 @@
 gtd_handleEvent(_GTD_ON_FOOTER,$pagename);
 include 'showMessage.inc.php';
 ?>
+<div id='debuglog'></div>
 </div><!-- main -->
 </div><!-- container -->
 <div id='footer'>
