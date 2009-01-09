@@ -75,7 +75,8 @@ if ($save===$_SESSION['hierarchy']) { // session var is same now as before apply
 }
 
 if ($docapture) {
-    $logtext=ob_get_flush();
+    $logtext=ob_get_contents();
+    ob_end_clean();
     $outtext=$_SESSION['message'];
     $_SESSION['message']=array();
     if (!headers_sent()) {

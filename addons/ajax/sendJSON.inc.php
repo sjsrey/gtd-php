@@ -58,8 +58,6 @@ switch ($action) {
         break;
 
 
-
-
     case 'list': // getting all items of a particular type
         $values['filterquery']='WHERE '.sqlparts("pendingitems",$values);
         $values['type']=empty($_REQUEST['type'])?'*':$_REQUEST['type'];
@@ -88,7 +86,8 @@ switch ($action) {
       break;
 */
 }
-$output['log']=ob_get_flush();
+$output['log']=ob_get_contents();
+ob_end_clean();
 echo $json->encode($output);
 exit;
 ?>

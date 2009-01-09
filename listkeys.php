@@ -4,7 +4,8 @@ $menu='';
 require_once 'headerHtml.inc.php';
 @ob_start();
 require_once 'headerMenu.inc.php';
-$menutext=ob_get_flush();
+$menutext=ob_get_contents();
+ob_end_clean();
 ?>
 </head><body>
 <div class='noprint'>

@@ -25,7 +25,8 @@ foreach (array('uri'=>'','name'=>'from ProcessViews','sort'=>'','show'=>'','colu
 $success=savePerspective($values);
 
 if ($captureOutput) {
-    $logtext=ob_get_flush();
+    $logtext=ob_get_contents();
+    ob_end_clean();
     $outtext=$_SESSION['message'];
     $_SESSION['message']=array();
     if (!headers_sent()) {

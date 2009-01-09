@@ -231,6 +231,14 @@ function updateItem(row, xmldata) {
         hide2 = null,
         incrementCounter = 0;
         
+    // test to see if we are going to hide the new occurrence
+    if (!done && !GTD.ajax.filter.tickler && !GTD.ajax.filter.everything &&
+        parseInt(newvalues.children('unixtickledate').text(), 10) >
+	             Date.parse(Date())/1000 ) {
+	        incrementCounter--; // one row is being removed
+      hide2 = function(that){that.hide();};
+    }
+
     if (newId==='' || newId===oldId) {
         if (done && !GTD.ajax.filter.everything) {
           hide2 = function hideCompletedRowNoRecur(that){ that.hide(); };
@@ -249,13 +257,6 @@ function updateItem(row, xmldata) {
             if (!GTD.ajax.filter.everything) {
                 hide1 = function(that){that.hide();};
                 incrementCounter--; // one row is being removed
-                // test to see if we are going to hide the new occurrence
-                if (!GTD.ajax.filter.tickler &&
-                    parseInt(newvalues.children('unixtickledate').text(), 10) >
-		    	             Date.parse(Date())/1000 ) {
-		    	        incrementCounter--; // one row is being removed
-                  hide2 = function(that){that.hide();};
-                }
             }
 
             row.clone().

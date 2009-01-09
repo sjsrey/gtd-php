@@ -572,15 +572,16 @@ function nextPage() { // set up the forwarding to the next page
             $result=query('selectlastmodified',$values);
             if ($result) $values['lastModified']=$result[0]['lastModified'];
         }
-        $logtext=ob_get_flush();
         $outtext=$_SESSION['message'];
         $_SESSION['message']=array();
+        $logtext=ob_get_contents();
+        ob_end_clean();
         if (!headers_sent()) {
             $header="Content-Type: text/xml; charset=".$_SESSION['config']['charset'];
             header($header);
         }
-        echo '<?xml version="1.0" ?',"><gtdphp>"; // encoding="{$_SESSION['config']['charset']}"
-        echo "<values>";
+        echo '<?xml version="1.0" ?',">\n<gtdphp>"; // encoding="{$_SESSION['config']['charset']}"
+        echo "<values>\n";
         foreach ($values as $key=>$val) {
             switch ($key) {
                 //------------------------------------------------
@@ -591,6 +592,8 @@ function nextPage() { // set up the forwarding to the next page
                 case 'newitemId':        // deliberately flows through
                 case 'nextaction':       // deliberately flows through
                 case 'oldid':            // deliberately flows through
+                case 'oldtype':          // deliberately flows through
+                case 'parentid':         // deliberately flows through
                 case 'timeframeId':      // deliberately flows through
                 case 'type':
                     echo "<$key>",makeclean($val),"</$key>";
@@ -625,8 +628,10 @@ function nextPage() { // set up the forwarding to the next page
                 case 'description':      // deliberately flows through
                 case 'desiredOutcome':   
                     $val=nl2br($val);    // deliberately flows through
-                default:
-                    echo "<$key><![CDATA[$val]]></$key>";
+                default:                 // by default, we wrap things in CDATA for safety
+                    echo "<$key>"
+                        ,("$val"==="") ? '' : "<![CDATA[$val]]>"
+                        ,"</$key>";
                     break;
                 case 'lastModified':
                     if ($val) echo "<$key><![CDATA["
@@ -646,11 +651,12 @@ function nextPage() { // set up the forwarding to the next page
                     break;
                 //-------------------------------------------------------
             }
+            echo "\n";
         }
-        echo '</values><result>';
+        echo "</values>\n<result>";
         if (!empty($outtext)) foreach ($outtext as $line) echo "<line><![CDATA[$line]]></line>";
-        echo '</result>'
-            ,"<log><![CDATA[$logtext]]></log>"
+        echo "</result>\n"
+            ,"<log><![CDATA[$logtext]]></log>\n"
             ,"</gtdphp>";
         exit;
     } else nextScreen($nextURL);
