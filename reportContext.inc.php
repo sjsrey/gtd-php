@@ -24,10 +24,9 @@ function makeContextRow($row) {
     return $rowout;
 }
 function makeContextTable($maintable,$dispArray,$show,$trimlength) {
-    ob_start();
+    @ob_start();
     require 'displayItems.inc.php';
-    $out=ob_get_contents();
-    ob_end_clean();
+    $out=ob_get_flush();
     return $out;
 }
 $values=array();

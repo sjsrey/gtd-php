@@ -127,10 +127,7 @@ function backupData($prefix) {
           $data .= "INSERT INTO `$table` VALUES ($thisdata);\n";
         }
     }
-    $data=htmlspecialchars($dropper.$sep.$creators.$data,
-                           ENT_NOQUOTES,
-                           $_SESSION['config']['charset']);
-    return $data;
+    return $dropper.$sep.$creators.$data;
 }
 /*
    ======================================================================================

@@ -7,7 +7,7 @@ $html=false; // indicates if we are outputting html
 
 $updateGlobals['captureOutput']=(isset($_POST['output']) && $_REQUEST['output']==='xml');
 if ($updateGlobals['captureOutput']) {
-    ob_start();
+    @ob_start();
 }
 
 // get core variables first
@@ -572,8 +572,7 @@ function nextPage() { // set up the forwarding to the next page
             $result=query('selectlastmodified',$values);
             if ($result) $values['lastModified']=$result[0]['lastModified'];
         }
-        $logtext=ob_get_contents();
-        ob_end_clean();
+        $logtext=ob_get_flush();
         $outtext=$_SESSION['message'];
         $_SESSION['message']=array();
         if (!headers_sent()) {

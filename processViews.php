@@ -3,7 +3,7 @@ require_once 'headerDB.inc.php';
 ignore_user_abort(true);
 $captureOutput=(isset($_REQUEST['output']) && $_REQUEST['output']==='xml');
 if ($captureOutput) {
-    ob_start();
+    @ob_start();
 }
 if ($_SESSION['debug']['debug'] && !$captureOutput) {
     $html=true;
@@ -25,8 +25,7 @@ foreach (array('uri'=>'','name'=>'from ProcessViews','sort'=>'','show'=>'','colu
 $success=savePerspective($values);
 
 if ($captureOutput) {
-    $logtext=ob_get_contents();
-    ob_end_clean();
+    $logtext=ob_get_flush();
     $outtext=$_SESSION['message'];
     $_SESSION['message']=array();
     if (!headers_sent()) {

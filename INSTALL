@@ -12,7 +12,7 @@ This version supports installations using table prefixes in the database.
 
 For current users of gtd-php 0.7, 0.8, or users of alpha releases of 0.9, the upgrading process is straightforward.
 
-For new users, there are OS-specific installation instructions for the Mac, Debian/Sarge, PC and memory stick.
+For new users, there are OS-specific installation instructions for the Mac, generic Linux, Debian/Sarge, PC and memory stick.
 
 
 ===================================================
@@ -26,6 +26,12 @@ New installation on a Mac
    5. cp config.sample.php config.inc.php
    6. set up the database and config file 
 
+
+===================================================
+New installation on generic Linux
+===================================================
+
+Note that after you unzip the file on a linux box you will need to chmod all folders to 755 and all files to 644.
 
 ===================================================
 New installation on Debian/Sarge

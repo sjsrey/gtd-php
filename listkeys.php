@@ -2,10 +2,9 @@
 $title='shortcut keys';
 $menu='';
 require_once 'headerHtml.inc.php';
-ob_start();
+@ob_start();
 require_once 'headerMenu.inc.php';
-$menutext=ob_get_contents();
-ob_end_clean();
+$menutext=ob_get_flush();
 ?>
 </head><body>
 <div class='noprint'>

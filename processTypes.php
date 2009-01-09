@@ -2,7 +2,7 @@
 require_once 'headerDB.inc.php';
 ignore_user_abort(true);
 $docapture= (isset($_POST['output']) && $_POST['output']==='xml');
-if ($docapture) ob_start();
+if ($docapture) @ob_start();
 
 // some debugging - if debug is set to halt, dump all the variables we've got
 if ($_SESSION['debug']['debug']) {
@@ -75,8 +75,7 @@ if ($save===$_SESSION['hierarchy']) { // session var is same now as before apply
 }
 
 if ($docapture) {
-    $logtext=ob_get_contents();
-    ob_end_clean();
+    $logtext=ob_get_flush();
     $outtext=$_SESSION['message'];
     $_SESSION['message']=array();
     if (!headers_sent()) {

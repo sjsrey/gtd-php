@@ -427,9 +427,13 @@ function checkInstall() {
             ,"<input type='submit' name='install' value='Install' />\n";
         if ($destInUse)
             echo "<span class='warning'>Warning: this will over-write your current installation! "
-                ," Make sure you have a backup of your data first! If you're not sure, "
-                ," change the prefix in config.inc.php, to create a new installation, "
+                ,"<br/>Make sure you have a "
+                ," <a href='backup.php?prefix={$config['prefix']}'>backup</a> "
+                ," of your data first! (click on the link to save a copy locally)<br/> "
+                ," If you're not sure, change the prefix in config.inc.php, "
+                ," to create a new installation, "
                 ," rather than over-writing the current one.</span>\n";
+
         echo "</div>\n</form>\n";
 	}
 	$checkState='ok';

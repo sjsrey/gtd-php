@@ -1,6 +1,6 @@
 <?php
 if (!headers_sent()) header('Content-Type: application/json; charset=utf-8');
-ob_start();
+@ob_start();
 
 require_once 'headerDB.inc.php';
 
@@ -25,7 +25,8 @@ switch ($action) {
     case 'getTable': // get html table of next actions
         $_SESSION['config']['trimLength']=30;
         require_once 'listItems.inc.php';
-        // some shenanigans to separate out the log from the table
+        // some shenanigans to separate out the log from the table.
+        // It's convoluted but effective (as long as the ob_start works!)
         $log=ob_get_contents();
         ob_clean();
 
@@ -39,6 +40,10 @@ switch ($action) {
         
         $output['table']=ob_get_contents();
         ob_clean();
+        
+        // now that we've got the table, we can send the log we captured earlier,
+        // knowing that it's just going back into the buffer, to be captured into
+        // $output['log'] at the end of this file
         echo $log;
         break;
 
