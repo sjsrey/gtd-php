@@ -34,6 +34,14 @@ $.fn.animateShow = function jquery_animateShow(aCallback) {
   return that;
 };
 // ======================================================================================
+function search_keypress(e) {
+if (e.keyCode===27) {
+    GTD.parentselect.close();
+    return false;
+}
+return true;
+}
+// ======================================================================================
 function keyPressHandler(aEvent) {
 /*
  * event-handler for key presses, for when we are toggling the display of debug-log text
@@ -795,7 +803,7 @@ GTD.ParentSelector.prototype.close=function gtd_ps_close() {
 /*
  * close the parent-selector
  */
-    document.onkeypress=null;
+    $(document).unbind("keydown",search_keypress);
     document.getElementById('searcher').style.display='none';
     GTD.freeze(false);
     document.getElementById('parenttable').style.position=oldTablePosition;
@@ -941,15 +949,7 @@ GTD.ParentSelector.prototype.search=function gtd_ps_s() {
     GTD.freeze(true);
     document.getElementById('searcher').style.display='block';
     document.getElementById("searcherneedle").focus();
-    document.onkeypress=function search_keypress(e) {
-        var pressed;
-        if (window.event) {pressed=window.event.keyCode;} else {pressed=e.keyCode;}
-        if (pressed===27) {
-            that.close();
-            return false;
-        }
-        return true;
-    };
+    $(document).bind("keydown",search_keypress);
     parenttable=document.getElementById('parenttable');
     oldTablePosition=parenttable.style.position;
     parenttable.style.position='fixed';

@@ -11,9 +11,9 @@ At the bottom of this page, set "Auto-update this feed" to true.
 /*jslint browser: false, eqeqeq: true, undef: true */
 /*global Application,CmdUtils,jQuery,noun_arb_text,displayMessage */
 
-var kver = "200901061428",
+var kver = "200901151450",
     kPath = "<?php echo getAbsolutePath(); ?>",
-    kDoLog = true,
+    kDoLog = false,
     kProjectCache = "gtdphp.ubiquity.projects";
 
 if (kDoLog) { CmdUtils.log(kver + " gtd-ubiquity initialising now"); }
@@ -155,10 +155,21 @@ makegtd({
 
   _ajaxTimer: false,
   
+  xhr: false,
+  
   preview: function gtdlist_preview(aPblock, aNeedle) {
+
+    if (this._ajaxTimer) { Utils.clearTimeout(this._ajaxTimer); }
+    if (this.xhr) {
+      this.xhr.abort();
+      this.xhr = false;
+    }
+    if (aPblock == null) { return; }
+
     var prompt, timer,
         that = this,
         filter = this._filter(aNeedle);
+
     if (aNeedle.text === "") {
       prompt = "Searching for all live next actions (enter more text to narrow down the search)";
       timer = 3000; // allow 3000ms (=3s) before AJAX call if there's no prompt string
@@ -167,10 +178,10 @@ makegtd({
       prompt = "Searching for <i>" + aNeedle.text + "</i> ..."
       timer = 500; // 500ms should be long enough between key presses to lag JSON call reasonably, without undue delays or redundant calls
     }
+
     aPblock.innerHTML = prompt;
-    if (this._ajaxTimer) { Utils.clearTimeout(this._ajaxTimer); }
     this._ajaxTimer = Utils.setTimeout(function gtdlist_doAjax() {
-        jQuery.getJSON(
+        that.xhr = jQuery.getJSON(
           kPath + "addon.php?addonid=ajax&action=getTable&url=sendJSON.inc.php&" +
                   filter,
           function gtd_json(json) {

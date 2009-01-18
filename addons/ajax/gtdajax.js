@@ -5,7 +5,7 @@ if (!window.GTD.ajaxfuncs) {(function($) { // // wrap the lot in an anonymous fu
 // ======================================================================================
 GTD.ajaxfuncs=true; // simple boolean flag to show that this javascript file has been run
 // ======================================================================================
-var NAclicked, colselectorclose,
+var colselectorclose,
     onajax = false,
     hiddencontexts = [],
     editor = [];
@@ -246,11 +246,7 @@ function updateItem(row, xmldata) {
         }
     } else {
         // got a new ID, either from a recurred item or a newly created one
-        if (oldId==='0') {
-            // we have just created an item: if there's an NA checkbox, add a click event to it
-            row.find('.col-NA :checkbox').
-                click(NAclicked);
-        } else {
+        if (oldId!=='0') {
             // item has been recurred into a new itemID
             
             // test to see if we are going to hide the completed occurrence
@@ -398,10 +394,6 @@ function doAJAXupdate(thisnode,overlay) {
     return true;
 }
 
-NAclicked=function (event) {
-    doAJAXupdate(this,{action: this.checked?'makeNA':'removeNA'});
-};
-
 // ======================================================================================
 function ItemEditor(row) {
 /*
@@ -411,6 +403,7 @@ function ItemEditor(row) {
     this.ended = true;
     if ($(row).hasClass('inajax')) { return false; }
     this.ended = false;
+    this.xhr = null;
     $(row).addClass('inajax').
         find('.col-ajax img,:checkbox').
             hide().
@@ -470,7 +463,7 @@ function ItemEditor(row) {
     }
     // --------------------------------------------------------
     this.cancelFull=function() {
-        $(document).unbind("keypress", fullFormKeypress);
+        $(document).unbind("keydown", fullFormKeypress);
         that.reset();
         GTD.freeze(false);
         return false;
@@ -554,7 +547,7 @@ function ItemEditor(row) {
     function showfullform() {
       var thisform = $("form", newdiv);
 
-      $("*", row).unbind("keypress");
+      $("*", row).unbind("keydown");
       fillfullform();
       $(newdiv).
         removeClass("hidden").
@@ -575,7 +568,7 @@ function ItemEditor(row) {
         bind("submit", that.saveFull).
         append(makeSaveButton(that.saveFull).addClass("hidden"));
           
-      $(document).bind("keypress", fullFormKeypress);
+      $(document).bind("keydown", fullFormKeypress);
       
       $("input[type=text]:first", thisform).focus();
       GTD.initItem(newdiv);
@@ -593,12 +586,13 @@ function ItemEditor(row) {
         $(row).
             removeClass('inajax onajaxcall').
             find('*').
-                unbind('keypress').
+                unbind('keydown').
                 filter('a[href]').unbind('click').end().
                 filter(':checkbox,img').show();
         iconfield.Set(false);
         $(newdiv).remove();
         newdiv=null;
+        if (that.xhr) { that.xhr.abort(); }
         this.ended=true;
     };
     // --------------------------------------------------------
@@ -686,7 +680,7 @@ function ItemEditor(row) {
     };
     // --------------------------------------------------------
     iconfield=new Live_field(tdsave,'saveCancel',this.save,this.reset,this.expand);
-    $('input,textarea',row).keypress(function(e){  //   // TODO consider splitting out into a central key-handler
+    $('input,textarea',row).keydown(function(e){  //   // TODO consider splitting out into a central key-handler
         if (e.keyCode===27) {
             that.reset();
             return false;
@@ -704,11 +698,11 @@ function ItemEditor(row) {
     } else {
         thisurl='item.php?ajax=true&itemId='+itemId;
     }
-    $.ajax({
+    this.xhr = $.ajax({
         dataType:'html',
         error:function (arg1,arg2,arg3) {
             window.status='Failed to retrieve full item form: '+arg2;
-            newdiv=null;
+            newdiv = null;
             $(".ajaxexpand", tdsave).remove();
         },
         success:function (htmldata, textStatus) {
@@ -933,9 +927,11 @@ function checkboxclicked(e) {
  * one of many different activities, depending on the value of the action select box
  * at the top of the column
  */
-    var cbox,ajaxdata={};
+    var cbox,
+        ajaxdata = {},
+        tgt = e.target;
     // first see if we've got a drop-down box attached to the table, where the user can change the action
-    cbox=$(this).
+    cbox=$(tgt).
         parents('table').
         find('th.col-checkbox select');
     if (cbox.length) {
@@ -960,27 +956,24 @@ function checkboxclicked(e) {
                 break;
         }
     } else {
-        ajaxdata.action=this.checked ? 'complete' : 'clearCheckmark';
+        ajaxdata.action = tgt.checked ? "complete" : "clearCheckmark";
     }
-    doAJAXupdate(this,ajaxdata);
+    doAJAXupdate(tgt, ajaxdata);
 }
 // ======================================================================================
-function createFormForNewItem() {
+function createFormForNewItem(evt) {
 /*
  * create a table row within which the user can create a new item of a specific type
  */
-    var row,newrow;
-    newrow=
-        (row=$(this).parents('form').
-            find('tr.creatortemplate').
-            eq(0) ).
-        clone().
-        insertBefore(row).
-        removeClass('sortbottom hidden creatortemplate').
-        attr('id','r0');
-    newrow.
-        find('td.col-ajax').
-        remove();
+    var tgt = evt.target,
+        row = $(tgt).parents("form").
+                    find("tr.creatortemplate:first"),
+        newrow = row.clone().
+                    insertBefore(row).
+                    removeClass("sortbottom hidden creatortemplate").
+                    attr("id", "r0");
+                    
+    newrow.find("td.col-ajax").remove();
     addAjaxEditIcon(newrow.get(0),ItemEditor);
     createAjaxEditor(newrow.find('td').get(0),ItemEditor);
     newrow.find('td.col-title input').focus().select();
@@ -1374,23 +1367,33 @@ GTD.ajax.inititem=function() {
 /*
  * initialise AJAX handling for itemReport, reportContext, listItems, (orphans?)
  */
-    $("table:has(.col-title) tbody tr").
-        each(function() {
+    $("table:has(.col-title) tbody").
+        click(function ajaxBodyClicked(evt) {
+          var tgt = evt.target,
+              that = $(tgt);
+          if (that.is("td.col-NA :checkbox:enabled")) {
+            doAJAXupdate(tgt, { action: tgt.checked ? "makeNA" : "removeNA" });
+          }
+          else if (that.is("td.col-checkbox :checkbox:enabled")) {
+            checkboxclicked(evt);
+          }
+          else if (that.is("tr.creator td.col-ajax img")) {
+            createFormForNewItem(evt);
+          }
+          return true;
+        }).
+        find("tr").
+        each(function() { // instead of doing an each here, why not iterate within addAjaxEditIcon and clone the cell each time? May be quicker
             addAjaxEditIcon(this,ItemEditor);
         }).
-        find('.col-NA :checkbox:enabled').
-            click(NAclicked).
-        end().find('.col-checkbox :checkbox').
-            click(checkboxclicked).
-        end().filter('.creator').find('td.col-ajax').
-            addClass('addlink').
+        filter(".creator").find("td.col-ajax").
+            addClass("addlink").
             append(
-                $('<img />').attr({
-                    alt  :'Create a new child',
-                    src  :GTD.ajax.dir+'ajaxedit.gif',
-                    title:'Create a new child'
-                }).
-                click(createFormForNewItem)
+                $("<img />").attr({
+                    alt  : "Create a new child",
+                    src  : GTD.ajax.dir + "ajaxedit.gif",
+                    title: "Create a new child"
+                })
             );
 
     $("table:has(.col-title) thead tr").
@@ -1419,23 +1422,23 @@ GTD.ajax.multisetup=function() {
             find('.col-ajax').                // find the table-header cell for the AJAX column
                 addClass('ajaxeye').          // add the eye icon to it
                 click(showcolumnselector).    // add the click-handler to it
-                attr({title:'Temporarily show/hide/reorder columns'}).
-                end().
-            find('th.col-checkbox').          // find the table-header cell for the checkbox column
-                empty().                      // remove its current contents
-                addClass('nosort').           // don't sort by this column
-                prepend(                      // put our action SELECT box into the header cell
-                    $('#multiaction').
-                        change(multichange).  // add click handler to the SELECT box
-                        change()              // ensure that the right category/context SELECT is displayed from the start
-                ). 
-                end().
-            end().
-        before(                               // put the container of the category/context SELECT boxes just above the table
-            $('#multicontainer').
-                removeClass('hidden')         // and display the container (though SELECT boxes will remain hidden for now)
-        );
-    movemultiselect();
+                attr({title:'Temporarily show/hide/reorder columns'});
+    if ($.browser.msie && $.browser.version < 7) {
+      $("#multicontainer").remove();
+    }
+    else {
+      $("table:has(.col-title)").before(      // put the container of the category/context SELECT boxes just above the table
+        $("#multicontainer").removeClass("hidden")). // and display the container (though SELECT boxes will remain hidden for now)
+        find("thead th.col-checkbox").        // find the table-header cell for the checkbox column
+            empty().                          // remove its current contents
+            addClass('nosort').               // don't sort by this column
+            prepend(                          // put our action SELECT box into the header cell
+                $('#multiaction').
+                    change(multichange).      // add click handler to the SELECT box
+                    change()                  // ensure that the right category/context SELECT is displayed from the start
+            );
+      movemultiselect();
+    }
     return true;
 };
 // ======================================================================================

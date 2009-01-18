@@ -970,21 +970,20 @@ Calendar._keyEvent = function(ev) {
 	if (!cal || cal.multiple)
 		return false;
 	(Calendar.is_ie) && (ev = window.event);
-	var act = (Calendar.is_ie || ev.type == "keypress"),
-		K = ev.keyCode;
+	var K = ev.keyCode;
 	if (ev.ctrlKey) {
 		switch (K) {
 		    case 37: // KEY left
-			act && Calendar.cellClick(cal._nav_pm);
+			Calendar.cellClick(cal._nav_pm);
 			break;
 		    case 38: // KEY up
-			act && Calendar.cellClick(cal._nav_py);
+			Calendar.cellClick(cal._nav_py);
 			break;
 		    case 39: // KEY right
-			act && Calendar.cellClick(cal._nav_nm);
+			Calendar.cellClick(cal._nav_nm);
 			break;
 		    case 40: // KEY down
-			act && Calendar.cellClick(cal._nav_ny);
+			Calendar.cellClick(cal._nav_ny);
 			break;
 		    default:
 			return false;
@@ -994,13 +993,12 @@ Calendar._keyEvent = function(ev) {
 		Calendar.cellClick(cal._nav_now);
 		break;
 	    case 27: // KEY esc
-		act && cal.callCloseHandler();
+		cal.callCloseHandler();
 		break;
 	    case 37: // KEY left
 	    case 38: // KEY up
 	    case 39: // KEY right
 	    case 40: // KEY down
-		if (act) {
 			var prev, x, y, ne, el, step;
 			prev = K == 37 || K == 38;
 			step = (K == 37 || K == 39) ? 1 : 7;
@@ -1068,10 +1066,8 @@ Calendar._keyEvent = function(ev) {
 				else
 					nextMonth();
 			}
-		}
 		break;
 	    case 13: // KEY enter
-		if (act)
 			Calendar.cellClick(cal.currentDateEl, ev);
 		break;
 	    default:
@@ -1341,7 +1337,7 @@ Calendar.prototype.show = function () {
 	if (this.isPopup) {
 		window._dynarch_popupCalendar = this;
 		Calendar.addEvent(document, "keydown", Calendar._keyEvent);
-		Calendar.addEvent(document, "keypress", Calendar._keyEvent);
+		Calendar.addEvent(document, "keypress", Calendar.stopEvent);
 		Calendar.addEvent(document, "mousedown", Calendar._checkCalendar);
 	}
 	this.hideShowCovered();
@@ -1354,7 +1350,7 @@ Calendar.prototype.show = function () {
 Calendar.prototype.hide = function () {
 	if (this.isPopup) {
 		Calendar.removeEvent(document, "keydown", Calendar._keyEvent);
-		Calendar.removeEvent(document, "keypress", Calendar._keyEvent);
+		Calendar.removeEvent(document, "keydown", Calendar.stopEvent);
 		Calendar.removeEvent(document, "mousedown", Calendar._checkCalendar);
 	}
 	this.element.style.display = "none";

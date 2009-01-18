@@ -21,7 +21,7 @@
     if (spanclicked !== null) {
       spanclicked.removeClass('activated');
       $('#treepopup').hide();
-      $(document).unbind('keypress', popupkeypress).
+      $(document).unbind('keydown', popupkeypress).
                   unbind('click', dismisspopup);
       spanclicked=null;
     }
@@ -97,7 +97,7 @@
           end().
           show().
           css({ top: (10 + e.pageY) + "px", left: (10 + e.pageX) + "px" });
-        $(document).bind('keypress', popupkeypress).
+        $(document).bind('keydown', popupkeypress).
                     bind('click', dismisspopup);
         return false;  // have dealt with click, so stop propagation
       //------------------------------------------------------------------
