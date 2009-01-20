@@ -1350,7 +1350,7 @@ Calendar.prototype.show = function () {
 Calendar.prototype.hide = function () {
 	if (this.isPopup) {
 		Calendar.removeEvent(document, "keydown", Calendar._keyEvent);
-		Calendar.removeEvent(document, "keydown", Calendar.stopEvent);
+		Calendar.removeEvent(document, "keypress", Calendar.stopEvent);
 		Calendar.removeEvent(document, "mousedown", Calendar._checkCalendar);
 	}
 	this.element.style.display = "none";
