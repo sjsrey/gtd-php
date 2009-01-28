@@ -35,11 +35,11 @@ switch ($page) {
         break;
         //-------------------------------------------------------------
     case 'itemReport':
-        $onready.="GTD.ajax.filter={everything:true,tickler:false};GTD.ajax.inititem();";
+        $onready.="GTD.ajax.initReport();";
         break;
         //-------------------------------------------------------------
     case 'reportContext':
-        $onready.="GTD.ajax.filter={everything:false,tickler:false};GTD.ajax.initcontext();";
+        $onready.="GTD.ajax.initcontext();";
         break;
         //-------------------------------------------------------------
     case 'index':

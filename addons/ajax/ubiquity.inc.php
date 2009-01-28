@@ -9,15 +9,18 @@ At the bottom of this page, set "Auto-update this feed" to true.
 ----------------------------------------------------------------*/
 
 /*jslint browser: false, eqeqeq: true, undef: true */
-/*global Application,CmdUtils,jQuery,noun_arb_text,displayMessage */
+/*global Application,CmdUtils,displayMessage,jQuery,noun_arb_text,Utils */
 
-var kver = "200901151450",
+var kver = "200901280917",
     kPath = "<?php echo getAbsolutePath(); ?>",
-    kDoLog = false,
-    kProjectCache = "gtdphp.ubiquity.projects";
-
-if (kDoLog) { CmdUtils.log(kver + " gtd-ubiquity initialising now"); }
-
+    kProjectCache = "gtdphp.ubiquity.projects",
+    kDoLog = true,
+    gtdLog = (function() {
+                if (kDoLog) { return CmdUtils.log; }
+                return function(){};
+             })();
+         
+gtdLog(kver + " gtd-ubiquity initialising now");
 
 // ------------------------------ ubiquity utility to set last query result
 function gtdSetLastResult(aXml) {
@@ -53,19 +56,22 @@ var noun_type_gtdparent = {
   //'default': function gtdp_default() { return this.subsuggest('')[0]; },
   
   getParents: function gtd_getparents(aOnDone) {
-    var self=this;
-    if (kDoLog) { CmdUtils.log('off to get parents'); }
-    jQuery.getJSON(kPath + "addon.php?addonid=ajax&action=list&url=sendJSON.inc.php&type=p",
-                   function gtd_json(aParents) {
-                     if (kDoLog) {CmdUtils.log('assigning parents');}
-                     self.parentList = aParents;
-                     Application.storage.set(kProjectCache, aParents);
-                     if (aOnDone) { aOnDone(); }
-                   });
+    var self = this;
+    gtdLog('off to get parents');
+    jQuery.getJSON(
+        kPath + "addon.php?addonid=ajax&action=list&url=sendJSON.inc.php&type=p",
+        function gtd_json(aParents) {
+          gtdLog('assigning parents');
+          self.parentList = aParents;
+          aParents.dateStored = Date(); // store the time, so we can check the cache's freshness
+          Application.storage.set(kProjectCache, aParents);
+          if (aOnDone) { aOnDone(); }
+        }
+    );
   },
 
   subsuggest: function gtd_subsuggest(aText, aHtml) {
-    if (kDoLog) { CmdUtils.log('in subsuggest searching for parent ' + aText); }
+    gtdLog('in subsuggest searching for parent ' + aText);
     var id, title, teststring,
         suggestions = [],
         i = 4;
@@ -95,10 +101,10 @@ var noun_type_gtdparent = {
       self.parentList = {}; // empty the array first, to ensure we only issue the JSON request once
       self._callback = aCallback;
       self.getParents(function gtd_gotparents() {
-        out = self.subsuggest(aText, aHtml);
+        var sug, out = self.subsuggest(aText, aHtml);
         for (sug in out) { self._callback(out[sug]); }
         //self._callback(out);
-        if (kDoLog) { CmdUtils.log("got " + out.length + " async results"); }
+        gtdLog("got " + out.length + " async results");
       });
       return [];
     }
@@ -175,7 +181,7 @@ makegtd({
       timer = 3000; // allow 3000ms (=3s) before AJAX call if there's no prompt string
     }
     else {
-      prompt = "Searching for <i>" + aNeedle.text + "</i> ..."
+      prompt = "Searching for <i>" + aNeedle.text + "</i> ...";
       timer = 500; // 500ms should be long enough between key presses to lag JSON call reasonably, without undue delays or redundant calls
     }
 
@@ -185,7 +191,7 @@ makegtd({
           kPath + "addon.php?addonid=ajax&action=getTable&url=sendJSON.inc.php&" +
                   filter,
           function gtd_json(json) {
-            if (kDoLog) {CmdUtils.log("back with html table of actions");}
+            gtdLog("back with html table of actions");
             var table,
                 // the table needs some heavy CSS styling to look half-decent
                 // TODO really needs more styling
@@ -198,7 +204,7 @@ makegtd({
                 tablehtml=json.table;
 
             // change hrefs to include the correct base path
-            tablehtml = tablehtml.replace(/(href\s*=\s*['""'])/gi,"$1"+kPath);
+            tablehtml = tablehtml.replace(/(href\s*=\s*['""'])/gi, "$1" + kPath);
 
             // create jQuery object with the newly-generated table, and our CSS
             table = jQuery(css + "<table id='gtdlist' summary='next actions'>" +
@@ -222,7 +228,7 @@ makegtd({
               this.disabled = true;
 
               // this function will be executed on a checkbox when it is clicked
-              if (kDoLog) { CmdUtils.log("Checkbox " + this.value + " clicked"); }
+              gtdLog("Checkbox " + this.value + " clicked");
 
               // do AJAX call to mark item completed
               gtdDoAjax(
@@ -242,7 +248,7 @@ makegtd({
                   row.remove();
 
                   if (!thisTab.find("tbody tr").length) {
-                    if (kDoLog) { CmdUtils.log("last listed action completed"); }
+                    gtdLog("last listed action completed");
                     // table is now empty, so remove it,
                     thisTab.remove();
                   }
@@ -282,7 +288,7 @@ makegtd({
       var document = CmdUtils.getDocument(),
           currenturl = document.location.href,
           title = document.title;
-      if (aMods.title.html) title = aMods.title.html;
+      if (aMods.title.html) { title = aMods.title.html; }
       return { done: true, url: currenturl, title: title };
     } catch (err) {
       return { done: false, message: "Unable to get location or title for current page, so cannot create a GTD reference for it" };
@@ -370,6 +376,14 @@ makegtd({
 // --------------------- ubiquity utility to initialise list of projects
 // initialize list of projects
 noun_type_gtdparent.parentList = Application.storage.get(kProjectCache, null);
+
+// check the cache's freshness - if it's stale, refresh it
+if (!noun_type_gtdparent.parentList.dateStored ||
+    noun_type_gtdparent.parentList.dateStored < Date()-1000*24*60*60) { // more than 24 hours old
+  noun_type_gtdparent.parentList = null;
+  gtdLog('Cached parent list is stale - it will now be cleared & regenerated');
+}
+
 if (noun_type_gtdparent.parentList === null) {
   noun_type_gtdparent.getParents();
 }

@@ -330,19 +330,19 @@ if ($item['type']==='i')
     display values for this item
 */
 ?>
-<table id='report' summary='item attributes'><tbody>
+<table class='mainReport' summary='item attributes'><tbody>
 <?php
 //Item details
 if ($item['description']) 
-    echo "<tr><th>Description:</th><td>"
+    echo "<tr class='col-fulldes'><th>Description:</th><td>"
         ,nl2br(escapeChars($item['description'])),"</td></tr>\n";
 
 if ($item['desiredOutcome']) 
-    echo "<tr><th>Desired Outcome:</th><td>"
+    echo "<tr class='col-fulloutcome'><th>Desired Outcome:</th><td>"
         ,nl2br(escapeChars($item['desiredOutcome'])),"</td></tr>\n";
 
 if (!empty($pids)) {
-    echo "<tr><th>Parents:&nbsp;</th><td>";
+    echo "<tr class='col-parents'><th>Parents:&nbsp;</th><td>";
     $brk='';
     foreach ($pids as $pkey=>$pid) {
         $thisparent=makeclean($pnames[$pkey]);
@@ -353,20 +353,20 @@ if (!empty($pids)) {
 }
 
 if ($item['categoryId']) 
-    echo "<tr><th>Category:</th><td><a href='listItems.php?categoryId={$item['categoryId']}&amp;type={$item['type']}'>"
+    echo "<tr><th class='col-category'>Category:</th><td><a href='listItems.php?categoryId={$item['categoryId']}&amp;type={$item['type']}'>"
         ,makeclean($item['category']),"</a></td></tr>\n";
 
 if ($item['contextId']) 
-    echo "<tr><th>Space Context:</th><td><a href='listItems.php?contextId={$item['contextId']}&amp;type={$item['type']}'>"
+    echo "<tr class='col-'context'><th>Space Context:</th><td><a href='listItems.php?contextId={$item['contextId']}&amp;type={$item['type']}'>"
         ,makeclean($item['cname']),"</a></td></tr>\n";
 
 if ($item['timeframeId'])
-    echo "<tr><th>Time Context:</th><td><a href='listItems.php?timeframeId={$item['timeframeId']}&amp;type={$item['type']}'>"
+    echo "<tr class='col-timeframe'><th>Time Context:</th><td><a href='listItems.php?timeframeId={$item['timeframeId']}&amp;type={$item['type']}'>"
         ,makeclean($item['timeframe']),"</a></td></tr>\n";
 
 if ($item['deadline']) {
     $deadline=prettyDueDate($item['deadline'],$item['daysdue']);
-    echo '<tr><th>Deadline:</th><td'
+    echo "<tr class='col-deadline'><th>Deadline:</th><td"
         ,(empty($item['dateCompleted']))
             ? " class='{$deadline['class']}' title='{$deadline['title']}'"
             : ''
@@ -374,19 +374,19 @@ if ($item['deadline']) {
 }
 
 if ($item['type']==='a' || $item['type']==='w') 
-    echo '<tr><th>Next Action?</th><td>'
+    echo "<tr class='col-NA'><th>Next Action?</th><td>"
         ,($item['nextaction']==='y')?'Yes':'No',"</td></tr>\n";
 
 if (!empty($item['recurdesc']) || !empty($item['recur']))
-    echo "<tr><th>Repeat</th><td>{$item['recurdesc']} ({$item['recur']})</td></tr>\n";
+    echo "<tr class='col-recurdesc'><th>Repeat</th><td>{$item['recurdesc']} ({$item['recur']})</td></tr>\n";
 
 if (!empty($item['tickledate']))
-	echo "<tr><th>Suppressed Until:</th><td>"
+	echo "<tr class='col-tickle'><th>Suppressed Until:</th><td>"
         ,date($_SESSION['config']['datemask'],$item['tickledate'])
         ,"</td></tr>\n";
 
 if (!empty($item['tags'])) {
-	echo "<tr><th>Tags:</th><td>";
+	echo "<tr class='col-tags'><th>Tags:</th><td>";
     $taglist=explode(',',$item['tags']);
     $sep='';
     foreach ($taglist as $tag) {
@@ -396,22 +396,23 @@ if (!empty($item['tags'])) {
     echo "</td></tr>\n";
 }
 
-echo '<tr><th>Created:</th><td>'
+echo "<tr class='col-dateCreated'><th>Created:</th><td>"
     ,date($_SESSION['config']['datemask'],$item['dateCreated'])
     ,"</td></tr>\n";
 
 if ($item['lastModified'])
-    echo '<tr><th>Last modified:</th><td>'
+    echo "<tr class='col-lastmodified'><th>Last modified:</th><td>"
         ,date($_SESSION['config']['datemask'].' H:i:s',$item['lastModified'])
         ,"</td></tr>\n";
 
+echo "<tr class='col-completed'>\n";
+
 if ($item['dateCompleted']) {
-    echo '<tr><th>Completed On:</th><td>'
+    echo "<th>Completed On:</th><td>"
         ,date($_SESSION['config']['datemask'],$item['dateCompleted'])
-        ,"</td></tr>\n";
+        ,"</td>\n";
 
     } else { ?>
-<tr>
     <th>Complete</th>
     <td>
         <form method='post' action='processItems.php'>
@@ -423,8 +424,8 @@ if ($item['dateCompleted']) {
             </div>
         </form>
     </td>
-</tr>
 <?php }
+echo "</tr>\n";
 ?>
 </tbody></table>
 <?php

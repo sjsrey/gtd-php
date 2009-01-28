@@ -75,22 +75,19 @@ function getNextRecurrence() {
 }
 // ======================================================================================
 function makeSaveButton(aFunc) {
-  var btn = $("<button type='submit'></button>");
-  return $(btn).
-           addClass("ajaxsave ajaxbutton").
-           click(aFunc).
-           append(
-           $(document.createElement("img")).attr(
+  return $(document.createElement("img")).attr(
              { src: GTD.ajax.dir + "save.gif",
                alt: "save item",
                title: "Save changes",
                width: 16,
                height: 16               
-             }));
+             }).
+           addClass("ajaxsave ajaxbutton").
+           click(aFunc);
 }
 // ======================================================================================
 function makeCancelButton(aFunc) {
-  return $(document.createElement("button")).
+  return $(document.createElement("span")).
             text("X").
             attr({ title: "Cancel changes" }).
             addClass("ajaxcancel ajaxbutton").
@@ -156,10 +153,10 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
                       
             if (expandfunc!==undefined) {
               $(source).append(document.createTextNode(" ")).
-                        append($(document.createElement("button")).
-                                attr({ title: "expand" }). 
-                                addClass("ajaxexpand ajaxbutton").
+                        append($(document.createElement("span")).
                                 text("+").
+                                attr({ title: "expand" }).
+                                addClass("ajaxexpand ajaxbutton").
                                 click(expandfunc));
             }
             break;
@@ -456,20 +453,27 @@ function ItemEditor(row) {
     // --------------------------------------------------------
     function fullFormKeypress(e){  // TODO consider splitting out into a central key-handler
       if (e.keyCode === 27) {
-          that.cancelFull();
-          return false;
+        that.cancelFull();
+        return false;
+      }
+      if (e.keyCode === 13 && $(e.originalTarget || e.target).is("input[type=text]")) {
+        that.saveFull();
+        return false;
       }
       return true;
     }
     // --------------------------------------------------------
-    this.cancelFull=function() {
+    this.cancelFull = function itemEditorCancellFull() {
         $(document).unbind("keydown", fullFormKeypress);
+        $("input",newdiv).unbind("keydown", fullFormKeypress);
         that.reset();
         GTD.freeze(false);
         return false;
     };
     // --------------------------------------------------------
-    this.saveFull=function(aEvent) {
+    this.saveFull = function(aEvent) {
+        $(document).unbind("keydown", fullFormKeypress);
+        $("input",newdiv).unbind("keydown", fullFormKeypress);
         var mydata, form = $("form",newdiv);
 
         // summarise the form values in a query
@@ -556,20 +560,15 @@ function ItemEditor(row) {
                                     window.scrollY );
       
       // assign save and cancel functions to buttons
-      $("#errorbox"). // document.createElement("div")).attr({ id: "ajaxfullformbuttons" }).prependTo($("div.form:first",thisform)).
+      $("#errorbox").
         prepend(makeCancelButton(that.cancelFull)).
         prepend(makeSaveButton(that.saveFull));
         
-      /* now bind the submit action, to catch webkit, and
-       * add an extra (hidden) submit button at the end of the form,
-       * which firefox will use as its default action
-       */
-      thisform.
-        bind("submit", that.saveFull).
-        append(makeSaveButton(that.saveFull).addClass("hidden"));
-          
+      thisform.bind("submit", that.saveFull);
+
       $(document).bind("keydown", fullFormKeypress);
-      
+      $("input",newdiv).bind("keydown", fullFormKeypress);
+
       $("input[type=text]:first", thisform).focus();
       GTD.initItem(newdiv);
       GTD.ajax.itemSetup();
@@ -597,7 +596,6 @@ function ItemEditor(row) {
     };
     // --------------------------------------------------------
     this.save = function itemEditorSave() {
-
         if (namefield && namefield.field.value === "") {
           namefield.field.value = "set a title";
           namefield.field.focus();
@@ -606,8 +604,8 @@ function ItemEditor(row) {
         }
         
         $(row).animate({ opacity: 0.1 }, 100).
-               addClass("onajaxcall").
-               click(false);
+           addClass("onajaxcall").
+           click(false);
         
         if (itemId === "0") {
             // populate the form, and submit that
@@ -632,7 +630,7 @@ function ItemEditor(row) {
             cache: false,
             data: mydata,
             dataType: 'xml',
-            error: function (arg1,arg2,arg3) {
+            error: function itemEditorOnErrorFromAjaxSave(arg1,arg2,arg3) {
                 var dbg=$('responseText',arg1).text()+
                         $('responseXml parseError reason',arg1).text()+
                         $('responseXml parseError srcText',arg1).text();
@@ -640,7 +638,7 @@ function ItemEditor(row) {
                 $('#debuglog').empty().text(dbg);
                 that.reset(true);
             },
-            success: function (xmldata, textStatus) {
+            success: function itemEditorOnReturnFromAjaxSave(xmldata, textStatus) {
                 if (namefield) {
                     namefield.Set($('gtdphp values title',xmldata).text());
                 }
@@ -662,7 +660,7 @@ function ItemEditor(row) {
         return false;
     };
     // --------------------------------------------------------
-    this.reset=function(preventFurtherAJAX) { // reset function
+    this.reset = function itemEditorReset(preventFurtherAJAX) { // reset function
         if (namefield) {namefield.Set(false);}
         if (descfield) {descfield.Set(false);}
         if (outcomefield) {outcomefield.Set(false);}
@@ -680,7 +678,7 @@ function ItemEditor(row) {
     };
     // --------------------------------------------------------
     iconfield=new Live_field(tdsave,'saveCancel',this.save,this.reset,this.expand);
-    $('input,textarea',row).keydown(function(e){  //   // TODO consider splitting out into a central key-handler
+    $('input,textarea',row).keydown(function itemEditorKeydown(e) {  // TODO consider splitting out into a central key-handler
         if (e.keyCode===27) {
             that.reset();
             return false;
@@ -1345,9 +1343,19 @@ colselectorclose=function() {
         all the functions above are just utility functions for these
 
  ======================================================================================*/
-GTD.ajax.initcontext=function() {
+ 
+GTD.ajax.initcontext = function ajaxInitContext() {
+    this.filter = { everything: false, tickler: false };
     this.inititem();
     initContextToggle();
+};
+
+// ======================================================================================
+
+GTD.ajax.initReport = function ajaxInitReport() {
+    this.filter = { everything: true, tickler: false };
+    this.inititem();
+    $("form").submit(function () { return false; });
 };
 
 // ======================================================================================
@@ -1357,8 +1365,8 @@ GTD.ajax.itemSetup = function ajax_itemSetup() {
   $(document.createElement("span")).
     appendTo("#recur").
     text($("#nextduedate").text()).
-    attr(
-    { id: "nextdue", title: "Date of next recurrence, if this item were completed today"} );
+    attr({ id: "nextdue",
+         title: "Date of next recurrence, if this item were completed today" });
 };
 
 // ======================================================================================
@@ -1563,13 +1571,7 @@ GTD.ParentSelector.prototype.gocreateparent=function(id,title,type,typename,rown
     thisrow=document.getElementById('searchresults').childNodes[this.editingrow];
     this.saverow=$(thisrow).clone(true);
     while(thisrow.hasChildNodes()) {thisrow.removeChild(thisrow.lastChild);}
-    /*
-                if (this.onAjax) {return false;}
-            if (e.keyCode===13) {
-                $(livesave).trigger('click');
-                return false;
-            }
-    */
+
     livename           = document.createElement('input');
     livename.type      = 'text';
     livename.id        = 'livename';
