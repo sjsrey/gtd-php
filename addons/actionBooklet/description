@@ -1,0 +1,3 @@
+BETA addon: produces a PDF booklet listing the current actions, listed by context and project, for printing.
+
+Copy options.inc.php.sample to options.inc.php, and check or change the default values of the options.

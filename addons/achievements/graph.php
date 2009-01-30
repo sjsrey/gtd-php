@@ -1,7 +1,7 @@
 <?php
 require_once "ses.inc.php";
 require_once "gtd_constants.inc.php";
-$dir=$addon[_GTD_ON_MENU.'-*']['jpgraphdir'];
+$dir=$addon['jpgraphdir'];
 require_once "{$dir}jpgraph.php";
 require_once "{$dir}jpgraph_line.php";
 require_once "{$dir}jpgraph_bar.php";

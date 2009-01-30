@@ -44,7 +44,7 @@ foreach ($tabvals as $type=>$line) {
 }
 
 // if we've got graphing available, plot some graphs
-$jpgraph=$addon[_GTD_ON_MENU.'-*']['jpgraphdir'].'jpgraph.php';
+$jpgraph=$addon['jpgraphdir'].'jpgraph.php';
 $cangraph=(   is_callable('imagecreatetruecolor')
            && @include_once $jpgraph);
 if ($cangraph) {

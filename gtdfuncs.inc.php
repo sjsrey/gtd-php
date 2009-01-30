@@ -106,6 +106,11 @@ function scanforcircularparents() {
    ======================================================================================
    event-handling functions
 */
+function processAddonOptions($addon) {
+    $options=array();
+    @include $_SESSION['addonsdir'].$addon.'/options.inc.php';
+    return $options;
+}
 function getEvents($addon) {
     if (   (@include $_SESSION['addonsdir'].$addon.'/setup.inc.php')===false
         || !isset($events)) return false;
@@ -115,7 +120,7 @@ function getEvents($addon) {
         foreach ($what as $page=>$handler) {
             if (is_array($handler) && array_key_exists('options',$handler)) {
                 // options are present, so store them in the session global, indexed by addon name, event trigger, and page name
-                $_SESSION["addons-$addon"]["$trigger-$page"]=$handler['options']; 
+                $_SESSION["addons-$addon"]=$handler['options']; 
                 unset($handler['options']);
             }
             $_SESSION['addons'][$trigger][$page][$addon]=$handler;
@@ -123,6 +128,11 @@ function getEvents($addon) {
         }
     }
     $_SESSION['addons'][$addon]=true;
+    
+    $options=processAddonOptions($addon);
+    if (is_array($options) && $options) foreach ($options as $key=>$val)
+        $_SESSION["addons-$addon"][$key]=$val;
+    
     return $triggercount;
 }
 //-------------------------------------------------
