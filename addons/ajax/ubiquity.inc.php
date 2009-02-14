@@ -14,7 +14,7 @@ At the bottom of this page, set "Auto-update this feed" to true.
 var kver = "200901280917",
     kPath = "<?php echo getAbsolutePath(); ?>",
     kProjectCache = "gtdphp.ubiquity.projects",
-    kDoLog = true,
+    kDoLog = false,
     gtdLog = (function() {
                 if (kDoLog) { return CmdUtils.log; }
                 return function(){};

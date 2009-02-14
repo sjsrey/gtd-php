@@ -568,7 +568,7 @@ a.sortheader { display: block; }
 .sortdown {
     background-image: url("down.gif");
 }
-.col-checkbox,.col-NA,.col-flags {
+table.datatable .col-checkbox, table.datatable .col-NA, table.datatable .col-flags {
     text-align:center;
 }
 .debug {

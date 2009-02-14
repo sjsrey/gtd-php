@@ -357,7 +357,7 @@ if ($item['categoryId'])
         ,makeclean($item['category']),"</a></td></tr>\n";
 
 if ($item['contextId']) 
-    echo "<tr class='col-'context'><th>Space Context:</th><td><a href='listItems.php?contextId={$item['contextId']}&amp;type={$item['type']}'>"
+    echo "<tr class='col-context'><th>Space Context:</th><td><a href='listItems.php?contextId={$item['contextId']}&amp;type={$item['type']}'>"
         ,makeclean($item['cname']),"</a></td></tr>\n";
 
 if ($item['timeframeId'])
