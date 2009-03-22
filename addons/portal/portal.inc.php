@@ -1,8 +1,8 @@
 <?php
 $title='Portal';
 include_once 'header.inc.php';
-
-$portal_links=$addon[_GTD_ON_MENU.'-*']['portal_links'];
+print_r($addon);
+$portal_links=$addon['portal_links'];
 
 foreach ($portal_links as $header => $link) {
 	echo '<h2>'.$header.'</h2><ul>';

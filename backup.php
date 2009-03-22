@@ -17,7 +17,7 @@ $charset=(empty($tableconfig['charset'])) ? '' : "charset={$tableconfig['charset
 
 // output the database backup
 header("Content-type: text/plain; $charset");
-//header('Content-Disposition: attachment; filename="gtdphpBackup.sql"');
+header('Content-Disposition: attachment; filename="gtdphpBackup.sql"');
 echo backupData($_SESSION['prefix']);
 
 

@@ -16,8 +16,8 @@ function messagepopup(text,xmldata,top,left) {
         msgbox=text;
     } else {
         msgbox=$(document.createElement('div')). // message box for message(s) returned via AJAX
-            addClass('success').
-            appendTo($('body')).
+          addClass('success').
+          appendTo($('body')).
             text(text).
             css({
                 display:'none',                         
@@ -253,7 +253,7 @@ function updateItem(row, xmldata) {
             }
 
             row.clone().
-                insertAfter(row).
+              insertAfter(row).
                 removeClass('inajax onajaxcall').
                 find(':checkbox').
                     attr('disabled',true).
@@ -303,7 +303,7 @@ function updateItem(row, xmldata) {
       row.find('.col-tags').text(newval.text());
     }
     
-    xmlfields=['contextid','categoryid','timeframeid'];
+    xmlfields=['contextId','categoryId','timeframeId'];
     rowclasses=['context','category','timeframe'];
     selects=['space','category','time'];
     for (i=0;i<3;i++) {
@@ -331,8 +331,8 @@ function updateItem(row, xmldata) {
       else {
         counterElem=$( document.createElement('span') ).
                     appendTo($("#pagetitle")).
-                    attr({ id: "ajaxcountincrement" }).
-                    text(".");
+                      attr({ id: "ajaxcountincrement" }).
+                      text(".");
       }
       incrementCounter = (incrementCounter >= 0) ? " +" + incrementCounter.toString() :
                         " " + incrementCounter.toString();
@@ -819,7 +819,7 @@ function initContextToggle() {
     // now add checkboxes to toggle the time-contexts, at the bottom of each column on the summary table
     headcells=$('table#contexttable>thead>tr>th');  // we shall need to parse the header row, below
     $('table#contexttable tr:last').clone().// add a row
-        appendTo('table#contexttable').     //   to the bottom of the table
+      appendTo('table#contexttable').     //   to the bottom of the table
         find('td').slice(0,-1).             // skip the last cell
             each(function(ndx) {
                 if (ndx===0) {              // just label the first cell
@@ -964,10 +964,9 @@ function createFormForNewItem(evt) {
  * create a table row within which the user can create a new item of a specific type
  */
     var tgt = evt.target,
-        row = $(tgt).parents("form").
-                    find("tr.creatortemplate:first"),
+        row = $(tgt).parents("form").find("tr.creatortemplate:first"),
         newrow = row.clone().
-                    insertBefore(row).
+                  insertBefore(row).
                     removeClass("sortbottom hidden creatortemplate").
                     attr("id", "r0");
                     
@@ -1264,8 +1263,8 @@ function showcolumnselector(e) {
     }
 
     coldiv=$(document.createElement('div')).                     // the container div for our popup
-        attr({id:'colselector'}).
-        appendTo('#main').
+      attr({id:'colselector'}).
+      appendTo('#main').
         css({top:(10+e.pageY)+"px",left:(10+e.pageX)+"px"}).    // position just below and to the right of mouse click
         append(
             $(document.createElement('span')).                  // insert a SPAN into the DIV
@@ -1297,7 +1296,7 @@ function showcolumnselector(e) {
         );
 
     collist=$(document.createElement('ul')).                    // insert a UL into the popup DIV
-        appendTo(coldiv).
+      appendTo(coldiv).
         attr('id','collist').
         data('linkedtable',$(e.target).parents('table').eq(0)). // record which TABLE we are tweaking
         sortable({update:movecolumn,distance:5});               // use the jQuery UI drag-and-drop sorter
@@ -1319,7 +1318,7 @@ function showcolumnselector(e) {
                                 text()                             // not a checkbox, so use column header text to label the LI
                         ).                        
                     appendTo(collist).                          // add the LI to the UL
-                    data('selectclass',selectclass);            // and save the CLASS associated with that heading (e.g. col-parent), because that identifies the cells we'll be manipulating via this LI
+                      data('selectclass',selectclass);          // and save the CLASS associated with that heading (e.g. col-parent), because that identifies the cells we'll be manipulating via this LI
             }
         });
     $(document).click(colselectorclicked);                      // catch ALL clicks, wherever they are, while the popup is on-screen
@@ -1353,9 +1352,28 @@ GTD.ajax.initcontext = function ajaxInitContext() {
 // ======================================================================================
 
 GTD.ajax.initReport = function ajaxInitReport() {
-    this.filter = { everything: true, tickler: false };
-    this.inititem();
-    $("form").submit(function () { return false; });
+  this.filter = { everything: true, tickler: false };
+  this.inititem();
+  $("form").submit(function () { return false; });
+  $("#clearchecklist").click(function() {
+    $.ajax({
+      cache: false,
+      data: { parentId: $("input[name=parentId]").val(), action: "checkcomplete" },
+      dataType: "'xml",
+        error: function clearChecklistAjaxError(arg1,arg2,arg3) {
+          $('#debuglog').empty().text(arg1.responseText);
+        },
+        success:function clearChecklistAjaxSuccess(xmldata, textStatus) {
+            $('#debuglog').
+                empty().
+                append($('gtdphp log',xmldata).text());     // dump debug data if present
+            $("td.col-checkbox :checkbox").attr({ checked: false }).animateShow();
+        },
+        type: "POST",
+        url: "processItems.php"});
+    
+    return false;
+  });
 };
 
 // ======================================================================================
@@ -1364,9 +1382,9 @@ GTD.ajax.itemSetup = function ajax_itemSetup() {
   $("#recur input,#recur select,#deadline,#tickledate").change(getNextRecurrence);
   $(document.createElement("span")).
     appendTo("#recur").
-    text($("#nextduedate").text()).
-    attr({ id: "nextdue",
-         title: "Date of next recurrence, if this item were completed today" });
+      text($("#nextduedate").text()).
+      attr({ id: "nextdue",
+          title: "Date of next recurrence, if this item were completed today" });
 };
 
 // ======================================================================================

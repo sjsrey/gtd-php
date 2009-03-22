@@ -163,102 +163,95 @@ makegtd({
   
   xhr: false,
   
+  previewDelay: 500,
+  
   preview: function gtdlist_preview(aPblock, aNeedle) {
 
-    if (this._ajaxTimer) { Utils.clearTimeout(this._ajaxTimer); }
-    if (this.xhr) {
-      this.xhr.abort();
-      this.xhr = false;
-    }
     if (aPblock == null) { return; }
 
-    var prompt, timer,
+    var prompt, 
         that = this,
         filter = this._filter(aNeedle);
 
     if (aNeedle.text === "") {
       prompt = "Searching for all live next actions (enter more text to narrow down the search)";
-      timer = 3000; // allow 3000ms (=3s) before AJAX call if there's no prompt string
     }
     else {
       prompt = "Searching for <i>" + aNeedle.text + "</i> ...";
-      timer = 500; // 500ms should be long enough between key presses to lag JSON call reasonably, without undue delays or redundant calls
     }
 
     aPblock.innerHTML = prompt;
-    this._ajaxTimer = Utils.setTimeout(function gtdlist_doAjax() {
-        that.xhr = jQuery.getJSON(
-          kPath + "addon.php?addonid=ajax&action=getTable&url=sendJSON.inc.php&" +
-                  filter,
-          function gtd_json(json) {
-            gtdLog("back with html table of actions");
-            var table,
-                // the table needs some heavy CSS styling to look half-decent
-                // TODO really needs more styling
-                css = "<style>" +
-                      "#gtdlist{} " +
-                      "#gtdlist td.col-title {font-size:0.9em;} " +
-                      "#gtdlist td.col-shortdesc,#gtdlist td.col-parent, " +
-                        "#gtdlist th.col-checkbox {font-size:0.6em;} " +
-                      "</style>",
-                tablehtml=json.table;
 
-            // change hrefs to include the correct base path
-            tablehtml = tablehtml.replace(/(href\s*=\s*['""'])/gi, "$1" + kPath);
+    jQuery.getJSON(
+      kPath + "addon.php?addonid=ajax&action=getTable&url=sendJSON.inc.php&" +
+              filter,
+      function gtd_json(json) {
+        gtdLog("back with html table of actions");
+        var table,
+            // the table needs some heavy CSS styling to look half-decent
+            // TODO really needs more styling
+            css = "<style>" +
+                  "#gtdlist{} " +
+                  "#gtdlist td.col-title {font-size:0.9em;} " +
+                  "#gtdlist td.col-shortdesc,#gtdlist td.col-parent, " +
+                    "#gtdlist th.col-checkbox {font-size:0.6em;} " +
+                  "</style>",
+            tablehtml=json.table;
 
-            // create jQuery object with the newly-generated table, and our CSS
-            table = jQuery(css + "<table id='gtdlist' summary='next actions'>" +
-                             tablehtml + "</table>");
+        // change hrefs to include the correct base path
+        tablehtml = tablehtml.replace(/(href\s*=\s*['""'])/gi, "$1" + kPath);
 
-            // if we've got an empty table, just say so, and quit
-            if (!table.find("tbody tr").length) {
-              table.empty().remove();
-              aPblock.innerHTML = "Nothing found";
-            }
+        // create jQuery object with the newly-generated table, and our CSS
+        table = jQuery(css + "<table id='gtdlist' summary='next actions'>" +
+                         tablehtml + "</table>");
 
-            // remove all images from the table
-            table.find('img').remove();
+        // if we've got an empty table, just say so, and quit
+        if (!table.find("tbody tr").length) {
+          table.empty().remove();
+          aPblock.innerHTML = "Nothing found";
+        }
 
-            // display the table of actions in the preview block
-            jQuery(aPblock).empty().append(table);
+        // remove all images from the table
+        table.find('img').remove();
 
-            // add the AJAX trigger to the completion checkboxes
-            table.find("td.col-checkbox :checkbox").change(function gtd_checkedBox(aEvent) {
-              // checkbox can only be clicked once; it's just been clicked, so disable it now
-              this.disabled = true;
+        // display the table of actions in the preview block
+        jQuery(aPblock).empty().append(table);
 
-              // this function will be executed on a checkbox when it is clicked
-              gtdLog("Checkbox " + this.value + " clicked");
+        // add the AJAX trigger to the completion checkboxes
+        table.find("td.col-checkbox :checkbox").change(function gtd_checkedBox(aEvent) {
+          // checkbox can only be clicked once; it's just been clicked, so disable it now
+          this.disabled = true;
 
-              // do AJAX call to mark item completed
-              gtdDoAjax(
-                { itemId: this.value, action: "complete" },
-                function gtd_itemCompleted(xml, status) {
-                  // back from AJAX call
+          // this function will be executed on a checkbox when it is clicked
+          gtdLog("Checkbox " + this.value + " clicked");
 
-                  var row = jQuery(aEvent.target).parents("tr"),   // this is the row we are dealing with:
-                      thisTab = row.parents("table").eq(0);        // table to which the row belongs
+          // do AJAX call to mark item completed
+          gtdDoAjax(
+            { itemId: this.value, action: "complete" },
+            function gtd_itemCompleted(xml, status) {
+              // back from AJAX call
 
-                  // report the successful completion to the user
-                  thisTab.parent().
-                    append(jQuery("<br/><b>Completed:</b> <i>" +
-                                  row.find("td.col-title").text() + "</i>"));
+              var row = jQuery(aEvent.target).parents("tr"),   // this is the row we are dealing with:
+                  thisTab = row.parents("table").eq(0);        // table to which the row belongs
 
-                  // item has been completed, so remove from table
-                  row.remove();
+              // report the successful completion to the user
+              thisTab.parent().
+                append(jQuery("<br/><b>Completed:</b> <i>" +
+                              row.find("td.col-title").text() + "</i>"));
 
-                  if (!thisTab.find("tbody tr").length) {
-                    gtdLog("last listed action completed");
-                    // table is now empty, so remove it,
-                    thisTab.remove();
-                  }
-                } // end of AJAX success call
-              ); // end of call to gtdDoAjax
-            }); // end of onChange function for checkboxes
-          } // end of success function for JSON call to retrieve next actions
-        ); // end of JSON call
-      }, // end of _doAJAX function
-      timer); // end of setTimeout call
+              // item has been completed, so remove from table
+              row.remove();
+
+              if (!thisTab.find("tbody tr").length) {
+                gtdLog("last listed action completed");
+                // table is now empty, so remove it,
+                thisTab.remove();
+              }
+            } // end of AJAX success call
+          ); // end of call to gtdDoAjax
+        }); // end of onChange function for checkboxes
+      } // end of success function for JSON call to retrieve next actions
+    ); // end of JSON call
   },
 
   

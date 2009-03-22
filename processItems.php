@@ -580,8 +580,9 @@ function nextPage() { // set up the forwarding to the next page
             $header="Content-Type: text/xml; charset=".$_SESSION['config']['charset'];
             header($header);
         }
-        echo '<?xml version="1.0" ?',">\n<gtdphp>"; // encoding="{$_SESSION['config']['charset']}"
-        echo "<values>\n";
+        // NB don't put line breaks (\n) into the XML - it breaks things!
+        echo '<?xml version="1.0" ?',"><gtdphp>"; // encoding="{$_SESSION['config']['charset']}"
+        echo "<values>";
         foreach ($values as $key=>$val) {
             switch ($key) {
                 //------------------------------------------------
@@ -651,12 +652,12 @@ function nextPage() { // set up the forwarding to the next page
                     break;
                 //-------------------------------------------------------
             }
-            echo "\n";
+            echo "";
         }
-        echo "</values>\n<result>";
+        echo "</values><result>";
         if (!empty($outtext)) foreach ($outtext as $line) echo "<line><![CDATA[$line]]></line>";
-        echo "</result>\n"
-            ,"<log><![CDATA[$logtext]]></log>\n"
+        echo "</result>"
+            ,"<log><![CDATA[$logtext]]></log>"
             ,"</gtdphp>";
         exit;
     } else nextScreen($nextURL);

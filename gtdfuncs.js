@@ -1027,32 +1027,31 @@ GTD.setTabs=function gtd_settabs() {
 /*
  * display the tabs in the preferences screen
  */
-    var list;
-    $('#optionsform').
-        prepend(
-            list=$(document.createElement('ul')).addClass('tabbar')
-            ).
-        find('h2').
-            wrapInner(document.createElement('li')).
-            children('li').
-                appendTo(list).
-                click(function tabclicked() { // change which tab is displayed
-                    var clickedtab=$(this);
-                    if (clickedtab.hasClass('selectedTab')) { return false; }
-                    $('ul.tabbar li').
-                        filter('.selectedtab').
-                            removeClass('selectedtab');
-                    clickedtab.addClass('selectedtab');
-                    $('div.tabsheet').
-                        hide().
-                        filter('[id='+clickedtab.text()+']').
-                            show();
-                }).
-                filter(':first').
-                    click().
-                end().
-            end().
-            remove();
+  var list;
+  $('#optionsform').
+    prepend(
+      list=$(document.createElement('ul')).addClass('tabbar')
+    ).
+    find('h2').
+      remove().
+      wrapInner(document.createElement('li')).
+      children('li').
+        appendTo(list).
+          click(function tabclicked() { // change which tab is displayed
+            // TODO alter URL to include name of tab, in case we want to bookmark preferences with this tab showing
+            var clickedtab=$(this);
+            if (clickedtab.hasClass('selectedTab')) { return false; }
+            $('ul.tabbar li').
+              filter('.selectedtab').
+                removeClass('selectedtab');
+            clickedtab.addClass('selectedtab');
+            $('div.tabsheet').
+              hide().
+              filter('[id='+clickedtab.text()+']').
+                show();
+          }).
+          filter(':first'). // ensure that the first tab is selected: TODO check for anchor in URL and switch tab with that name
+            click();
 };
 // ======================================================================================
 GTD.showrecurbox=function gtd_showrecurbox() {

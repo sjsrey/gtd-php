@@ -168,13 +168,15 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
             // prevent display of category for (check)list items
             break;
         case 'a': // deliberately flows through to 'w'
-    		if ($comp=="n") {
-                $dispArray['tickledate']='Suppress until';
-    			$dispArray['deadline']='Deadline';
-    			$dispArray['recurdesc']='Repeat';
+        		if ($comp=="n") {
+          			$dispArray['recurdesc']='Repeat';
             }
-        case 'r': // deliberately flows through to 'w'
-        case 'w':
+        case 'w': // deliberately flows through to 'r'
+            if ($comp=="n") {
+                $dispArray['tickledate']='Suppress until';
+    			      $dispArray['deadline']='Deadline';
+            }
+        case 'r':
             $dispArray['context']='context';
             $dispArray['timeframe']='time';
             break;
@@ -490,7 +492,7 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
 <input type="submit" class="button" value="Update marked <?php echo getTypes($thistype,$item['type']); ?>s" name="submit" />
 <input type='hidden' name='referrer' value='<?php echo "{$pagename}.php?itemId={$values['itemId']}"; ?>' />
         <?php if ($item['type']==='C') { ?>
-<button type='submit' name='clearchecklist' value='y'>Clear Checklist</button>
+<button type='submit' name='clearchecklist' id='clearchecklist' value='y'>Clear Checklist</button>
         <?php } else { ?>
 <input type="hidden" name="multi" value="y" />
         <?php } ?>

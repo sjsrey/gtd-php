@@ -1,0 +1,22 @@
+<?php
+
+//COPY THIS FILE TO options.inc.php and make changes there to activate your personal portal
+
+// HOW TO DEFINE LINKS
+// NB: Use full URL, including protocol (http://)
+
+$options= array( 'portal_links' => array(
+
+    'YOUR HEADER HERE' => array (
+        'Example_LINK_TITLE1' => 'http://link_url',
+        'Example_LINK_TITLE2' => 'https://link_url2'
+        //expand as needed
+    ),
+
+    // for additional sections
+    'Search' => array (
+        'Google' => 'http://www.google.com/',
+        'Yahoo!' => 'http://www.yahoo.com/'
+        //expand as needed
+    )
+));
