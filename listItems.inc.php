@@ -423,6 +423,7 @@ if ($maintable) {
         $cleantitle=makeclean($row['title']);
         $row['title.class'] = 'maincolumn';
 
+        $row['checkboxtitle']= 'Complete';
         $row['checkboxname']= 'isMarked[]';
         $row['checkboxvalue']=$row['itemId'];
         

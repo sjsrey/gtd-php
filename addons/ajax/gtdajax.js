@@ -1049,7 +1049,7 @@ function multichange() {
                     $(this).hide();
                 }
             });
-    // TODO change the titles on the checkboxes
+    $("td.col-checkbox :checkbox").attr("title", action);
     return true;
 }
 /*
