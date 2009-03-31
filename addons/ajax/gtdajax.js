@@ -348,7 +348,7 @@ function doAJAXupdate(thisnode,overlay) {
  * overlay: an object containing key:value pairs to be sent to the server as data
  */
     var node,data,row;
-    row=$(thisnode).parents('tr').get(0);
+    row=$(thisnode).parents('tr:first');
     if ($(row).hasClass('inajax')) {return false;}
     $(row).addClass('inajax onajaxcall').animate({opacity:0.1},100);
     node=thisnode;
@@ -867,11 +867,10 @@ function completeFromReport(event) {
         success:function (xmldata, textStatus) {
             var dateCompleted=$('gtdphp values dateCompleted',xmldata).text(),
                 rowpos=that.position();
-            that.parents('td').
-                eq(0).
+            that.parents('td:first').
                 empty().
                 text(dateCompleted).
-                parents('tr').
+                parents('tr:first').
                 children('th').
                 text('Completed on:');
             $('#debuglog').
@@ -930,7 +929,7 @@ function checkboxclicked(e) {
         tgt = e.target;
     // first see if we've got a drop-down box attached to the table, where the user can change the action
     cbox=$(tgt).
-        parents('table').
+        parents('table:first').
         find('th.col-checkbox select');
     if (cbox.length) {
         ajaxdata.action=cbox.val();
@@ -964,7 +963,7 @@ function createFormForNewItem(evt) {
  * create a table row within which the user can create a new item of a specific type
  */
     var tgt = evt.target,
-        row = $(tgt).parents("form").find("tr.creatortemplate:first"),
+        row = $(tgt).parents("form:first").find("tr.creatortemplate:first"),
         newrow = row.clone().
                   insertBefore(row).
                     removeClass("sortbottom hidden creatortemplate").
@@ -1298,7 +1297,7 @@ function showcolumnselector(e) {
     collist=$(document.createElement('ul')).                    // insert a UL into the popup DIV
       appendTo(coldiv).
         attr('id','collist').
-        data('linkedtable',$(e.target).parents('table').eq(0)). // record which TABLE we are tweaking
+        data('linkedtable',$(e.target).parents("table:first")).   // record which TABLE we are tweaking
         sortable({update:movecolumn,distance:5});               // use the jQuery UI drag-and-drop sorter
 
     $(e.target).
@@ -1479,8 +1478,7 @@ GTD.ajax.setNoChildren=function(tables) {
         nochild=$(tables[tableid]);
 
         $('#'+tableid).
-            parents('div').
-            eq(0).
+            parents('div:first').
             addClass('hidden').     // hide the corresponding table
             after(nochild);          // restore the text reporting that there are no children of this type
 

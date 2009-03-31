@@ -76,8 +76,8 @@ function manualcellindex(cell) {
         find('th,td').
         each(function mci_each(id){
             if (this===cell) {
-                index=id;
-                return false;
+                index=id;     // found the cell we were looking for, so record its index
+                return false; // and quit the mci_each loop
             }
         });
     return index;
@@ -542,8 +542,7 @@ GTD.checkRecurrence = function checkRecurrence(aEvent) {
         return true;
     }
     GTD.showrecurbox();
-    recurField.parents("p,div").eq(0).animateShow();
-    
+    recurField.parents("tr,div").filter(":last").animateShow();
     return true;
 };
 // ======================================================================================

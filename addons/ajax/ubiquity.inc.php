@@ -232,7 +232,7 @@ makegtd({
               // back from AJAX call
 
               var row = jQuery(aEvent.target).parents("tr"),   // this is the row we are dealing with:
-                  thisTab = row.parents("table").eq(0);        // table to which the row belongs
+                  thisTab = row.parents("table:first");        // table to which the row belongs
 
               // report the successful completion to the user
               thisTab.parent().

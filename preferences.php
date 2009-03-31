@@ -124,7 +124,8 @@ foreach ($addons as $addon) {
     $array[]=array($addon,'checkbox',"<b>$addon</b> $desc");
 }
 $live=array();
-if ($_SESSION['addons']) foreach ($_SESSION['addons'] as $where)
+if (array_key_exists('addons',$_SESSION) && is_array($_SESSION['addons']))
+  foreach ($_SESSION['addons'] as $where)
     if (is_array($where)) foreach ($where as $page)
         if ($page) foreach ($page as $addonname=>$how)
             $live[$addonname]=true;
