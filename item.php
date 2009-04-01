@@ -219,9 +219,17 @@ if (empty($values['recur'])) {
         default:
             break;
     }
+    // if the recurrence pattern is based on specific days of the week, put these
+    // into a boolean array, so it's easy to test which are live
+    $recur['day']=array();
+    foreach ($days as $key=>$val) $recur['day'][$key]=false;
     if (!empty($recur['BYDAY']['DAY'])) {
-        $recur['day']=$recur['BYDAY']['DAY'];
+        $recur['day'][$recur['BYDAY']['DAY']]=true;
         if (isset($recur['BYDAY'][0])) $recur['week']=$recur['BYDAY'][0];
+    } elseif (!empty($recur['BYDAY']['0'])) {
+        foreach ($recur['BYDAY'] as $key=>$val)
+          if (array_key_exists('DAY',$val))
+            $recur['day'][$val['DAY']]=true;
     }
     log_value('Recurrence values going into form',$recur);
     // get the date of the next recurrence, after the current one has been completed, for the user's information
@@ -652,7 +660,7 @@ if ($show['submitbuttons']) { ?>
             ?> /> on <?php
             foreach ($days as $key=>$val)
                 echo "<label class='left'><input type='checkbox' name='WEEKLYday[]' value='$key'"
-                    ,(in_array($key,$recur['BYDAY']))?" checked='checked' ":' '
+                    ,($recur['day'][$key])?" checked='checked' ":' '
                     ,"/>",substr($val,0,3),"</label>";
             ?>
         </span>
@@ -686,7 +694,7 @@ if ($show['submitbuttons']) { ?>
             ?></select>&nbsp;<select name='MONTHLYweekday' id='MONTHLYweekday'><?php
                 foreach ($days as $key=>$val)
                     echo "<option value='$key'"
-                        ,($recur['day']==$key)?" selected='selected'":''
+                        ,($recur['day'][$key])?" selected='selected'":''
                         ,">$val</option>";
             ?></select>
         </span>
@@ -726,7 +734,7 @@ if ($show['submitbuttons']) { ?>
             ?></select>&nbsp;<select name='YEARLYweekday' id='YEARLYweekday'><?php
                 foreach ($days as $key=>$val)
                     echo "<option value='$key'"
-                        ,($recur['day']==$key)?" selected='selected'":''
+                        ,($recur['day'][$key])?" selected='selected'":''
                         ,">$val</option>";
             ?></select>
             <label for='YEARLYweekmonth'> of </label>
