@@ -105,7 +105,6 @@ $oldtype=$values['type'];
 
 $hiddenvars=array(
             'referrer'=>(isset($_REQUEST['referrer']))?$_REQUEST['referrer']:''
-            ,'afterCreate'=>''
             ,'type'   =>$values['type']
             ,'itemId' =>$values['itemId']
             ,'firstDayOfWeek'=>(int) $_SESSION['config']['firstDayOfWeek']
@@ -506,6 +505,7 @@ if ($show['submitbuttons']) { ?>
     <?php
     if (!empty($_REQUEST['nextId'])) {
         // don't show any next item buttons: we are creating a parent item here
+        $hiddenvars['afterCreate']='referrer';
         $hiddenvars['referrer']='item.php?itemId='.$_REQUEST['nextId'];
         $hiddenvars['addAsParentTo']=$_REQUEST['nextId'];
         ?><div class='formbuttons'>
@@ -557,6 +557,7 @@ if ($show['submitbuttons']) { ?>
             echo ($values['itemId'])?'Update':'Create';
         ?> and then:</label>
         <?php
+        $hiddenvars['afterCreate']='';
         $buttons=array();
         if ($show['ptitle']) $buttons['parent']='View parent';
         $buttons['item']='View item';
