@@ -27,72 +27,68 @@ mysql> INSERT INTO t SELECT * FROM t AS t1;
 ------------------------------------------------------------
 
 */
-$action=(isset($_REQUEST['action']))?$_REQUEST['action']:'validate';
+$action=(isset($_REQUEST['action']))?$_REQUEST['action']:'none';
 $showInstallations=true;
 $showCommands=true;
 $prefix=(isset($_REQUEST['prefix']))?$_REQUEST['prefix']:$_SESSION['prefix'];
 if (!checkPrefix($prefix)) $prefix='';
-$availableActions=array('validate','repair');
+$availableActions=array('check','optimise','repair');
 if (_ALLOWUNINSTALL) $availableActions[]='delete';
 
-switch ($action) {
-    case 'delete':
-        if (!_ALLOWUNINSTALL) break;
-        break;
-    case 'none':
-        break;
-    case 'repair':
+if (isset($_REQUEST['check'])) {
+    $result=checkErrors($prefix);
+    $validate="<h2>Validation checks on installation with prefix $prefix</h2>";
+    if ($result===false) {
+        $validate.="<p class='error'>No database with prefix '$prefix'</p>\n";
+        $prefix=$_SESSION['prefix'];
+    } else {
         $toterrs=0;
-        $pre=checkErrors($prefix);
-        fixData($prefix);
-        $post=checkErrors($prefix);
-        $repair="<h2>Results of repairs on installation with prefix '$prefix'</h2>\n";
-        $repair.="<p>Repair complete.</p>";
-        if ($post['totals']['orphans'])
-            $repair.="<p>Now check <a href='orphans.php'>orphans</a>.</p>\n";
-        $repair.="<p>Check for <a href='listItems.php?type=p'>projects</a> that have no actions, or no next actions.</p>\n";
-        $repair.="<table summary='result of repairs'><thead>\n<tr><th>Before</th><th>After</th><th>&nbsp;</th></tr></thead><tbody>";
-        foreach($post['totals'] as $key=>$val)
-            $repair .="<tr><td>{$pre['totals'][$key]}</td><td>$val</td><th>$key</th></tr>\n";
-        foreach($post['errors'] as $key=>$val) {
+        $validate.="<p>Number of inconsistencies in the gtd-php data-set. NB some errors may overlap.</p>\n"
+            ."<table summary='validation checks'><thead>\n";
+        foreach($result['totals'] as $key=>$val)
+            $validate .="<tr><td>$val</td><th>$key</th></tr>\n";
+        $validate .="</thead><tbody>\n";
+        foreach($result['errors'] as $key=>$val) {
+            $class=($val)?" class='warnresult' ":" class='goodresult' ";
+            $validate .= "<tr><td $class>$val</td><td $class>$key</td></tr>\n";
             $toterrs+=(int) $val;
-            $preval=$pre['errors'][$key];
-            $class1=($preval)?" class='warnresult' ":" class='goodresult' ";
-            if ($val)
-                $class2=" class='warnresult' ";
-            else if ($preval)
-                $class2=" class='goodresult' ";
-            else {
-                $class1='';
-                $class2='';
-            }
-            $repair .= "<tr><td $class1>{$preval}</td><td $class2>$val</td><td $class2>$key</td></tr>\n";
         }
-        $repair .="</tbody></table>\n";
-        $action=($toterrs)?'repair':'backup';
-        break;
-    case 'validate':
-        $result=checkErrors($prefix);
-            $validate="<h2>Validation checks on installation with prefix $prefix</h2>";
-        if ($result===false) {
-            $validate.="<p class='error'>No database with prefix '$prefix'</p>\n";
-            $prefix=$_SESSION['prefix'];
-        } else {
-            $toterrs=0;
-            $validate.="<p>Number of inconsistencies in the gtd-php data-set. NB some errors may overlap.</p>\n"
-                ."<table summary='validation checks'><thead>\n";
-            foreach($result['totals'] as $key=>$val)
-                $validate .="<tr><td>$val</td><th>$key</th></tr>\n";
-            $validate .="</thead><tbody>\n";
-            foreach($result['errors'] as $key=>$val) {
-                $class=($val)?" class='warnresult' ":" class='goodresult' ";
-                $validate .= "<tr><td $class>$val</td><td $class>$key</td></tr>\n";
-                $toterrs+=(int) $val;
-            }
-            $validate .="</tbody></table>\n";
+        $validate .="</tbody></table>\n";
+    }
+    $action=($toterrs)?'repair':'backup';
+} elseif (isset($_REQUEST['delete']) && _ALLOWUNINSTALL) {
+    $action='delete';
+} elseif (isset($_REQUEST['optimise'])) {
+    $result=optimise_tables($prefix);
+} elseif (isset($_REQUEST['repair'])) {
+    $toterrs=0;
+    $pre=checkErrors($prefix);
+    fixData($prefix);
+    $post=checkErrors($prefix);
+    $repair="<h2>Results of repairs on installation with prefix '$prefix'</h2>\n";
+    $repair.="<p>Repair complete.</p>";
+    if ($post['totals']['orphans'])
+        $repair.="<p>Now check <a href='orphans.php'>orphans</a>.</p>\n";
+    $repair.="<p>Check for <a href='listItems.php?type=p'>projects</a> that have no actions, or no next actions.</p>\n";
+    $repair.="<table summary='result of repairs'><thead>\n<tr><th>Before</th><th>After</th><th>&nbsp;</th></tr></thead><tbody>";
+    foreach($post['totals'] as $key=>$val)
+        $repair .="<tr><td>{$pre['totals'][$key]}</td><td>$val</td><th>$key</th></tr>\n";
+    foreach($post['errors'] as $key=>$val) {
+        $toterrs+=(int) $val;
+        $preval=$pre['errors'][$key];
+        $class1=($preval)?" class='warnresult' ":" class='goodresult' ";
+        if ($val)
+            $class2=" class='warnresult' ";
+        else if ($preval)
+            $class2=" class='goodresult' ";
+        else {
+            $class1='';
+            $class2='';
         }
-        $action=($toterrs)?'repair':'backup';
-        break;
+        $repair .= "<tr><td $class1>{$preval}</td><td $class2>$val</td><td $class2>$key</td></tr>\n";
+    }
+    $repair .="</tbody></table>\n";
+    $action=($toterrs)?'repair':'backup';
 }
 $title='gtd-php Admin Tasks';
 /* ------------------------------------------------------------------------
@@ -118,11 +114,9 @@ if ($showInstallations || $showCommands) { ?>
     <?php } if ($showCommands) { ?>
         <div class='formrow'>
         <label class='left first'>Action to take:</label>
-            <?php foreach ($availableActions as $doit) { ?>
-                <label class='notfirst left'><?php echo $doit; ?></label>
-                <input type='radio' name='action' value=<?php echo "'$doit'",($doit===$action)?" checked='checked' ":''; ?> />
-            <?php } ?>
-            <input type='submit' name='submit' value='Go' />
+            <?php foreach ($availableActions as $doit) {
+                echo "<input type='submit' name='$doit' value='$doit' />\n";
+            } ?>
             <a href='backup.php?prefix=<?php echo $prefix; ?>'>Create a backup of the database to save locally</a>
         </div>
     <?php } ?>

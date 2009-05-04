@@ -106,6 +106,19 @@ function safeIntoDB($value,$key=NULL) {
 /*
    ======================================================================================
 */
+function optimise_tables($prefix) {
+    $result='';
+    $tables=array('categories','context','items','itemstatus','lookup','preferences','tagmap','timeitems','version');
+    foreach ($tables as $tab) {
+        $table=$prefix.$tab;
+        query("OPTIMIZE TABLE $table");
+        query("ANALYZE TABLE $table");
+    }
+    return true;
+}
+/*
+   ======================================================================================
+*/
 function backupData($prefix) {
     $sep="\n-- *******************************\n";
     $tables=array('categories','context','items','itemstatus','lookup','preferences','tagmap','timeitems','version');
@@ -184,6 +197,16 @@ function checkErrors($prefix) {
     $val=@mysql_fetch_row(rawQuery($q));
     $errors['orphaned tags']=(int) $val[0];
     
+    // look for items that are ancestors of themselves
+    $errors['Parent loops']='';
+    $loops=scanforcircularparents();
+    $sep='';
+    if (count($loops)) foreach ($loops as $id) {
+        $errors['Parent loops'].="$sep<a href='itemReport.php?itemId=$id'>$id</a>";
+        $sep=', ';
+    }
+    if ($errors['Parent loops']==='') $errors['Parent loops']=0;
+
     // partial items, missing from one or more item tables
     $partialitems=0;
     $items1=array('itemstatus'=>'items','items'=>'itemstatus');
@@ -194,16 +217,6 @@ function checkErrors($prefix) {
     }
     $errors["Item IDs are missing from some tables "]=$partialitems;
 
-    // look for items that are ancestors of themselves
-    $errors['Parent loops']='';
-    $loops=scanforcircularparents();
-    $sep='';
-    if (count($loops)) foreach ($loops as $id) {
-        $errors['Parent loops'].="$sep<a href='itemReport.php?itemId=$id'>$id</a>";
-        $sep=', ';
-    }
-    if ($errors['Parent loops']==='') $errors['Parent loops']=0;
-    
     return array('totals'=>$totals,'errors'=>$errors);
 }
 /*

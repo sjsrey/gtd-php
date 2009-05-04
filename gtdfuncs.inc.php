@@ -63,9 +63,11 @@ function scanforcircular1tree($map,&$loops,$item,$stack=array() ) { // recursive
         return false;
     }
     $stack[]=$item;
-    if (array_key_exists($item,$map))
+    if (array_key_exists($item,$map)) {
+        @set_time_limit(30); // this can take a long time!
         foreach ($map[$item] as $child)
             scanforcircular1tree($map,$loops,$child,$stack);
+    }
     if (!array_key_exists($item,$loops)) $loops[$item]=false;
     return true;
 }

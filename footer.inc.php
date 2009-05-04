@@ -16,7 +16,7 @@ include 'showMessage.inc.php';
 
     if(!empty($starttime)) {
         list($usec, $sec) = explode(" ", microtime());
-        $tottime=(int) (((float)$usec + (float)$sec - $starttime)*1000+0.5);
+        $tottime=(int) (((float)$usec + (float)$sec - $starttime-$totalquerytime)*1000+0.5);
         echo "PHP: {$tottime}ms;&nbsp;&nbsp;&nbsp;&nbsp;";
     }
         
