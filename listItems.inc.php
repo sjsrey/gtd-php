@@ -245,7 +245,7 @@ if (false && $displayoptions) { // disabling this for now
     build the query
 */
 //set query fragments based on filters
-$values['childfilterquery'] = "WHERE TRUE";
+$values['childfilterquery'] = '';
 
 //type filter
 if ($values['type']!=='*')
@@ -309,16 +309,12 @@ if ($filter['everything']!="true") {
         $linkfilter .= '&amp;timeframeId='.$values['timeframeId'];
     }
 
-    if ($filter['completed']=="true") $values['childfilterquery'] .= " AND ".sqlparts("completeditems",$values);
-    else $values['childfilterquery'] .= " AND " .sqlparts("pendingitems",$values);
+    $values['childfilterquery'] .= ' AND '.sqlparts(
+      ($filter['completed']=='true') ? 'completeditems' : 'pendingitems'
+      ,$values );
 
-    if ($filter['someday']=="true") {
-        $values['isSomeday']="y";
-        $values['childfilterquery'] .= " AND " .sqlparts("issomeday",$values);
-    } else {
-        $values['isSomeday']="n";
-        $values['childfilterquery'] .= " AND ".sqlparts("issomeday",$values);
-    }
+    $values['isSomeday'] = ($filter['someday']=='true') ? 'y' : 'n';
+    $values['childfilterquery'] .= ' AND '.sqlparts('issomeday',$values);
 
     if ($filter['tickler']=="true") {
         $linkfilter .='&amp;tickler=true';
@@ -334,6 +330,10 @@ if ($filter['everything']!="true") {
     if ($filter['nextonly']=='true')
         $values['childfilterquery'] .= ' AND '.sqlparts("isNAonly",$values);
 
+}
+
+if ($values['childfilterquery'] !== '') {
+  $values['childfilterquery']=preg_replace('/^ AND/','WHERE',$values['childfilterquery']);
 }
 /*
 Section Heading

@@ -115,6 +115,10 @@ $versions=array(
                         
     ,'0.8z.08'=> array(      'tables'=>'0.8z.07',
                            'database'=>'0.8z.08',
+                        'upgradepath'=>'0.8z.08')
+
+    ,'0.8z.09'=> array(      'tables'=>'0.8z.07',
+                           'database'=>'0.8z.09',
                         'upgradepath'=>'copy')
 
     );
@@ -551,6 +555,13 @@ installation for use and familiarize yourself with the system.</p>\n
 	 case '0.8z.07': // ugprade from 0.8z.07
         copyToNewPrefix('0.8z.07','0.8z.08',$fromPrefix,$toPrefix);
         up08z07TO08z08($fromPrefix,$toPrefix);
+
+		// deliberately flows through to next case
+		//---------------------------------------------------
+
+	 case '0.8z.08': // ugprade from 0.8z.08
+        copyToNewPrefix('0.8z.08','0.8z.09',$fromPrefix,$toPrefix);
+        up08z08TO08z09($fromPrefix,$toPrefix);
 
 		//---------------------------------------------------
         // end of chained upgrade process
@@ -1603,6 +1614,16 @@ function up08z07TO08z08($toPrefix) {
 }
 /*
    ======================================================================================
+*/
+function up08z08TO08z09($toPrefix) {
+    $q="ALTER TABLE `{$toPrefix}itemstatus` ADD INDEX `dateCompleted` (`dateCompleted`)";
+    send_query($q);
+    $q="ALTER TABLE `{$toPrefix}itemstatus` ADD INDEX `tickledate` (`tickledate`)";
+    send_query($q);
+    return true;
+}
+/*
+   ======================================================================================
      Table Creation Queries
    ======================================================================================
 */
@@ -1663,7 +1684,10 @@ function create_table ($prefix,$name) {
              KEY `contextId` (`contextId`),
              KEY `timeframeId` (`timeframeId`),
              KEY `isSomeday` (`isSomeday`),
-             KEY `typeComp` (`type`,`dateCompleted`)";
+             KEY `typeComp` (`type`,`dateCompleted`),
+             KEY `dateCompleted` (`dateCompleted`),
+             KEY `tickledate` (`tickledate`)
+        ";
 	break;
 	case "lookup":
        $q.="`parentId` int(11) NOT NULL DEFAULT '0', ";
