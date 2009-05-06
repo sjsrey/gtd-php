@@ -49,7 +49,7 @@ function keyPressHandler(aEvent) {
  *  aEvent: DOM event object
  */
   if (aEvent.which !== grabKey) { return true; }
-  var targetNodeName;
+  var debugtexts, targetNodeName;
   if (aEvent.target && aEvent.target.nodeName) {
     targetNodeName = aEvent.target.nodeName.toLowerCase();
     if ( targetNodeName === "textarea" ||
@@ -58,7 +58,12 @@ function keyPressHandler(aEvent) {
       return true;
     }
   }
-  $('.debug').toggle();
+  debugtexts = $(".debug");
+  if ($(":visible",debugtexts).length) {
+    debugtexts.hide();
+  } else {
+    debugtexts.show();
+  }
   aEvent.stopPropagation();
   return false;
 }

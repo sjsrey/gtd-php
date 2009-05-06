@@ -1720,7 +1720,7 @@ GTD.ParentSelector.prototype.gotparent =
   $.getJSON(GTD.ajax.urlprefix + "sendJSON.inc.php&action=get1&itemId=" + aId,
       function ajaxgotparent_ajax(json){
         fields.each(function ajaxgotparent_fillblanks() {
-          $(this).val(json[this.name]);
+            if (json[this.name]) { $(this).val(json[this.name]); }
           });
       });
       
