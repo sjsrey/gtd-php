@@ -569,13 +569,13 @@ GTD.confirmDelete=function gtd_confirmedelete(elem) {
  * confirm that the user wishes to delete the current item in item.php
  * elem:
  */
-   var myform;
-   if (confirm("Delete this item?")) {
-       myform=document.getElementById('itemform');
-       myform.elements.doDelete.value='y';
-       myform.submit();
-   }
-   return false;
+  var btn,
+      form = $(elem).closest("form");
+  if (!confirm("Delete this item?")) { return false; }
+  form.find("#doDelete").val("y").end();
+  btn = form.find("[name=submit]");
+  if (btn.length) { return btn.click(); }
+  return form.submit();
 };
 // ======================================================================================
 GTD.cookieGet=function gtd_cookieget(name,path) {

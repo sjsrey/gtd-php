@@ -347,8 +347,8 @@ function getsql($querylabel,$values,$sort) {
                              its.`deadline` AS pdeadline,
 				             its.`tickledate` AS ptickledate,
 				             its.`dateCompleted` AS pdateCompleted
-    					   FROM `{$prefix}items` AS i
-    					   JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+						FROM `{$prefix}itemstatus` AS its
+							JOIN `{$prefix}items` AS i ON i.`itemId`=its.`itemId`
                         ) AS y USING (`parentId`)
             ) AS lut ON (its.`itemId`=lut.`itemId`)
              {$values['filterquery']}
@@ -466,8 +466,8 @@ function getsql($querylabel,$values,$sort) {
 		case "getitems":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`, its.`deadline`,
                     DATEDIFF(CURDATE(),its.`deadline`) AS `daysdue`
-				FROM `{$prefix}items` AS i
-					JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+						FROM `{$prefix}itemstatus` AS its
+							JOIN `{$prefix}items` AS i ON i.`itemId`=its.`itemId`
 					LEFT OUTER JOIN `{$prefix}context` as cn
 						ON (its.`contextId` = cn.`contextId`)
 					LEFT OUTER JOIN `{$prefix}categories` as c
@@ -507,8 +507,8 @@ function getsql($querylabel,$values,$sort) {
 							its.`categoryId`, c.`category`, its.`contextId`,
 							cn.`name` AS cname, its.`timeframeId`,
 							ti.`timeframe`, lu.`parentId`
-						FROM `{$prefix}items` AS i
-							JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
+						FROM `{$prefix}itemstatus` AS its
+							JOIN `{$prefix}items` AS i ON i.`itemId`=its.`itemId`
 							LEFT OUTER JOIN `{$prefix}lookup` as lu
 								ON (i.`itemId` = lu.`itemId`)
 							LEFT OUTER JOIN `{$prefix}context` as cn
@@ -531,7 +531,7 @@ function getsql($querylabel,$values,$sort) {
 							its.`tickledate` AS ptickledate,
 							its.`dateCompleted` AS pdateCompleted
 						FROM `{$prefix}itemstatus` AS its
-                        JOIN `{$prefix}items` AS i USING (`itemId`)
+							JOIN `{$prefix}items` AS i ON i.`itemId`=its.`itemId`
                         WHERE its.`itemId` IN (SELECT DISTINCT `parentId` FROM `{$prefix}lookup`)
 					) as y ON (y.`parentId` = x.`parentId`)
 				{$values['filterquery']}
@@ -552,8 +552,8 @@ function getsql($querylabel,$values,$sort) {
 
 		case "getorphaneditems":
 			$sql="SELECT i.`itemId`, i.`title`, i.`description`, its.`type`, its.`isSomeday`
-				FROM `{$prefix}items` AS i   
-				JOIN `{$prefix}itemstatus` AS its USING (itemId)
+						FROM `{$prefix}itemstatus` AS its
+							JOIN `{$prefix}items` AS i ON i.`itemId`=its.`itemId`
 				WHERE its.`dateCompleted` IS NULL
 				AND ( ( its.`itemId` NOT IN
 						  (SELECT DISTINCT lu.`itemId` FROM `{$prefix}lookup` as lu)
@@ -649,8 +649,8 @@ function getsql($querylabel,$values,$sort) {
 		case "parentselectbox":
 			$sql="SELECT i.`itemId`, i.`title`,
 						i.`description`, its.`isSomeday`,its.`type`
-				FROM `{$prefix}items` as i
-				JOIN `{$prefix}itemstatus` as its USING (`itemId`)
+						FROM `{$prefix}itemstatus` AS its
+							JOIN `{$prefix}items` AS i ON i.`itemId`=its.`itemId`
 				WHERE (its.`dateCompleted` IS NULL) {$values['ptypefilterquery']}
 				ORDER BY its.`type`,i.`title`";
 				#ORDER BY {$sort['parentselectbox']}";
@@ -694,9 +694,9 @@ function getsql($querylabel,$values,$sort) {
 			$sql="SELECT i.*,its.*,
 				    c.`category`, ti.`timeframe`,cn.`name` AS `cname`,
                     GROUP_CONCAT(tm.`tagname` ORDER BY tm.`tagname` SEPARATOR ',') AS tagname
-				FROM `{$prefix}items`      AS i
-				JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
-                LEFT OUTER JOIN `{$prefix}tagmap` AS tm USING (`itemId`)
+						FROM `{$prefix}itemstatus` AS its
+							JOIN `{$prefix}items` AS i ON i.`itemId`=its.`itemId`
+                LEFT OUTER JOIN `{$prefix}tagmap` AS tm  ON tm.`itemId`=its.`itemId`
 				LEFT OUTER JOIN `{$prefix}categories` as c
 					ON (c.`categoryId` = its.`categoryId`)
 				LEFT OUTER JOIN `{$prefix}context` as cn
@@ -704,16 +704,16 @@ function getsql($querylabel,$values,$sort) {
 				LEFT OUTER JOIN `{$prefix}timeitems` as ti
 					ON (ti.`timeframeId` = its.`timeframeId`)
                 {$values['filterquery']}
-                GROUP BY i.`itemId`
+                GROUP BY its.`itemId`
                 ";
 			break;
 
 		case "selectitemshort":
 			$sql="SELECT i.`itemId`, i.`title`,
 						i.`description`, its.`isSomeday`,its.`type`
-				FROM `{$prefix}items` as i
-				JOIN `{$prefix}itemstatus` AS its USING (`itemId`)
-				WHERE i.`itemId` = '{$values['itemId']}'";
+						FROM `{$prefix}itemstatus` AS its
+							JOIN `{$prefix}items` AS i ON i.`itemId`=its.`itemId`
+				WHERE its.`itemId` = '{$values['itemId']}'";
 			break;
 
 		case "selectitemtitle":

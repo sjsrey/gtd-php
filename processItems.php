@@ -483,23 +483,28 @@ function nextPage() { // set up the forwarding to the next page
     $id=(empty($values['newitemId']))?$values['itemId']:$values['newitemId'];
     $nextURL='';
     $tst=false;
-    if (!empty($_POST['afterCreate'])) {
-        $_SESSION[$key]=$tst=$_REQUEST['afterCreate'];
-    } else {
+    if (empty($_POST['afterCreate'])) {
         $submitbuttons=array('parent','item','list','another','child','referrer');
         foreach ($submitbuttons as $testbutton) if (isset($_REQUEST["{$testbutton}Next"])) {
             $_SESSION[$key]=$tst=$testbutton;
             break;
         }
+    } else {
+        $_SESSION[$key] = $tst = $_REQUEST['afterCreate'];
     }
-    if (!$tst) {
-        if (isset($updateGlobals['referrer']) && ($updateGlobals['referrer'] !== ''))
-          $tst=$updateGlobals['referrer'];
-        elseif(!empty($_SESSION[$key]))
-            $tst=$_SESSION[$key];
+    if (empty($tst)) {
+      if (!empty($updateGlobals['referrer']))
+        $tst = $updateGlobals['referrer'];
+      elseif (!empty($_SESSION[$key]))
+        $tst = $_SESSION[$key];
+      elseif (!empty($_SESSION['config'][$key]))
+        $tst = $_SESSION['config'][$key];
     }
-    if ($action=='delete' && $tst=='item') $tst='list';
-
+    if ($action=='delete' && ($tst=='item' || !$tst))
+        $tst='parent'; // can't return to viewing the item if we've just deleted it, so force view of parent
+        
+    if (!$tst) $tst='list'; // if everything else has failed, just view the list
+    
     switch ($tst) {
     
         case "another" :
@@ -532,6 +537,9 @@ function nextPage() { // set up the forwarding to the next page
                 $nextURL.='&someday=true';
             } elseif (!empty($values['tickledate']) && time() < strtotime($values['tickledate']) ) {
                 $nextURL.='&tickler=true';
+            }
+            if (!empty($values['nextaction']) && $values['nextaction']==='y') {
+                $nextURL.='&nextonly=true';
             }
             break;
             

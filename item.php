@@ -542,9 +542,9 @@ if ($show['submitbuttons']) { ?>
         		," /><label for='childNext' class='right'>Create a child item</label>\n";
 
         if (!empty($hiddenvars['referrer']) || !empty($_SESSION[$key])) {
-            echo "<input type='radio' name='afterCreate' id='referrer' value='referrer' class='notfirst'"
+            echo "<input type='radio' name='afterCreate' id='referrerNext' value='referrer' class='notfirst'"
         	 	,($tst=='referrer')?" checked='checked' ":''
-        		," /><label for='referrer' class='right'>Return to previous list</label>\n";
+        		," /><label for='referrerNext' class='right'>Return to previous list</label>\n";
         } ?>
         </div>
         <div class='formbuttons'>

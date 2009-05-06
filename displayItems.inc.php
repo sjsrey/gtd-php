@@ -11,6 +11,8 @@
 <tbody>
 <?php
 $showclass=array();
+$localRef= (empty($maintableReferrer)) ? '' : "&amp;referrer=$maintableReferrer";
+
 foreach ($dispArray as $key=>$val)
     $showclass[$key]=($show[$key])?'':' hidden';
 foreach ($maintable as $row) {
@@ -133,7 +135,7 @@ foreach ($maintable as $row) {
                     if ($row['itemId'][0]!=='0')
                         echo "<a href='itemReport.php?itemId={$row['itemId']}'>"
                             ,"<img src='themes/{$_SESSION['theme']}/report.gif' class='noprint' alt='Report' title='View Report' /></a>";
-                    echo "<a href='item.php?itemId={$row['itemId']}'>"
+                    echo "<a href='item.php?itemId={$row['itemId']}$localRef'>"
                     ,"<img src='themes/{$_SESSION['theme']}/edit.gif' class='noprint' alt='Edit ' title='Edit' /></a>"
                     ,"<a "
                     ,(empty($row['NA']))?'':"class='nextactionlink'"

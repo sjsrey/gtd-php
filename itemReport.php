@@ -88,6 +88,7 @@ $values['parentId']=$values['itemId'];
 */
 
 // initiate arrays for children tables
+$maintableReferrer='parent';
 $AcreateItemId=$AnoEntries=$Athistableid=$AwasNAonEntry=$Afootertext=$AdispArray
     =$Amaintable=array();
 $childtype=getChildType($item['type']); // array of item types that can be children of this item
