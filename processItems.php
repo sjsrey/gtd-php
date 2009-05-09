@@ -483,7 +483,7 @@ function nextPage() { // set up the forwarding to the next page
     $id=(empty($values['newitemId']))?$values['itemId']:$values['newitemId'];
     $nextURL='';
     $tst=false;
-    if (empty($_POST['afterCreate'])) {
+    if (empty($_REQUEST['afterCreate'])) {
         $submitbuttons=array('parent','item','list','another','child','referrer');
         foreach ($submitbuttons as $testbutton) if (isset($_REQUEST["{$testbutton}Next"])) {
             $_SESSION[$key]=$tst=$testbutton;
@@ -505,6 +505,10 @@ function nextPage() { // set up the forwarding to the next page
         
     if (!$tst) $tst='list'; // if everything else has failed, just view the list
     
+    if ($tst==='referrer')
+      $tst=(empty($updateGlobals['referrer']) )
+                  ? (empty($_SESSION["lastfilter$t"])?'':$_SESSION["lastfilter$t"])
+                  : $updateGlobals['referrer'];
     switch ($tst) {
     
         case "another" :
@@ -547,12 +551,6 @@ function nextPage() { // set up the forwarding to the next page
             $nextURL=(count($updateGlobals['parents']))
                         ?('itemReport.php?itemId='.$updateGlobals['parents'][0])
                         :'orphans.php';
-            break;
-            
-        case "referrer":
-            $nextURL=(empty($updateGlobals['referrer']) )
-                        ? (empty($_SESSION["lastfilter$t"])?'':$_SESSION["lastfilter$t"])
-                        : $updateGlobals['referrer'];
             break;
             
         default        :

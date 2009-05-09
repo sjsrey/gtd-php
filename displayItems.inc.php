@@ -11,10 +11,11 @@
 <tbody>
 <?php
 $showclass=array();
-$localRef= (empty($maintableReferrer)) ? '' : "&amp;referrer=$maintableReferrer";
+$localRef= (empty($maintableReferrer)) ? '' : ("&amp;referrer=".rawurlencode($maintableReferrer));
 
 foreach ($dispArray as $key=>$val)
     $showclass[$key]=($show[$key])?'':' hidden';
+    
 foreach ($maintable as $row) {
     echo '<tr'
         ,(!empty($row['row.class']))?" class='{$row['row.class']}' ":''
@@ -141,7 +142,7 @@ foreach ($maintable as $row) {
                     ,(empty($row['NA']))?'':"class='nextactionlink'"
                     ," title='"
                     ,(empty($row['doreport']))?"Edit' href='item":"View Report' href='itemReport"
-                    ,".php?itemId={$row['itemId']}'>$cleaned</a>";
+                    ,".php?itemId={$row['itemId']}$localRef'>$cleaned</a>";
                 }
                 break;
             case 'type':

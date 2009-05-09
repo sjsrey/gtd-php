@@ -3,7 +3,7 @@ include_once 'headerDB.inc.php';
 
 $values=array();
 $values['itemId'] = (int) $_GET['itemId'];
-
+$pageURL="{$pagename}.php?itemId={$values['itemId']}";
 //Get item details
 $values['childfilterquery']=' WHERE '.sqlparts('singleitem',$values);
 $values['filterquery']='';
@@ -74,7 +74,7 @@ if($cnt>1) {
     Got previous and next projects
 ----------------------------------------------------------*/
 
-$afterTypeChange="itemReport.php?itemId={$values['itemId']}";
+$afterTypeChange=$pageURL;
 if (empty($item['parentId'])) {
     $pids=$pnames=array();
 } else {
@@ -88,7 +88,8 @@ $values['parentId']=$values['itemId'];
 */
 
 // initiate arrays for children tables
-$maintableReferrer='parent';
+$maintableReferrer=$pageURL;
+
 $AcreateItemId=$AnoEntries=$Athistableid=$AwasNAonEntry=$Afootertext=$AdispArray
     =$Amaintable=array();
 $childtype=getChildType($item['type']); // array of item types that can be children of this item
@@ -422,7 +423,7 @@ if ($item['dateCompleted']) {
             <div>
                 <input type='submit' name='complete' value='Today' id='completereport' />
                 <input type='hidden' name='action' value='complete' />
-                <input type='hidden' name='referrer' value='itemReport.php?itemId=<?php echo $values['itemId']; ?>' />
+                <input type='hidden' name='referrer' value='<?php echo $pageURL; ?>' />
                 <input type='hidden' name='itemId' value='<?php echo $values['itemId']; ?>' />
             </div>
         </form>
