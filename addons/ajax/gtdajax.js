@@ -237,7 +237,8 @@ function updateItem(row, xmldata) {
     }
 
     if (newId==='' || newId===oldId) {
-        if (done && !GTD.ajax.filter.everything) {
+        if ((done && !GTD.ajax.filter.everything) ||
+            newvalues.children("action").text() == "delete"){
           hide2 = function hideCompletedRowNoRecur(that){ that.hide(); };
           incrementCounter--; // one row is being removed
         }

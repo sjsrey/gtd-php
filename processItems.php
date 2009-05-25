@@ -588,7 +588,8 @@ function nextPage() { // set up the forwarding to the next page
         }
         // NB don't put line breaks (\n) into the XML - it breaks things!
         echo '<?xml version="1.0" ?',"><gtdphp>"; // encoding="{$_SESSION['config']['charset']}"
-        echo "<values>";
+        echo "<values>",
+             "<action>$action</action>";
         foreach ($values as $key=>$val) {
             switch ($key) {
                 //------------------------------------------------

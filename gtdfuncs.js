@@ -577,8 +577,8 @@ GTD.confirmDelete=function gtd_confirmedelete(elem) {
   var btn,
       form = $(elem).closest("form");
   if (!confirm("Delete this item?")) { return false; }
-  form.find("#doDelete").val("y").end();
-  btn = form.find("[name=submit]");
+  form.find("#doDelete").val("y");
+  btn = form.find("[name=submit],input[type=submit]").eq(0);
   if (btn.length) { return btn.click(); }
   return form.submit();
 };
