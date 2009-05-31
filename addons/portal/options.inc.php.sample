@@ -7,7 +7,7 @@
 
 $options= array( 'portal_links' => array(
 
-    'YOUR HEADER HERE' => array (
+    '123YOUR HEADER HERE' => array (
         'Example_LINK_TITLE1' => 'http://link_url',
         'Example_LINK_TITLE2' => 'https://link_url2'
         //expand as needed

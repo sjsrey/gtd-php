@@ -5,4 +5,5 @@ $events[_GTD_ON_MENU]['*']=array(
     'label'  => 'Portal',
     'where'  => 'listItems.php?type=C',
     'when'   => 'after',
-	);
+    );
+
