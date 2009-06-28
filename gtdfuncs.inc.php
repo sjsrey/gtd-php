@@ -178,12 +178,14 @@ function escapeChars($str) {
 	return $str;
 }
 //-------------------------------------------------
-function makeClean($textIn) {
+function makeclean($textIn,$stripSlashes=false) {
     if (is_array($textIn)) {
         $cleaned=array();
-        foreach ($textIn as $line) $cleaned[]=makeClean($line);
+        foreach ($textIn as $line) $cleaned[]=makeclean($line);
 	} else {
-        $cleaned=htmlentities(stripslashes($textIn),ENT_QUOTES,$_SESSION['config']['charset']);
+        $cleaned=htmlentities(
+          ($stripSlashes) ? stripslashes($textIn) : $textIn,
+          ENT_QUOTES,$_SESSION['config']['charset']);
     }
 	return $cleaned;
 }

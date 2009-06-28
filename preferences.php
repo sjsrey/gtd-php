@@ -119,7 +119,7 @@ makeOptionsTab($array,$config,'Options');
 */
 $array=array();
 foreach ($addons as $addon) {
-    $desc=makeClean(@file_get_contents($_SESSION['addonsdir'].$addon.'/description'));
+    $desc=makeclean(@file_get_contents($_SESSION['addonsdir'].$addon.'/description'));
     if (!empty($desc)) $desc="($desc)";
     $array[]=array($addon,'checkbox',"<b>$addon</b> $desc");
 }

@@ -5,7 +5,7 @@ $addons=array();
 if (array_key_exists('addons',$_SESSION)) {
     foreach ($_SESSION['addons'] as $key=>$val) if ($val===true) {
         $ver=@file_get_contents($_SESSION['addonsdir'].$key.'/version');
-        $addons[makeclean($key)]=makeClean($ver);
+        $addons[makeclean($key)]=makeclean($ver);
     }
 }
 ?>

@@ -120,7 +120,7 @@ function Live_field(source,inputtype,savefunc,resetfunc,expandfunc) {
     this.Set=function(save) { // function to save or reset this particular field
         jsource.replaceWith(old);
         if (save!==false) {
-            var cleantext=save.replace(/\\/g,'');
+            var cleantext=save;//.replace(/\\/g,''); // TOFIX - this was in here for a reason, but I can't remember what that was!
             switch(inputtype) {
                 //--------------------------------------------------
                 case 'text':

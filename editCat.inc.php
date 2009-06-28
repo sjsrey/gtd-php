@@ -74,4 +74,4 @@ if ($result) {
 if ($thiscat)
     $title.=': '.$thiscat['name'];
 else if ($id)
-    $title=makeClean("Failed to find $field with id=$id");
+    $title=makeclean("Failed to find $field with id=$id");
