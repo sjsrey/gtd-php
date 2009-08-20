@@ -5,7 +5,7 @@ list($usec, $sec) = explode(" ", microtime());
 $starttime=(float)$usec + (float)$sec;
 $totalquerytime=0;
 
-if(isset($_SESSION['views']))
+if(isset($_SESSION['views']) && isset($_SESSION['addonsdir']))
     $_SESSION['views']++;
 else{
     $_SESSION['categoryId'] = $_SESSION['contextId'] = 0;
