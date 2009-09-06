@@ -676,19 +676,18 @@ function checkUTF8() { // check php ini values are ok for utf-8
 
     if (stristr(ini_get('mbstring.http_input'  ),'UTF-8')===false) {
         $_SESSION['message'][]="Either set mbstring.http_input=UTF-8,ASCII in php.ini;
-            or add this line to .htaccess: phpvalue mbstring.http_input UTF-8,ASCII";
+            or add this line to .htaccess: php_value mbstring.http_input UTF-8,ASCII";
         $passed=false;
     }
         
     if (stristr(ini_get('mbstring.detect_order'),'UTF-8')===false) {
         $_SESSION['message'][]="Either set mbstring.detect_order=UTF-8,ASCII in php.ini;
-            or add this line to .htaccess: phpvalue mbstring.detect_order UTF-8,ASCII";
+            or add this line to .htaccess: php_value mbstring.detect_order UTF-8,ASCII";
         $passed=false;
     }
 
     if (!(ini_get('mbstring.func_overload') & 6)) {
-        $_SESSION['message'][]="Either set mbstring.func_overload=6 in php.ini;
-            or add this line to .htaccess: phpvalue mbstring.func_overload 6";
+        $_SESSION['message'][]="Either add this line to .htaccess: php_value mbstring.func_overload 6 (this may not work in php5.2.8 onwards); or set mbstring.func_overload=6 in php.ini";
         $passed=false;
     }
 

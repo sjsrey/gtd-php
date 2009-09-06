@@ -789,13 +789,12 @@ function getsql($querylabel,$values,$sort) {
 			break;
 
         case "updateconfig":
-            $sql="REPLACE INTO `{$prefix}preferences` (`uid`,`option`,`value`)
-                    VALUES ('{$values['uid']}','config'   ,'{$values['config']}'   ),
-                           ('{$values['uid']}','keys'     ,'{$values['keys']}'     ),
-                           ('{$values['uid']}','hierarchy','{$values['hierarchy']}'),
-                           ('{$values['uid']}','debug'    ,'{$values['debug']}'    ),
-                           ('{$values['uid']}','sort'     ,'{$values['sort']}'     ),
-                           ('{$values['uid']}','addons'   ,'{$values['addons']}'   )";
+            // config, keys, hierarchy, debug, sort, addons;
+            $sql="REPLACE INTO `{$prefix}preferences` (`uid`,`option`,`value`) VALUES\n";
+            foreach ($values as $key=>$val)
+                if ($key !== "uid" && preg_match('/^[a-zA-Z0-9]+$/',$key))
+                    $sql.= "('{$values['uid']}','{$key}','{$val}'),\n";
+            $sql=rtrim($sql,",\n");
             break;
 
 		case "updatedeadline":

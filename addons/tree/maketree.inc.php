@@ -218,6 +218,10 @@ foreach ($mainTypes as $type) {
 }
 $showSomedays=!$showingall && $items[$idlist[0]]['isSomeday']==='y';
 
+$referrer = ( preg_match("/[^\/]+$/", $_SERVER['REQUEST_URI'] ,$matches ) ) ?
+            ("&amp;referrer=".urlencode($matches[0])) : "";
+
+ 	
 /* ---------------------------------------------------------------------------
     finished processing - now produce the HTML
 */
@@ -370,7 +374,7 @@ if ($showingall)
 
 <div id='treepopup' class='hidden'>
 <a href='itemReport.php?itemId=0'>View</a>
-<a href='item.php?itemId=0'>Edit</a>
+<a href='item.php?itemId=0<?php echo $referrer;?>'>Edit</a>
 <a href='#' onclick='return GTD.tree.prune()'>Prune</a>
 </div>
 

@@ -274,6 +274,7 @@ input[type='submit']:disabled, button:disabled,select:disabled {
     border: solid green 2px;
     font-weight:bold;
     padding:2px;
+    margin-bottom:4px;
     background-color:#CFC;
 }
 

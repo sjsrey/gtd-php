@@ -115,7 +115,8 @@ include_once 'header.inc.php';
       <a href='http://www.gtd-php.com/Developers/NextActionsBooklet'>printable
       Next-actions booklet</a></td></tr>
 
-	<tr><td>Sonic, Ismail Onur Filiz, Red, Chris 'Dwarfsoft' Bennett</td><td>Testing and patching</td></tr>
+	<tr><td>John Holland Robinson, Sonic, Ismail Onur Filiz, Red, Chris 'Dwarfsoft' Bennett</td>
+      <td>Testing and patching</td></tr>
 
 	<tr><td><b>You!</b></td>
         <td>For the invaluable feedback on our <a href='http://toae.org/boards/index.php'>forum</a>

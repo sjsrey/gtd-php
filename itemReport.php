@@ -209,7 +209,10 @@ if (!empty($childtype)) foreach (array('n','y') as $comp) foreach ($childtype as
 
     while ($i < count($maintable)) {
         $row=&$maintable[$i];
-		$cleantitle=makeclean($row['title']);
+        $cleantitle=makeclean($row['title']);
+
+        $row['doreport']=!($row['type']=="a" || $row['type']==="r" || $row['type']==="w" || $row['type']==="i");
+
 
         if ($i >= $limit) {
             if ($_SESSION['useLiveEnhancements']) {
