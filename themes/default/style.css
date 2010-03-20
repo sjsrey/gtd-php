@@ -644,7 +644,7 @@ table.datatable .col-checkbox, table.datatable .col-NA, table.datatable .col-fla
     }
 
     .calendar .nav {
-      background: transparent url(menuarrow.gif) no-repeat 100% 100%;
+      background: transparent url("menuarrow.gif") no-repeat 100% 100%;
     }
 
     .calendar thead .title { /* This holds the current "month, year" */

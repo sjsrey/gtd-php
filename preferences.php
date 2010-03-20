@@ -152,6 +152,7 @@ $array=array(
     array('withholdVersionInfo','checkbox','When you file a bug report, withhold information about the versions of PHP and database software you are using'),
     array('suppressAdmin','checkbox','Suppress administrator options in menus'),
     array('suppressCustomRecurrences','checkbox','Suppress entry of rfc2445 text directly to specify item recurrence patterns'),
+    array('showTreeInSummary', 'checkbox', 'Show the tree of projects on the front page' ),
     array('show7','checkbox','Show the Seven Habits of Highly Effective People and Sharpening the Saw in Weekly Review'),
     array('showRelativeDeadlines','checkbox','Show deadlines as relative days (e.g. "due in 5 days") rather than as dates'),
     array('separator','text','Separator string for MySQL GROUP queries'),

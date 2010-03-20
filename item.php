@@ -123,8 +123,9 @@ elseif ($_SESSION['useLiveEnhancements']) {
     if (count($ptypes)>1) $allowedSearchTypes[0]='All';
     foreach($ptypes as $ptype)
         $allowedSearchTypes[$ptype]=$alltypes[$ptype].'s';
-    $values['ptypefilterquery']=' AND '.sqlparts('typeinlist',
-                                                 array('types'=>implode('',$ptypes)));
+    $values['ptypefilterquery']=' AND '.sqlparts('typeinlist',array('types'=>implode('',$ptypes))).
+				' AND '.sqlparts('notsingleitem', $values);
+																								' AND ' . sqlparts( 'notsingleitem', $values ) ;
     $potentialparents = query("parentselectbox",$values);
     if (!$potentialparents) $potentialparents=array();
 } else

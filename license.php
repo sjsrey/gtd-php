@@ -55,13 +55,13 @@ include_once 'header.inc.php';
         <tr><td><a href='http://jquery.com/'>jQuery</a></td>
             <td>javascript library used by the core and many of the addons, dual MIT/GPL
                 <a href='http://docs.jquery.com/Licensing'>licences</a>, and
-                &copy; 2008-9 <a href='http://ejohn.org/'>John Resig</a> and the
+                &copy; 2008-10 <a href='http://ejohn.org/'>John Resig</a> and the
                 <a href='http://docs.jquery.com/Contributors'>jQuery team</a>
         </td></tr>
-        <tr><td><a href='http://ui.jquery.com/'>jQuery UI</a></td>
+        <tr><td><a href='http://jqueryui.com/'>jQuery UI</a></td>
             <td>javascript library used for fancy effects by the ajax addon, dual MIT/GPL
                 <a href='http://docs.jquery.com/Licensing'>licences</a>, and
-                &copy; 2008-9 Paul Bakaus and the <a href='http://ui.jquery.com/about'>jQuery UI Team</a>
+                &copy; 2008-10 <a href='http://paulbakaus.com/'>Paul Bakaus</a> and the <a href='http://jqueryui.com/about'>jQuery UI Team</a>
         </td></tr>
         <tr><td><a href='http://www.famfamfam.com/lab/icons/silk/'>silk icons</a></td>
             <td>from the lovely famfamfam series, Creative Commons Attribution 2.5
@@ -88,9 +88,6 @@ include_once 'header.inc.php';
     <tr><td><a href="mailto:sjrey@users.sf.net?subject=gtd-php">Serge Rey</a></td>
         <td>Project Founder</td></tr>
 
-    <tr><td><a href="mailto:skorvek@gtd-php.com?subject=gtd-php">Scott Jason Korvek</a></td>
-        <td>Database and Enhancements</td></tr>
-
     <tr><td><a href="http://eclectictech.net/">Criss Ittermann</a></td>
         <td>Debugging &amp; Documentation</td></tr>
 
@@ -111,12 +108,14 @@ include_once 'header.inc.php';
 <tbody>
 	<tr><td>Aur&eacute;lien Bompard</td><td>Javascript, PHP and addons</td></tr>
 
-	<tr><td>Robert Deeken</td><td>The addon for the
+	<tr><td>Chris 'Dwarfsoft' Bennett, Ismail Onur Filiz, Red, Sonic</td>
+      <td>Testing, patching and documentation</td></tr>
+
+	<tr><td>John Holland Robinson</td><td>Testing, patching and addons</td></tr>
+
+	<tr><td>Robert Deeken</td><td>The 
       <a href='http://www.gtd-php.com/Developers/NextActionsBooklet'>printable
       Next-actions booklet</a></td></tr>
-
-	<tr><td>John Holland Robinson, Sonic, Ismail Onur Filiz, Red, Chris 'Dwarfsoft' Bennett</td>
-      <td>Testing and patching</td></tr>
 
 	<tr><td><b>You!</b></td>
         <td>For the invaluable feedback on our <a href='http://toae.org/boards/index.php'>forum</a>
@@ -136,10 +135,10 @@ include_once 'header.inc.php';
 	</tr>
 </thead>
 <tbody>
+    <tr><td>Scott Jason Korvek</td><td>Database and Enhancements</td></tr>
     <tr><td><a href="http://burnettsonline.org/">Josh Burnett</a></td><td>CSS</td></tr>
 	<tr><td><a href="http://jason.br.com/">Jason Brown</a></td><td>CSS and design</td></tr>
-	<tr><td><a href="mailto:halonine@users.sourceforge.net?subject=gtd-php">Mike Kober</a></td>
-      <td>CSS (IE Savior)</td></tr>
+	<tr><td>Mike Kober</td><td>CSS (IE Savior)</td></tr>
 </tbody>
 </table>
 <?php include_once 'footer.inc.php'; ?>

@@ -5,10 +5,15 @@ ignore_user_abort(true);
 $updateGlobals=array();
 $html=false; // indicates if we are outputting html
 
-$updateGlobals['captureOutput']=(isset($_POST['output']) && $_REQUEST['output']==='xml');
+$updateGlobals['captureOutput']=(isset($_REQUEST['output']) && $_REQUEST['output']==='xml');
 if ($updateGlobals['captureOutput']) {
     @ob_start();
 }
+
+// sanitise text fields
+foreach ( array( 'title'=>false, 'description'=>true, 'desiredOutcome'=>true) as $key=>$val )
+	if ( !empty( $_REQUEST[$key] ) )
+			$_REQUEST[$key] = trimTaggedString( $_REQUEST[$key], 0, $val );
 
 // get core variables first
 $values=array();  // ensures that this is a global variable
@@ -19,18 +24,18 @@ $action = $_REQUEST['action'];
 $updateGlobals['referrer'] = (isset($_REQUEST['referrer'])) ?$_REQUEST['referrer']:null;
 
 $updateGlobals['multi']    = (isset($_REQUEST['multi']) && $_REQUEST['multi']==='y');
-$updateGlobals['parents'] = (isset($_REQUEST['parentId']))?$_POST['parentId']:array();
+$updateGlobals['parents'] = (isset($_REQUEST['parentId']))?$_REQUEST['parentId']:array();
 if (!is_array($updateGlobals['parents'])) $updateGlobals['parents']=array($updateGlobals['parents']);
 
 if (isset($_REQUEST['wasNAonEntry'])) {  // toggling next action status on several items
-    $updateGlobals['wasNAonEntry'] = explode(' ',$_POST['wasNAonEntry']);
+    $updateGlobals['wasNAonEntry'] = explode(' ',$_REQUEST['wasNAonEntry']);
     $updateGlobals['isNA']=array();
-    if (isset($_REQUEST['isNAs'])) $updateGlobals['isNA']=$_POST['isNAs'];
+    if (isset($_REQUEST['isNAs'])) $updateGlobals['isNA']=$_REQUEST['isNAs'];
 }
 
 if (isset($_REQUEST['isMarked'])) { // doing a specific action on several items (currently, the only option is to complete them)
     $updateGlobals['isMarked']=array();
-    $updateGlobals['isMarked']=array_unique($_POST['isMarked']); // remove duplicates
+    $updateGlobals['isMarked']=array_unique($_REQUEST['isMarked']); // remove duplicates
 }
 
 // some debugging - if debug is set to halt, dump all the variables we've got
@@ -39,7 +44,7 @@ if ($_SESSION['debug']['debug']) {
     echo "<html><head><title>Process Item</title></head><body>\n";
     $html=true;
     // debugging text - simply dump the variables, and quit, without processing anything
-    log_array('$_GET','$_POST','$_SESSION','$action','$values','$updateGlobals');
+    log_array('$_REQUEST','$_SESSION','$action','$values','$updateGlobals');
     if (isset($updateGlobals['isNA'])) {
         log_value('array_diff(wasNAonEntry,isNA)',array_diff($updateGlobals['wasNAonEntry'],$updateGlobals['isNA']));
         log_value('array_diff(isNA,wasNAonEntry)',array_diff($updateGlobals['isNA'],$updateGlobals['wasNAonEntry']));
@@ -61,7 +66,7 @@ if ($updateGlobals['multi']) {
         }
     }
 } else {
-    if (isset($_REQUEST['doDelete']) && $_POST['doDelete']==='y') $action='delete'; // override item-update if we are simply deleting
+    if (isset($_REQUEST['doDelete']) && $_REQUEST['doDelete']==='y') $action='delete'; // override item-update if we are simply deleting
     doAction($action);
 }
 
@@ -85,7 +90,7 @@ function doAction($localAction) { // do the current action on the current item; 
             $title=($result)?$briefitem['title']:'title unknown';
         } else $briefitem=null;
     } else
-        $title=(empty($_POST['title']))?'':$_POST['title'];
+        $title=(empty($_REQUEST['title']))?'':$_REQUEST['title'];
 
     log_text("Action here is: $localAction item {$values['itemId']} - $title");
     if ($title=='') $title='item '.$values['itemId'];
@@ -128,7 +133,7 @@ function doAction($localAction) { // do the current action on the current item; 
         //-----------------------------------------------------------------------------------
         case 'context':
         case 'space':
-            $values['contextId']=$_POST['contextId'];
+            $values['contextId']=$_REQUEST['contextId'];
             query('updateitemcontext',$values);
             query("touchitem",$values);
             $msg="Set space context for '$title'";
@@ -167,7 +172,7 @@ function doAction($localAction) { // do the current action on the current item; 
             break;
         //-----------------------------------------------------------------------------------
         case 'tag':
-            $values['tagname']=$_POST['tag'];
+            $values['tagname']=$_REQUEST['tag'];
             query('newtagmap',$values);
             query("touchitem",$values);
             $msg="Tagged '$title' with '{$values['tagname']}'";
@@ -182,7 +187,7 @@ function doAction($localAction) { // do the current action on the current item; 
             break;
         //-----------------------------------------------------------------------------------
         case 'updateText':
-            // overlay any values from $_POST, defaulting to current values
+            // overlay any values from $_REQUEST, defaulting to current values
             foreach (array('title','description','desiredOutcome') as $field)
                 $values[$field] = (isset($_REQUEST[$field]))
                     ? iconv('UTF-8',$_SESSION['config']['charset'].'//IGNORE',$_REQUEST[$field])
@@ -243,15 +248,15 @@ function createItem() { // create an item and its parent-child relationships
     $title=$values['title'];
     $values['itemId']=$values['newitemId'];
     updateTags();
+		if ($values['dateCompleted']!=='NULL')
+        completeItem();
 }
 //===========================================================================
 function updateItem() { // update all the values for the current item
     global $values,$updateGlobals,$title;
     query("deletelookup",$values);
-    if ($values['type']!=='L' && $values['type']!=='C' && $values['type']!=='T')
-        query("updateitemattributes",$values);
+    query("updateitemattributes",$values);
     query("updateitem",$values);
-    query("updateitemstatus",$values);
     updateTags();
     if ($values['type'] === $values['oldtype']) {
         setParents('update');
@@ -268,6 +273,7 @@ function updateItem() { // update all the values for the current item
 //===========================================================================
 function completeItem() { // mark an item as completed, and recur if required
     global $values;
+		
     if (!isset($values['dateCompleted'])) $values['dateCompleted']="'".date('Y-m-d')."'";
     if (!isset($values['recur'])) {
         $testrow = query("testitemrepeat",$values);
@@ -277,7 +283,16 @@ function completeItem() { // mark an item as completed, and recur if required
             $values['tickledate']=$testrow[0]['tickledate'];
         }
     }
-    if (empty($values['recur'])) makeComplete(); else recurItem();
+    if ( !empty($values['recur']) ) {
+			$testcompletion = query( 'getdatecompleted', $values );
+			if ( empty( $testcompletion[0]['dateCompleted'] ) ) {
+				recurItem();
+				return;
+			}
+		}
+		// if we got here, then either there's no recurrence, or we already completed and 
+		// recurred this item; now we're just changing the completion date
+		makeComplete();
 }
 //===========================================================================
 function makeNextAction() { // mark the current item as a next action
@@ -328,20 +343,20 @@ function retrieveFormVars() {
     global $updateGlobals,$values;
 
     // key variables
-    $values['oldtype'] = (empty($_REQUEST['oldtype'])) ? $values['type'] : $_POST['oldtype'];
+    $values['oldtype'] = (empty($_REQUEST['oldtype'])) ? $values['type'] : $_REQUEST['oldtype'];
 
     foreach ( array('type'=>'i','title'=>'untitled','description'=>''
             ,'desiredOutcome'=>'','categoryId'=>0,'contextId'=>0
             ,'timeframeId'=>0) as $field=>$default) {
-        if (empty($_POST[$field]))
+        if (empty($_REQUEST[$field]))
             $values[$field] = $default;
-        elseif (empty($_POST['fromjavascript']))
-            $values[$field] = $_POST[$field];
+        elseif (empty($_REQUEST['fromjavascript']))
+            $values[$field] = $_REQUEST[$field];
         else {
-            $values[$field] = iconv('UTF-8',$_SESSION['config']['charset'].'//IGNORE',$_POST[$field]);
+            $values[$field] = iconv('UTF-8',$_SESSION['config']['charset'].'//IGNORE',$_REQUEST[$field]);
         }
     }
-    $tags=(isset($_REQUEST['tags']))?strtolower($_POST['tags']):'';
+    $tags=(isset($_REQUEST['tags']))?strtolower($_REQUEST['tags']):'';
     $values['alltags']=array_unique(explode(',',$tags));
     
     // binary yes/no
@@ -350,11 +365,11 @@ function retrieveFormVars() {
 
     // dates
     foreach ( array('tickledate','dateCompleted','deadline') as $field)
-       $values[$field]  = (empty($_POST[$field])) ? "NULL" : ("'".date('Y-m-d',strtotime($_POST[$field]))."'");
+       $values[$field]  = (empty($_REQUEST[$field])) ? "NULL" : ("'".date('Y-m-d',strtotime($_REQUEST[$field]))."'");
 
-    if (    empty($_POST['FREQtype'])
-        || $_POST['FREQtype']==='NORECUR' 
-        || ($_REQUEST['FREQtype']==='TEXT' && empty($_POST['icstext']))) {
+    if (    empty($_REQUEST['FREQtype'])
+        || $_REQUEST['FREQtype']==='NORECUR' 
+        || ($_REQUEST['FREQtype']==='TEXT' && empty($_REQUEST['icstext']))) {
         $values['recur']=null;
         $values['recurdesc']=null;
     } else {

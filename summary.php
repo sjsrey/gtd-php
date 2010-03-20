@@ -149,5 +149,14 @@ if($numbersomeday) {
 }
 echo "</div>\n";
 
+if ( $_SESSION['config']['showTreeInSummary'] ) {
+	echo "<div class='reportsection'>\n";
+	$_REQUEST['addonid']="tree";
+	$_REQUEST['url']="maketree.inc.php";
+	if ( !array_key_exists('showfrom', $_GET ) ) $_GET['showfrom']="p";
+	if ( !array_key_exists( 'showto',$_GET ) ) $_GET['showto']="p";
+	include 'addon.php';
+	echo "</div>\n";
+} 
 include_once 'footer.inc.php';
 ?>

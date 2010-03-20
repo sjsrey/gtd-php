@@ -459,6 +459,11 @@ function getsql($querylabel,$values,$sort) {
 				ORDER BY {$sort['getchildren']}";
 			break;
 
+		case "getdatecompleted":
+			$sql="SELECT `dateCompleted` FROM `{$prefix}itemstatus`
+								WHERE `itemId`='{$values['itemId']}'";
+			break;
+
 		case "getgtdphpversion":
 			$sql="SELECT `version` FROM `{$prefix}version`";
 			break;
@@ -600,7 +605,7 @@ function getsql($querylabel,$values,$sort) {
 						(`itemId`,`dateCreated`,`lastModified`,`dateCompleted`,
                         `type`,`categoryId`,`isSomeday`,`contextId`,
 						`timeframeId`,`deadline`,`tickledate`,`nextaction`)
-				VALUES ('{$values['newitemId']}',CURRENT_DATE,NULL,{$values['dateCompleted']},
+				VALUES ('{$values['newitemId']}',CURRENT_DATE,NULL,NULL,
                         '{$values['type']}','{$values['categoryId']}',
                         '{$values['isSomeday']}','{$values['contextId']}',
                         '{$values['timeframeId']}',{$values['deadline']},
@@ -817,6 +822,9 @@ function getsql($querylabel,$values,$sort) {
 		case "updateitemattributes":
 			$sql="UPDATE `{$prefix}itemstatus`
 				SET `isSomeday`= '{$values['isSomeday']}',
+					`type` = '{$values['type']}',
+					`categoryId` = '{$values['categoryId']}',
+					`lastModified` = NULL,
 					`contextId` = '{$values['contextId']}',
 					`timeframeId` = '{$values['timeframeId']}',
 					`deadline` ={$values['deadline']},
@@ -837,14 +845,6 @@ function getsql($querylabel,$values,$sort) {
 				WHERE `itemId`='{$values['itemId']}'";
 			break;
 
-		case "updateitemstatus":
-			$sql="UPDATE `{$prefix}itemstatus`
-				SET `type` = '{$values['type']}',
-					`categoryId` = '{$values['categoryId']}',
-					`lastModified` = NULL
-				WHERE `itemId` = '{$values['itemId']}'";
-			break;
-			
 		case "updateitemtext":
 			$sql="UPDATE `{$prefix}items`
 				SET `description` = '{$values['description']}',
@@ -999,6 +999,9 @@ function sqlparts($part,$values) {
 		break;
 	case "notcontextfilter":
 		$sqlpart = " its.`contextId` != '{$values['contextId']}' ";
+		break;
+	case "notsingleitem":
+		$sqlpart = " i.`itemId`!='{$values['itemId']}' ";
 		break;
 	case "nottimeframefilter":
 		$sqlpart = " its.`timeframeId` !='{$values['timeframeId']}' ";

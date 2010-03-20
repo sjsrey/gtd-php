@@ -222,7 +222,7 @@ function PrintBooklet()
     $this->PrintPages($margin0 + $margin0, $margin0, 8, true, true);
 }
 
-function GetData()
+function GetData($nextonly=true)
 {
    // Get Projects and next actions
    $values=array();
@@ -271,7 +271,7 @@ function GetData()
 
 $pdf=new PDF('P','cm',$papersize);
 $pdf->initFontParams($fontname,$fontsize);
-$pdf->GetData();
+$pdf->GetData($nextonly);
 $pdf->AddPage();
 $pdf->SetFont($fontname,'',$fontsize);
 $pdf->printBooklet();

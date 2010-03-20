@@ -27,8 +27,8 @@ $acckey = array(
 	"listItems.php?type=p"					=> "v", // Projects
 	"listItems.php?type=p&someday=true"		=> "m", // Someday/Maybes
 	"listItems.php?type=w"					=> "w", // Waiting On
-	"listLists.php?type=C"					=> "c", // Checklists
-	"listLists.php?type=L"					=> "l", // Lists
+	"listItems.php?type=C"					=> "c", // Checklists
+	"listItems.php?type=L"					=> "l", // Lists
 	"reportContext.php"						=> "x", // Space Contexts
 	"index.php"        						=> "s", // Summary
 	"weekly.php"							=> "r" // Weekly Review
@@ -85,7 +85,7 @@ $config['suppressAdmin'] = false; // false | true - suppresses the Admin option 
 $config['suppressCustomRecurrences']=true; // false | true - prevents user entering recurrence patterns as plain text
 $config['charset'] = 'ISO8859-15'; // character-encoding for pages: utf-8 IS EXPERIMENTAL; other multi-byte character sets are not supported
 $config['withholdVersionInfo']=false; // true | false - if false, will send the version numbers of your installations of gtd-php, PHP and MySQL when you report a bug
-
+$config['showTreeInSummary']=false; // false | true -if true, show the tree of projects on the front page
 $config['debugKey']='h';
 $config['debug']=0;
 // php closing tag has been omitted deliberately, to avoid unwanted blank lines being sent to the browser

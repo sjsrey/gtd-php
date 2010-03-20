@@ -1,5 +1,5 @@
 <thead>
-    <tr>
+    <tr><th class='hidden col-id'>id</th>
     <?php foreach ($dispArray as $key=>$val)
         echo '<th class="col-',$key
             ,($show[$key])?'':' hidden'
@@ -20,14 +20,13 @@ foreach ($maintable as $row) {
     echo '<tr'
         ,(!empty($row['row.class']))?" class='{$row['row.class']}' ":''
         ,">\n";
-    $idval="<input type='hidden' name='id' value='{$row['itemId']}' />";
+    echo "<td class='hidden col-id'><input type='hidden' name='id' value='{$row['itemId']}' />{$row['itemId']}</td>";
     foreach ($dispArray as $key=>$val) {
         echo '<td class="col-',$key
             ,(empty($row[$key.'.class']))?'':' '.$row[$key.'.class']
             ,$showclass[$key],'"'
             ,(empty($row[$key.'.title']))?'':(' title="'.$row[$key.'.title'].'"')
-            ,'>',$idval;
-        $idval='';
+            ,'>';
         switch ($key) {
             case 'assignType':
                 echo "<a href='assignType.php?itemId={$row['itemId']}";

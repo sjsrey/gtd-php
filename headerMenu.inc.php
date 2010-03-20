@@ -70,7 +70,7 @@ $menu[] = array("link"=>"editCat.php?field=category", 'title'=>"Edit Meta-catego
 $menu[] = array("link"=>"editCat.php?field=context", 'title'=>"Edit spatial contexts", 'label' => "Space Contexts");
 $menu[] = array("link"=>"editCat.php?field=time-context", 'title'=>"Edit time contexts", 'label' => "Time Contexts");
 $menu[] = array("link"=>'','label'=>'separator');
-$menu[] = array("link"=>"preferences.php", 'title'=>"User preferences", 'label' => "User Preferences");
+$menu[] = array("link"=>"preferences.php", 'title'=>"User preferences", 'label' => "Preferences");
 if (!$_SESSION['config']['suppressAdmin']) {
     $menu[] = array("link"=>"types1.php", 'title'=>"Change names in the hierarchy", 'label' => "Edit Level names");
     $menu[] = array("link"=>"types2.php", 'title'=>"Change relationships between the levels", 'label' => "Edit Levels");
@@ -141,6 +141,7 @@ foreach ($eventhandlers as $addonid=>$thisaddon) {
    ----------------------------------------------
         finally, echo out the menus
 */
+gtd_handleEvent(_GTD_ON_TITLE,$pagename);
 ?>
 <div id='container'>
 <div id="header">

@@ -13,7 +13,7 @@ if (empty($_SESSION['debug']['debug'])) {
         global $log_count;
         if (!isset($log_count)) $log_count=0;
 
-    	if (!is_array($varlist)) $varlist=func_get_args();
+        if (!is_array($varlist)) $varlist=func_get_args();
 
         if(array_key_exists('tag',$varlist)) {
             $tag=$varlist['tag'];
@@ -34,7 +34,7 @@ if (empty($_SESSION['debug']['debug'])) {
             }
             echo '<b>',htmlentities($pretext,ENT_NOQUOTES),'</b> '
                 ,htmlentities(print_r($truevar,true),ENT_NOQUOTES)  //,$_SESSION['config']['charset'])
-        	    ,"</$tag>";
+                ,"</$tag>";
         }
     }
     //-------------------------------------------------
@@ -173,108 +173,120 @@ function escapeforjavascript($txt) {
 }
 //-------------------------------------------------
 function escapeChars($str) {
-    foreach (array('&'=>'&amp;','&amp;hellip;'=>'&hellip;') as $from=>$to)
+    foreach (array('&'=>'&amp;','&amp;hellip;'=>'&hellip;','&amp;gt;'=>'&gt;','&amp;lt;'=>'&lt;') as $from=>$to)
         $str=str_replace($from,$to,$str);
-	return $str;
+    return $str;
 }
 //-------------------------------------------------
 function makeclean($textIn,$stripSlashes=false) {
     if (is_array($textIn)) {
         $cleaned=array();
         foreach ($textIn as $line) $cleaned[]=makeclean($line);
-	} else {
+    } else {
         $cleaned=htmlentities(
           ($stripSlashes) ? stripslashes($textIn) : $textIn,
-          ENT_QUOTES,$_SESSION['config']['charset']);
+          ENT_QUOTES,
+                    $_SESSION['config']['charset'],
+                    FALSE );
     }
-	return $cleaned;
+    return $cleaned;
 }
 //-------------------------------------------------
-function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the visible part of a string, excluding html tags, is no longer than specified) 	// TOFIX -  we don't handle "%XX" strings yet.
-	// constants - might move permittedTags to config file
+function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the visible part of a string, excluding html tags, is no longer than specified)     // TOFIX -  we don't handle "%XX" strings yet.
+    // constants - might move permittedTags to config file
     $permittedTags=array(
-		 '/^<a ((href)|(file))=[^>]+>/i'=>'</a>'
-		,'/^<b>/i'=>'</b>'
-		,'/^<i>/i'=>'</i>'
-		,'/^<span [^>]*>/i'=>'</span>'
-		,'/^<ul>/i'=>'</ul>'
-		,'/^<ol>/i'=>'</ol>'
-		,'/^<li>/i'=>'</li>'
-		);
-	$ellipsis='&hellip;';
-	$ampStrings='/^&[#a-zA-Z0-9]+;/';
-	
-	// initialise variables
+         '/^<a ((href)|(file))=[^>]+>/i'=>'</a>'
+        ,'/^<b>/i'=>'</b>'
+        ,'/^<i>/i'=>'</i>'
+        ,'/^<span [^>]*>/i'=>'</span>'
+        ,'/^<ul>/i'=>'</ul>'
+        ,'/^<ol>/i'=>'</ol>'
+        ,'/^<li>/i'=>'</li>'
+        );
+    $ellipsis='&hellip;';
+    $ampStrings='/^&[#a-zA-Z0-9]+;/';
+    
+    // initialise variables
     $instrlen=strlen($inStr);
-	if ($inLength==0) $inLength=$instrlen*4+1;
-	$outStr='';
-	$visibleLength=0;
-	$thisChar=0;
+    if ($inLength==0) $inLength=$instrlen*4+1;
+    $outStr='';
+    $visibleLength=0;
+    $thisChar=0;
     $tagToCloselen=0;
-	$keepGoing=!empty($inStr);
-	$tagsOpen=array();
+    $keepGoing=!empty($inStr);
+    $tagsOpen=array();
     $tagToClose='';
-	// main processing here
-	while ($keepGoing) {
+    // main processing here
+    while ($keepGoing) {
         $totest=substr($inStr,$thisChar);
-		$stillHere = TRUE;
-		if ($tagToCloselen && strtolower(substr($totest,0,$tagToCloselen))===$tagToClose ) {
-			$stillHere=FALSE;
-			$thisChar+=$tagToCloselen;
-			if ($keepTags) {
+        $stillHere = TRUE;
+        if ($tagToCloselen && strtolower(substr($totest,0,$tagToCloselen))===$tagToClose ) {
+            $stillHere=FALSE;
+            $thisChar+=$tagToCloselen;
+            if ($keepTags) {
                 $outStr.=array_pop($tagsOpen);
             } else array_pop($tagsOpen);
             $tagToClose=end($tagsOpen);
-		} else {
+        } else {
             $totest0=substr($totest,0,1);
             if ($totest0==='<') {
                 foreach ($permittedTags as $thisTag=>$thisClosingTag) {
-			        if ( preg_match($thisTag,$totest,$matches)===1 ) { 
-				        $thisChar+=strlen($matches[0]);
-				        $stillHere=FALSE;
-				        if ($keepTags) {
-					        array_push($tagsOpen,$thisClosingTag);
-					        $outStr.=$matches[0];
+                    if ( preg_match($thisTag,$totest,$matches)===1 ) {
+                        $thisChar+=strlen($matches[0]);
+                        $stillHere=FALSE;
+                        if ($keepTags) {
+                            array_push($tagsOpen,$thisClosingTag);
+                            $outStr.=$matches[0];
                             $tagToClose=$thisClosingTag;
-				        }
+                        }
                         break;
-			        } // end of if
-		        } // end of else foreach
-            }
+                    } // end of if preg_match
+                } // end of foreach
+                            if($stillHere) {
+                                // we've got a '<', but it's not part of a safe tag, so escape it
+                                $outStr.='&lt;';
+                                $thisChar++;
+                                $stillHere=FALSE;
+                            }
+            } elseif ($totest0==='>') {
+                            $outStr.='&gt;';
+                            $thisChar++;
+                            $stillHere=FALSE;
+                        }
         }
         if (!$stillHere) // we've got a new end tag that we're watching for, so save its length
             $tagToCloselen=strlen($tagToClose);
-		// now check for & ... control characters
-		if ($stillHere 
+        // now check for & ... control characters
+        if ($stillHere 
             && ($totest0==='&') 
             && (preg_match($ampStrings,$totest,$matches)===1)) {
-			if (strlen(html_entity_decode($matches[0]))==1) {
-				$visibleLength++;
-				$outStr.=$matches[0];
-				$thisChar+=strlen($matches[0]);
-				$stillHere=FALSE;
-			}
-		}
-		// just a normal character, so add it to the string
-		if ($stillHere) {
-			$visibleLength++;
-			$outStr.=$totest0;
-			$thisChar++;
-		} // end of if
-		$keepGoing= ($thisChar<$instrlen && $visibleLength<$inLength);
-	} // end of while ($keepGoing)
-	// add ellipsis if we have trimmed some text
-	if ($thisChar<$instrlen && $visibleLength>=$inLength) $outStr.=$ellipsis;
-	// got the string - now close any open tags
-	if ($keepTags) while (count($tagsOpen))
-		$outStr.=array_pop($tagsOpen);
-	$outStr=nl2br(escapeChars($outStr));
-	return $outStr;
+            if (strlen(html_entity_decode($matches[0]))==1) {
+                $visibleLength++;
+                $outStr.=$matches[0];
+                $thisChar+=strlen($matches[0]);
+                $stillHere=FALSE;
+            }
+        }
+        // just a normal character, so add it to the string
+        if ($stillHere) {
+            $visibleLength++;
+            $outStr.=$totest0;
+            $thisChar++;
+        } // end of if
+        $keepGoing= ($thisChar<$instrlen && $visibleLength<$inLength);
+    } // end of while ($keepGoing)
+    // add ellipsis if we have trimmed some text
+    if ($thisChar<$instrlen && $visibleLength>=$inLength) $outStr.=$ellipsis;
+    // got the string - now close any open tags
+    if ($keepTags) while (count($tagsOpen))
+        $outStr.=array_pop($tagsOpen);
+    $outStr=nl2br(escapeChars($outStr));
+    return $outStr;
 }
 //-------------------------------------------------
 function prettyDueDate($dateToShow,$daysdue,$thismask=null) {
     if (is_null($thismask)) $thismask=$_SESSION['config']['datemask'];
-	$retval=array('class'=>'','title'=>'');
+    $retval=array('class'=>'','title'=>'');
     if($dateToShow) {
         $retval['date'] = date($thismask,$dateToShow );
         if ($daysdue>0) {
@@ -299,7 +311,7 @@ function prettyDueDate($dateToShow,$daysdue,$thismask=null) {
         }
     } else
         $retval['date'] ='&nbsp;';
-	return $retval;
+    return $retval;
 }
 /*
     end of functions to prettify text, and remove possibly-harmful elements
@@ -740,19 +752,19 @@ function savePerspective($values) {
    ======================================================================================
 */
 function getVarFromGetPost($varName,$default='') {
-	$retval=(isset($_GET[$varName]))?$_GET[$varName]:( (isset($_POST[$varName]))?$_POST[$varName]:$default );
-	return $retval;
+    $retval=(isset($_GET[$varName]))?$_GET[$varName]:( (isset($_POST[$varName]))?$_POST[$varName]:$default );
+    return $retval;
 }
 /*
    ======================================================================================
 */
 function getTickleDate($deadline,$days) { // returns unix timestamp of date when tickle becomes active
-	$dm=(int)substr($deadline,5,2);
-	$dd=(int)substr($deadline,8,2);
-	$dy=(int)substr($deadline,0,4);
-	// relies on PHP to sanely and clevery handle dates like "the -5th of March" or "the 50th of April"
-	$remind=mktime(0,0,0,$dm,($dd-$days),$dy);
-	return $remind;
+    $dm=(int)substr($deadline,5,2);
+    $dd=(int)substr($deadline,8,2);
+    $dy=(int)substr($deadline,0,4);
+    // relies on PHP to sanely and clevery handle dates like "the -5th of March" or "the 50th of April"
+    $remind=mktime(0,0,0,$dm,($dd-$days),$dy);
+    return $remind;
 }
 /*
    ======================================================================================
@@ -846,7 +858,7 @@ function query($querylabel,$values=NULL,$sort=NULL) {
     log_value('Query: ',$query);
 
     //perform query
-	$result=doQuery($query,$querylabel);
+    $result=doQuery($query,$querylabel);
 
     //for developer testing only, print result array
     log_value('Query Result:',$result);
@@ -921,7 +933,7 @@ function processRecurrence($values) {
             break;
             
         default:
-            return array('',''); // nothing to do, so quit
+            return array('','',''); // nothing to do, so quit
     }
     /*  got all the data from the form
         --------------------------------------------------------------------

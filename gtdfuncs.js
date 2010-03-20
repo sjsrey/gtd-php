@@ -1,5 +1,5 @@
-/*jslint browser: true, eqeqeq: true, nomen: true, undef: true */
-/*global GTD,unescape,Calendar,jQuery */
+/*jslint browser: true, devel: true, onevar: true, undef: true, nomen: true, eqeqeq: true, bitwise: true, newcap: true, immed: true */
+/*global GTD,unescape,Calendar,jQuery,confirm,window */
 /* global unescape: because decodeURIcomponent corrupts some characters in AJAX
                     but this will change when we get proper i18n/utf8/mbcs handling in gtd-php
 
@@ -95,7 +95,7 @@ function checkSaneRecurrenceInterval(aEvent) {
  * aEvent: jQuery event object for the submit action
  */
 
-  var interval, intervalField, maxInterval, periodName,
+  var maxInterval, periodName,
       fieldToFocus = null,
       warning = "",
       form = $("#itemform").find(".formerror").removeClass("formerror").end(),
@@ -105,14 +105,9 @@ function checkSaneRecurrenceInterval(aEvent) {
       tickleField = form.find("#tickledate"),
       tickleVal = tickleField.val(),
       tickleDate = Date.parseDate(tickleVal, "%Y-%m-%d") && tickleVal,
-      untilField = form.find("#UNTIL"),
-      untilVal = untilField.val()
-      until = Date.parseDate(untilVal, "%Y-%m-%d") && untilVal,
       freqType = form.find("[name=FREQtype]:checked").val(),
       deadlineVal = form.find("#deadline").val(),
-      deadline = Date.parseDate(deadlineVal, "%Y-%m-%d") && deadlineVal,
-      now = new Date(),
-      today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      deadline = Date.parseDate(deadlineVal, "%Y-%m-%d") && deadlineVal;
 
   switch (freqType) {
 
@@ -306,6 +301,53 @@ function ts_sort_checkbox(a,b) {
     if (aa) {return -100;}
     return 100;
 }
+
+function ts_sort( lnk, savebodycursor, savethiscursor) {
+
+    var max, td, column, table, itm, itmh, newRows, sortfn, thisbody;
+
+    // Delete any arrows that may be showing
+    $('th',table).removeClass("sortup sortdown");
+
+    max=lnk.childNodes.length;
+    td = getParent(lnk,'TD') || getParent(lnk,'TH');
+    column = manualcellindex(td);
+    table = getParent(td,'TABLE');
+    thisbody=table.tBodies[0];
+
+    // Work out a type for the column
+    if (table.rows.length <= 1) {return;}
+    itm = ts_getInnerText(thisbody.rows[0].cells[column]);
+    itmh = thisbody.rows[0].cells[column].innerHTML;
+    sortfn = ts_sort_caseinsensitive;
+    if (itmh.match(/^<input.*(radio|checkbox).*>$/)) {sortfn = ts_sort_checkbox;}
+    else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d\d\d$/)) {sortfn = ts_sort_date;}
+    else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d$/)) {sortfn = ts_sort_date;}
+    //else if (itm.match(/^[£$]/)) {sortfn = ts_sort_currency;}
+    //else if (itm.match(/^[\d\.]+$/)) {sortfn = ts_sort_numeric;}
+    sort_column_index = column;
+
+    newRows = $( 'tbody tr:not(.sortbottom)', table ).get();
+    newRows.sort( sortfn );
+
+    // add sort marker to this column header
+    if (lnk.getAttribute("sortdir") === 'down') {
+        $(td).addClass("sortup");
+        newRows.reverse();
+        lnk.setAttribute('sortdir','up');
+    } else {
+        $(td).addClass("sortdown");
+        lnk.setAttribute('sortdir','down');
+    }
+
+    newRows = newRows.concat( $('tbody tr.sortbottom',table ).get() );
+    // We append rows that already exist to the tbody, so it moves them rather than creating new ones
+    $(thisbody).append( newRows );
+
+    document.body.style.cursor = savebodycursor;
+    lnk.style.cursor = savethiscursor;
+}
+
 /*
     end of sorting functions
     ======================================================================================
@@ -947,7 +989,7 @@ GTD.ParentSelector.prototype.search=function gtd_ps_s() {
  * something to do with setting up the auto-search in the parent box
  *
  */
-    var parenttable,that=this;
+    var parenttable;
     if (this.inSearch) {return false;}
     this.inSearch=true;
     GTD.freeze(true);
@@ -979,51 +1021,14 @@ GTD.resortTable=function gtd_rs(lnk) {
  *
  * lnk: the element that the user clicked
  */
-    var max, td, column, table, itm, itmh, newRows, sortfn, thisbody;
+    var savebodycursor = document.body.style.cursor,
+	savethiscursor = lnk.style.cursor;
 
-    // Delete any arrows that may be showing
-    $('th',table).removeClass("sortup sortdown");
+    document.body.style.cursor = lnk.style.cursor = 'wait';
 
-    max=lnk.childNodes.length;
-    td = getParent(lnk,'TD') || getParent(lnk,'TH');
-    column = manualcellindex(td);
-    table = getParent(td,'TABLE');
-    thisbody=table.tBodies[0];
-
-    // Work out a type for the column
-    if (table.rows.length <= 1) {return;}
-    itm = ts_getInnerText(thisbody.rows[0].cells[column]);
-    itmh = thisbody.rows[0].cells[column].innerHTML;
-    sortfn = ts_sort_caseinsensitive;
-    if (itmh.match(/^<input.*(radio|checkbox).*>$/)) {sortfn = ts_sort_checkbox;}
-    else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d\d\d$/)) {sortfn = ts_sort_date;}
-    else if (itm.match(/^\d\d[\/\-]\d\d[\/\-]\d\d$/)) {sortfn = ts_sort_date;}
-    //else if (itm.match(/^[£$]/)) {sortfn = ts_sort_currency;}
-    //else if (itm.match(/^[\d\.]+$/)) {sortfn = ts_sort_numeric;}
-    sort_column_index = column;
-    newRows = [];
-    $('tbody tr',table).each(function newrows_push(){
-      newRows.push(this);
-    });
-
-    newRows.sort(sortfn);
-
-    // add sort marker to this column header
-    if (lnk.getAttribute("sortdir") === 'down') {
-        $(td).addClass("sortup");
-        newRows.reverse();
-        lnk.setAttribute('sortdir','up');
-    } else {
-        $(td).addClass("sortdown");
-        lnk.setAttribute('sortdir','down');
-    }
-
-    // We appendChild rows that already exist to the tbody, so it moves them
-    //   rather than creating new ones.  Put sortbottom-rows last
-    
-    $(thisbody).
-      append($(newRows).filter(":not(.sortbottom)")).
-      append($(newRows).filter(".sortbottom"));
+    setTimeout( function gtd_resort() {
+	ts_sort(lnk, savebodycursor, savethiscursor);
+      }, 20);
 
 };
 // ======================================================================================
@@ -1044,7 +1049,7 @@ GTD.setTabs=function gtd_settabs() {
           click(function tabclicked() { // change which tab is displayed
             // TODO alter URL to include name of tab, in case we want to bookmark preferences with this tab showing
             var clickedtab=$(this);
-            if (clickedtab.hasClass('selectedTab')) { return false; }
+            if (clickedtab.hasClass('selectedtab')) { return false; }
             $('ul.tabbar li').
               filter('.selectedtab').
                 removeClass('selectedtab');
@@ -1271,4 +1276,4 @@ $(document).ready(function gtd_onready() {
     if (typeof GTD.debugKey!=='undefined') {GTD.debugInit(GTD.debugKey);}
 });
 window.GTD=GTD;
-})(jQuery);
+}(jQuery));
