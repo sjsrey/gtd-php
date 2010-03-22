@@ -192,7 +192,7 @@ function makeclean($textIn,$stripSlashes=false) {
     return $cleaned;
 }
 //-------------------------------------------------
-function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the visible part of a string, excluding html tags, is no longer than specified)     // TOFIX -  we don't handle "%XX" strings yet.
+function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE, $doBR=TRUE) { // Ensure the visible part of a string, excluding html tags, is no longer than specified)     // TOFIX -  we don't handle "%XX" strings yet.
     // constants - might move permittedTags to config file
     $permittedTags=array(
          '/^<a ((href)|(file))=[^>]+>/i'=>'</a>'
@@ -280,7 +280,9 @@ function trimTaggedString($inStr,$inLength=0,$keepTags=TRUE) { // Ensure the vis
     // got the string - now close any open tags
     if ($keepTags) while (count($tagsOpen))
         $outStr.=array_pop($tagsOpen);
-    $outStr=nl2br(escapeChars($outStr));
+		$outStr = escapeChars($outStr);
+    if ( $doBR )
+			$outStr=nl2br( $outStr );
     return $outStr;
 }
 //-------------------------------------------------

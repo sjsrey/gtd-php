@@ -1,5 +1,5 @@
 /*!
- * jQuery UI 1.8rc3
+ * jQuery UI 1.8
  *
  * Copyright (c) 2010 AUTHORS.txt (http://jqueryui.com/about)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -9,11 +9,9 @@
  */
 ;jQuery.ui || (function($) {
 
-var isFF2 = $.browser.mozilla && (parseFloat($.browser.version) < 1.9);
-
 //Helper functions and ui object
 $.ui = {
-	version: "1.8rc3",
+	version: "1.8",
 
 	// $.ui.plugin is deprecated.  Use the proxy pattern instead.
 	plugin: {
@@ -204,7 +202,7 @@ $.extend($.expr[':'], {
 
 })(jQuery);
 /*!
- * jQuery UI Widget 1.8rc3
+ * jQuery UI Widget 1.8
  *
  * Copyright (c) 2010 AUTHORS.txt (http://jqueryui.com/about)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -440,7 +438,7 @@ $.Widget.prototype = {
 
 })( jQuery );
 /*!
- * jQuery UI Mouse 1.8rc3
+ * jQuery UI Mouse 1.8
  *
  * Copyright (c) 2010 AUTHORS.txt (http://jqueryui.com/about)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -591,7 +589,7 @@ $.widget("ui.mouse", {
 
 })(jQuery);
 /*
- * jQuery UI Draggable 1.8rc3
+ * jQuery UI Draggable 1.8
  *
  * Copyright (c) 2010 AUTHORS.txt (http://jqueryui.com/about)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -1051,7 +1049,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 });
 
 $.extend($.ui.draggable, {
-	version: "1.8rc3"
+	version: "1.8"
 });
 
 $.ui.plugin.add("draggable", "connectToSortable", {
@@ -1388,7 +1386,7 @@ $.ui.plugin.add("draggable", "zIndex", {
 
 })(jQuery);
 /*
- * jQuery UI Sortable 1.8rc3
+ * jQuery UI Sortable 1.8
  *
  * Copyright (c) 2010 AUTHORS.txt (http://jqueryui.com/about)
  * Dual licensed under the MIT (MIT-LICENSE.txt)
@@ -2089,8 +2087,11 @@ $.widget("ui.sortable", $.ui.mouse, {
 		// if no intersecting containers found, return 
 		if(!innermostContainer) return; 
 
-		// move the item into the container if it's not there already 
-		if(this.currentContainer != this.containers[innermostIndex]) { 
+		// move the item into the container if it's not there already
+		if(this.containers.length === 1) {
+			this.containers[innermostIndex]._trigger("over", event, this._uiHash(this));
+			this.containers[innermostIndex].containerCache.over = 1;
+		} else if(this.currentContainer != this.containers[innermostIndex]) { 
 
 			//When entering a new container, we will find the item with the least distance and append our item near it 
 			var dist = 10000; var itemWithLeastDistance = null; var base = this.positionAbs[this.containers[innermostIndex].floating ? 'left' : 'top']; 
@@ -2435,7 +2436,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 });
 
 $.extend($.ui.sortable, {
-	version: "1.8rc3"
+	version: "1.8"
 });
 
 })(jQuery);

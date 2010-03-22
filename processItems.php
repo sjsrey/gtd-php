@@ -13,7 +13,7 @@ if ($updateGlobals['captureOutput']) {
 // sanitise text fields
 foreach ( array( 'title'=>false, 'description'=>true, 'desiredOutcome'=>true) as $key=>$val )
 	if ( !empty( $_REQUEST[$key] ) )
-			$_REQUEST[$key] = trimTaggedString( $_REQUEST[$key], 0, $val );
+			$_REQUEST[$key] = trimTaggedString( $_REQUEST[$key], 0, $val, false );
 
 // get core variables first
 $values=array();  // ensures that this is a global variable
