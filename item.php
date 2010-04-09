@@ -622,6 +622,14 @@ if ($show['submitbuttons']) { ?>
 ?><div id='recur' <?php
     if ($_SESSION['useLiveEnhancements']) echo " class='togglehidden' ";
 ?>><a name='recurform' id='recurform'></a>
+
+    <div class='formrow'>
+		  <label class='left first' for='NORECUR'>No repeat</label>
+			<input type='radio' name='FREQtype' value='NORECUR' id='NORECUR' <?php
+					if ($recur['FREQtype']==='NORECUR') echo " checked='checked' ";
+			?> />
+    </div>
+		
     <div class='formrow'>
         <span>
             <label class='left first' for='freqtext'>Repeat:</label>
@@ -642,6 +650,10 @@ if ($show['submitbuttons']) { ?>
         <label class='left first' for='INTERVAL'>Repeat every:</label> <input type='text' value='<?php
             echo $recur['INTERVAL'];
         ?>' name='INTERVAL' size='3' id='INTERVAL'  />
+    </div>
+
+    <div class='formrow'>
+		    <label class='left first'></label>
         <span>
         <?php
         foreach (array('DAILY'=>'day','WEEKLY'=>'week','MONTHLY'=>'month','YEARLY'=>'year') as $freq=>$val) { ?>
@@ -652,6 +664,11 @@ if ($show['submitbuttons']) { ?>
         <?php } ?>
         after each completion date
         </span>
+    </div>
+
+    <div class='formrow'>
+		  <label class='left first'></label>
+			If you choose one of the following recurrence patterns, and your first deadline doesn't match it, the first recurrence may occur sooner  than you think:
     </div>
 
     <div class='formrow'>
@@ -750,19 +767,15 @@ if ($show['submitbuttons']) { ?>
     </div>
 
     <div class='formrow'>
-        <label class='left first' for='UNTIL'>Don't repeat after:</label>
+        <label class='left first' for='UNTIL'>Stop after:</label>
         <input type='text' size='10' class='hasdate' name='UNTIL' id='UNTIL' value='<?php
             if (!empty($recur['UNTIL']))
               echo $recur['UNTIL']['year'],'-'
                   ,$recur['UNTIL']['month'],'-'
                   ,$recur['UNTIL']['day'];
         ?>' /><button id='UNTIL_trigger' type='button' class='calendarbutton'>&hellip;</button>
-        <span>
-            <input type='radio' name='FREQtype' value='NORECUR' id='NORECUR' <?php
-                if ($recur['FREQtype']==='NORECUR') echo " checked='checked' ";
-            ?> /><label class='right' for='NORECUR'>No repeat</label>
-        </span>
     </div>
+
 </div>
 <?php } ?>
 </div>

@@ -6,8 +6,7 @@ $sql="SELECT its.`type`,
          interval(datediff(curdate(),its.`dateCompleted`),7,30,90,365) AS `daysago`,
          count(*) AS `numdone`
     FROM `{$_SESSION['prefix']}itemstatus` AS `its`
-    WHERE its.`dateCompleted` > '$earliestdate'
-    GROUP BY `type`,`daysago`";
+    GROUP BY `type`,`daysago`"; //      WHERE its.`dateCompleted` > '$earliestdate'
 $result=query($sql);
 if(!$result) {
     echo '<p>You have not yet completed any items</p>';
@@ -30,7 +29,7 @@ foreach ($result as $line) {
 }
 // calculate equivalent weekly completion rates for each type
 foreach ($tabvals as $type=>$line) {
-    $runtot=0;
+    $runtot=0; // keep a running total, so that we can work out the weekly completion rate for each column
     for ($i=0;$i<5;$i++) {
         if (!empty($line[$i])) $runtot+=$line[$i];
         if ($factors[$i]) {
@@ -41,6 +40,8 @@ foreach ($tabvals as $type=>$line) {
         }
         $tabvals[$type][$i]= (empty($line[$i]) && $factors[$i]) ? '&nbsp;' : "<strong>$runtot</strong> $suffix";
     }
+		// if there are no completed items of this type, remove the array entry, to suppress printing an empty row in the table
+		if (!$runtot) unset($tabvals[$type]);
 }
 
 // if we've got graphing available, plot some graphs
@@ -81,7 +82,7 @@ if ($cangraph) {
         $sourcedata["title$j"]="Ave. {$intervals[$i]}";
         $j++;
     }
-
+    // pass information to the graphing program via a session variable
     $_SESSION["addons-{$addon['id']}"]['graph']=$sourcedata;
 }
 /* ================================================
