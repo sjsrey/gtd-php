@@ -732,7 +732,7 @@ function createAjaxEditor(cell,EditorConstructor) {
     return false;
 }
 /* ======================================================================================
-    context toggling - author Aurélien Bompard
+    context toggling - author Aurï¿½lien Bompard
 */
 function toggleContext(e) {
 /*
@@ -1740,26 +1740,31 @@ GTD.ParentSelector.prototype.makeline=function(id,title,type,typename,i,useTypes
  * useTypes:
  * onetype:
  */
-    var that=this,line=document.createElement('p'),thisi,anchor,linetext=title;
-    if (id==='0') {
-        thisi=this.creatorlines.length;
-        this.creatorlines.push(i);
-        line.className='creator';
-    } else {thisi='';}
-    anchor=document.createElement('a');
-    anchor.href='#';
-    $(anchor).
-        unbind('click').
-        click(function() {
-            that.gotparent(id,title,type,typename,thisi);
-        });
-    anchor.appendChild(document.createTextNode('+'));
-    anchor.className='add';
-    line.appendChild(anchor);
-    if (useTypes) {linetext += " ("+typename+")";}
-    line.appendChild(document.createTextNode(linetext));
-    line.style.display=(!useTypes || typename===onetype)?'block':'none';
-    return line;
+
+  var thisi, anchor,
+      that = this, 
+      line = $("<p>" + title + ( useTypes ? (" ("+typename+")") : "" ) + "</p>");
+
+  if (id==='0') {
+    thisi = this.creatorlines.length;
+    this.creatorlines.push(i);
+    line.addClass("creator");
+  } else { thisi=''; }
+
+  anchor = $("<a>").
+    attr("href","#").
+    unbind('click'). // force deactivation of any live events
+    click(function() {
+      that.gotparent(id,title,type,typename,thisi);
+      return false;
+    }).
+    text("+").
+    addClass("add");
+
+  return line.
+    css("display", (!useTypes || typename===onetype)?'block':'none').
+    prepend(anchor).
+    get(0);
 };
 // ======================================================================================
 GTD.toggleHidden=function (parent,link,dummy) {

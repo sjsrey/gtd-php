@@ -184,24 +184,24 @@ function getDocPath(){
 */
 function ts_getInnerText(el) {
     var str,cs,l,i;
-	if (typeof el === "string") {return el;}
-	if (typeof el === "undefined") { return el; }
-	if (el.innerText) {return el.innerText;}	//Not needed but it is faster
-	str = "";
+  if (typeof el === "string") {return el;}
+  if (typeof el === "undefined") { return el; }
+  if (el.innerText) {return el.innerText;}  //Not needed but it is faster
+  str = "";
 
-	cs = el.childNodes;
-	l = cs.length;
-	for (i = 0; i < l; i++) {
-		switch (cs[i].nodeType) {
-			case 1: //ELEMENT_NODE
-				str += ts_getInnerText(cs[i]);
-				break;
-			case 3:	//TEXT_NODE
-				str += cs[i].nodeValue;
-				break;
-		}
-	}
-	return str;
+  cs = el.childNodes;
+  l = cs.length;
+  for (i = 0; i < l; i++) {
+    switch (cs[i].nodeType) {
+      case 1: //ELEMENT_NODE
+        str += ts_getInnerText(cs[i]);
+        break;
+      case 3:  //TEXT_NODE
+        str += cs[i].nodeValue;
+        break;
+    }
+  }
+  return str;
 }
 
 function ts_makeSortable(table) {
@@ -237,10 +237,10 @@ function sortables_init() {
     }
 }
 function getParent(el, pTagName) {
-	if (el === null) {return null;}
-	else if (el.nodeType === 1 && el.tagName.toLowerCase() === pTagName.toLowerCase()) {	// Gecko bug, supposed to be uppercase
-		return el;
-	} else {return getParent(el.parentNode, pTagName);}
+  if (el === null) {return null;}
+  else if (el.nodeType === 1 && el.tagName.toLowerCase() === pTagName.toLowerCase()) {  // Gecko bug, supposed to be uppercase
+    return el;
+  } else {return getParent(el.parentNode, pTagName);}
 }
 
 function ts_sort_date(a,b) {
@@ -273,7 +273,7 @@ function ts_sort_currency(a,b) {
     aa = ts_getInnerText(a.cells[sort_column_index]).replace(/[^0-9.]/g,'');
     bb = ts_getInnerText(b.cells[sort_column_index]).replace(/[^0-9.]/g,'');
     retval = parseFloat(aa) - parseFloat(bb);
-	if (retval===0) {return (a.rowIndex-b.rowIndex);} else {return retval;}
+  if (retval===0) {return (a.rowIndex-b.rowIndex);} else {return retval;}
 }
 function ts_sort_numeric(a,b) {
     var aa,bb;
@@ -418,117 +418,117 @@ function ts_sort( lnk, savebodycursor, savethiscursor) {
 if (typeof Calendar!=='undefined') {
     Calendar.setup = function Cal_setup(params) {
       var tmp, i;
-    	function param_default(pname, def) { if (typeof params[pname] === "undefined") { params[pname] = def; } }
+      function param_default(pname, def) { if (typeof params[pname] === "undefined") { params[pname] = def; } }
 
-    	param_default("inputField",     null);
-    	param_default("displayArea",    null);
-    	param_default("button",         null);
-    	param_default("eventName",      "click");
-    	param_default("ifFormat",       "%Y-%m-%d");
-    	param_default("daFormat",       "%Y-%m-%d");
-    	param_default("singleClick",    true);
-    	param_default("disableFunc",    null);
-    	param_default("dateStatusFunc", params.disableFunc);	// takes precedence if both are defined
-    	param_default("dateText",       null);
-    	param_default("firstDay",       null);
-    	param_default("align",          "Br");
-    	param_default("range",          [1900, 2999]);
-    	param_default("weekNumbers",    true);
-    	param_default("flat",           null);
-    	param_default("flatCallback",   null);
-    	param_default("onSelect",       null);
-    	param_default("onClose",        null);
-    	param_default("onUpdate",       null);
-    	param_default("date",           null);
-    	param_default("showsTime",      false);
-    	param_default("timeFormat",     "24");
-    	param_default("electric",       true);
-    	param_default("step",           2);
-    	param_default("position",       null);
-    	param_default("cache",          false);
-    	param_default("showOthers",     false);
-    	param_default("multiple",       null);
+      param_default("inputField",     null);
+      param_default("displayArea",    null);
+      param_default("button",         null);
+      param_default("eventName",      "click");
+      param_default("ifFormat",       "%Y-%m-%d");
+      param_default("daFormat",       "%Y-%m-%d");
+      param_default("singleClick",    true);
+      param_default("disableFunc",    null);
+      param_default("dateStatusFunc", params.disableFunc);  // takes precedence if both are defined
+      param_default("dateText",       null);
+      param_default("firstDay",       null);
+      param_default("align",          "Br");
+      param_default("range",          [1900, 2999]);
+      param_default("weekNumbers",    true);
+      param_default("flat",           null);
+      param_default("flatCallback",   null);
+      param_default("onSelect",       null);
+      param_default("onClose",        null);
+      param_default("onUpdate",       null);
+      param_default("date",           null);
+      param_default("showsTime",      false);
+      param_default("timeFormat",     "24");
+      param_default("electric",       true);
+      param_default("step",           2);
+      param_default("position",       null);
+      param_default("cache",          false);
+      param_default("showOthers",     false);
+      param_default("multiple",       null);
 
-    	tmp = ["inputField", "displayArea", "button"];
-    	for (i in tmp) {
-    		if (typeof params[tmp[i]] === "string") {
-    			params[tmp[i]] = document.getElementById(params[tmp[i]]);
-    		}
-    	}
-    	if (!(params.flat || params.multiple || params.inputField || params.displayArea || params.button)) {
-    		alert("Calendar.setup:\n  Nothing to setup (no fields found).  Please check your code");
-    		return false;
-    	}
+      tmp = ["inputField", "displayArea", "button"];
+      for (i in tmp) {
+        if (typeof params[tmp[i]] === "string") {
+          params[tmp[i]] = document.getElementById(params[tmp[i]]);
+        }
+      }
+      if (!(params.flat || params.multiple || params.inputField || params.displayArea || params.button)) {
+        alert("Calendar.setup:\n  Nothing to setup (no fields found).  Please check your code");
+        return false;
+      }
 
-    	function onSelect(cal) {
-    		var p = cal.params, update = (cal.dateClicked || p.electric);
-    		if (update && p.inputField) {
-    			p.inputField.value = cal.date.print(p.ifFormat);
-    			if (typeof p.inputField.onchange === "function") {
-    				p.inputField.onchange();
+      function onSelect(cal) {
+        var p = cal.params, update = (cal.dateClicked || p.electric);
+        if (update && p.inputField) {
+          p.inputField.value = cal.date.print(p.ifFormat);
+          if (typeof p.inputField.onchange === "function") {
+            p.inputField.onchange();
                 }
-    		}
-    		if (update && p.displayArea) {
-    			p.displayArea.innerHTML = cal.date.print(p.daFormat);
+        }
+        if (update && p.displayArea) {
+          p.displayArea.innerHTML = cal.date.print(p.daFormat);
             }
-    		if (update && typeof p.onUpdate === "function") {
-    			p.onUpdate(cal);
+        if (update && typeof p.onUpdate === "function") {
+          p.onUpdate(cal);
             }
-    		if (update && p.flat) {
-    			if (typeof p.flatCallback === "function") {
-    				p.flatCallback(cal);
+        if (update && p.flat) {
+          if (typeof p.flatCallback === "function") {
+            p.flatCallback(cal);
                 }
-    		}
-    		if (update && p.singleClick && cal.dateClicked) {
-    			cal.callCloseHandler();
+        }
+        if (update && p.singleClick && cal.dateClicked) {
+          cal.callCloseHandler();
             }
-    	}
+      }
         //------------------------------------------------------------------------
         function showCal() {
-    		var i, d, ds,
+        var i, d, ds,
               dateEl = params.inputField || params.displayArea,
-    		  dateFmt = params.inputField ? params.ifFormat : params.daFormat,
-    		  mustCreate = false,
-    		  cal = window.calendar;
-    		if (dateEl) {
-    			params.date = Date.parseDate(dateEl.value || dateEl.innerHTML, dateFmt);
+          dateFmt = params.inputField ? params.ifFormat : params.daFormat,
+          mustCreate = false,
+          cal = window.calendar;
+        if (dateEl) {
+          params.date = Date.parseDate(dateEl.value || dateEl.innerHTML, dateFmt);
             }
-    		if (!(cal && params.cache)) {
-    			window.calendar = cal = new Calendar(params.firstDay,
-    			     params.date,
-    			     params.onSelect || onSelect,
-    			     params.onClose || function cal_hide(cal) { cal.hide(); });
-    			cal.showsTime = params.showsTime;
-    			cal.time24 = (params.timeFormat === "24");
-    			cal.weekNumbers = params.weekNumbers;
-    			mustCreate = true;
-    		} else {
-    			if (params.date) {cal.setDate(params.date);}
-    			cal.hide();
-    		}
-    		if (params.multiple) {
-    			cal.multiple = {};
-    			for (i = params.multiple.length; --i >= 0;) {
-    				d = params.multiple[i];
-    				ds = d.print("%Y%m%d");
-    				cal.multiple[ds] = d;
-    			}
-    		}
-    		cal.showsOtherMonths = params.showOthers;
-    		cal.yearStep = params.step;
-    		cal.setRange(params.range[0], params.range[1]);
-    		cal.params = params;
-    		cal.setDateStatusHandler(params.dateStatusFunc);
-    		cal.getDateText = params.dateText;
-    		cal.setDateFormat(dateFmt);
-    		if (mustCreate) {cal.create();}
-    		cal.refresh();
-    		if (!params.position) {
-    			cal.showAtElement(params.button || params.displayArea || params.inputField, params.align);
-    		} else {
-    			cal.showAt(params.position[0], params.position[1]);
+        if (!(cal && params.cache)) {
+          window.calendar = cal = new Calendar(params.firstDay,
+               params.date,
+               params.onSelect || onSelect,
+               params.onClose || function cal_hide(cal) { cal.hide(); });
+          cal.showsTime = params.showsTime;
+          cal.time24 = (params.timeFormat === "24");
+          cal.weekNumbers = params.weekNumbers;
+          mustCreate = true;
+        } else {
+          if (params.date) {cal.setDate(params.date);}
+          cal.hide();
+        }
+        if (params.multiple) {
+          cal.multiple = {};
+          for (i = params.multiple.length; --i >= 0;) {
+            d = params.multiple[i];
+            ds = d.print("%Y%m%d");
+            cal.multiple[ds] = d;
+          }
+        }
+        cal.showsOtherMonths = params.showOthers;
+        cal.yearStep = params.step;
+        cal.setRange(params.range[0], params.range[1]);
+        cal.params = params;
+        cal.setDateStatusHandler(params.dateStatusFunc);
+        cal.getDateText = params.dateText;
+        cal.setDateFormat(dateFmt);
+        if (mustCreate) {cal.create();}
+        cal.refresh();
+        if (!params.position) {
+          cal.showAtElement(params.button || params.displayArea || params.inputField, params.align);
+        } else {
+          cal.showAt(params.position[0], params.position[1]);
             }
-    		return false;
+        return false;
         }
         //------------------------------------------------------------------------
         /* these events are to show the calendar:
@@ -600,15 +600,15 @@ GTD.completeToday = function gtd_completetoday(datefield) {
  * datefield: string of the id of the date field
  */
     var now,m,d,y,newdate;
-	now=new Date();
-	m  = now.getMonth()+1;
-	d  = now.getDate();
-	y  = now.getFullYear();
-	m=(m < 10) ? ("0" + m) : m;
-	d=(d < 10) ? ("0" + d) : d;
-	newdate=""+y+"-"+m+"-"+d;
-	document.getElementById(datefield).value=newdate;
-    //	return true;
+  now=new Date();
+  m  = now.getMonth()+1;
+  d  = now.getDate();
+  y  = now.getFullYear();
+  m=(m < 10) ? ("0" + m) : m;
+  d=(d < 10) ? ("0" + d) : d;
+  newdate=""+y+"-"+m+"-"+d;
+  document.getElementById(datefield).value=newdate;
+    //  return true;
 };
 // ======================================================================================
 GTD.confirmDelete=function gtd_confirmedelete(elem) {
@@ -767,13 +767,13 @@ GTD.freeze=function gtd_freeze(tofreeze) {
  *
  * tofreeze: boolean - true if overlaying blanket, false if removing it
  */
-	if (typeof freezediv==='undefined') { // blanket DIV doesn't exist yet, so create it
-    	freezediv=document.createElement('div');
-    	freezediv.id="freezer";
+  if (typeof freezediv==='undefined') { // blanket DIV doesn't exist yet, so create it
+      freezediv=document.createElement('div');
+      freezediv.id="freezer";
         freezediv.style.display="none";
-    	document.body.appendChild(freezediv);
+      document.body.appendChild(freezediv);
     }
-	freezediv.style.display=(tofreeze)?"block":"none";
+  freezediv.style.display=(tofreeze)?"block":"none";
 };
 // ======================================================================================
 GTD.initItem = function gtd_initItem(container) {
@@ -880,50 +880,34 @@ GTD.ParentSelector.prototype.gotparent=function gtd_ps_gp(id,title,type,typename
  * typename:
  * rownum:
  */
-    var newrow, anchor, cell, cell1, cell2, input;
-    if (id==='0') {
-        this.gocreateparent(id,title,type,typename,rownum);
-        return false;
-    }
-    if (document.getElementById('parentrow'+id)) {return;}
+  var input;
+  if ( "0" === id ) {
+    this.gocreateparent(id,title,type,typename,rownum);
+    return false;
+  }
+  if (document.getElementById('parentrow'+id)) {return;}
 
-    newrow=document.createElement('tr');
-    cell=document.createElement('td');
-    anchor=document.createElement('a');
-    cell1=document.createElement('td');
-    cell2=document.createElement('td');
+  try {
+    input = document.createElement("<input type='hidden' name='parentId[]' value='" + id + "' />");
+  }
+  catch (err) {
+    input = document.createElement('input');
+    input.type='hidden';
+    input.name='parentId[]';
+    input.value=id;
+  }
 
-    newrow.id='parentrow'+id;
-    anchor.href='#';
-    $(anchor).click(function gtd_click_rp(){return GTD.removeParent(id);});
-    anchor.title='remove as parent';
-    anchor.className='remove';
-    anchor.appendChild(document.createTextNode('X'));
-    cell.appendChild(anchor);
-    newrow.appendChild(cell);
-
-    anchor=document.createElement('a');
-    anchor.href="itemReport.php?itemId="+id;
-    anchor.title='view parent';
-    anchor.appendChild(document.createTextNode(title));
-    cell1.appendChild(anchor);
-    newrow.appendChild(cell1);
-
-    cell2.appendChild(document.createTextNode(typename));
-    try {
-      input=document.createElement("<input type='hidden' name='parentId[]' value='"+id+"' />");
-    }
-    catch (err) {
-      input=document.createElement('input');
-      input.type='hidden';
-      input.name='parentId[]';
-      input.value=id;
-    }
-    cell2.appendChild(input);
-    newrow.appendChild(cell2);
-
-    document.getElementById("parentlist").appendChild(newrow);
-    return true;
+  $("<tr>").
+    attr( "id", "parentrow" + id ).
+    append( $( "<td>" ).append( $("<a>").
+      attr( { href: "#", title: "remove as parent" } ).
+      click( function gtd_click_rp(){return GTD.removeParent(id);} ).
+      addClass( "remove" ).
+      text( "X" ) ) ).
+    append( $( "<td>" ).append( $( "<a>" + title + "</a>" ).
+      attr( { href: "itemReport.php?itemId="+id, title: "view parent" } ) ) ).
+    append( $( "<td>" ).text( typename ).append( input ) ).
+    appendTo( $("#parentlist") );
 };
 // -------------------------------------------------------------------------
 GTD.ParentSelector.prototype.makeline=function gtd_ps_ml(id,title,type,typename,i,useTypes,onetype) {
@@ -938,7 +922,22 @@ GTD.ParentSelector.prototype.makeline=function gtd_ps_ml(id,title,type,typename,
  * useTypes:
  * onetype:
  */
-    var line=document.createElement('p'),
+
+   var that=this,
+       line=$("<p>" + title + ( useTypes ? " ("+typename+")" : "" ) + "</p>").
+         css("display", (!useTypes || typename===onetype) ? "block" : "none" ).
+         prepend($('<a>').
+           attr("href", "#").
+           click(function anchor_click() {
+             that.gotparent(id,title,type,typename,"");
+           }).
+           text("+").
+           addClass("add") );
+
+   return line.get(0);
+
+/* 
+   var line=document.createElement('p'),
         thisi='',
         that=this,
         anchor=document.createElement('a'),
@@ -953,7 +952,7 @@ GTD.ParentSelector.prototype.makeline=function gtd_ps_ml(id,title,type,typename,
     if (useTypes) {linetext += " ("+typename+")";}
     line.appendChild(document.createTextNode(linetext));
     line.style.display=(!useTypes || typename===onetype)?'block':'none';
-    return line;
+    return line;*/
 };
 // -------------------------------------------------------------------------
 GTD.ParentSelector.prototype.refinesearch=function gtd_ps_rs(needle) {
@@ -1022,12 +1021,12 @@ GTD.resortTable=function gtd_rs(lnk) {
  * lnk: the element that the user clicked
  */
     var savebodycursor = document.body.style.cursor,
-	savethiscursor = lnk.style.cursor;
+  savethiscursor = lnk.style.cursor;
 
     document.body.style.cursor = lnk.style.cursor = 'wait';
 
     setTimeout( function gtd_resort() {
-	ts_sort(lnk, savebodycursor, savethiscursor);
+  ts_sort(lnk, savebodycursor, savethiscursor);
       }, 20);
 
 };
@@ -1114,7 +1113,7 @@ GTD.tagAdd=function gtd_tagadd(newtaglink) {
  * newtaglink: DOM object of tag being clicked
  */
     var tagfield = $('#tags'),
-	      rawval = tagfield.val(),
+        rawval = tagfield.val(),
         newtag = $(newtaglink).text(),
         testtags = ("," + rawval.toLowerCase() + ",").replace(/\s*,\s*/g, ",");
         
@@ -1173,16 +1172,16 @@ GTD.validate=function gtd_validate(form) {
      */
       var tst, isblank;
         switch (field.type) {
-        	case "text":
-        		tst = field.value;
-    			tst.replace(" ","");
-    		    isblank = (tst === '');
-    		    return isblank;
-    		case "checkbox":
-    			return !field.checked;
-    		default:
-    			return false;
-    	}
+          case "text":
+            tst = field.value;
+          tst.replace(" ","");
+            isblank = (tst === '');
+            return isblank;
+        case "checkbox":
+          return !field.checked;
+        default:
+          return false;
+      }
     }
     //------------------------------------------------------------------------
     function checkDate(field,dateFormat) {
@@ -1247,13 +1246,13 @@ GTD.validate=function gtd_validate(form) {
                 passed=checkDate(thisfield,dateFormat);
                 break;
             case "notnull":
-        		    passed=!checkForNull(thisfield);
+                passed=!checkForNull(thisfield);
                 break;
             case "depends":
-            	fieldRequires = form.elements[requiredItem[3]];
-            	passed=checkForNull(thisfield) || !checkForNull(fieldRequires) || (fieldRequires.type==='hidden');
-            	if (!passed) {fieldRequires.className='formerror';}
-				break;
+              fieldRequires = form.elements[requiredItem[3]];
+              passed=checkForNull(thisfield) || !checkForNull(fieldRequires) || (fieldRequires.type==='hidden');
+              if (!passed) {fieldRequires.className='formerror';}
+        break;
             default:
                 document.getElementById("errorMessage").innerHTML="Error: Required type not valid.";
                 return false;

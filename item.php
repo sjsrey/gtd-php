@@ -145,7 +145,7 @@ if ($show['scriptparents']) {
 
     foreach ($potentialparents as $oneparent) {
         $pid   .=$sep.'"'.$oneparent['itemId'].'"';
-        $ptitle.=$sep.'"'.escapeforjavascript($oneparent['title']).'"'; // escape backslashes and double-quotes
+        $ptitle.=$sep.'"'.makeclean(str_replace('\\','\\\\',$oneparent['title'])).'"';
         $partt .=$sep.'"'
                 .(($oneparent['isSomeday']==='y')?'s':$oneparent['type'])
                 .'"';
