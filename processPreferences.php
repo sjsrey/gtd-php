@@ -77,6 +77,8 @@ $_SESSION['config']['separator']=cleanpref($_SESSION['config']['separator']);
 
 if  (strtolower($_SESSION['config']['charset'])==='utf-8') checkUTF8();
 
+checkConfigFields();
+
 log_value('Changed preferences stored in session:',$_SESSION);
 
 $result=saveConfig(); // store preferences in the table

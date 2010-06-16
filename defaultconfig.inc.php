@@ -1,8 +1,11 @@
 <?php
+
+// DO NOT MESS WITH THIS FILE! IF YOU WANT TO CHANGE YOUR PREFERENCES,
+// DO SO WITHIN THE APPLICATION'S CONFIG SCREEN. NOT HERE.
+
 /*********  Interface Settings ************/
 
 // The following settings change settings for the user interface.  
-// These can be left at their default values, or changed if you have a different preference.
 $config=array();
 $config["title"]= 'GTD-PHP'; // site name (appears at the top of each page)
 $config["datemask"] = 'Y-m-d D'; // date format - required
@@ -38,7 +41,6 @@ $acckey = array(
 /*********  Behavior Settings ************/
 
 // The following settings change how the interface behaves.  
-// These can be left at their default values, or changed if you have a different preference.
 
 $config["contextsummary"] = 'all';  //all | nextaction (Show all actions on context report, or nextactions only?)
 $config["afterCreate"]	= array (  // parent | item | list | another - default view after creating an item

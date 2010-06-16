@@ -732,7 +732,7 @@ function createAjaxEditor(cell,EditorConstructor) {
     return false;
 }
 /* ======================================================================================
-    context toggling - author Aur�lien Bompard
+    context toggling - author Aurélien Bompard
 */
 function toggleContext(e) {
 /*

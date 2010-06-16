@@ -727,9 +727,23 @@ function retrieveConfig() {
         else
             $_SESSION[$key]=$_SESSION['config'][$key]=$val;
 
+    checkConfigFields();
+		
     // go through the list of installed addons, and register them
     foreach($_SESSION['addons'] as $addon=>$dummy)
         getEvents($addon);
+}
+//----------------------------------------------------------------
+function checkConfigFields() {
+    // TODO do something clever with compulsory config fields - maybe some flag in defaultconfig
+		// But for now, we'll just brute-force it:
+		$compulsory_fields=array('datemask', 'separator', 'charset');
+		if ( false===(@include 'defaultconfig.inc.php')  || !isset($config) ) return;
+		foreach ($config as $key=>$val) {
+			if (!array_key_exists($key,$_SESSION['config']) ||
+			      (in_array($key, $compulsory_fields) && empty($_SESSION['config'][$key])) )
+			  $_SESSION['config'][$key] = $val;
+		}
 }
 //----------------------------------------------------------------
 function savePerspective($values) {

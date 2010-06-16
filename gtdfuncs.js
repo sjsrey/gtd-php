@@ -936,23 +936,6 @@ GTD.ParentSelector.prototype.makeline=function gtd_ps_ml(id,title,type,typename,
 
    return line.get(0);
 
-/* 
-   var line=document.createElement('p'),
-        thisi='',
-        that=this,
-        anchor=document.createElement('a'),
-        linetext=title;
-    anchor.href='#';
-    $(anchor).click(function anchor_click() {
-        that.gotparent(id,title,type,typename,thisi);
-    });
-    anchor.appendChild(document.createTextNode('+'));
-    anchor.className='add';
-    line.appendChild(anchor);
-    if (useTypes) {linetext += " ("+typename+")";}
-    line.appendChild(document.createTextNode(linetext));
-    line.style.display=(!useTypes || typename===onetype)?'block':'none';
-    return line;*/
 };
 // -------------------------------------------------------------------------
 GTD.ParentSelector.prototype.refinesearch=function gtd_ps_rs(needle) {
