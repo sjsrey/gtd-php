@@ -30,9 +30,11 @@ function getDBVersion() {
 */
 function getDBtables($db) {
     $tablelist=array();
-    $tables=mysql_list_tables($db);
-	while ($tbl = mysql_fetch_row($tables))
-	   array_push($tablelist,$tbl[0]);
+    $tables=doQuery("SHOW TABLES FROM $db");
+	  foreach ($tables as $row) {
+			$name = array_values($row);
+	   array_push($tablelist, $name[0]);
+		} 
     return $tablelist;
 }
 /*
