@@ -183,12 +183,19 @@ function makeclean($textIn,$stripSlashes=false) {
         $cleaned=array();
         foreach ($textIn as $line) $cleaned[]=makeclean($line);
     } else {
+		  if ($stripSlashes) $textin = stripslashes($textIn);
+		  if ( version_compare( PHP_VERSION,'5.2.3',  '>=' ) ) {
+			 // htmlentities doubleEncode (4th param) needs PHP 5.2.3 or higher
+        $cleaned=htmlentities( $textIn, ENT_QUOTES,
+													$_SESSION['config']['charset'], FALSE ); 
+			} else {
         $cleaned=htmlentities(
-          ($stripSlashes) ? stripslashes($textIn) : $textIn,
-          ENT_QUOTES,
-                    $_SESSION['config']['charset'],
-                    FALSE );
-    }
+					html_entity_decode($textIn, ENT_QUOTES,$_SESSION['config']['charset']),
+					ENT_QUOTES,
+					$_SESSION['config']['charset'] ); 
+		  }
+		}
+		
     return $cleaned;
 }
 //-------------------------------------------------

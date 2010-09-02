@@ -110,7 +110,7 @@ if (empty($parenttypes)) {
 */
 // default list of fields
 $dispArray=array(
-    'parent'=>'parents'
+    'parent'=>'Parents'
     ,'type'=>'type'
     ,'flags'=>'!'
     ,'NA'=>'NA'

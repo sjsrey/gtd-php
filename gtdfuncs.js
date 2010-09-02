@@ -908,6 +908,12 @@ GTD.ParentSelector.prototype.gotparent=function gtd_ps_gp(id,title,type,typename
       attr( { href: "itemReport.php?itemId="+id, title: "view parent" } ) ) ).
     append( $( "<td>" ).text( typename ).append( input ) ).
     appendTo( $("#parentlist") );
+
+  $("#parenttable").
+    after( $("<p>").
+    addClass( "warning" ).
+    text( "changes are not yet saved" ) ).
+    next(".warning").next(".warning").remove();
 };
 // -------------------------------------------------------------------------
 GTD.ParentSelector.prototype.makeline=function gtd_ps_ml(id,title,type,typename,i,useTypes,onetype) {
