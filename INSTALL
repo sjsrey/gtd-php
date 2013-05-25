@@ -34,7 +34,7 @@ New installation on generic Linux
 Note that after you unzip the file on a linux box you will need to chmod all folders to 755 and all files to 644.
 
 ===================================================
-New installation on Debian/Sarge
+New installation on Debian
 ===================================================
 
    1. Install packages:
