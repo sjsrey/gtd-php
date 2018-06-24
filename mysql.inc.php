@@ -3,13 +3,15 @@
     MySQL extensions to standard SQL have been avoided where known & where practical
   ===============================================================
 
-*/
-function connectdb($config) {
+ */
 
-    $connection = mysql_connect($config['host'], $config['user'], $config['pass'])
+$connection=null;
+function connectdb($config) {
+    global $connection;
+    $connection = mysqli_connect($config['host'], $config['user'], $config['pass'])
         or die ("Unable to connect to MySQL server: check your host, user and pass settings in config.inc.php!");
         
-    mysql_select_db($config['db'])
+    mysqli_select_db($connection,$config['db'])
         or die ("Unable to select database '{$config['db']}' - check your db setting in config.inc.php!");
         
     if (!empty($config['charset'])) {
@@ -23,7 +25,8 @@ function connectdb($config) {
   ===============================================================
 */
 function getDBVersion() {
-    return mysql_get_server_info();
+    global  $connection;
+    return mysqli_get_server_info($connection);
 }
 /*
   ===============================================================
@@ -41,17 +44,18 @@ function getDBtables($db) {
   ===============================================================
 */
 function doQuery($query,$label=NULL) {
-    // parse result into multitdimensional array $result[row#][field name] = field value
+	// parse result into multitdimensional array $result[row#][field name] = field value
+    global $connection;
     $reply = rawQuery($query);
     if ($reply===false) {                       // failed query - return FALSE
         $result=false;
     } elseif ($reply===true) {                  // query was not a SELECT OR SHOW, so return number of rows affected
-        $result=@mysql_affected_rows();
-    } else if (@mysql_num_rows($reply)===0) {   // empty SELECT/SHOW - return zero
+        $result=@mysqli_affected_rows($connection);
+    } else if (@mysqli_num_rows($reply)===0) {   // empty SELECT/SHOW - return zero
         $result=0;
     } else {                                    // successful SELECT/SHOW - return array of results
         $result=array();
-        while ($mysql_result = mysql_fetch_assoc($reply))
+        while ($mysql_result = mysqli_fetch_assoc($reply))
             $result[]=$mysql_result;
     }
 
@@ -60,11 +64,11 @@ function doQuery($query,$label=NULL) {
         not updated when explicit value given for autoincrement field
         (MySQL "feature")
     */
-    $GLOBALS['lastinsertid'] = mysql_insert_id();
+    $GLOBALS['lastinsertid'] = mysqli_insert_id($connection);
 
-    $error = mysql_errno();
+    $error = mysqli_errno($connection);
     if ($error) $_SESSION['message'][]=
-                "Error $error in query '$label': '".mysql_error()."'";
+                "Error $error in query '$label': '".mysqli_error($connection)."'";
                 
     return $result;
 }
@@ -72,10 +76,10 @@ function doQuery($query,$label=NULL) {
   ===============================================================
 */
 function rawQuery($query) {
-    global $totalquerytime;
+    global $totalquerytime, $connection;
     list($busec, $bsec) = explode(' ',microtime());
 
-    $reply = mysql_query($query);
+    $reply = mysqli_query($connection,$query);
 
     list($ausec, $asec) = explode(' ',microtime());
     $totalquerytime+= (float)$ausec + (float)$asec - (float)$busec - (float)$bsec;
@@ -86,6 +90,7 @@ function rawQuery($query) {
   ===============================================================
 */
 function safeIntoDB($value,$key=NULL) {
+	global $connection;
 	if (is_array($value)) {
         // don't clean arrays - clean individual strings/values by calling self recursively
 		foreach ($value as $key=>$string) $value[$key] = safeIntoDB($string,$key);
@@ -97,10 +102,7 @@ function safeIntoDB($value,$key=NULL) {
 			{
 			if ( get_magic_quotes_gpc() && !empty($value) && is_string($value) )
 				$value = stripslashes($value);
-			if(version_compare(phpversion(),"4.3.0",'<'))
-				$value = mysql_escape_string($value);
-			else
-				$value = mysql_real_escape_string($value);
+				$value = mysqli_real_escape_string($connection,$value);
 		} else { return $value;}
 		return $value;
 	}
