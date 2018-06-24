@@ -48,7 +48,7 @@ $headertext=<<<HTML1
 <link rel="stylesheet" href="themes/{$_SESSION['theme']}/style.css" type="text/css"/>
 <link rel="stylesheet" href="themes/{$_SESSION['theme']}/style_screen.css" type="text/css" media="screen" />
 <link rel="shortcut icon" href="./favicon.ico" />
-<script type='text/javascript' src='jquery.js'></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="calendar.js"></script>
 <script type="text/javascript" src="lang/calendar-en.js"></script>
 <script type="text/javascript" src="gtdfuncs.js"></script>
